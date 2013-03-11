@@ -1,0 +1,356 @@
+{
+    "efforts": [
+        {
+            "effort": {
+                "average_speed": 3.8800000000000003, 
+                "distance": 69.84, 
+                "elapsed_time": 18, 
+                "id": 571734780, 
+                "moving_time": 18, 
+                "start_date_local": "2012-12-30T13:53:36Z"
+            }, 
+            "segment": {
+                "avg_grade": 3.70959, 
+                "climb_category": 0, 
+                "elev_difference": 2.8000000000000114, 
+                "end_latlng": [
+                    38.88408467173576, 
+                    -77.15276716277003
+                ], 
+                "id": 1030752, 
+                "name": "Brandymore Castle Hill Climb East Ascent", 
+                "start_latlng": [
+                    38.88401275500655, 
+                    -77.15194523334503
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 6.2345070422535205, 
+                "distance": 442.65, 
+                "elapsed_time": 71, 
+                "id": 571734795, 
+                "moving_time": 71, 
+                "start_date_local": "2012-12-30T13:55:13Z"
+            }, 
+            "segment": {
+                "avg_grade": 2.02072, 
+                "climb_category": 0, 
+                "elev_difference": 9.508900000000011, 
+                "end_latlng": [
+                    38.8860821799932, 
+                    -77.15991467621335
+                ], 
+                "id": 2416816, 
+                "name": "Van Buren climb", 
+                "start_latlng": [
+                    38.88243300340264, 
+                    -77.15889810960034
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 6.726095890410959, 
+                "distance": 982.01, 
+                "elapsed_time": 146, 
+                "id": 571734764, 
+                "moving_time": 146, 
+                "start_date_local": "2012-12-30T14:00:12Z"
+            }, 
+            "segment": {
+                "avg_grade": 3.53966, 
+                "climb_category": 0, 
+                "elev_difference": 34.66699999999999, 
+                "end_latlng": [
+                    38.899856, 
+                    -77.157837
+                ], 
+                "id": 662946, 
+                "name": "Williamsburg from Westmoreland", 
+                "start_latlng": [
+                    38.894896, 
+                    -77.166966
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 4.985957446808511, 
+                "distance": 234.34, 
+                "elapsed_time": 47, 
+                "id": 571734796, 
+                "moving_time": 47, 
+                "start_date_local": "2012-12-30T14:01:51Z"
+            }, 
+            "segment": {
+                "avg_grade": 7.54136, 
+                "climb_category": 0, 
+                "elev_difference": 19.031000000000006, 
+                "end_latlng": [
+                    38.89986136038752, 
+                    -77.15782974261808
+                ], 
+                "id": 2510638, 
+                "name": "Williamsburg Soulsucker", 
+                "start_latlng": [
+                    38.89896836713371, 
+                    -77.16019934997567
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 6.161428571428571, 
+                "distance": 517.56, 
+                "elapsed_time": 84, 
+                "id": 571734793, 
+                "moving_time": 84, 
+                "start_date_local": "2012-12-30T14:06:16Z"
+            }, 
+            "segment": {
+                "avg_grade": 3.51996, 
+                "climb_category": 0, 
+                "elev_difference": 18.0, 
+                "end_latlng": [
+                    38.91452422365546, 
+                    -77.13736591860652
+                ], 
+                "id": 1679542, 
+                "name": "Williamsburg Pop", 
+                "start_latlng": [
+                    38.91009329818189, 
+                    -77.13909787125885
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 10.683492063492062, 
+                "distance": 2692.24, 
+                "elapsed_time": 252, 
+                "id": 571734760, 
+                "moving_time": 252, 
+                "start_date_local": "2012-12-30T14:11:48Z"
+            }, 
+            "segment": {
+                "avg_grade": 0.0458241, 
+                "climb_category": 0, 
+                "elev_difference": 28.799999999999997, 
+                "end_latlng": [
+                    38.904192103073, 
+                    -77.10852714255452
+                ], 
+                "id": 656335, 
+                "name": "Rollers on Military (Eastbound)", 
+                "start_latlng": [
+                    38.924817787483335, 
+                    -77.12234915234149
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 6.229166666666667, 
+                "distance": 299.0, 
+                "elapsed_time": 48, 
+                "id": 571734792, 
+                "moving_time": 48, 
+                "start_date_local": "2012-12-30T14:17:36Z"
+            }, 
+            "segment": {
+                "avg_grade": 4.91321, 
+                "climb_category": 0, 
+                "elev_difference": 16.200000000000003, 
+                "end_latlng": [
+                    38.899721782654524, 
+                    -77.09864831529558
+                ], 
+                "id": 1506901, 
+                "name": "Lorcom Ln - hill going east", 
+                "start_latlng": [
+                    38.900522757321596, 
+                    -77.10200727917254
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 7.718493150684932, 
+                "distance": 1126.9, 
+                "elapsed_time": 146, 
+                "id": 571734790, 
+                "moving_time": 146, 
+                "start_date_local": "2012-12-30T14:22:00Z"
+            }, 
+            "segment": {
+                "avg_grade": -2.84606, 
+                "climb_category": 0, 
+                "elev_difference": 36.6789, 
+                "end_latlng": [
+                    38.89914606666667, 
+                    -77.07190326666667
+                ], 
+                "id": 1275516, 
+                "name": "You should probably brake a little..", 
+                "start_latlng": [
+                    38.89694393333333, 
+                    -77.08451358333333
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 11.000621118012422, 
+                "distance": 1771.1, 
+                "elapsed_time": 161, 
+                "id": 571734787, 
+                "moving_time": 161, 
+                "start_date_local": "2012-12-30T14:27:39Z"
+            }, 
+            "segment": {
+                "avg_grade": -0.24519, 
+                "climb_category": 0, 
+                "elev_difference": 6.063477, 
+                "end_latlng": [
+                    38.879235363601595, 
+                    -77.05040426000677
+                ], 
+                "id": 1180555, 
+                "name": "Roosevelt Island toward Memorial Bridge", 
+                "start_latlng": [
+                    38.89010832648621, 
+                    -77.0643791557076
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 9.010322580645163, 
+                "distance": 4189.8, 
+                "elapsed_time": 465, 
+                "id": 571734762, 
+                "moving_time": 465, 
+                "start_date_local": "2012-12-30T14:31:34Z"
+            }, 
+            "segment": {
+                "avg_grade": -0.0382007, 
+                "climb_category": 0, 
+                "elev_difference": 11.8, 
+                "end_latlng": [
+                    38.84183962829411, 
+                    -77.04802212305367
+                ], 
+                "id": 657126, 
+                "name": "Mt. Vernon Trail (14th St. Bridge to Four Mile Run)", 
+                "start_latlng": [
+                    38.8741928525269, 
+                    -77.04396980814636
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 10.81219512195122, 
+                "distance": 886.6, 
+                "elapsed_time": 82, 
+                "id": 571734791, 
+                "moving_time": 82, 
+                "start_date_local": "2012-12-30T14:32:04Z"
+            }, 
+            "segment": {
+                "avg_grade": 0.259049, 
+                "climb_category": 0, 
+                "elev_difference": 2.2, 
+                "end_latlng": [
+                    38.865020368248224, 
+                    -77.03964600339532
+                ], 
+                "id": 1466959, 
+                "name": "Gravelly Point Southbound Sprint (CSX Bridge to Port-O-Potty)", 
+                "start_latlng": [
+                    38.87157216668129, 
+                    -77.04115047119558
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 9.318032786885245, 
+                "distance": 568.4, 
+                "elapsed_time": 61, 
+                "id": 571734770, 
+                "moving_time": 61, 
+                "start_date_local": "2012-12-30T14:36:21Z"
+            }, 
+            "segment": {
+                "avg_grade": 0.678058, 
+                "climb_category": 0, 
+                "elev_difference": 6.4116800000000005, 
+                "end_latlng": [
+                    38.8510443829, 
+                    -77.04729289747775
+                ], 
+                "id": 887895, 
+                "name": "Airport Access Rd Climb", 
+                "start_latlng": [
+                    38.856128761544824, 
+                    -77.04634062945843
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 7.067474747474748, 
+                "distance": 3498.4, 
+                "elapsed_time": 495, 
+                "id": 571734766, 
+                "moving_time": 495, 
+                "start_date_local": "2012-12-30T14:39:29Z"
+            }, 
+            "segment": {
+                "avg_grade": 0.388565, 
+                "climb_category": 0, 
+                "elev_difference": 14.51, 
+                "end_latlng": [
+                    38.84352742101068, 
+                    -77.0853351755808
+                ], 
+                "id": 761416, 
+                "name": "Four Mile Run Mt Vernon to W&OD", 
+                "start_latlng": [
+                    38.84128465726592, 
+                    -77.04804326946937
+                ]
+            }
+        }, 
+        {
+            "effort": {
+                "average_speed": 6.648611111111111, 
+                "distance": 957.4, 
+                "elapsed_time": 144, 
+                "id": 571734777, 
+                "moving_time": 144, 
+                "start_date_local": "2012-12-30T14:48:28Z"
+            }, 
+            "segment": {
+                "avg_grade": 0.764674, 
+                "climb_category": 0, 
+                "elev_difference": 7.342699999999999, 
+                "end_latlng": [
+                    38.84571759965163, 
+                    -77.096223849875
+                ], 
+                "id": 961897, 
+                "name": "Four Mile Run (S. Quincy St. to S. Walter Reed Dr.)", 
+                "start_latlng": [
+                    38.842399204186016, 
+                    -77.08680686548081
+                ]
+            }
+        }
+    ], 
+    "id": "34813017", 
+    "version": "9f0037834a73fb201f30025938c519cf"
+}

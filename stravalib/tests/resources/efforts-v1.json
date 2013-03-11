@@ -1,0 +1,224 @@
+{
+    "efforts": [
+        {
+            "elapsed_time": 18, 
+            "id": 571734780, 
+            "segment": {
+                "id": 1030752, 
+                "name": "Brandymore Castle Hill Climb East Ascent"
+            }
+        }, 
+        {
+            "elapsed_time": 71, 
+            "id": 571734795, 
+            "segment": {
+                "id": 2416816, 
+                "name": "Van Buren climb"
+            }
+        }, 
+        {
+            "elapsed_time": 146, 
+            "id": 571734764, 
+            "segment": {
+                "id": 662946, 
+                "name": "Williamsburg from Westmoreland"
+            }
+        }, 
+        {
+            "elapsed_time": 117, 
+            "id": 571734774, 
+            "segment": {
+                "id": 942956, 
+                "name": "Williamsburg Hill (Tuesday Lunch Route)"
+            }
+        }, 
+        {
+            "elapsed_time": 47, 
+            "id": 571734796, 
+            "segment": {
+                "id": 2510638, 
+                "name": "Williamsburg Soulsucker"
+            }
+        }, 
+        {
+            "elapsed_time": 69, 
+            "id": 571734789, 
+            "segment": {
+                "id": 1247389, 
+                "name": "Williamsburg: Kensington to Edison"
+            }
+        }, 
+        {
+            "elapsed_time": 36, 
+            "id": 571734788, 
+            "segment": {
+                "id": 1247383, 
+                "name": "Williamsburg: Harrison to Edison"
+            }
+        }, 
+        {
+            "elapsed_time": 84, 
+            "id": 571734793, 
+            "segment": {
+                "id": 1679542, 
+                "name": "Williamsburg Pop"
+            }
+        }, 
+        {
+            "elapsed_time": 215, 
+            "id": 571734768, 
+            "segment": {
+                "id": 791008, 
+                "name": "Military Rollers East-End at hilltop stoplight"
+            }
+        }, 
+        {
+            "elapsed_time": 252, 
+            "id": 571734760, 
+            "segment": {
+                "id": 656335, 
+                "name": "Rollers on Military (Eastbound)"
+            }
+        }, 
+        {
+            "elapsed_time": 60, 
+            "id": 571734786, 
+            "segment": {
+                "id": 1085671, 
+                "name": "Gulf Branch Nature Center to summit"
+            }
+        }, 
+        {
+            "elapsed_time": 48, 
+            "id": 571734792, 
+            "segment": {
+                "id": 1506901, 
+                "name": "Lorcom Ln - hill going east"
+            }
+        }, 
+        {
+            "elapsed_time": 146, 
+            "id": 571734790, 
+            "segment": {
+                "id": 1275516, 
+                "name": "You should probably brake a little.."
+            }
+        }, 
+        {
+            "elapsed_time": 946, 
+            "id": 571734785, 
+            "segment": {
+                "id": 1061287, 
+                "name": "N Oak St to 4 Mile Run via Mt Vernon Trail"
+            }
+        }, 
+        {
+            "elapsed_time": 870, 
+            "id": 571734797, 
+            "segment": {
+                "id": 2586214, 
+                "name": "Mt. Vernon Trail - Key Bridge to Four Mile Run"
+            }
+        }, 
+        {
+            "elapsed_time": 867, 
+            "id": 571734772, 
+            "segment": {
+                "id": 932662, 
+                "name": "Lynn St to Four Mile Run"
+            }
+        }, 
+        {
+            "elapsed_time": 161, 
+            "id": 571734787, 
+            "segment": {
+                "id": 1180555, 
+                "name": "Roosevelt Island toward Memorial Bridge"
+            }
+        }, 
+        {
+            "elapsed_time": 133, 
+            "id": 571734783, 
+            "segment": {
+                "id": 1059770, 
+                "name": "Mt. Vernon Trail (Rochambeau Memorial Bridge to Gravelly Point)"
+            }
+        }, 
+        {
+            "elapsed_time": 465, 
+            "id": 571734762, 
+            "segment": {
+                "id": 657126, 
+                "name": "Mt. Vernon Trail (14th St. Bridge to Four Mile Run)"
+            }
+        }, 
+        {
+            "elapsed_time": 82, 
+            "id": 571734791, 
+            "segment": {
+                "id": 1466959, 
+                "name": "Gravelly Point Southbound Sprint (CSX Bridge to Port-O-Potty)"
+            }
+        }, 
+        {
+            "elapsed_time": 338, 
+            "id": 571734784, 
+            "segment": {
+                "id": 1059771, 
+                "name": "Mt. Vernon Trail (Gravelly Point to Four Mile Run Connector)"
+            }
+        }, 
+        {
+            "elapsed_time": 61, 
+            "id": 571734770, 
+            "segment": {
+                "id": 887895, 
+                "name": "Airport Access Rd Climb"
+            }
+        }, 
+        {
+            "elapsed_time": 73, 
+            "id": 571734794, 
+            "segment": {
+                "id": 2053777, 
+                "name": "Mt Vernon Trail: DCA Southbound Sprint (Access Rd to Access Rd)"
+            }
+        }, 
+        {
+            "elapsed_time": 378, 
+            "id": 571734776, 
+            "segment": {
+                "id": 959886, 
+                "name": "Four Mile Run (Mt. Vernon Connector to S. Glebe Rd.)"
+            }
+        }, 
+        {
+            "elapsed_time": 495, 
+            "id": 571734766, 
+            "segment": {
+                "id": 761416, 
+                "name": "Four Mile Run Mt Vernon to W&OD"
+            }
+        }, 
+        {
+            "elapsed_time": 43, 
+            "id": 571734798, 
+            "segment": {
+                "id": 2597548, 
+                "name": "Four Mile Run Sprint"
+            }
+        }, 
+        {
+            "elapsed_time": 144, 
+            "id": 571734777, 
+            "segment": {
+                "id": 961897, 
+                "name": "Four Mile Run (S. Quincy St. to S. Walter Reed Dr.)"
+            }
+        }
+    ], 
+    "ride": {
+        "id": 34813017, 
+        "name": "Arlington Big Loop - Windy"
+    }
+}
