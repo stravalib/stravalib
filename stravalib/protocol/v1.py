@@ -1,8 +1,93 @@
 from datetime import datetime
 
-import requests
-
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
+from stravalib.model import Ride, Athlete, Club
+from stravalib import measurement
+
+__authors__ = ['"Hans Lellelid" <hans@xmpl.org>']
+__copyright__ = "Copyright 2013 Hans Lellelid"
+__license__ = """Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License."""
+
+class V1ModelMapper(BaseModelMapper):
+    
+    def populate_athlete(self, athlete_model, athlete_struct):
+        """
+        Populates a :class:`stravalib.model.Athlete` model object with data from the V1 struct
+        that is returned with ride details.
+        
+        :param athlete_model: The athlete model to fill.
+        :type athlete_model: :class:`stravalib.model.Athlete`
+        :param athlete_struct: The athlete struct from V1 ride response object.
+        :type athlete_struct: dict
+        """
+        athlete_model.id = athlete_struct['id']
+        athlete_model.name = athlete_struct['name']
+        athlete_model.username = athlete_struct['username']
+    
+    def populate_ride(self, ride_model, ride_struct):
+        """
+        Populates a :class:`stravalib.model.Ride` model object with data from the V1 structure.
+        
+        Note that not all of the model properties will have been set by this method (some are
+        only available from V2 structure).
+        
+        :param ride_model: The model object to fill.
+        :type ride_model: :class:`stravalib.model.Ride`
+        :param ride_struct: The raw ride V1 response structure.
+        :type ride_struct: dict
+        """
+        athlete_struct = ride_struct['athlete']
+        athlete = Athlete()
+        self.populate_athlete(athlete_model=athlete, athlete_struct=athlete_struct)
+        
+        ride_model.athlete = athlete
+        
+        average_speed =  measurement # V1,V2
+        average_watts = None # V1
+        maximum_speed = None # V1, V2
+        elevation_gain = None # V1 
+        
+        commute = None # V1
+        trainer = None # V1
+        distance = None # V1, V2
+        elapsed_time = None # V1, V2
+        moving_time = None # V1, V2
+        
+        location = None # V1, V2
+        start_latlon = None # V2
+        end_latlon = None # V2
+        start_date = None # V1, V2
+        
+        
+        """
+        {"ride":{"id":11280631,
+                 "startDate":"2012-06-20T11:10:00Z",
+                 "startDateLocal":"2012-06-20T07:10:00Z",
+                 "timeZoneOffset":-18000,
+                 "elapsedTime":3000,
+                 "movingTime":3000,
+                 "distance":25588.6,
+                 "averageSpeed":8.529533333333333,
+                 "averageWatts":null,
+                 "maximumSpeed":0.0,
+                 "elevationGain":0,
+                 "location":"Arlington, VA",
+                 "name":"Morning Commute - computer malfunction?",
+                 "bike":{"id":67845,"name":"Commuter/Cross"},
+                 "athlete":{"id":182475,"name":"Hans Lellelid","username":"hozn"},
+                 "description":"",
+                 "commute":true,
+                 "trainer":false}}
 
 class V1ServerProxy(BaseServerProxy):
     """

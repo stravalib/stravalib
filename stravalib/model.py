@@ -5,18 +5,7 @@ class StravaEntity(object):
 
 class Athlete(StravaEntity):
     username = None
-    
-    @classmethod
-    def from_v1_ride(self, obj):
-        a = Athlete()
-        a.id = obj['id']
-        a.name = obj['name']
-        a.username = obj['username']
-        return a
-    
-    def from_v2(self):
-        pass
-    
+        
 class Ride(StravaEntity):
     
     athlete = None # V1
