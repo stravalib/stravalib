@@ -18,7 +18,13 @@ limitations under the License."""
 
 class V2ModelMapper(BaseModelMapper):
     
-    def __init__(self, units=pass):
+    def __init__(self, units):
+        pass
+    
+    def populate_ride(self, ride_model, ride_struct):
+        pass
+    
+    def populate_athlete(self, athlete_model, athlete_struct):
         pass
     
     

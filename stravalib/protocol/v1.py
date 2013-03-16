@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
 from stravalib.model import Ride, Athlete, Club
@@ -49,46 +49,38 @@ class V1ModelMapper(BaseModelMapper):
         athlete_struct = ride_struct['athlete']
         athlete = Athlete()
         self.populate_athlete(athlete_model=athlete, athlete_struct=athlete_struct)
-        
         ride_model.athlete = athlete
         
-        average_speed =  measurement # V1,V2
-        average_watts = None # V1
-        maximum_speed = None # V1, V2
-        elevation_gain = None # V1 
+        ride_model.id = ride_struct['id']
+        ride_model.name = ride_struct['name']
+        ride_model.average_speed = self._convert_speed(ride_struct['averageSpeed'])
+        ride_model.average_watts = ride_struct['averageWatts']
+        ride_model.maximum_speed = self._convert_speed(ride_struct['maximumSpeeds'])
+        ride_model.elevation_gain = self._convert_elevation(ride_struct['elevationGain'])
+        ride_model.commute = ride_struct['commute']
+        ride_model.trainer = ride_struct['trainer']
+        ride_model.distance = self._convert_distance(ride_struct['distance'])
+        ride_model.elapsed_time = timedelta(seconds=ride_struct['elapsedTime'])
+        ride_model.moving_time = timedelta(seconds=ride_struct['movingTime'])
+        ride_model.location = ride_struct['location']
+        ride_model.start_date = self._parse_datetime(ride_struct['startDateLocal'], ride_struct['timeZoneOffset'])
         
-        commute = None # V1
-        trainer = None # V1
-        distance = None # V1, V2
-        elapsed_time = None # V1, V2
-        moving_time = None # V1, V2
-        
-        location = None # V1, V2
-        start_latlon = None # V2
-        end_latlon = None # V2
-        start_date = None # V1, V2
-        
-        
+    
+    def populate_club(self, club_model, club_struct):
         """
-        {"ride":{"id":11280631,
-                 "startDate":"2012-06-20T11:10:00Z",
-                 "startDateLocal":"2012-06-20T07:10:00Z",
-                 "timeZoneOffset":-18000,
-                 "elapsedTime":3000,
-                 "movingTime":3000,
-                 "distance":25588.6,
-                 "averageSpeed":8.529533333333333,
-                 "averageWatts":null,
-                 "maximumSpeed":0.0,
-                 "elevationGain":0,
-                 "location":"Arlington, VA",
-                 "name":"Morning Commute - computer malfunction?",
-                 "bike":{"id":67845,"name":"Commuter/Cross"},
-                 "athlete":{"id":182475,"name":"Hans Lellelid","username":"hozn"},
-                 "description":"",
-                 "commute":true,
-                 "trainer":false}}
-
+        Populates a :class:`stravalib.model.Club` model object with data from the V1 structure.
+        
+        :param club_model: The model object to fill.
+        :type club_model: :class:`stravalib.model.Club`
+        :param club_struct: The raw club V1 response structure.
+        :type club_struct: dict
+        """
+        club_model.id = club_struct['id']
+        club_model.name = club_struct['name']
+        club_model.location = club_struct['location']
+        club_model.description = club_struct['description']
+        
+        
 class V1ServerProxy(BaseServerProxy):
     """
     A client library implement V1 of the Strava API.
@@ -97,6 +89,8 @@ class V1ServerProxy(BaseServerProxy):
     # http://www.strava.com/api/v1/athletes/:athlete_id/bikes/:id
     # {"bike": {"name":"Surly Crosscheck","default_bike":false,"athlete_id":21,"notes":"Single speed commuter bike","weight":12.7006,"id":1371,"frame_type":2,"retired":0}}
     # {"bike": {"name":"Storck Absolutist","default_bike":false,"athlete_id":21,"notes":"","weight":7.71107,"id":21,"frame_type":3,"retired":0}},{"bike": {"name":"Turner Flux","default_bike":false,"athlete_id":21,"notes":"","weight":12.7006,"id":22,"frame_type":1,"retired":0}},{"bike": {"name":"Rock Lobster","default_bike":false,"athlete_id":21,"notes":"","weight":8.61825,"id":41,"frame_type":2,"retired":0}},{"bike": {"name":"Surly Crosscheck","default_bike":false,"athlete_id":21,"notes":"Single speed commuter bike","weight":12.7006,"id":1371,"frame_type":2,"retired":0}}
+    
+    
     def get_club(self, club_id):
         """
         Return V1 object structure for club
@@ -107,10 +101,19 @@ class V1ServerProxy(BaseServerProxy):
           "club_id":15}
         }
         
-        :param club_id: The club_id of the club to fetch.
+        :param club_id: The ID of the club to fetch.
         """
         response = self._get("http://{0}/api/v1/clubs/{1}".format(self.server, club_id))
         return response['club']
+    
+    def get_club_members(self, club_id):
+        """
+        Gets the member objects for specified club ID.
+        
+        :param club_id:
+        """
+        response = self._get("http://{0}/api/v1/clubs/{1}/members".format(self.server, club_id))
+        return response['members']
     
     def get_segment(self, segment_id):
         """
@@ -169,20 +172,32 @@ class V1ServerProxy(BaseServerProxy):
         """
         Enumerate rides for specified attribute/value.
         
-        :keyword clubId: Optional. Id of the Club for which to search for member's Rides.
-        :keyword athleteId: Optional. Id of the Athlete for which to search for Rides.
-        :keyword athleteName: Optional. Username of the Athlete for which to search for Rides.
-        :keyword startDate: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
-        :keyword endDate: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
-        :keyword startId: Optional. Only return Rides with an Id greater than or equal to the startId.
+        :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
+        :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
+        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
+        :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
+        :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
+        :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
         """
-        # Dates should be formatted YYYY-MM-DD.  They are in local time of ride, so we ignore TZ
-        for datefield in ('startDate', 'endDate'):
+        # Dates should be formatted YYYY-MM-DD.  They are in local time of ride, so we are ignoring tz here.
+        for datefield in ('start_date', 'end_date'):
             if datefield in kwargs and isinstance(kwargs[datefield], datetime):
                 kwargs[datefield] = kwargs[datefield].strftime('%Y-%m-%d')
-                
+        
+        params = dict([(_v1_attrib_name(k), v) for (k,v) in kwargs.items()])
+            
         url = "http://{0}/api/v1/rides".format(self.server)
-        response = self._get(url, params=kwargs)
+        response = self._get(url, params=params)
         return response['rides']
     
-    
+
+def _v1_attrib_name(attrib_name):
+    """
+    Converts a joined_lower attribute name to camelCase which is preferred by the V1 API.
+    """
+    parts = attrib_name.split('_')
+    if len(parts) == 1: # single words don't need to be transformed
+        return attrib_name
+    else:
+        return ''.join([parts[0]] + [p[0].upper() + p[1:] for p in parts[1:]])
+        

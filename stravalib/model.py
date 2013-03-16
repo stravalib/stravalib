@@ -1,13 +1,48 @@
+"""
+Entity classes for representing the various Strava datatypes. 
+"""
+from stravalib import exc
 
 class StravaEntity(object):
+    """
+    Base class holds properties/functionality that Strava entities have in common.
+    """
     id = None
     name = None
+    
+    def __init__(self):
+        pass
 
+class Club(StravaEntity):
+    """
+    Class to represent Strava clubs/teams.
+    """
+    description = None
+    location = None
+    
+    def __init__(self, members_fetcher=None):
+        self._members_fetcher = members_fetcher
+        self._members = None
+    
+    @property
+    def members(self):
+        if self._members is None:
+            if self._members_fetcher is None:
+                raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
+            else:
+                self._members = self._members_fetcher()  
+        return self._members
+    
 class Athlete(StravaEntity):
+    """
+    Represents a Strava athlete.
+    """
     username = None
         
 class Ride(StravaEntity):
-    
+    """
+    Represents a Strava activity.
+    """
     athlete = None # V1
     average_speed = None # V1,V2
     average_watts = None # V1
@@ -24,63 +59,11 @@ class Ride(StravaEntity):
     start_latlon = None # V2
     end_latlon = None # V2
     start_date = None # V1, V2
+    
+# The Strava API is somewhat tailored to cycling, but we will 
+# alias Activity in the expectation that the v3 API will provide a more
+# generic interface.
+Activity = Ride
 
-    def from_v1_result(self, obj):
-        r = Ride()
-        r.athlete = Athlete.from_v1_ride(self, obj['athlete'])
-        
-        
-        return r
-
-{
-    "ride": {
-        "athlete": {
-            "id": 182475, 
-            "name": "Hans Lellelid", 
-            "username": "hozn"
-        }, 
-        "averageSpeed": 7.692614601018676, 
-        "averageWatts": 248.872, 
-        "bike": {
-            "id": 67822, 
-            "name": "Road"
-        }, 
-        "commute": false, 
-        "description": "", 
-        "distance": 36247.6, 
-        "elapsedTime": 4753, 
-        "elevationGain": 770.982, 
-        "id": 34813017, 
-        "location": "Arlington, VA", 
-        "maximumSpeed": 65232.0, 
-        "movingTime": 4712, 
-        "name": "Arlington Big Loop - Windy", 
-        "startDate": "2012-12-30T18:50:31Z", 
-        "startDateLocal": "2012-12-30T13:50:31Z", 
-        "timeZoneOffset": -18000, 
-        "trainer": false
-    }
-}
-{
-    "id": "34813017", 
-    "ride": {
-        "average_speed": 7.692614601018676, 
-        "distance": 36247.6, 
-        "elapsed_time": 4753, 
-        "elevation_gain": 770.982, 
-        "end_latlng": [
-            38.88380078, 
-            -77.14209122
-        ], 
-        "id": 34813017, 
-        "location": "Arlington, VA", 
-        "moving_time": 4712, 
-        "name": "Arlington Big Loop - Windy", 
-        "start_date_local": "2012-12-30T13:50:31Z", 
-        "start_latlng": [
-            38.88286368, 
-            -77.14193397
-        ]
-    }, 
-    "version": "1356898729"
-}
+class Effort(StravaEntity):
+    pass
