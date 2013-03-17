@@ -1,3 +1,6 @@
+import functools
+import logging
+import collections
 from datetime import datetime, timedelta
 
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
@@ -32,8 +35,22 @@ class V1ModelMapper(BaseModelMapper):
         """
         athlete_model.id = athlete_struct['id']
         athlete_model.name = athlete_struct['name']
-        athlete_model.username = athlete_struct['username']
+        # Often we only have partial athlete structure (e.g. when returning club members, etc.)
+        athlete_model.username = athlete_struct.get('username')
     
+    def populate_ride_minimal(self, ride_model, ride_struct):
+        """
+        Populates a :class:`stravalib.model.Ride` model object with data from minimal structures returned 
+        from (e.g.) ride index method.
+        
+        :param ride_model: The model object to fill.
+        :type ride_model: :class:`stravalib.model.Ride`
+        :param ride_struct: The raw ride V1 response structure.
+        :type ride_struct: dict
+        """
+        ride_model.id = ride_struct['id']
+        ride_model.name = ride_struct['name']
+        
     def populate_ride(self, ride_model, ride_struct):
         """
         Populates a :class:`stravalib.model.Ride` model object with data from the V1 structure.
@@ -46,16 +63,16 @@ class V1ModelMapper(BaseModelMapper):
         :param ride_struct: The raw ride V1 response structure.
         :type ride_struct: dict
         """
+        self.populate_ride_minimal(ride_model, ride_struct)
+        
         athlete_struct = ride_struct['athlete']
         athlete = Athlete()
         self.populate_athlete(athlete_model=athlete, athlete_struct=athlete_struct)
         ride_model.athlete = athlete
         
-        ride_model.id = ride_struct['id']
-        ride_model.name = ride_struct['name']
         ride_model.average_speed = self._convert_speed(ride_struct['averageSpeed'])
         ride_model.average_watts = ride_struct['averageWatts']
-        ride_model.maximum_speed = self._convert_speed(ride_struct['maximumSpeeds'])
+        ride_model.maximum_speed = self._convert_speed(measurement.kph(ride_struct['maximumSpeed'] / 1000.0)) # Not sure why this is in meters per *hour* ... !?
         ride_model.elevation_gain = self._convert_elevation(ride_struct['elevationGain'])
         ride_model.commute = ride_struct['commute']
         ride_model.trainer = ride_struct['trainer']
@@ -173,11 +190,20 @@ class V1ServerProxy(BaseServerProxy):
         Enumerate rides for specified attribute/value.
         
         :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
+        :type club_id: int
         :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
+        :type athlete_id: int
         :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
+        :type athlete_name: str
         :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
+        :type start_date: :class:`datetime.datetime`
         :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
+        :type end_date: :class:`datetime.datetime`
         :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
+        :type start_id: int
+        :keyword offset: The offset at which to return rides (only 50 rides are returned, so must use offset to get more)
+        :type offset: int
+        :rtype: list
         """
         # Dates should be formatted YYYY-MM-DD.  They are in local time of ride, so we are ignoring tz here.
         for datefield in ('start_date', 'end_date'):
@@ -191,6 +217,84 @@ class V1ServerProxy(BaseServerProxy):
         return response['rides']
     
 
+class RideIterator(object):
+    """
+    Iterates over rides for specified criteria, fetching in 50-ride chunks from the 
+    server.
+    
+    Strava API only returns 50 rides at a time, so this is a mechanism to abstract over
+    that limitation. 
+    """
+    def __init__(self, v1client, limit=None, **kwargs):
+        """
+        :param v1client: The V1 API client.
+        :type v1client: :class:`stravalib.protocol.v1.V1ServerProxy`
+        
+        :param limit: The maximum number of rides to return.
+        :type limit: int
+        
+        :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
+        :type club_id: int
+        
+        :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
+        :type athlete_id: int
+        
+        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
+        :type athlete_name: str
+        
+        :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
+        :type start_date: :class:`datetime.datetime`
+        
+        :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
+        :type end_date: :class:`datetime.datetime`
+        
+        :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
+        :type start_id: int
+        """
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.limit = limit
+        
+        self.apifunc = functools.partial(v1client.list_rides, **kwargs)
+        
+        self._counter = 0
+        self._ride_buffer = None
+        self._offset = 0
+        self._all_rides_fetched = False
+    
+    def _fill_buffer(self):
+        """
+        Fills the internal size-50 buffer from Strava API.
+        """
+        # If we cannot fetch anymore from the server then we're done here.
+        if self._all_rides_fetched:
+            raise StopIteration
+        
+        self._ride_buffer = collections.deque(self.apifunc(offset=self._offset))
+        self.log.debug("Requested rides {0} - {1} (got: {2})".format(self._offset,
+                                                                     self._offset + 50,
+                                                                     len(self._ride_buffer)))
+        if len(self._ride_buffer) < 50:
+            self._all_rides_fetched = True
+            
+        self._offset += 50
+
+    def __iter__(self):
+        return self
+    
+    def next(self):
+        if self.limit and self._counter >= self.limit:
+            raise StopIteration
+        if not self._ride_buffer:
+            self._fill_buffer()
+        try:
+            result = self._ride_buffer.popleft()
+        except IndexError:
+            raise StopIteration
+        else:
+            self._counter += 1
+            return result
+        
+    
 def _v1_attrib_name(attrib_name):
     """
     Converts a joined_lower attribute name to camelCase which is preferred by the V1 API.

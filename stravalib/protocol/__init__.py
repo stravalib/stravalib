@@ -40,32 +40,54 @@ class BaseModelMapper(object):
             
     def _convert_distance(self, v):
         """
-        Converts distance (must have units) to configured imperial/metric units.
+        Converts distance to configured imperial/metric units.
+        :param v: The distance.  If this is not a units object, assumed to be meters.
+        :type v: :class:`units.abstract.AbstractUnit` or float
         """
+        if not isinstance(v, AbstractUnit):
+            v = measurement.meter(v)
+            
         if self.units == IMPERIAL:
-            return measurement.mile(v)
+            result = measurement.mile(v)
         else:
-            return measurement.kilometer(v)
+            result = measurement.kilometer(v)
+            
+        return result.get_num()
     
     def _convert_speed(self, v):
         """
         Converts speed (must have units) to configured imperial/metric units.
+        :param v: The speed.  If this is not a units object, assumed to be meters per second.
+        :type v: :class:`units.abstract.AbstractUnit` or float
         """
+        #print("Got raw value %r" % (v,))
+        if not isinstance(v, AbstractUnit):
+            v = measurement.meters_per_second(v)
+        
+        #print("Normalized: %r" % (v,))
+        
         if self.units == IMPERIAL:
-            return measurement.mph(v)
+            result = measurement.mph(v)
         else:
-            return measurement.kph(v)
+            result = measurement.kph(v)
+            
+        return result.get_num()
     
     def _convert_elevation(self, v):
         """
         Converts elevation (must have units) to configured imperial/metric units.
-        :param v: The elevation (with units).
-        :type v: :class:`units.abstract.AbstractUnit` 
+        :param v: The elevation.  If this is not a units object, assumed to be meters.
+        :type v: :class:`units.abstract.AbstractUnit` or float
         """
+        if not isinstance(v, AbstractUnit):
+            v = measurement.meter(v)
+            
         if self.units == IMPERIAL:
-            return measurement.foot(v)
+            result = measurement.foot(v)
         else:
-            return measurement.meter(v)
+            result = measurement.meter(v)
+        
+        return result.get_num()
         
     # TODO: Give some thought to how we can ensure that all of our dates have the TZ
     # associated with them.  It looks like only certain strava methods will return the tz offset,

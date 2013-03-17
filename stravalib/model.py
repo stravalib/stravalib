@@ -10,9 +10,24 @@ class StravaEntity(object):
     id = None
     name = None
     
-    def __init__(self):
-        pass
-
+    def __init__(self, entity_pouplator=None):
+        """
+        Base entity initializer, which can take an entity_populator callable
+        that will set the values of this entity.
+        """
+        self._entity_pouplator = entity_pouplator
+        
+    def hydrate(self):
+        """
+        Fill this object with data from the specified entity filler. 
+        """
+        if not self._entity_pouplator:
+            raise exc.UnboundEntity("Cannot set entity attributes for unbound entity.")
+        self._entity_pouplator(self)
+    
+    def __repr__(self):
+        return '<{0} id={id} name={name!r}>'.format(self.__class__.__name__, id=self.id, name=self.name)
+     
 class Club(StravaEntity):
     """
     Class to represent Strava clubs/teams.
@@ -20,7 +35,8 @@ class Club(StravaEntity):
     description = None
     location = None
     
-    def __init__(self, members_fetcher=None):
+    def __init__(self, members_fetcher=None, **kwargs):
+        super(Club, self).__init__(**kwargs)
         self._members_fetcher = members_fetcher
         self._members = None
     
@@ -43,6 +59,7 @@ class Ride(StravaEntity):
     """
     Represents a Strava activity.
     """
+            
     athlete = None # V1
     average_speed = None # V1,V2
     average_watts = None # V1
@@ -66,4 +83,8 @@ class Ride(StravaEntity):
 Activity = Ride
 
 class Effort(StravaEntity):
+    pass
+
+
+class Segment(StravaEntity):
     pass
