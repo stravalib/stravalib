@@ -31,7 +31,7 @@ class Client(object):
         self.v2client = v2.V2ServerProxy()
         
 
-    def list_rides(self, full_objects=True, limit=50, **kwargs):
+    def get_rides(self, full_objects=True, limit=50, include_geo=False, **kwargs):
         """
         Enumerate rides for specified attribute/value.
         
@@ -40,6 +40,9 @@ class Client(object):
         
         :keyword limit: The maximum number of rides to return. Defaults to 50, set to None to retrieve all results.
         :type limit: int
+        
+        :keyword include_geo: Whether to include lat/lon information on full objects (requires additional call).
+        :type limit: bool
         
         :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
         :type club_id: int
@@ -61,36 +64,122 @@ class Client(object):
         
         :rtype: list
         """
-        v1rides = v1.RideIterator(self.v1client, limit=limit)
+        result_fetcher = functools.partial(self.v1client.get_rides(**kwargs))
+        v1rides = v1.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
         rides = []
         for v1ride in v1rides:
             if full_objects:
                 ride = model.Ride()
-                self._populate_ride(v1ride['id'], ride)
+                self._populate_ride(v1ride['id'], ride, include_geo=include_geo)
             else:
                 ride = model.Ride(entity_pouplator=functools.partial(self._populate_ride, v1ride['id']))
-                self.v1mapper.populate_ride_minimal(ride, v1ride)
+                self.v1mapper.populate_minimal(ride, v1ride)
             rides.append(ride)
         
         return rides
     
-    def _populate_ride(self, ride_id, ride_model):
+    def _populate_ride(self, ride_id, ride_model, include_geo=False):
         """
         Internal function to populate a ride model for specified ID.
+        :param ride_id:
+        :param ride_model:
+        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api).
         """
         v1ride = self.v1client.get_ride(ride_id)
-        v2ride = self.v2client.get_ride(ride_id)
         self.v1mapper.populate_ride(ride_model, v1ride)
-        self.v2mapper.populate_ride(ride_model, v2ride)
-    
-    def get_ride(self, ride_id):
+        if include_geo:
+            v2ride = self.v2client.get_ride(ride_id)
+            self.v2mapper.populate_ride(ride_model, v2ride)
+        
+    def get_ride(self, ride_id, include_geo=False):
         """
+        :param ride_id:
+        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
         :rtype: :class:`stravalib.model.Ride`
         """
-        ride = model.Ride()
+        ride = model.Ride(client=self)
         self._populate_ride(ride_id, ride)
         return ride
+    
+    def _populate_effort(self, effort_id, effort_model, include_geo=False):
+        """
+        Internal function to populate a ride model for specified ID.
+        :param effort_id:
+        :param effort_model:
+        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api).
+        """
+        v1effort = self.v1client.get_effort(effort_id)
+        self.v1mapper.populate_effort(effort_model, v1effort)
+        if include_geo:
+            # Look up the v2 ride efforts
+            v2ride_efforts = self.v2client.get_ride_efforts(v1effort['ride']['id'])
+            # Find the effort from the ride that matches this one ...
+            for v2ride_effort in v2ride_efforts:
+                if v2ride_effort['id'] == effort_id:
+                    # FIXME .... WORK IN PROGRESS
+                    # ... it's only the segment that actually has geo data ....
+                    break
+            else:
+                raise RuntimeError("Unable to find effort {0} in v2 data for ride {1}".format(effort_id, v1effort['ride']['id']))
+            
+                    
+    def get_ride_efforts(self, ride_id, full_objects=False, include_geo=False):
+        """
+        :param ride_id:
         
+        :keyword full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
+        :type full_objects: bool
+        
+        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
+        :rtype: list
+        """
+        # This one appears to return all results w/o batching?
+        v1efforts = self.v1client.get_ride_efforts(ride_id)
+        
+        efforts = []
+        for v1effort in v1efforts:
+            if full_objects:
+                effort = model.Effort(bind_client=self)
+                self._populate_effort(v1effort['id'], effort)
+            else:
+                effort = model.Effort(bind_client=self)
+                self.v1mapper.populate_minimal(effort, v1effort)
+            efforts.append(effort)
+        
+        return efforts
+
+    def get_segment_efforts(self, segment_id, full_objects=False, include_geo=False):
+        """
+        :param ride_id:
+        
+        :keyword full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
+        :type full_objects: bool
+        
+        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
+        :rtype: list
+        """
+        # This one appears to return all results w/o batching?
+        v1efforts = self.v1client.get_segment_efforts(segment_id)
+        
+        efforts = []
+        for v1effort in v1efforts:
+            if full_objects:
+                effort = model.Effort(bind_client=self)
+                self._populate_effort(v1effort['id'], effort)
+            else:
+                effort = model.Effort(bind_client=self)
+                self.v1mapper.populate_minimal(effort, v1effort)
+            efforts.append(effort)
+        
+        return efforts
+    
+    def get_effort(self, effort_id):
+        raise NotImplementedError()
+    
+    def get_segment(self, segment_id, include_geo=False):
+        raise NotImplementedError()
+        # To get Geo here we need to go circuitously via ride efforts
+    
     # Alias with assumption that one of these will be deprecated in the future.
     get_activity = get_ride 
     

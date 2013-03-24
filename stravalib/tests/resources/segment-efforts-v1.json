@@ -1,0 +1,658 @@
+{
+    "efforts": [
+        {
+            "activityId": 886543, 
+            "athlete": {
+                "id": 13669, 
+                "name": "Jeff Dickey", 
+                "username": "jdickey"
+            }, 
+            "elapsedTime": 103, 
+            "id": 13149960, 
+            "startDate": "2011-07-06T21:32:21Z", 
+            "startDateLocal": "2011-07-06T17:32:21Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 5266484, 
+            "athlete": {
+                "id": 174046, 
+                "name": "Jonathan C.", 
+                "username": "jcochrane"
+            }, 
+            "elapsedTime": 123, 
+            "id": 100336780, 
+            "startDate": "2012-03-16T00:23:38Z", 
+            "startDateLocal": "2012-03-15T20:23:38Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 14377999, 
+            "athlete": {
+                "id": 479248, 
+                "name": "Brian Bailey", 
+                "username": "aenean"
+            }, 
+            "elapsedTime": 124, 
+            "id": 270663329, 
+            "startDate": "2012-07-24T19:52:26Z", 
+            "startDateLocal": "2012-07-24T15:52:26Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 8759183, 
+            "athlete": {
+                "id": 339673, 
+                "name": "Caleb Chik", 
+                "username": "cchik"
+            }, 
+            "elapsedTime": 126, 
+            "id": 160732841, 
+            "startDate": "2012-05-18T00:11:49Z", 
+            "startDateLocal": "2012-05-17T20:11:49Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 8943278, 
+            "athlete": {
+                "id": 211856, 
+                "name": "Dave Miller", 
+                "username": "mllrdave"
+            }, 
+            "elapsedTime": 128, 
+            "id": 163674669, 
+            "startDate": "2012-05-20T15:20:31Z", 
+            "startDateLocal": "2012-05-20T11:20:31Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 8981110, 
+            "athlete": {
+                "id": 495626, 
+                "name": "Mike D.", 
+                "username": "mikediak"
+            }, 
+            "elapsedTime": 130, 
+            "id": 164097077, 
+            "startDate": "2011-08-29T22:22:32Z", 
+            "startDateLocal": "2011-08-29T18:22:32Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 7639851, 
+            "athlete": {
+                "id": 122644, 
+                "name": "Bret Baker", 
+                "username": "bret_baker"
+            }, 
+            "elapsedTime": 132, 
+            "id": 142382384, 
+            "startDate": "2011-08-23T21:15:01Z", 
+            "startDateLocal": "2011-08-23T17:15:01Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 11988159, 
+            "athlete": {
+                "id": 242923, 
+                "name": "Dustin Whitlow", 
+                "username": "dustin_whitlow"
+            }, 
+            "elapsedTime": 135, 
+            "id": 206279846, 
+            "startDate": "2012-06-28T21:28:07Z", 
+            "startDateLocal": "2012-06-28T17:28:07Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 15780013, 
+            "athlete": {
+                "id": 611662, 
+                "name": "mark hyatt", 
+                "username": "mark_hyatt"
+            }, 
+            "elapsedTime": 135, 
+            "id": 293599827, 
+            "startDate": "2012-08-01T00:00:24Z", 
+            "startDateLocal": "2012-07-31T20:00:24Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 18769285, 
+            "athlete": {
+                "id": 988897, 
+                "name": "Superdave O.", 
+                "username": "superdave_osborne"
+            }, 
+            "elapsedTime": 136, 
+            "id": 340021289, 
+            "startDate": "2012-07-24T22:22:22Z", 
+            "startDateLocal": "2012-07-24T18:22:22Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 3216093, 
+            "athlete": {
+                "id": 205404, 
+                "name": "DJ Brew", 
+                "username": "dbrew"
+            }, 
+            "elapsedTime": 138, 
+            "id": 56777670, 
+            "startDate": "2011-02-15T21:59:38Z", 
+            "startDateLocal": "2011-02-15T16:59:38Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 32288633, 
+            "athlete": {
+                "id": 518053, 
+                "name": "Michael Russo", 
+                "username": "russom"
+            }, 
+            "elapsedTime": 138, 
+            "id": 544701785, 
+            "startDate": "2012-07-29T15:18:52Z", 
+            "startDateLocal": "2012-07-29T11:18:52Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 17194635, 
+            "athlete": {
+                "id": 23581, 
+                "name": "Alexis Zink", 
+                "username": "azink"
+            }, 
+            "elapsedTime": 139, 
+            "id": 316008641, 
+            "startDate": "2012-08-07T22:21:50Z", 
+            "startDateLocal": "2012-08-07T18:21:50Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 23232601, 
+            "athlete": {
+                "id": 1131322, 
+                "name": "James Donahue", 
+                "username": "james_donahue"
+            }, 
+            "elapsedTime": 140, 
+            "id": 414681544, 
+            "startDate": "2012-06-24T15:27:42Z", 
+            "startDateLocal": "2012-06-24T11:27:42Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 6790642, 
+            "athlete": {
+                "id": 63697, 
+                "name": "Luke Klaussen", 
+                "username": "lklaussen"
+            }, 
+            "elapsedTime": 141, 
+            "id": 127012963, 
+            "startDate": "2012-04-15T15:25:11Z", 
+            "startDateLocal": "2012-04-15T11:25:11Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 8784228, 
+            "athlete": {
+                "id": 57154, 
+                "name": "David Bender", 
+                "username": "dbender"
+            }, 
+            "elapsedTime": 141, 
+            "id": 161251837, 
+            "startDate": "2012-05-17T22:51:14Z", 
+            "startDateLocal": "2012-05-17T18:51:14Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 3922921, 
+            "athlete": {
+                "id": 263657, 
+                "name": "allen carr", 
+                "username": "allen_carr"
+            }, 
+            "elapsedTime": 142, 
+            "id": 72017383, 
+            "startDate": "2011-08-27T16:11:14Z", 
+            "startDateLocal": "2011-08-27T12:11:14Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 15955849, 
+            "athlete": {
+                "id": 340254, 
+                "name": "Christian Smith", 
+                "username": "christiansmith"
+            }, 
+            "elapsedTime": 142, 
+            "id": 295904253, 
+            "startDate": "2012-07-12T16:03:28Z", 
+            "startDateLocal": "2012-07-12T12:03:28Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 28057529, 
+            "athlete": {
+                "id": 620649, 
+                "name": "James DeFilippi", 
+                "username": "jdefilippi"
+            }, 
+            "elapsedTime": 142, 
+            "id": 504056329, 
+            "startDate": "2012-11-17T14:51:00Z", 
+            "startDateLocal": "2012-11-17T09:51:00Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 1918873, 
+            "athlete": {
+                "id": 120851, 
+                "name": "Brendan Mahoney", 
+                "username": "brendan_mahoney"
+            }, 
+            "elapsedTime": 144, 
+            "id": 31380779, 
+            "startDate": "2011-10-07T14:22:40Z", 
+            "startDateLocal": "2011-10-07T10:22:40Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 6032832, 
+            "athlete": {
+                "id": 107966, 
+                "name": "Brian Mattern", 
+                "username": "bmattern"
+            }, 
+            "elapsedTime": 144, 
+            "id": 115153204, 
+            "startDate": "2012-04-01T14:46:13Z", 
+            "startDateLocal": "2012-04-01T10:46:13Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 9532734, 
+            "athlete": {
+                "id": 48984, 
+                "name": "Dan Klaussen", 
+                "username": "dklaussen"
+            }, 
+            "elapsedTime": 144, 
+            "id": 170920491, 
+            "startDate": "2012-05-20T15:30:28Z", 
+            "startDateLocal": "2012-05-20T11:30:28Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 21680606, 
+            "athlete": {
+                "id": 727444, 
+                "name": "Logan Breed", 
+                "username": "lbreed"
+            }, 
+            "elapsedTime": 144, 
+            "id": 387385981, 
+            "startDate": "2012-09-11T22:20:02Z", 
+            "startDateLocal": "2012-09-11T18:20:02Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 34309283, 
+            "athlete": {
+                "id": 675202, 
+                "name": "Yuri Sagatov", 
+                "username": "ysagatov"
+            }, 
+            "elapsedTime": 144, 
+            "id": 566301142, 
+            "startDate": "2012-10-20T12:24:05Z", 
+            "startDateLocal": "2012-10-20T08:24:05Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 42668826, 
+            "athlete": {
+                "id": 1475743, 
+                "name": "Brian Crowe", 
+                "username": "brian_crowe"
+            }, 
+            "elapsedTime": 145, 
+            "id": 717641188, 
+            "startDate": "2013-03-01T15:06:10Z", 
+            "startDateLocal": "2013-03-01T10:06:10Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 20832460, 
+            "athlete": {
+                "id": 16551, 
+                "name": "Thomas Fadoul", 
+                "username": "tfadoul"
+            }, 
+            "elapsedTime": 146, 
+            "id": 373485503, 
+            "startDate": "2012-08-07T21:52:35Z", 
+            "startDateLocal": "2012-08-07T17:52:35Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 11239432, 
+            "athlete": {
+                "id": 126099, 
+                "name": "Grifo CX", 
+                "username": "griffincx"
+            }, 
+            "elapsedTime": 147, 
+            "id": 196096970, 
+            "startDate": "2012-06-19T21:53:06Z", 
+            "startDateLocal": "2012-06-19T17:53:06Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 17173567, 
+            "athlete": {
+                "id": 542010, 
+                "name": "Pete Van Riper", 
+                "username": "pvanriper"
+            }, 
+            "elapsedTime": 147, 
+            "id": 315603643, 
+            "startDate": "2012-08-07T22:08:03Z", 
+            "startDateLocal": "2012-08-07T18:08:03Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 19947353, 
+            "athlete": {
+                "id": 366716, 
+                "name": "Marc Manzke", 
+                "username": "mmanzke"
+            }, 
+            "elapsedTime": 147, 
+            "id": 359251659, 
+            "startDate": "2012-08-25T14:42:13Z", 
+            "startDateLocal": "2012-08-25T10:42:13Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 32358439, 
+            "athlete": {
+                "id": 1444965, 
+                "name": "Tom Kelly", 
+                "username": null
+            }, 
+            "elapsedTime": 148, 
+            "id": 545583977, 
+            "startDate": "2012-12-14T17:24:12Z", 
+            "startDateLocal": "2012-12-14T12:24:12Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 4312815, 
+            "athlete": {
+                "id": 77875, 
+                "name": "Rob Saunders", 
+                "username": "rob_saunders"
+            }, 
+            "elapsedTime": 149, 
+            "id": 80641383, 
+            "startDate": "2012-02-19T16:22:41Z", 
+            "startDateLocal": "2012-02-19T11:22:41Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 4181336, 
+            "athlete": {
+                "id": 154450, 
+                "name": "Matt Mckenzie", 
+                "username": "matt_mckenzie"
+            }, 
+            "elapsedTime": 150, 
+            "id": 77843412, 
+            "startDate": "2012-02-15T18:26:50Z", 
+            "startDateLocal": "2012-02-15T13:26:50Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 19021466, 
+            "athlete": {
+                "id": 696332, 
+                "name": "Michael H.", 
+                "username": "mihael_henderson"
+            }, 
+            "elapsedTime": 150, 
+            "id": 343938427, 
+            "startDate": "2012-08-19T14:14:22Z", 
+            "startDateLocal": "2012-08-19T10:14:22Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 27438806, 
+            "athlete": {
+                "id": 141087, 
+                "name": "Tiernan M.", 
+                "username": "tiernan_mulrooney"
+            }, 
+            "elapsedTime": 150, 
+            "id": 491890576, 
+            "startDate": "2012-11-10T19:09:24Z", 
+            "startDateLocal": "2012-11-10T14:09:24Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 1206942, 
+            "athlete": {
+                "id": 125981, 
+                "name": "Marty McCormick", 
+                "username": "marty_mccormick"
+            }, 
+            "elapsedTime": 151, 
+            "id": 18243758, 
+            "startDate": "2011-04-14T21:53:30Z", 
+            "startDateLocal": "2011-04-14T17:53:30Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 13464075, 
+            "athlete": {
+                "id": 14027, 
+                "name": "Robert Eom", 
+                "username": "reom"
+            }, 
+            "elapsedTime": 151, 
+            "id": 243676965, 
+            "startDate": "2012-07-15T15:29:50Z", 
+            "startDateLocal": "2012-07-15T11:29:50Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 13464338, 
+            "athlete": {
+                "id": 78440, 
+                "name": "Dirk Bartlett", 
+                "username": "dirkb65"
+            }, 
+            "elapsedTime": 151, 
+            "id": 243683417, 
+            "startDate": "2012-05-08T11:11:37Z", 
+            "startDateLocal": "2012-05-08T07:11:37Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 13599666, 
+            "athlete": {
+                "id": 430160, 
+                "name": "Chris Furlong", 
+                "username": "chris_furlong"
+            }, 
+            "elapsedTime": 151, 
+            "id": 247521629, 
+            "startDate": "2012-07-17T00:28:36Z", 
+            "startDateLocal": "2012-07-16T20:28:36Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 15493017, 
+            "athlete": {
+                "id": 859561, 
+                "name": "Jason Berry", 
+                "username": "berry_jason"
+            }, 
+            "elapsedTime": 151, 
+            "id": 289158019, 
+            "startDate": "2011-06-18T21:13:39Z", 
+            "startDateLocal": "2011-06-18T17:13:39Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 28080431, 
+            "athlete": {
+                "id": 970935, 
+                "name": "Marc Nester", 
+                "username": "mnester"
+            }, 
+            "elapsedTime": 151, 
+            "id": 504183423, 
+            "startDate": "2012-11-17T17:35:11Z", 
+            "startDateLocal": "2012-11-17T12:35:11Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 37998349, 
+            "athlete": {
+                "id": 170001, 
+                "name": "Christopher G.", 
+                "username": "christopher_gould"
+            }, 
+            "elapsedTime": 151, 
+            "id": 615045466, 
+            "startDate": "2013-01-19T13:53:15Z", 
+            "startDateLocal": "2013-01-19T08:53:15Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 14018432, 
+            "athlete": {
+                "id": 758114, 
+                "name": "Jimmy Sosinski", 
+                "username": "jsosinski"
+            }, 
+            "elapsedTime": 152, 
+            "id": 259806011, 
+            "startDate": "2011-03-20T14:54:11Z", 
+            "startDateLocal": "2011-03-20T10:54:11Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 21513938, 
+            "athlete": {
+                "id": 56779, 
+                "name": "Christopher J.", 
+                "username": "christopher_james"
+            }, 
+            "elapsedTime": 152, 
+            "id": 384825396, 
+            "startDate": "2012-09-08T16:24:20Z", 
+            "startDateLocal": "2012-09-08T12:24:20Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 13698437, 
+            "athlete": {
+                "id": 12857, 
+                "name": "Goat Evers", 
+                "username": "severs"
+            }, 
+            "elapsedTime": 153, 
+            "id": 250488893, 
+            "startDate": "2012-07-17T21:59:59Z", 
+            "startDateLocal": "2012-07-17T17:59:59Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 17187275, 
+            "athlete": {
+                "id": 23719, 
+                "name": "Matt McLoone", 
+                "username": "mmcloone"
+            }, 
+            "elapsedTime": 153, 
+            "id": 315862877, 
+            "startDate": "2012-08-07T21:41:02Z", 
+            "startDateLocal": "2012-08-07T17:41:02Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 22914938, 
+            "athlete": {
+                "id": 127794, 
+                "name": "Jason Hall", 
+                "username": "hall_jason"
+            }, 
+            "elapsedTime": 153, 
+            "id": 409063545, 
+            "startDate": "2012-09-23T15:31:17Z", 
+            "startDateLocal": "2012-09-23T11:31:17Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 1621166, 
+            "athlete": {
+                "id": 143620, 
+                "name": "Brook Edinger", 
+                "username": "bedinger"
+            }, 
+            "elapsedTime": 154, 
+            "id": 25633622, 
+            "startDate": "2011-05-26T10:50:59Z", 
+            "startDateLocal": "2011-05-26T06:50:59Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 19033659, 
+            "athlete": {
+                "id": 957951, 
+                "name": "HF CHOU", 
+                "username": "hf_chou"
+            }, 
+            "elapsedTime": 154, 
+            "id": 344056151, 
+            "startDate": "2012-08-19T15:26:54Z", 
+            "startDateLocal": "2012-08-19T11:26:54Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 19420628, 
+            "athlete": {
+                "id": 207842, 
+                "name": "Julian Bowling", 
+                "username": "julian_bowling"
+            }, 
+            "elapsedTime": 154, 
+            "id": 350196313, 
+            "startDate": "2011-07-12T21:55:37Z", 
+            "startDateLocal": "2011-07-12T17:55:37Z", 
+            "timeZoneOffset": -18000
+        }, 
+        {
+            "activityId": 22499869, 
+            "athlete": {
+                "id": 125379, 
+                "name": "Darren Biggs", 
+                "username": "darren_biggs"
+            }, 
+            "elapsedTime": 154, 
+            "id": 402088634, 
+            "startDate": "2012-09-19T12:12:53Z", 
+            "startDateLocal": "2012-09-19T08:12:53Z", 
+            "timeZoneOffset": -18000
+        }
+    ], 
+    "segment": {
+        "id": 646144, 
+        "name": "Mount Rosslyn"
+    }
+}

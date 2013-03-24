@@ -4,7 +4,7 @@ import collections
 from datetime import datetime, timedelta
 
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
-from stravalib.model import Ride, Athlete, Club
+from stravalib.model import Ride, Athlete, Club, Segment
 from stravalib import measurement
 
 __authors__ = ['"Hans Lellelid" <hans@xmpl.org>']
@@ -23,90 +23,145 @@ limitations under the License."""
 
 class V1ModelMapper(BaseModelMapper):
     
-    def populate_athlete(self, athlete_model, athlete_struct):
+    def populate_athlete(self, entity_model, entity_struct):
         """
         Populates a :class:`stravalib.model.Athlete` model object with data from the V1 struct
         that is returned with ride details.
         
-        :param athlete_model: The athlete model to fill.
-        :type athlete_model: :class:`stravalib.model.Athlete`
-        :param athlete_struct: The athlete struct from V1 ride response object.
-        :type athlete_struct: dict
+        :param entity_model: The athlete model to fill.
+        :type entity_model: :class:`stravalib.model.Athlete`
+        :param entity_struct: The athlete struct from V1 ride response object.
+        :type entity_struct: dict
         """
-        athlete_model.id = athlete_struct['id']
-        athlete_model.name = athlete_struct['name']
+        entity_model.id = entity_struct['id']
+        entity_model.name = entity_struct['name']
         # Often we only have partial athlete structure (e.g. when returning club members, etc.)
-        athlete_model.username = athlete_struct.get('username')
+        entity_model.username = entity_struct.get('username')
     
-    def populate_ride_minimal(self, ride_model, ride_struct):
+    def populate_minimal(self, entity_model, entity_struct):
         """
-        Populates a :class:`stravalib.model.Ride` model object with data from minimal structures returned 
-        from (e.g.) ride index method.
+        Populates a :class:`stravalib.model.StravaEntity` model object with minimal (id and name) attributes.
         
-        :param ride_model: The model object to fill.
-        :type ride_model: :class:`stravalib.model.Ride`
-        :param ride_struct: The raw ride V1 response structure.
-        :type ride_struct: dict
+        :param entity_model: The model object to fill.
+        :type entity_model: :class:`stravalib.model.Ride`
+        :param entity_struct: The raw ride V1 response structure.
+        :type entity_struct: dict
         """
-        ride_model.id = ride_struct['id']
-        ride_model.name = ride_struct['name']
+        entity_model.id = entity_struct['id']
+        entity_model.name = entity_struct['name']
+    
+    def populate_ride_effort_base(self, entity_model, entity_struct):
+        """
+        Populates the attributes shared by rides and efforts.
+        """
+        self.populate_minimal(entity_model, entity_struct)
         
-    def populate_ride(self, ride_model, ride_struct):
+        athlete_struct = entity_struct['athlete']
+        athlete = Athlete()
+        self.populate_athlete(athlete, athlete_struct)
+        entity_model.athlete = athlete
+        
+        entity_model.average_speed = self._convert_speed(entity_struct['averageSpeed'])
+        entity_model.average_watts = entity_struct['averageWatts']
+        entity_model.maximum_speed = self._convert_speed(measurement.kph(entity_struct['maximumSpeed'] / 1000.0)) # Not sure why this is in meters per *hour* ... !?
+        entity_model.elevation_gain = self._convert_elevation(entity_struct['elevationGain'])
+        entity_model.distance = self._convert_distance(entity_struct['distance'])
+        entity_model.elapsed_time = timedelta(seconds=entity_struct['elapsedTime'])
+        entity_model.moving_time = timedelta(seconds=entity_struct['movingTime'])
+        entity_model.start_date = self._parse_datetime(entity_struct['startDateLocal'], entity_struct['timeZoneOffset'])
+    
+        
+    def populate_ride(self, entity_model, entity_struct):
         """
         Populates a :class:`stravalib.model.Ride` model object with data from the V1 structure.
         
         Note that not all of the model properties will have been set by this method (some are
         only available from V2 structure).
         
-        :param ride_model: The model object to fill.
-        :type ride_model: :class:`stravalib.model.Ride`
-        :param ride_struct: The raw ride V1 response structure.
-        :type ride_struct: dict
+        :param entity_model: The model object to fill.
+        :type entity_model: :class:`stravalib.model.Ride`
+        :param entity_struct: The raw ride V1 response structure.
+        :type entity_struct: dict
         """
-        self.populate_ride_minimal(ride_model, ride_struct)
+        self.populate_ride_effort_base(entity_model, entity_struct)
+        entity_model.commute = entity_struct['commute']
+        entity_model.trainer = entity_struct['trainer']
+        entity_model.location = entity_struct['location']
+    
+    def populate_effort(self, entity_model, entity_struct):
+        """
+        Populates a :class:`stravalib.model.Effort` model object with data from the V1 structure.
         
-        athlete_struct = ride_struct['athlete']
+        :param entity_model: The model object to fill.
+        :type entity_model: :class:`stravalib.model.Effort`
+        :param entity_struct: The raw effort V1 response structure.
+        :type entity_struct: dict
+        """
+        self.populate_ride_effort_base(entity_model, entity_struct)
+        
+        athlete_struct = entity_struct['athlete']
         athlete = Athlete()
-        self.populate_athlete(athlete_model=athlete, athlete_struct=athlete_struct)
-        ride_model.athlete = athlete
+        self.populate_athlete(athlete, entity_struct=athlete_struct)
         
-        ride_model.average_speed = self._convert_speed(ride_struct['averageSpeed'])
-        ride_model.average_watts = ride_struct['averageWatts']
-        ride_model.maximum_speed = self._convert_speed(measurement.kph(ride_struct['maximumSpeed'] / 1000.0)) # Not sure why this is in meters per *hour* ... !?
-        ride_model.elevation_gain = self._convert_elevation(ride_struct['elevationGain'])
-        ride_model.commute = ride_struct['commute']
-        ride_model.trainer = ride_struct['trainer']
-        ride_model.distance = self._convert_distance(ride_struct['distance'])
-        ride_model.elapsed_time = timedelta(seconds=ride_struct['elapsedTime'])
-        ride_model.moving_time = timedelta(seconds=ride_struct['movingTime'])
-        ride_model.location = ride_struct['location']
-        ride_model.start_date = self._parse_datetime(ride_struct['startDateLocal'], ride_struct['timeZoneOffset'])
+        minimal_ride_struct = entity_struct['ride']
+        # TODO: Add support for v1client here?
+        ride = Ride()
+        self.populate_minimal(ride, minimal_ride_struct)
+        
+        minimal_segment_struct = entity_struct['segment']
+        # TODO: Add support for v1client here?
+        segment = Segment()
+        self.populate_minimal(segment, minimal_segment_struct)
+        
+        
+        entity_model.athlete = athlete
+        
+    def populate_segment(self, segment_model, segment_struct):
+        """
+        Populates a :class:`stravalib.model.Effort` model object with data from the V1 structure.
+        
+        :param segment_model: The model object to fill.
+        :type segment_model: :class:`stravalib.model.Effort`
+        :param segment_struct: The raw effort V1 response structure.
+        :type segment_struct: dict
+        """
+        self.populate_minimal(segment_model, segment_struct)
+        segment_model.average_grade = segment_struct['averageGrade']
+        segment_model.climb_category = segment_struct['climbCategory']
+        segment_model.distance = segment_struct['distance']
+        segment_model.elevation_gain = segment_struct['elevationGain']
+        segment_model.elevation_high = segment_struct['elevationHigh']
+        segment_model.elevation_low = segment_struct['elevationLow']
         
     
-    def populate_club(self, club_model, club_struct):
+    def populate_club(self, entity_model, entity_struct):
         """
         Populates a :class:`stravalib.model.Club` model object with data from the V1 structure.
         
-        :param club_model: The model object to fill.
-        :type club_model: :class:`stravalib.model.Club`
-        :param club_struct: The raw club V1 response structure.
-        :type club_struct: dict
+        :param entity_model: The model object to fill.
+        :type entity_model: :class:`stravalib.model.Club`
+        :param entity_struct: The raw club V1 response structure.
+        :type entity_struct: dict
         """
-        club_model.id = club_struct['id']
-        club_model.name = club_struct['name']
-        club_model.location = club_struct['location']
-        club_model.description = club_struct['description']
+        entity_model.id = entity_struct['id']
+        entity_model.name = entity_struct['name']
+        entity_model.location = entity_struct['location']
+        entity_model.description = entity_struct['description']
         
         
 class V1ServerProxy(BaseServerProxy):
     """
-    A client library implement V1 of the Strava API.
+    A client library implementing V1 of the Strava API.
     """
+    mapper_class = V1ModelMapper
     
     # http://www.strava.com/api/v1/athletes/:athlete_id/bikes/:id
     # {"bike": {"name":"Surly Crosscheck","default_bike":false,"athlete_id":21,"notes":"Single speed commuter bike","weight":12.7006,"id":1371,"frame_type":2,"retired":0}}
     # {"bike": {"name":"Storck Absolutist","default_bike":false,"athlete_id":21,"notes":"","weight":7.71107,"id":21,"frame_type":3,"retired":0}},{"bike": {"name":"Turner Flux","default_bike":false,"athlete_id":21,"notes":"","weight":12.7006,"id":22,"frame_type":1,"retired":0}},{"bike": {"name":"Rock Lobster","default_bike":false,"athlete_id":21,"notes":"","weight":8.61825,"id":41,"frame_type":2,"retired":0}},{"bike": {"name":"Surly Crosscheck","default_bike":false,"athlete_id":21,"notes":"Single speed commuter bike","weight":12.7006,"id":1371,"frame_type":2,"retired":0}}
     
+    
+    def get_clubs(self):
+        raise NotImplementedError()
     
     def get_club(self, club_id):
         """
@@ -131,23 +186,7 @@ class V1ServerProxy(BaseServerProxy):
         """
         response = self._get("http://{0}/api/v1/clubs/{1}/members".format(self.server, club_id))
         return response['members']
-    
-    def get_segment(self, segment_id):
-        """
-        Return V1 object structure for a segment.
         
-        {"segment":{"climbCategory":"4",
-                    "elevationGain":151.728,
-                    "elevationHigh":458.206,
-                    "elevationLow":304.395,
-                    "distance":2378.34,
-                    "name":"Panoramic to Pan Toll",
-                    "id":156,"averageGrade":6.50757}
-        } 
-        """
-        url = "http://{0}/api/v1/segments/{1}".format(self.server, segment_id)
-        return self._get(url)['segment']
-    
     def get_ride(self, ride_id):
         """
         Return V1 object structure for ride.
@@ -175,17 +214,8 @@ class V1ServerProxy(BaseServerProxy):
         """
         url = "http://{0}/api/v1/rides/{1}".format(self.server, ride_id)
         return self._get(url)['ride']
-    
-    def get_ride_efforts(self, ride_id):
-        """
-        Return V1 object structure for ride efforts.
-        
-        :param ride_id: The id of associated ride to fetch.
-        """
-        url = "http://{0}/api/v1/rides/{1}/efforts".format(self.server, ride_id)
-        return self._get(url)['efforts']
-        
-    def list_rides(self, **kwargs):
+            
+    def get_rides(self, **kwargs):
         """
         Enumerate rides for specified attribute/value.
         
@@ -216,67 +246,141 @@ class V1ServerProxy(BaseServerProxy):
         response = self._get(url, params=params)
         return response['rides']
     
+    def get_ride_efforts(self, ride_id):
+        """
+        Return V1 object structure for ride efforts.
+        
+        :param ride_id: The id of associated ride to fetch.
+        """
+        url = "http://{0}/api/v1/rides/{1}/efforts".format(self.server, ride_id)
+        return self._get(url)['efforts']
 
-class RideIterator(object):
-    """
-    Iterates over rides for specified criteria, fetching in 50-ride chunks from the 
-    server.
+    def get_effort(self, effort_id):
+        """
+        Returns V1 structure for an effort.
+        
+            {
+                "effort": {
+                    "athlete": {
+                        "id": 174046, 
+                        "name": "Jonathan C.", 
+                        "username": "jcochrane"
+                    }, 
+                    "averageSpeed": 30605.56097560976, 
+                    "averageWatts": 345.356, 
+                    "distance": 1031.75, 
+                    "elapsedTime": 123, 
+                    "elevationGain": 23.4197, 
+                    "id": 100336780, 
+                    "maximumSpeed": 35697.888, 
+                    "movingTime": 123, 
+                    "ride": {
+                        "id": 5266484, 
+                        "name": "03/15/2012"
+                    }, 
+                    "segment": {
+                        "id": 646144, 
+                        "name": "Mount Rosslyn"
+                    }, 
+                    "startDate": "2012-03-16T00:23:38Z", 
+                    "startDateLocal": "2012-03-15T20:23:38Z", 
+                    "timeZoneOffset": -18000
+                }
+            }
+        """
+        url = "http://{0}/api/v1/efforts/{1}".format(self.server, effort_id)
+        return self._get(url)['effort']
+
+    def get_segment(self, segment_id):
+        """
+        Return V1 object structure for a segment.
+        
+        {"segment":{"climbCategory":"4",
+                    "elevationGain":151.728,
+                    "elevationHigh":458.206,
+                    "elevationLow":304.395,
+                    "distance":2378.34,
+                    "name":"Panoramic to Pan Toll",
+                    "id":156,"averageGrade":6.50757}
+        } 
+        """
+        url = "http://{0}/api/v1/segments/{1}".format(self.server, segment_id)
+        return self._get(url)['segment']
     
-    Strava API only returns 50 rides at a time, so this is a mechanism to abstract over
+    def get_segment_efforts(self, segment_id, **kwargs):
+        """
+        Returns a list of matching Efforts on a Segment.
+        
+        :param segment_id: Required. The Id of the Segment for which to fetch efforts.
+        :keyword club_id: Optional. Id of the Club for which to search for member's Efforts.
+        :keyword athlete_id: Optional. Id of the Athlete for which to search for Efforts.
+        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
+        :keyword start_date: Optional. Day on which to start search for Efforts. The date should be formatted YYYY-MM-DD. The date is the local time of when the effort started.
+        :type start_date: :class:`datetime.date`
+        
+        :keyword end_date: Optional. Day on which to end search for Efforts. The date should be formatted YYYY-MM-DD. The date is the local time of when the effort started.
+        :type end_date: :class:`datetime.date`
+        
+        :param start_id: Optional. Only return Effforts with an Id greater than or equal to the startId.
+        
+        :param best:  Optional. Shows an best efforts per athlete sorted by elapsed time ascending (segment leaderboard).
+        :type best: bool
+        """
+        # Dates should be formatted YYYY-MM-DD.  They are in local time of ride, so we are ignoring tz here.
+        for datefield in ('start_date', 'end_date'):
+            if datefield in kwargs and isinstance(kwargs[datefield], datetime):
+                kwargs[datefield] = kwargs[datefield].strftime('%Y-%m-%d')
+        
+        params = dict([(_v1_attrib_name(k), v) for (k,v) in kwargs.items()])
+            
+        url = "http://{0}/api/v1/segments/{1}/efforts".format(self.server, segment_id)
+        response = self._get(url, params=params)
+        return response['efforts']
+    
+    
+class BatchedResultsIterator(object):
+    """
+    Iterates over requests that return a batch of (typically 50) results and support an offset parameter.
+    
+    For example, Strava API only returns 50 rides at a time, so this provides a mechanism to abstract over
     that limitation. 
     """
-    def __init__(self, v1client, limit=None, **kwargs):
+    
+    batch_size = 50 #: How many results returned in a batch.
+     
+    def __init__(self, result_fetcher, limit=None):
         """
-        :param v1client: The V1 API client.
-        :type v1client: :class:`stravalib.protocol.v1.V1ServerProxy`
+        :param result_fetcher: The callable that will return another batch of results.
+        :type result_fetcher: callable
         
         :param limit: The maximum number of rides to return.
         :type limit: int
-        
-        :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
-        :type club_id: int
-        
-        :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
-        :type athlete_id: int
-        
-        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
-        :type athlete_name: str
-        
-        :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
-        :type start_date: :class:`datetime.datetime`
-        
-        :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
-        :type end_date: :class:`datetime.datetime`
-        
-        :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
-        :type start_id: int
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.limit = limit
-        
-        self.apifunc = functools.partial(v1client.list_rides, **kwargs)
+        self.result_fetcher = result_fetcher
         
         self._counter = 0
-        self._ride_buffer = None
+        self._buffer = None
         self._offset = 0
-        self._all_rides_fetched = False
+        self._all_results_fetched = False
     
     def _fill_buffer(self):
         """
         Fills the internal size-50 buffer from Strava API.
         """
         # If we cannot fetch anymore from the server then we're done here.
-        if self._all_rides_fetched:
+        if self._all_results_fetched:
             raise StopIteration
         
-        self._ride_buffer = collections.deque(self.apifunc(offset=self._offset))
+        self._buffer = collections.deque(self.apifunc(offset=self._offset))
         self.log.debug("Requested rides {0} - {1} (got: {2})".format(self._offset,
-                                                                     self._offset + 50,
-                                                                     len(self._ride_buffer)))
-        if len(self._ride_buffer) < 50:
-            self._all_rides_fetched = True
+                                                                     self._offset + self.batch_size,
+                                                                     len(self._buffer)))
+        if len(self._buffer) < self.batch_size:
+            self._all_results_fetched = True
             
-        self._offset += 50
+        self._offset += self.batch_size
 
     def __iter__(self):
         return self
@@ -284,10 +388,10 @@ class RideIterator(object):
     def next(self):
         if self.limit and self._counter >= self.limit:
             raise StopIteration
-        if not self._ride_buffer:
+        if not self._buffer:
             self._fill_buffer()
         try:
-            result = self._ride_buffer.popleft()
+            result = self._buffer.popleft()
         except IndexError:
             raise StopIteration
         else:

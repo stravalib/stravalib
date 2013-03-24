@@ -1,4 +1,5 @@
 from __future__ import division, absolute_import, print_function
+import abc
 import json
 import logging
 import collections
@@ -18,13 +19,19 @@ class BaseModelMapper(object):
     """
     Base class for the mappers that populate model objects from V1/V2 results.
     """
+    __metaclass__ = abc.ABCMeta
     
     _units = METRIC
     
-    def __init__(self, units):
+    def __init__(self, client, units):
         """
-        Initialize model mapper with desired units ('imperial' or 'metric').
+        Initialize model mapper with reference to server proxy and desired units ('imperial' or 'metric').
+        
+        :param client: The master client instance that is using this mapper.  This is currently needed since the mapper
+                            may need to instantiate "bound" model objects.
+        :type client: :class:`stravalib.simple.Client`
         """
+        self.client = client
         self.units = units
 
     @property
@@ -112,8 +119,14 @@ class BaseServerProxy(object):
     """
     The common functionality for Strava REST API client implementations.
     """
+    __metaclass__ = abc.ABCMeta
+    
     server = 'www.strava.com'
     
+    @abc.abstractproperty
+    def mapper_class(self):
+        """ The class to instantiate for mapping results to model entities. """
+        
     def __init__(self, requests_session=None):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`

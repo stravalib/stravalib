@@ -1,3 +1,5 @@
+import collections
+
 import requests
 
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
@@ -16,23 +18,48 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License."""
 
+LatLon = collections.namedtuple('LatLon', ['lat', 'lon'])
+
 class V2ModelMapper(BaseModelMapper):
     
-    def __init__(self, units):
-        pass
-    
     def populate_ride(self, ride_model, ride_struct):
-        pass
+        """
+        Populates the lat/lon attributes on the ride model from the V2 ride struct.
+        """
+        ride_model.start_latlon = LatLon(ride_struct['start_latlon'])
+        ride_model.end_latlon = LatLon(ride_struct['end_latlon'])
     
-    def populate_athlete(self, athlete_model, athlete_struct):
-        pass
-    
-    
+    def populate_segment(self, segment_model, segment_struct):
+        """
+        Populates the lat/lon attributes on the model from the V2 segment struct (obtained from getting v2 ride efforts).
+        
+            "segment": {
+                "avg_grade": 3.70959, 
+                "climb_category": 0, 
+                "elev_difference": 2.8000000000000114, 
+                "end_latlng": [
+                    38.88408467173576, 
+                    -77.15276716277003
+                ], 
+                "id": 1030752, 
+                "name": "Brandymore Castle Hill Climb East Ascent", 
+                "start_latlng": [
+                    38.88401275500655, 
+                    -77.15194523334503
+                ]
+            }
+        """
+        segment_model.start_latlon = LatLon(segment_struct['start_latlon'])
+        segment_model.end_latlon = LatLon(segment_struct['end_latlon'])
+        
+#    def populate_athlete(self, athlete_model, athlete_struct):
+#        pass
     
 class V2ServerProxy(BaseServerProxy):
     """
-    
+    A client library implementing V2 of the Strava API.
     """
+    mapper_class = V2ModelMapper
     auth_token = None
     
     @property
