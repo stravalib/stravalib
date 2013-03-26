@@ -22,9 +22,8 @@ class StravaEntity(object):
         :param bind_client: The client instance to bind to this entity.
         :type bind_client: :class:`stravalib.simple.Client`
         """
-        self._bind_client = bind_client
+        self.bind_client = bind_client
     
-        
     def hydrate(self):
         """
         Fill this object with data from the bound client.
@@ -32,10 +31,10 @@ class StravaEntity(object):
         This default implementation assumes things about the names of methods in the client, so
         may need to be overridden by subclasses.
         """
-        if not self._bind_client:
+        if not self.bind_client:
             raise exc.UnboundEntity("Cannot set entity attributes for unbound entity.")
         assumed_method_name = '_populate_{0}'.format(self.__class__.__name__.lower())
-        method = getattr(self._bind_client, assumed_method_name)
+        method = getattr(self.bind_client, assumed_method_name)
         method(self.id, self)
     
     def __repr__(self):
@@ -47,19 +46,15 @@ class Club(StravaEntity):
     """
     description = None
     location = None
-    
-    def __init__(self, entity_pouplator=None, members_fetcher=None):
-        super(Club, self).__init__(entity_pouplator=entity_pouplator)
-        self._members_fetcher = members_fetcher
-        self._members = None
+    _members = None
     
     @property
     def members(self):
         if self._members is None:
-            if self._members_fetcher is None:
+            if self.bind_client is None:
                 raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
             else:
-                self._members = self._members_fetcher()  
+                self._members = self.bind_client.get_club_members(self.id)  
         return self._members
     
 class Athlete(StravaEntity):
@@ -105,7 +100,7 @@ class Ride(RideEffortBase):
             if self._members_fetcher is None:
                 raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
             else:
-                self._members = self._members_fetcher()  
+                self._members = self.bind_client.get_ride_efforts(self.id)  
         return self._members
     
 # The Strava API is somewhat tailored to cycling, but we will 
@@ -115,7 +110,18 @@ Activity = Ride
 
 class Effort(RideEffortBase):
     ride = None
-    segment = None
+    _segment = None
+
+    @property
+    def segment(self):
+        if self._segment is None:
+            
+            if self.bind_client is None:
+                raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
+            else:
+                self._segment = self.bind_client.get_segment(self.segment_id)  
+        return self._segment
+
     
 class Segment(StravaEntity):
     distance = None
@@ -134,9 +140,9 @@ class Segment(StravaEntity):
     @property
     def efforts(self):
         if self._efforts is None:
-            if self._efforts_fetcher is None:
+            if self.bind_client is None:
                 raise exc.UnboundEntity("Unable to retrieve efforts for unbound {0} entity.".format(self.__class__))
             else:
-                self._efforts = self._bind_client.get_segment_efforts()  
+                self._efforts = self.bind_client.get_segment_efforts()  
         return self._efforts
     

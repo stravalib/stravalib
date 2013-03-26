@@ -31,23 +31,8 @@ class V2ModelMapper(BaseModelMapper):
     
     def populate_segment(self, segment_model, segment_struct):
         """
-        Populates the lat/lon attributes on the model from the V2 segment struct (obtained from getting v2 ride efforts).
-        
-            "segment": {
-                "avg_grade": 3.70959, 
-                "climb_category": 0, 
-                "elev_difference": 2.8000000000000114, 
-                "end_latlng": [
-                    38.88408467173576, 
-                    -77.15276716277003
-                ], 
-                "id": 1030752, 
-                "name": "Brandymore Castle Hill Climb East Ascent", 
-                "start_latlng": [
-                    38.88401275500655, 
-                    -77.15194523334503
-                ]
-            }
+        Populates the lat/lon attributes on the model from the V2 segment struct 
+        (which can be obtained from getting v2 ride efforts).
         """
         segment_model.start_latlon = LatLon(segment_struct['start_latlon'])
         segment_model.end_latlon = LatLon(segment_struct['end_latlon'])

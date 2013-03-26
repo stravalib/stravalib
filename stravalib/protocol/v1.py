@@ -57,7 +57,7 @@ class V1ModelMapper(BaseModelMapper):
         self.populate_minimal(entity_model, entity_struct)
         
         athlete_struct = entity_struct['athlete']
-        athlete = Athlete()
+        athlete = Athlete(bind_client=entity_model.bind_client)
         self.populate_athlete(athlete, athlete_struct)
         entity_model.athlete = athlete
         
@@ -88,33 +88,30 @@ class V1ModelMapper(BaseModelMapper):
         entity_model.trainer = entity_struct['trainer']
         entity_model.location = entity_struct['location']
     
-    def populate_effort(self, entity_model, entity_struct):
+    def populate_effort(self, effort_model, effort_struct):
         """
         Populates a :class:`stravalib.model.Effort` model object with data from the V1 structure.
         
-        :param entity_model: The model object to fill.
-        :type entity_model: :class:`stravalib.model.Effort`
-        :param entity_struct: The raw effort V1 response structure.
-        :type entity_struct: dict
+        :param effort_model: The model object to fill.
+        :type effort_model: :class:`stravalib.model.Effort`
+        :param effort_struct: The raw effort V1 response structure.
+        :type effort_struct: dict
         """
-        self.populate_ride_effort_base(entity_model, entity_struct)
+        self.populate_ride_effort_base(effort_model, effort_struct)
         
-        athlete_struct = entity_struct['athlete']
-        athlete = Athlete()
+        athlete_struct = effort_struct['athlete']
+        athlete = Athlete(bind_client=effort_model.bind_client)
         self.populate_athlete(athlete, entity_struct=athlete_struct)
         
-        minimal_ride_struct = entity_struct['ride']
-        # TODO: Add support for v1client here?
-        ride = Ride()
+        minimal_ride_struct = effort_struct['ride']
+        ride = Ride(bind_client=effort_model.bind_client)
         self.populate_minimal(ride, minimal_ride_struct)
         
-        minimal_segment_struct = entity_struct['segment']
-        # TODO: Add support for v1client here?
-        segment = Segment()
+        minimal_segment_struct = effort_struct['segment']
+        segment = Segment(bind_client=effort_model.bind_client)
         self.populate_minimal(segment, minimal_segment_struct)
         
-        
-        entity_model.athlete = athlete
+        effort_model.athlete = athlete
         
     def populate_segment(self, segment_model, segment_struct):
         """
@@ -134,19 +131,19 @@ class V1ModelMapper(BaseModelMapper):
         segment_model.elevation_low = segment_struct['elevationLow']
         
     
-    def populate_club(self, entity_model, entity_struct):
+    def populate_club(self, club_model, club_struct):
         """
         Populates a :class:`stravalib.model.Club` model object with data from the V1 structure.
         
-        :param entity_model: The model object to fill.
-        :type entity_model: :class:`stravalib.model.Club`
-        :param entity_struct: The raw club V1 response structure.
-        :type entity_struct: dict
+        :param club_model: The model object to fill.
+        :type club_model: :class:`stravalib.model.Club`
+        :param club_struct: The raw club V1 response structure.
+        :type club_struct: dict
         """
-        entity_model.id = entity_struct['id']
-        entity_model.name = entity_struct['name']
-        entity_model.location = entity_struct['location']
-        entity_model.description = entity_struct['description']
+        club_model.id = club_struct['id']
+        club_model.name = club_struct['name']
+        club_model.location = club_struct['location']
+        club_model.description = club_struct['description']
         
         
 class V1ServerProxy(BaseServerProxy):

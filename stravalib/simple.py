@@ -69,10 +69,10 @@ class Client(object):
         rides = []
         for v1ride in v1rides:
             if full_objects:
-                ride = model.Ride()
+                ride = model.Ride(bind_client=self)
                 self._populate_ride(v1ride['id'], ride, include_geo=include_geo)
             else:
-                ride = model.Ride(entity_pouplator=functools.partial(self._populate_ride, v1ride['id']))
+                ride = model.Ride(bind_client=self)
                 self.v1mapper.populate_minimal(ride, v1ride)
             rides.append(ride)
         
@@ -97,33 +97,48 @@ class Client(object):
         :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
         :rtype: :class:`stravalib.model.Ride`
         """
-        ride = model.Ride(client=self)
+        ride = model.Ride(bind_client=self)
         self._populate_ride(ride_id, ride)
         return ride
     
-    def _populate_effort(self, effort_id, effort_model, include_geo=False):
+    def _populate_effort(self, effort_id, effort_model):
         """
-        Internal function to populate a ride model for specified ID.
+        Internal function to populate a ride effort model for specified ID.
         :param effort_id:
         :param effort_model:
-        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api).
         """
         v1effort = self.v1client.get_effort(effort_id)
         self.v1mapper.populate_effort(effort_model, v1effort)
+#        
+#        if include_geo:
+#            # Look up the v2 ride efforts
+#            v2ride_efforts = self.v2client.get_ride_efforts(v1effort['ride']['id'])
+#            # Find the effort from the ride that matches this one ...
+#            for v2ride_effort in v2ride_efforts:
+#                if v2ride_effort['id'] == effort_id:
+#                    # FIXME .... WORK IN PROGRESS
+#                    # ... it's only the segment that actually has geo data ....
+#                    break
+#            else:
+#                raise RuntimeError("Unable to find effort {0} in v2 data for ride {1}".format(effort_id, v1effort['ride']['id']))
+#            
+    def _populate_segment(self, segment_id, segment_model, include_geo=False):
+        """
+        Internal function to populate a segment model for specified ID.
+        
+        :param segment_id:
+        :param segment_model:
+        :param include_geo: Whether to include lat/lon for the segment start/end (adds a call to v2 api).
+        """
+        v1segment = self.v1client.get_segment(segment_id)
+        self.v1mapper.populate_segment(segment_model, v1segment)
+        
         if include_geo:
-            # Look up the v2 ride efforts
-            v2ride_efforts = self.v2client.get_ride_efforts(v1effort['ride']['id'])
-            # Find the effort from the ride that matches this one ...
-            for v2ride_effort in v2ride_efforts:
-                if v2ride_effort['id'] == effort_id:
-                    # FIXME .... WORK IN PROGRESS
-                    # ... it's only the segment that actually has geo data ....
-                    break
-            else:
-                raise RuntimeError("Unable to find effort {0} in v2 data for ride {1}".format(effort_id, v1effort['ride']['id']))
-            
+            raise NotImplementedError("Start/end geo for segments is not yet implemented.")
+            # Need to get from a segment to an effort and then back to a segment ... since
+            # V2 API only allows for getting efforts
                     
-    def get_ride_efforts(self, ride_id, full_objects=False, include_geo=False):
+    def get_ride_efforts(self, ride_id, full_objects=False):
         """
         :param ride_id:
         
@@ -148,14 +163,13 @@ class Client(object):
         
         return efforts
 
-    def get_segment_efforts(self, segment_id, full_objects=False, include_geo=False):
+    def get_segment_efforts(self, segment_id, full_objects=False):
         """
         :param ride_id:
         
         :keyword full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
         :type full_objects: bool
         
-        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
         :rtype: list
         """
         # This one appears to return all results w/o batching?
@@ -174,24 +188,27 @@ class Client(object):
         return efforts
     
     def get_effort(self, effort_id):
-        raise NotImplementedError()
+        """
+        :rtype: :class:`stravalib.model.Effort`
+        """
+        effort = model.Effort(bind_client=self)
+        self._populate_effort(effort_id, effort)
+        return effort
     
     def get_segment(self, segment_id, include_geo=False):
-        raise NotImplementedError()
-        # To get Geo here we need to go circuitously via ride efforts
-    
-    # Alias with assumption that one of these will be deprecated in the future.
-    get_activity = get_ride 
+        """
+        :rtype: :class:`stravalib.model.Segment`
+        """
+        segment = model.Segment(bind_client=self)
+        self._populate_segment(segment_id, segment, include_geo=include_geo)
+        return segment
     
     def get_club(self, club_id):
         """
         :rtype: :class:`stravalib.model.Club`
         """
         v1club = self.v1client.get_club(club_id)
-        
-        get_members = functools.partial(self.get_club_members, club_id)
-        
-        club = model.Club(members_fetcher=get_members)
+        club = model.Club(bind_client=self)
         self.v1mapper.populate_club(club, v1club)
         return club
     
@@ -201,7 +218,7 @@ class Client(object):
         v1clubmembers = self.v1client.get_club_members(club_id)
         members = []
         for athlete_struct in v1clubmembers:
-            a = model.Athlete()
+            a = model.Athlete(bind_client=self)
             self.v1mapper.populate_athlete(a, athlete_struct)
             members.append(a)
         return members
