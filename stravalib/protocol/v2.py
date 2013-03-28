@@ -1,7 +1,9 @@
+from datetime import timedelta
 import collections
 
 import requests
 
+from stravalib.model import Segment
 from stravalib.protocol import BaseServerProxy, BaseModelMapper
 
 __authors__ = ['"Hans Lellelid" <hans@xmpl.org>']
@@ -36,10 +38,58 @@ class V2ModelMapper(BaseModelMapper):
         """
         segment_model.start_latlon = LatLon(segment_struct['start_latlon'])
         segment_model.end_latlon = LatLon(segment_struct['end_latlon'])
+
+    def pouplate_ride_effort(self, effort_model, effort_struct):
+        """
         
-#    def populate_athlete(self, athlete_model, athlete_struct):
-#        pass
-    
+        Each effort:
+        {
+            "effort": {
+                "average_speed": 3.8800000000000003, 
+                "distance": 69.84, 
+                "elapsed_time": 18, 
+                "id": 571734780, 
+                "moving_time": 18, 
+                "start_date_local": "2012-12-30T13:53:36Z"
+            }, 
+            "segment": {
+                "avg_grade": 3.70959, 
+                "climb_category": 0, 
+                "elev_difference": 2.8000000000000114, 
+                "end_latlng": [
+                    38.88408467173576, 
+                    -77.15276716277003
+                ], 
+                "id": 1030752, 
+                "name": "Brandymore Castle Hill Climb East Ascent", 
+                "start_latlng": [
+                    38.88401275500655, 
+                    -77.15194523334503
+                ]
+            }
+        }
+        """
+        
+        e_struct = effort_struct['effort']
+        s_struct = effort_struct['segment']
+        
+        effort_model.average_speed = self._convert_speed(e_struct['average_speed'])
+        effort_model.distance = self._convert_distance(e_struct['distance'])
+        effort_model.elapsed_time = timedelta(seconds=e_struct['elapsed_time'])
+        effort_model.moving_time = timedelta(seconds=e_struct['moving_time'])
+        effort_model.start_date = self._parse_datetime(e_struct['start_date_local']) # XXX: Any way to get the utcoffset here? maybe as a hint (if we know it from ride?)
+        
+        s = Segment(bind_client=self.client)
+        self.populate_minimal(s, s_struct)
+        s.average_grade = s_struct['avg_grade']
+        s.climb_category = s_struct['climb_category'] # XXX: This is different format from V1 API
+        s.elevation_gain = s_struct['elev_difference']
+        s.start_latlon = LatLon(*s_struct['start_latlng'])
+        s.end_latlon = LatLon(*s_struct['end_latlng'])
+        
+        effort_model.segment = s
+        
+        
 class V2ServerProxy(BaseServerProxy):
     """
     A client library implementing V2 of the Strava API.
@@ -49,7 +99,7 @@ class V2ServerProxy(BaseServerProxy):
     
     @property
     def authenticated(self):
-        return self.token is not None
+        return self.auth_token is not None
     
     def authenticate(self, email, password):
         """
@@ -92,7 +142,6 @@ class V2ServerProxy(BaseServerProxy):
         url = "http://{server}/api/v2/rides/{id}".format(server=self.server, id=int(ride_id))
         return self._get(url)['ride']
     
-    
     def get_ride_efforts(self, ride_id):
         """
         Return V2 object structure for ride efforts.
@@ -128,7 +177,6 @@ class V2ServerProxy(BaseServerProxy):
         """
         url = "http://{0}/api/v1/rides/{1}/efforts".format(self.server, ride_id)
         return self._get(url)['efforts']
-    
     
     def upload(self):
         raise NotImplementedError()

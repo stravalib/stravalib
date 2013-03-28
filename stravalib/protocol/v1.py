@@ -37,19 +37,24 @@ class V1ModelMapper(BaseModelMapper):
         entity_model.name = entity_struct['name']
         # Often we only have partial athlete structure (e.g. when returning club members, etc.)
         entity_model.username = entity_struct.get('username')
-    
-    def populate_minimal(self, entity_model, entity_struct):
-        """
-        Populates a :class:`stravalib.model.StravaEntity` model object with minimal (id and name) attributes.
         
-        :param entity_model: The model object to fill.
-        :type entity_model: :class:`stravalib.model.Ride`
-        :param entity_struct: The raw ride V1 response structure.
-        :type entity_struct: dict
+    def populate_minimal_effort(self, effort_model, effort_struct):
         """
-        entity_model.id = entity_struct['id']
-        entity_model.name = entity_struct['name']
-    
+        Populates some minimal effort data, as returned by the get_ride_efforts call.
+        
+          {
+           "elapsed_time": 18, 
+           "id": 571734780, 
+           "segment": {
+                "id": 1030752, 
+                "name": "Brandymore Castle Hill Climb East Ascent"
+          }
+        """
+        effort_model.id = effort_struct['id']
+        effort_model.elapsed_time = timedelta(seconds=effort_struct['elapsed_time'])
+        effort_model.segment = Segment(self.client)
+        self.populate_minimal(effort_model.segment, effort_struct['segment'])
+        
     def populate_ride_effort_base(self, entity_model, entity_struct):
         """
         Populates the attributes shared by rides and efforts.
@@ -370,7 +375,7 @@ class BatchedResultsIterator(object):
         if self._all_results_fetched:
             raise StopIteration
         
-        self._buffer = collections.deque(self.apifunc(offset=self._offset))
+        self._buffer = collections.deque(self.result_fetcher(offset=self._offset))
         self.log.debug("Requested rides {0} - {1} (got: {2})".format(self._offset,
                                                                      self._offset + self.batch_size,
                                                                      len(self._buffer)))

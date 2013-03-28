@@ -44,7 +44,19 @@ class BaseModelMapper(object):
         if not v in valid_units:
             raise ValueError("units param must be one of: {0}".format(valid_units))
         self._units = v
-            
+    
+    def populate_minimal(self, entity_model, entity_struct):
+        """
+        Populates a :class:`stravalib.model.StravaEntity` model object with minimal (id and name) attributes.
+        
+        :param entity_model: The model object to fill.
+        :type entity_model: :class:`stravalib.model.Ride`
+        :param entity_struct: The raw ride V1 response structure.
+        :type entity_struct: dict
+        """
+        entity_model.id = entity_struct['id']
+        entity_model.name = entity_struct['name']
+    
     def _convert_distance(self, v):
         """
         Converts distance to configured imperial/metric units.
@@ -122,25 +134,30 @@ class BaseServerProxy(object):
     __metaclass__ = abc.ABCMeta
     
     server = 'www.strava.com'
+    mapper = None
     
     @abc.abstractproperty
     def mapper_class(self):
         """ The class to instantiate for mapping results to model entities. """
         
-    def __init__(self, requests_session=None):
+    def __init__(self, units, requests_session=None):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
         object.
+        
+        :param units: 'imperial' or 'metric'
+        :param requests_session: An existing :class:`requests.Session` object to use.
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         if requests_session:
-            self.rsess = requests_session
+            self.rsession = requests_session
         else:
-            self.rsess = requests.Session()
+            self.rsession = requests.Session()
+        self.mapper = self.mapper_class(client=self, units=units)
     
     def _get(self, url, params=None):
         self.log.debug("GET {0!r} with params {1!r}".format(url, params))
-        raw = self.rsess.get(url, params=params)
+        raw = self.rsession.get(url, params=params)
         raw.raise_for_status()
         resp = self._handle_protocol_error(raw.json())
         return resp

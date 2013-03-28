@@ -96,32 +96,31 @@ class Ride(RideEffortBase):
     @property
     def efforts(self):
         if self._efforts is None:
-            
-            if self._members_fetcher is None:
-                raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
+            if self.bind_client is None:
+                raise exc.UnboundEntity("Unable to retrieve efforts for unbound {0} entity.".format(self.__class__))
             else:
-                self._members = self.bind_client.get_ride_efforts(self.id)  
-        return self._members
+                self._efforts = self.bind_client.get_ride_efforts(self.id)  
+        return self._efforts
     
-# The Strava API is somewhat tailored to cycling, but we will 
-# alias Activity in the expectation that the v3 API will provide a more
-# generic interface.
-Activity = Ride
 
-class Effort(RideEffortBase):
-    ride = None
+class RideEffort(RideEffortBase):
+    """
+    Represents an effort on a ride.
+    """
     _segment = None
 
     @property
     def segment(self):
         if self._segment is None:
-            
             if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
+                raise exc.UnboundEntity("Unable to retrieve segment for unbound {0} entity.".format(self.__class__))
             else:
                 self._segment = self.bind_client.get_segment(self.segment_id)  
         return self._segment
-
+    
+    @segment.setter
+    def segment(self, value):
+        self._segment = value
     
 class Segment(StravaEntity):
     distance = None
@@ -135,14 +134,35 @@ class Segment(StravaEntity):
     start_latlon = None
     end_latlon = None
     
-    _efforts = None
+    _best_efforts = None
     
     @property
-    def efforts(self):
-        if self._efforts is None:
+    def leaderboard(self):
+        if self._best_efforts is None:
             if self.bind_client is None:
                 raise exc.UnboundEntity("Unable to retrieve efforts for unbound {0} entity.".format(self.__class__))
             else:
-                self._efforts = self.bind_client.get_segment_efforts()  
-        return self._efforts
+                self._best_efforts = self.bind_client.get_segment_efforts(self.id, best=True)  
+        return self._best_efforts
+
+class SegmentEffort(StravaEntity):
+    """
+    Represents a specific effort on a segment.  This is different from a RideEffort in that
+    it includes info about the ride and athlete.
     
+            {
+                "activityId": 886543, 
+                "athlete": {
+                    "id": 13669, 
+                    "name": "Jeff Dickey", 
+                    "username": "jdickey"
+                }, 
+                "elapsedTime": 103, 
+                "id": 13149960, 
+                "startDate": "2011-07-06T21:32:21Z", 
+                "startDateLocal": "2011-07-06T17:32:21Z", 
+                "timeZoneOffset": -18000
+            }
+    """
+    _effort = None
+    _ride = None

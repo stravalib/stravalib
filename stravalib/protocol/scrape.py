@@ -19,6 +19,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License."""
 
+def auth_required(method):
+    def wrapper(self,*args,**kwargs):
+        if not self.authenticated:
+            if self.creds:
+                self.login()
+            else:
+                raise exc.LoginRequired("This method requires authentication.")
+        return method(self, *args, **kwargs)
+    return wrapper
+
 class WebSession(object):
 
     server = 'www.strava.com'
@@ -64,20 +74,35 @@ class WebSession(object):
         
         self.cookies = r.cookies
     
-
+    @auth_required
     def export_gpx(self, activity_id):
         """
         Export an activity as GPX. 
         
         (requires authentication -- and premium acct.)
         """
-        if not self.authenticated:
-            if self.creds:
-                self.login()
-            else:
-                raise exc.LoginRequired("GPX export requires authentication")
-        
         r = self.rsess.get('http://app.strava.com/activities/{id}/export_gpx'.format(id=activity_id),
                            cookies=self.cookies)
         
         return r.content
+    
+    @auth_required
+    def upload(self, fileobj):
+        """
+        Upload using the browser API instead of the V2 uploader.  
+        
+        The V2 uploader, while simpler, has some quirks -- such as reporting the device
+        as an iPhone -- that make it not an ideal way to upload ride data. 
+        """
+        
+        """
+        <form action="/upload/files" enctype="multipart/form-data" method="POST" novalidate="novalidate">
+        <input name="_method" type="hidden" value="post">
+        <input name="authenticity_token" type="hidden" value="VRxU+PlDIKEctpxvZkrqcHN5oq7QavspWaWwL18vZzQ=">
+        <input id="files" multiple="multiple" name="files[]" type="file">
+        <div class="loader">
+        <div class="graphic spinner"><img alt="Anim-spinner-20x20" src="http://d26ifou2tyrp3u.cloudfront.net/assets/common/anim-spinner-20x20-65cdce3c15857b19c06268245df96465.gif"><span class="status">Uploading Files...</span></div>
+        </div>
+        </form>
+        """
+        raise NotImplementedError()

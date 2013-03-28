@@ -1,5 +1,6 @@
+import functools
 
-from stravalib.protocol.v1 import RideIterator, V1ServerProxy
+from stravalib.protocol.v1 import BatchedResultsIterator, V1ServerProxy
 
 from stravalib.tests import TestBase
 
@@ -7,24 +8,24 @@ class RideIteratorTest(TestBase):
     
     def setUp(self):
         super(RideIteratorTest, self).setUp()
-        self.v1client = V1ServerProxy()
+        self.v1client = V1ServerProxy(units='imperial')
         
     def test_limit(self):
         """ Test setting the limit on iterator. """
-        ri = RideIterator(self.v1client, limit=10)
+        ri = BatchedResultsIterator(self.v1client.get_rides, limit=10)
         results = list(ri)
         self.assertEquals(10, len(results))
 
     def test_more_than_50(self):
         """ Test fetching more than 50 (this should result in multiple fetches). """
-        ri = RideIterator(self.v1client, limit=51)
+        ri = BatchedResultsIterator(self.v1client.get_rides, limit=51)
         results = list(ri)
         self.assertEquals(51, len(results))
                           
     def test_empty(self):
         """ Test iterating over empty results. """
         # Specify two thing that we happen to know will return 0 results
-        ri = RideIterator(self.v1client, limit=10, club_id=8123, athlete_id=66162)
+        ri = BatchedResultsIterator(functools.partial(self.v1client.get_rides, club_id=8123, athlete_id=66162), limit=10)
         results = list(ri)
         self.assertEquals(0, len(results))
     
