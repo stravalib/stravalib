@@ -164,5 +164,22 @@ class SegmentEffort(StravaEntity):
                 "timeZoneOffset": -18000
             }
     """
-    _effort = None
+    activity_id = None
+    athlete = None
+    elapsed_time = None
+    start_date = None
+    
     _ride = None
+    
+    @property
+    def ride(self):
+        if self._ride is None:
+            if self.bind_client is None:
+                raise exc.UnboundEntity("Unable to retrieve ride for unbound {0} entity.".format(self.__class__))
+            else:
+                self._ride = self.bind_client.get_ride(self.activity_id)
+        return self._ride
+    
+    @ride.setter
+    def ride(self, v):
+        self._ride = v

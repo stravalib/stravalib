@@ -38,23 +38,55 @@ class V1ModelMapper(BaseModelMapper):
         # Often we only have partial athlete structure (e.g. when returning club members, etc.)
         entity_model.username = entity_struct.get('username')
         
-    def populate_minimal_effort(self, effort_model, effort_struct):
+    def populate_minimal_ride_effort(self, effort_model, effort_struct):
         """
-        Populates some minimal effort data, as returned by the get_ride_efforts call.
+        Populates some minimal ride effort data, as returned by the get_ride_efforts call.
         
-          {
-           "elapsed_time": 18, 
-           "id": 571734780, 
-           "segment": {
-                "id": 1030752, 
-                "name": "Brandymore Castle Hill Climb East Ascent"
-          }
+        Effort struct example:
+            {
+             "elapsed_time": 18, 
+             "id": 571734780, 
+             "segment": {
+                  "id": 1030752, 
+                  "name": "Brandymore Castle Hill Climb East Ascent"
+            }
+            
+        :param effort_model:
+        :type effort_model: :class:`stravalib.model.SegmentEffort`
         """
         effort_model.id = effort_struct['id']
         effort_model.elapsed_time = timedelta(seconds=effort_struct['elapsed_time'])
         effort_model.segment = Segment(self.client)
         self.populate_minimal(effort_model.segment, effort_struct['segment'])
+    
+    def populate_minimal_segment_effort(self, effort_model, effort_struct):
+        """
+        Populates some minimal segment effort data, as returned by the get_segment_efforts call.
         
+        Segment effort struct example:
+             {
+                "activityId": 886543, 
+                "athlete": {
+                    "id": 13669, 
+                    "name": "Jeff Dickey", 
+                    "username": "jdickey"
+                }, 
+                "elapsedTime": 103, 
+                "id": 13149960, 
+                "startDate": "2011-07-06T21:32:21Z", 
+                "startDateLocal": "2011-07-06T17:32:21Z", 
+                "timeZoneOffset": -18000
+            }
+        :param effort_model:
+        :type effort_model: :class:`stravalib.model.SegmentEffort`
+        """
+        effort_model.id = effort_struct['id']
+        effort_model.activity_id = effort_struct['activityId']
+        effort_model.elapsed_time = timedelta(seconds=effort_struct['elapsedTime'])
+        effort_model.start_date = self._parse_datetime(effort_struct['startDateLocal'], effort_struct['timeZoneOffset'])
+        effort_model.athlete = Athlete(self.client)
+        self.populate_athlete(effort_model.athlete, effort_struct['athlete'])
+           
     def populate_ride_effort_base(self, entity_model, entity_struct):
         """
         Populates the attributes shared by rides and efforts.
@@ -93,12 +125,12 @@ class V1ModelMapper(BaseModelMapper):
         entity_model.trainer = entity_struct['trainer']
         entity_model.location = entity_struct['location']
     
-    def populate_effort(self, effort_model, effort_struct):
+    def populate_ride_effort(self, effort_model, effort_struct):
         """
-        Populates a :class:`stravalib.model.Effort` model object with data from the V1 structure.
+        Populates a :class:`stravalib.model.RideEffort` model object with data from the V1 structure.
         
         :param effort_model: The model object to fill.
-        :type effort_model: :class:`stravalib.model.Effort`
+        :type effort_model: :class:`stravalib.model.RideEffort`
         :param effort_struct: The raw effort V1 response structure.
         :type effort_struct: dict
         """
@@ -135,7 +167,6 @@ class V1ModelMapper(BaseModelMapper):
         segment_model.elevation_high = segment_struct['elevationHigh']
         segment_model.elevation_low = segment_struct['elevationLow']
         
-    
     def populate_club(self, club_model, club_struct):
         """
         Populates a :class:`stravalib.model.Club` model object with data from the V1 structure.
@@ -162,18 +193,29 @@ class V1ServerProxy(BaseServerProxy):
     # {"bike": {"name":"Storck Absolutist","default_bike":false,"athlete_id":21,"notes":"","weight":7.71107,"id":21,"frame_type":3,"retired":0}},{"bike": {"name":"Turner Flux","default_bike":false,"athlete_id":21,"notes":"","weight":12.7006,"id":22,"frame_type":1,"retired":0}},{"bike": {"name":"Rock Lobster","default_bike":false,"athlete_id":21,"notes":"","weight":8.61825,"id":41,"frame_type":2,"retired":0}},{"bike": {"name":"Surly Crosscheck","default_bike":false,"athlete_id":21,"notes":"Single speed commuter bike","weight":12.7006,"id":1371,"frame_type":2,"retired":0}}
     
     
-    def get_clubs(self):
-        raise NotImplementedError()
+    def get_clubs(self, name):
+        """
+        Return V1 results of search for club by name.
+        
+        Response example:
+            [{"name":"Mission Cycling","id":15}]
+        
+        :param name: The club name (substring) to match on.
+        :rtype: list
+        """
+        response = self._get("http://{0}/api/v1/clubs".format(self.server), params={'name': name})
+        return response['clubs']
     
     def get_club(self, club_id):
         """
         Return V1 object structure for club
         
-        {"club":{"description":"Mission Cycling is devoted to the enjoyment of one of the world's purest, most classic sporting endeavors: Cycling. Our aim is simple: to enjoy the unique challenges and rewards offered by experiencing our unique countryside from the saddle of a bike.",
-          "name":"Mission Cycling",
-          "location":"San Francisco, CA",
-          "club_id":15}
-        }
+        Response example:
+            {"description":"Mission Cycling is devoted to the enjoyment of one of the world's purest, most classic sporting endeavors: Cycling. Our aim is simple: to enjoy the unique challenges and rewards offered by experiencing our unique countryside from the saddle of a bike.",
+              "name":"Mission Cycling",
+              "location":"San Francisco, CA",
+              "club_id":15
+            }
         
         :param club_id: The ID of the club to fetch.
         """

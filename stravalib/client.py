@@ -39,7 +39,7 @@ class Client(object):
         :type limit: int
         
         :keyword include_geo: Whether to include lat/lon information on full objects (requires additional call).
-        :type limit: bool
+        :type include_geo: bool
         
         :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
         :type club_id: int
@@ -155,7 +155,7 @@ class Client(object):
                 self._populate_effort(v1effort['id'], effort)
             else:
                 effort = model.RideEffort(bind_client=self)
-                self.v1client.mapper.populate_minimal_effort(effort, v1effort)
+                self.v1client.mapper.populate_minimal_ride_effort(effort, v1effort)
             efforts.append(effort)
         
         return efforts
@@ -198,7 +198,7 @@ class Client(object):
         
         # FIXME:
         # (This is what I was working on last.)
-        # Segment Efforts are not the same thing as regular Efforts.  In particular the summary info returned for 
+        # Segment Efforts are not the same thing as ride efforts.  In particular the summary info returned for 
         # segment efforts include information about the ride and athlete.
         #
         #
@@ -211,12 +211,12 @@ class Client(object):
             else:
                 effort = model.RideEffort(bind_client=self)
                 print v1effort
-                self.v1client.mapper.populate_minimal_effort(effort, v1effort)
+                self.v1client.mapper.populate_minimal_segment_effort(effort, v1effort)
             efforts.append(effort)
         
         return efforts
     
-    def get_effort(self, effort_id):
+    def get_ride_effort(self, effort_id):
         """
         :rtype: :class:`stravalib.model.RideEffort`
         """
@@ -231,18 +231,53 @@ class Client(object):
         segment = model.Segment(bind_client=self)
         self._populate_segment(segment_id, segment, include_geo=include_geo)
         return segment
-    
+
+    def _populate_club(self, club_id, club_model):
+        """
+        Internal function to populate a club model for specified ID.
+        :param club_id:
+        :param club_model:
+        :type club_model: :class:`stravalib.model.Club`
+        """
+        v1ride = self.v1client.get_club(club_id)
+        self.v1client.mapper.populate_club(club_model, v1ride)
+
+    def get_clubs(self, name, full_objects=False):
+        """
+        Search for clubs by name (substring/keyword match).
+        
+        :param name: The name (or substring) of club.
+        :type name: str
+        
+        :param full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
+        :type full_objects: bool
+        
+        :rtype: list of :class:`stravalib.model.Club`
+        """
+        v1clubs = self.v1client.get_clubs(name)
+        clubs = []
+        for v1club in v1clubs:
+            club = model.Club(bind_client=self)
+            if full_objects:
+                self._populate_club(v1club['id'], club)
+            else:
+                self.v1client.mapper.populate_minimal(club, v1club)
+            clubs.append(club)
+        return clubs
+        
     def get_club(self, club_id):
         """
         :rtype: :class:`stravalib.model.Club`
         """
-        v1club = self.v1client.get_club(club_id)
         club = model.Club(bind_client=self)
-        self.v1client.mapper.populate_club(club, v1club)
+        self._populate_club(club_id, club)
         return club
     
     def get_club_members(self, club_id):
         """
+        Get the members for club specified by ID.
+        
+        :param club_id:
         """
         v1clubmembers = self.v1client.get_club_members(club_id)
         members = []

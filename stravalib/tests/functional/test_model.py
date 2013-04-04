@@ -29,3 +29,18 @@ class ModelTest(TestBase):
         print segment.efforts
         
         assert False
+        
+    def test_club(self):
+        """ Test club properties. """
+        # {"clubs":[{"name":"Mission Cycling","id":15}]}
+        club = self.client.get_club(15)
+        
+        self.assertEquals('Mission Cycling', club.name)
+        self.assertEquals('San Francisco, California', club.location)
+        
+        club = self.client.get_clubs('mission')[0]
+        self.assertEqual(None, club.location)
+        club.hydrate()
+        self.assertNotEqual(None, club.location)
+        
+    

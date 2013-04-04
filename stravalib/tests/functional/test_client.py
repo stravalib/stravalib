@@ -25,4 +25,17 @@ class ClientTest(TestBase):
         
         assert False
         
+    def test_get_club(self):
+        club = self.client.get_club(15)
+        self.assertEquals('Mission Cycling', club.name)
+        self.assertEquals('San Francisco, California', club.location)
+            
+    def test_get_clubs(self):
+        clubs = self.client.get_clubs('mission')
+        self.assertTrue(len(clubs) > 1)
+        self.assertEquals(None, clubs[0].location)
+        
+        clubs = self.client.get_clubs('mission', full_objects=True)
+        self.assertTrue(len(clubs) > 1)
+        self.assertNotEqual(None, clubs[0].location)
         
