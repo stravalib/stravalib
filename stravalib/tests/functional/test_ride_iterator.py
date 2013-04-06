@@ -1,6 +1,6 @@
 import functools
 
-from stravalib.protocol.v1 import BatchedResultsIterator, V1ServerProxy
+from stravalib.protocol.v1 import BatchedResultsIterator, ApiV1Client
 
 from stravalib.tests import TestBase
 
@@ -8,7 +8,7 @@ class RideIteratorTest(TestBase):
     
     def setUp(self):
         super(RideIteratorTest, self).setUp()
-        self.v1client = V1ServerProxy(units='imperial')
+        self.v1client = ApiV1Client(units='imperial')
         
     def test_limit(self):
         """ Test setting the limit on iterator. """

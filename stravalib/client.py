@@ -25,8 +25,8 @@ class Client(object):
         :type units: str
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.v1client = v1.V1ServerProxy(units=units)
-        self.v2client = v2.V2ServerProxy(units=units)
+        self.v1client = v1.ApiV1Client(units=units)
+        self.v2client = v2.ApiV2Client(units=units)
 
     def get_rides(self, full_objects=True, limit=50, include_geo=False, **kwargs):
         """
@@ -109,19 +109,7 @@ class Client(object):
         """
         v1effort = self.v1client.get_effort(effort_id)
         self.v1client.mapper.populate_effort(effort_model, v1effort)
-#        
-#        if include_geo:
-#            # Look up the v2 ride efforts
-#            v2ride_efforts = self.v2client.get_ride_efforts(v1effort['ride']['id'])
-#            # Find the effort from the ride that matches this one ...
-#            for v2ride_effort in v2ride_efforts:
-#                if v2ride_effort['id'] == effort_id:
-#                    # FIXME .... WORK IN PROGRESS
-#                    # ... it's only the segment that actually has geo data ....
-#                    break
-#            else:
-#                raise RuntimeError("Unable to find effort {0} in v2 data for ride {1}".format(effort_id, v1effort['ride']['id']))
-#            
+
     def _populate_segment(self, segment_id, segment_model, include_geo=False):
         """
         Internal function to populate a segment model for specified ID.
@@ -144,17 +132,18 @@ class Client(object):
                     v2segment = eff['segment']
                     break
             else:
-                raise RuntimeError("Exhausted effort {0} looking for segment {1} match".format(efforts[0]['id'], segment_id))
+                raise RuntimeError("Exhausted effort {0} looking for segment {1} match".format(first_effort.activity_id, segment_id))
             
             print "Effort raw = %r" % (v2segment,)
             self.v2client.mapper.populate_segment(segment_model, v2segment)
             
-            
                     
     def get_ride_efforts(self, ride_id, full_objects=False):
         """
-        :param ride_id:
+        Get the efforts (segment performance) on a specific ride.
         
+        :param ride_id: The activity id.
+        :type ride_id: int
         :keyword full_objects: Whether to return full effort objects (as opposed to just basic attributes, which is much faster).
         :type full_objects: bool
         """

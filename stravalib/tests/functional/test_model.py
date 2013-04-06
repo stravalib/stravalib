@@ -25,10 +25,6 @@ class ModelTest(TestBase):
         #print ride.efforts
         segment = ride.efforts[0].segment
         self.assertTrue(isinstance(segment, model.Segment))
-        print segment.__dict__
-        print segment.efforts
-        
-        assert False
         
     def test_club(self):
         """ Test club properties. """

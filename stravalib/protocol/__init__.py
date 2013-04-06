@@ -127,7 +127,7 @@ class BaseModelMapper(object):
             tz = None
         return date_parser.parse(datestr).replace(tzinfo=tz)
         
-class BaseServerProxy(object):
+class BaseApiClient(object):
     """
     The common functionality for Strava REST API client implementations.
     """

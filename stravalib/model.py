@@ -119,6 +119,10 @@ class Segment(StravaEntity):
     
     @property
     def leaderboard(self):
+        """
+        Returns the segment leaderboard.
+        """
+        # (there is no paging in the leaderboard, so exposing as a property seems reasonable)
         if self._best_efforts is None:
             if self.bind_client is None:
                 raise exc.UnboundEntity("Unable to retrieve efforts for unbound {0} entity.".format(self.__class__))

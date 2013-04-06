@@ -4,7 +4,7 @@ import collections
 import requests
 
 from stravalib.model import Segment
-from stravalib.protocol import BaseServerProxy, BaseModelMapper
+from stravalib.protocol import BaseApiClient, BaseModelMapper
 
 __authors__ = ['"Hans Lellelid" <hans@xmpl.org>']
 __copyright__ = "Copyright 2013 Hans Lellelid"
@@ -88,7 +88,7 @@ class V2ModelMapper(BaseModelMapper):
         effort_model.segment = s
         
         
-class V2ServerProxy(BaseServerProxy):
+class ApiV2Client(BaseApiClient):
     """
     A client library implementing V2 of the Strava API.
     """

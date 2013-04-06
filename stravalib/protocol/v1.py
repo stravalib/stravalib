@@ -3,7 +3,7 @@ import logging
 import collections
 from datetime import datetime, timedelta
 
-from stravalib.protocol import BaseServerProxy, BaseModelMapper
+from stravalib.protocol import BaseApiClient, BaseModelMapper
 from stravalib.model import Ride, Athlete, Club, Segment
 from stravalib import measurement
 
@@ -182,7 +182,7 @@ class V1ModelMapper(BaseModelMapper):
         club_model.description = club_struct['description']
         
         
-class V1ServerProxy(BaseServerProxy):
+class ApiV1Client(BaseApiClient):
     """
     A client library implementing V1 of the Strava API.
     """

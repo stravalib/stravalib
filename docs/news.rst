@@ -5,4 +5,4 @@ Changes
 
 0.1.0
 -----
-* First release.
+* First proof-of-concept (very alpha) release.
