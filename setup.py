@@ -11,7 +11,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.1.0'
 
 news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
 news = open(news).read()
