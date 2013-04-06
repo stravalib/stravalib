@@ -125,12 +125,12 @@ class V1ModelMapper(BaseModelMapper):
         entity_model.trainer = entity_struct['trainer']
         entity_model.location = entity_struct['location']
     
-    def populate_ride_effort(self, effort_model, effort_struct):
+    def populate_effort(self, effort_model, effort_struct):
         """
-        Populates a :class:`stravalib.model.RideEffort` model object with data from the V1 structure.
+        Populates a :class:`stravalib.model.Effort` model object with data from the V1 structure.
         
         :param effort_model: The model object to fill.
-        :type effort_model: :class:`stravalib.model.RideEffort`
+        :type effort_model: :class:`stravalib.model.Effort`
         :param effort_struct: The raw effort V1 response structure.
         :type effort_struct: dict
         """

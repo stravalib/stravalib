@@ -88,8 +88,8 @@ class Ride(RideEffortBase):
     trainer = None # V1
     
     location = None # V1, V2
-    start_latlon = None # V2
-    end_latlon = None # V2
+    start_latlng = None # V2
+    end_latlng = None # V2
     
     _efforts = None
     
@@ -102,25 +102,6 @@ class Ride(RideEffortBase):
                 self._efforts = self.bind_client.get_ride_efforts(self.id)  
         return self._efforts
     
-
-class RideEffort(RideEffortBase):
-    """
-    Represents an effort on a ride.
-    """
-    _segment = None
-
-    @property
-    def segment(self):
-        if self._segment is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve segment for unbound {0} entity.".format(self.__class__))
-            else:
-                self._segment = self.bind_client.get_segment(self.segment_id)  
-        return self._segment
-    
-    @segment.setter
-    def segment(self, value):
-        self._segment = value
     
 class Segment(StravaEntity):
     distance = None
@@ -130,9 +111,9 @@ class Segment(StravaEntity):
     average_grade = None
     climb_category = None
     
-    # API V2 provides latlon info, but apparently must get to it via effort 
-    start_latlon = None
-    end_latlon = None
+    # API V2 provides latlng info, but apparently must get to it via effort 
+    start_latlng = None
+    end_latlng = None
     
     _best_efforts = None
     
@@ -145,41 +126,67 @@ class Segment(StravaEntity):
                 self._best_efforts = self.bind_client.get_segment_efforts(self.id, best=True)  
         return self._best_efforts
 
-class SegmentEffort(StravaEntity):
+class Effort(RideEffortBase):
     """
-    Represents a specific effort on a segment.  This is different from a RideEffort in that
-    it includes info about the ride and athlete.
-    
-            {
-                "activityId": 886543, 
-                "athlete": {
-                    "id": 13669, 
-                    "name": "Jeff Dickey", 
-                    "username": "jdickey"
-                }, 
-                "elapsedTime": 103, 
-                "id": 13149960, 
-                "startDate": "2011-07-06T21:32:21Z", 
-                "startDateLocal": "2011-07-06T17:32:21Z", 
-                "timeZoneOffset": -18000
-            }
+    A generic class that can represent an effort for a ride or a segment.
     """
-    activity_id = None
-    athlete = None
-    elapsed_time = None
-    start_date = None
-    
+    _segment_id = None
+    _activity_id = None
+    _segment = None
     _ride = None
     
     @property
-    def ride(self):
+    def segment_id(self):
+        if self._segment_id is not None:
+            return self._segment_id
+        elif self._segment is not None:
+            return self._segment.id
+        else:
+            return None
+        
+    @segment_id.setter
+    def segment_id(self, v):
+        self._segment_id = v
+        
+    @property
+    def segment(self):
+        if self._segment is None:
+            if self.bind_client is None:
+                raise exc.UnboundEntity("Unable to retrieve segment for unbound {0} entity.".format(self.__class__))
+            elif self.segment_id is None:
+                raise RuntimeError("Cannot lookup segment; no segment_id has been set for this effort.")
+            else:
+                self._segment = self.bind_client.get_segment(self.segment_id)  
+        return self._segment
+    
+    @segment.setter
+    def segment(self, value):
+        self._segment = value
+
+    @property
+    def activity_id(self):
+        if self._activity_id is not None:
+            return self._activity_id
+        elif self._ride is not None:
+            return self._ride.id
+        else:
+            return None
+        
+    @activity_id.setter
+    def activity_id(self, v):
+        self._activity_id = v
+        
+    @property
+    def activity(self):
         if self._ride is None:
             if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve ride for unbound {0} entity.".format(self.__class__))
+                raise exc.UnboundEntity("Unable to retrieve activity for unbound {0} entity.".format(self.__class__))
+            elif self.activity_id is None:
+                raise RuntimeError("Cannot lookup activity; no activity_id has been set for this effort.")
             else:
                 self._ride = self.bind_client.get_ride(self.activity_id)
         return self._ride
     
-    @ride.setter
-    def ride(self, v):
+    @activity.setter
+    def activity(self, v):
         self._ride = v

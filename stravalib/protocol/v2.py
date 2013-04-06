@@ -28,16 +28,16 @@ class V2ModelMapper(BaseModelMapper):
         """
         Populates the lat/lon attributes on the ride model from the V2 ride struct.
         """
-        ride_model.start_latlon = LatLon(ride_struct['start_latlon'])
-        ride_model.end_latlon = LatLon(ride_struct['end_latlon'])
+        ride_model.start_latlng = LatLon(ride_struct['start_latlng'])
+        ride_model.end_latlng = LatLon(ride_struct['end_latlng'])
     
     def populate_segment(self, segment_model, segment_struct):
         """
         Populates the lat/lon attributes on the model from the V2 segment struct 
         (which can be obtained from getting v2 ride efforts).
         """
-        segment_model.start_latlon = LatLon(segment_struct['start_latlon'])
-        segment_model.end_latlon = LatLon(segment_struct['end_latlon'])
+        segment_model.start_latlng = LatLon(*segment_struct['start_latlng'])
+        segment_model.end_latlng = LatLon(*segment_struct['end_latlng'])
 
     def pouplate_ride_effort(self, effort_model, effort_struct):
         """
@@ -80,12 +80,10 @@ class V2ModelMapper(BaseModelMapper):
         effort_model.start_date = self._parse_datetime(e_struct['start_date_local']) # XXX: Any way to get the utcoffset here? maybe as a hint (if we know it from ride?)
         
         s = Segment(bind_client=self.client)
-        self.populate_minimal(s, s_struct)
+        self.populate_segment(s, s_struct)
         s.average_grade = s_struct['avg_grade']
         s.climb_category = s_struct['climb_category'] # XXX: This is different format from V1 API
         s.elevation_gain = s_struct['elev_difference']
-        s.start_latlon = LatLon(*s_struct['start_latlng'])
-        s.end_latlon = LatLon(*s_struct['end_latlng'])
         
         effort_model.segment = s
         
@@ -175,7 +173,7 @@ class V2ServerProxy(BaseServerProxy):
             
         :param ride_id: The id of associated ride to fetch.
         """
-        url = "http://{0}/api/v1/rides/{1}/efforts".format(self.server, ride_id)
+        url = "http://{0}/api/v2/rides/{1}/efforts".format(self.server, ride_id)
         return self._get(url)['efforts']
     
     def upload(self):
