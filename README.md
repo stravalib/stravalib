@@ -1,5 +1,11 @@
 # stravalib
 
+**UPDATE**
+
+Now that the version 3 API has been opened to the public (and I therefore have a key), I am actively working on updating this library to work with the new API.  Support for v1 and v2 will be dropped from the code as they are not supported by Strava anymore.
+
+Also, expect the API to change to conform to the architecture of the new API (e.g. the 3 detail levels, etc.).  The new version will not be backwards compatible (though hopefully will retain any positive aspects of current codebase).
+
 **IMPORTANT**
 This is currently under active development.  Expect it to be very broken.  This documentation is also
 obviously very basic/incomplete; the aim here is to get something out there for feedback (and additional help welcome).
