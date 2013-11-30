@@ -2,6 +2,7 @@
 Entity classes for representing the various Strava datatypes. 
 """
 import abc
+import logging
 from datetime import datetime
 from collections import namedtuple
 
@@ -9,23 +10,62 @@ from stravalib import exc
 from stravalib import measurement
 from stravalib.attributes import Attribute, Collection, META, SUMMARY, DETAILED
 
+class Entity(object):
+    pass
+
 class BaseEntity(object):
     """
     A base class for all entities in the system.
     """
     __metaclass__ = abc.ABCMeta
-    id = Attribute(int, (META,SUMMARY,DETAILED))
-    resource_state = Attribute(int, (META,SUMMARY,DETAILED))
-
-    def __init__(self, resource_state, **kwargs):
-        self.resource_state = resource_state
-        for (k,v) in kwargs.items():
-            setattr(self, k, v)
+    
+    def __init__(self, **kwargs):
+        self.log = logging.getLogger('{0.__module__}.{1.__name__}'.format(self.__class__))
+        self.from_dict(kwargs)
+        
+    def from_dict(self, d):
+        """
+        Populates this object from specified dict.
+        
+        Only defined attributes will be set; warnings will be logged for invalid attributes.
+        """
+        for (k,v) in d.items():
+            # Only set defined attributes.
+            if hasattr(self.__class__, k):
+                setattr(self, k, v)
+            else:
+                self.log.warning("No such attribute {0} on entity {1}".format(k, self))
+    
+    @classmethod
+    def deserialize(cls, v):
+        """
+        Creates a new object based on serialized (dict) struct. 
+        """
+        o = cls()
+        o.from_dict(v)
+        return o
     
     def __repr__(self):
         return '<{0} id={id} name={name!r}>'.format(self.__class__.__name__, id=self.id, name=self.name)
-     
-class BoundEntity(BaseEntity):
+
+
+class ResourceStateEntity(object):
+    """
+    A base class for all entities in the system.
+    """
+    resource_state = Attribute(int, (META,SUMMARY,DETAILED))
+
+    def __init__(self, resource_state, **kwargs):
+        super(ResourceStateEntity, self).__init__(**kwargs)
+        self.resource_state = resource_state
+
+class IdentifiableEntity(ResourceStateEntity):
+    """
+    A base class for all entities in the system.
+    """
+    id = Attribute(int, (META,SUMMARY,DETAILED))
+    
+class BoundEntity(IdentifiableEntity):
     """
     The base class for entities that support lazy loading additional data using a bound client.
     """
@@ -89,7 +129,7 @@ class Club(BoundEntity):
                 self._activities = self.bind_client.get_club_activities(self.id)  
         return self._activities
     
-class Bike(BaseEntity):
+class Bike(IdentifiableEntity):
     """
     
     """
@@ -98,7 +138,7 @@ class Bike(BaseEntity):
     distance = Attribute(float, (SUMMARY,DETAILED))
     primary = Attribute(bool, (SUMMARY,DETAILED))
     
-class Shoe(BaseEntity):
+class Shoe(IdentifiableEntity):
     """
     
     """
@@ -146,12 +186,12 @@ class ActivityComment(BoundEntity):
 
 LatLon = namedtuple('LatLon', ['lat', 'lon'])
 
-class Map(BaseEntity):
+class Map(IdentifiableEntity):
     id = Attribute(str, (SUMMARY,DETAILED))
     polyline = Attribute(str, (SUMMARY,DETAILED))
     summary_polyline = Attribute(str, (SUMMARY,DETAILED))
 
-class BaseSplit(object):
+class BaseSplit(BaseEntity):
     pass
     # Consider pushing up attribs from MetricSplit and StandardSplit (challenge is in class-level specification of units)
 

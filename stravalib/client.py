@@ -3,9 +3,12 @@ Providing a simplified, protocol-version-abstracting interface to Strava web ser
 """
 import logging
 import functools
+import time
+
+from dateutil.parser import parser as dateparser
 
 from stravalib import model
-from stravalib.protocol import v3, scrape
+from stravalib.protocol import v3
 from stravalib.measurement import STANDARD, METRIC
 
 # TODO: "constants" for access scopes?
@@ -23,61 +26,93 @@ class Client(object):
     the main website) to provide a simple and full-featured API.
     """
     
-    def __init__(self, client_id, units=STANDARD):
+    def __init__(self, client_id=None, access_token=None, units=STANDARD):
         """
         Initialize a new client object.
         
+        :param client_id: The ID of the client application making the requests (provided when registering an application)
+        :param access_token: The token that provides access to a specific Strava account.  If empty, assume that this
+                             account is not yet authenticated.
+         
         :param units: Whether to use imperial or metric units (value must be 'imperial' or 'metric', 
                       also provided by module-level constants)
         :type units: str
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.client_id = client_id
+        self.access_token = access_token
         self.v3client = v3.ApiV3Client(units=units)
 
     def authorization_url(self, redirect_uri, approval_prompt='auto', scope=None, state=None):
-        if isinstance(scope, (list, tuple)):
-            scope = ','.join(scope)
-        # client_id
-    
-    def get_authorization_token(self, ):
-        pass
-    
-    def get_rides(self, full_objects=True, limit=50, include_geo=False, **kwargs):
         """
-        Enumerate rides for specified attribute/value.
+        Get the URL needed to authorize your application to access a Strava user's information.
         
-        :keyword full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
-        :type full_objects: bool
+        :param redirect_uri: The URL that Strava will redirect to after successful (or failed) authorization.
+        :type redirect_uri: str
         
-        :keyword limit: The maximum number of rides to return. Defaults to 50, set to None to retrieve all results.
-        :type limit: int
+        :param approval_prompt: Whether to prompt for approval even if approval already granted to app.
+                                Choices are 'auto' or 'force'.  (Default is 'auto')
+        :type approval_prompt: str
         
-        :keyword include_geo: Whether to include lat/lon information on full objects (requires additional call).
-        :type include_geo: bool
+        :param scope: The access scope required.  Omit to imply "public".  Valid values are 'public', 'write', 'view_private', 'view_private,write'
+        :type scope: str
         
-        :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
-        :type club_id: int
+        :param state: An arbitrary variable that will be returned to your application in the redirect URI.
+        :type state: str
         
-        :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
-        :type athlete_id: int
-        
-        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
-        :type athlete_name: str
-        
-        :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
-        :type start_date: :class:`datetime.datetime`
-        
-        :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
-        :type end_date: :class:`datetime.datetime`
-        
-        :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
-        :type start_id: int
-        
-        :rtype: list
+        :return: The URL to use for authorization link.
+        :rtype: str
         """
-        result_fetcher = functools.partial(self.v1client.get_rides, **kwargs)
-        v1rides = v1.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
+        return self.v3client.authorization_url(client_id=self.client_id, redirect_uri=redirect_uri,
+                                               approval_prompt=approval_prompt, scope=scope, state=state)
+        
+    def exchange_code_for_token(self, client_secret, code):
+        """
+        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
+        for a permanent access token.
+        
+        :param client_secret: The developer client secret
+        :type client_secret: str
+        
+        :param code: The temporary authorization code
+        :type code: str
+        
+        :return: The access token.
+        :rtype: str
+        """
+        return self.v3client.exchange_code_for_token(client_id=self.client_id,
+                                                     client_secret=client_secret,
+                                                     code=code)
+    
+    def get_athlete(self, athlete_id=None):
+        raw = self.v3client.get_athlete(athlete_id)
+        a = model.Athlete.deserialize(raw)
+        
+    def get_activities(self, before=None, after=None, page=None, per_page=None):
+        """
+        Get activities for authenticated user sorted by newest first.
+        
+        :param before: Result will start with activities whose start date is 
+                       before specified date. (UTC)
+        :type before: datetime.datetime or str
+        :param after: Result will start with activities whose start date is after
+                      specified value. (UTC)
+        :type after: datetime.datetime or str
+        """
+        if before and after:
+            raise ValueError("Cannot specify both 'before' and 'after' params.")
+        
+        if before:
+            if isinstance(before, str):
+                before = dateparser.parse(before, ignoretz=True)
+            before = time.mktime(before.timetuple())
+        elif after:
+            if isinstance(after, str):
+                after = dateparser.parse(after, ignoretz=True)
+            after = time.mktime(after.timetuple())
+        
+        result_fetcher = functools.partial(self.v3client.get_activities, **kwargs)
+        v1rides = v3.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
         rides = []
         for v1ride in v1rides:
             if full_objects:
@@ -218,7 +253,7 @@ class Client(object):
         :rtype: list
         """
         result_fetcher = functools.partial(self.v1client.get_segment_efforts, segment_id, **kwargs)
-        v1efforts = v1.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
+        v1efforts = v3.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
         
         efforts = []
         for v1effort in v1efforts:

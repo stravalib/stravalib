@@ -144,29 +144,29 @@ class BaseApiClient(object):
         (E.g. https://www.strava.com/api/v3/) 
         """
         
-    @abc.abstractproperty
-    def mapper_class(self):
-        """ The class to instantiate for mapping results to model entities. """
-        
-    def __init__(self, units, requests_session=None):
+    def __init__(self, access_token=None, requests_session=None):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
         object.
         
-        :param units: 'imperial' or 'metric'
+        :param access_token: The token that provides access to a specific Strava account.
         :param requests_session: An existing :class:`requests.Session` object to use.
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.access_token = access_token
         if requests_session:
             self.rsession = requests_session
         else:
             self.rsession = requests.Session()
-        self.mapper = self.mapper_class(client=self, units=units)
     
-    def _get(self, url, params=None, base_url=None):
+    def _get(self, url, params=None):
         if not url.startswith('http'):
             url = urlparse.urljoin(self.base_url, url)
         self.log.debug("GET {0!r} with params {1!r}".format(url, params))
+        if params is None:
+            params = {}
+        if self.access_token:
+            params['access_token'] = self.access_token
         raw = self.rsession.get(url, params=params)
         raw.raise_for_status()
         resp = self._handle_protocol_error(raw.json())

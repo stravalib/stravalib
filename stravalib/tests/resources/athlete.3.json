@@ -1,0 +1,150 @@
+{
+    "agreed_to_terms": true,
+    "all_ride_totals": {
+        "count": 266,
+        "distance": 7401423,
+        "elapsed_time": 1349820,
+        "elevation_gain": 73649,
+        "moving_time": 1348305
+    },
+    "all_run_totals": {
+        "count": 4,
+        "distance": 41264,
+        "elapsed_time": 13033,
+        "elevation_gain": 37,
+        "moving_time": 12403
+    },
+    "approve_followers": true,
+    "biggest_climb_elevation_gain": 474.6,
+    "biggest_ride_distance": 152127.0,
+    "bikes": [
+        {
+            "distance": 1981531.1554718018,
+            "id": "b55763",
+            "name": "Cannondale SuperSix HI-MOD 2 Red",
+            "primary": false,
+            "resource_state": 2
+        },
+        {
+            "distance": 176435.8818359375,
+            "id": "b809124",
+            "name": "LOOK 986",
+            "primary": true,
+            "resource_state": 2
+        },
+        {
+            "distance": 191201.8984375,
+            "id": "b58057",
+            "name": "Niner One 9",
+            "primary": false,
+            "resource_state": 2
+        },
+        {
+            "distance": 82744.251953125,
+            "id": "b979998",
+            "name": "Specialized Langster Pro",
+            "primary": false,
+            "resource_state": 2
+        }
+    ],
+    "city": "Nicasio",
+    "clubs": [
+        {
+            "id": 7,
+            "name": "Team Roaring Mouse",
+            "resource_state": 2
+        },
+        {
+            "id": 1,
+            "name": "Team Strava Cycling",
+            "resource_state": 2
+        },
+        {
+            "id": 34444,
+            "name": "Team Strava Cyclocross",
+            "resource_state": 2
+        }
+    ],
+    "created_at": "2009-09-22T18:24:06Z",
+    "date_preference": "%m/%d/%Y",
+    "dateofbirth": "1985-01-11",
+    "description": "iOS Software Engineer at Strava.",
+    "email": "jeff@strava.com",
+    "email_facebook_twitter_friend_joins": false,
+    "email_kom_lost": false,
+    "email_language": "en-US",
+    "email_send_follower_notices": false,
+    "facebook_sharing_enabled": true,
+    "firstname": "Jeff",
+    "follower": null,
+    "follower_count": 106,
+    "follower_request_count": 1,
+    "friend": null,
+    "friend_count": 114,
+    "global_privacy": 1,
+    "id": 1513,
+    "instagram_username": "jeffremer",
+    "lastname": "Remer",
+    "max_heartrate": 198,
+    "measurement_preference": "feet",
+    "mutual_friend_count": 0,
+    "offer_in_app_payment": false,
+    "plan": "paid",
+    "premium": true,
+    "premium_expiration_date": 1390896000,
+    "profile": "http://dgalywyr863hv.cloudfront.net/pictures/athletes/1513/692280/5/large.jpg",
+    "profile_medium": "http://dgalywyr863hv.cloudfront.net/pictures/athletes/1513/692280/5/medium.jpg",
+    "profile_original": "http://dgalywyr863hv.cloudfront.net/pictures/athletes/1513/692280/5/original.jpg",
+    "receive_comment_emails": false,
+    "receive_follower_feed_emails": true,
+    "receive_kudos_emails": false,
+    "receive_newsletter": true,
+    "recent_ride_totals": {
+        "achievement_count": 0,
+        "count": 0,
+        "distance": 0.0,
+        "elapsed_time": 0,
+        "elevation_gain": 0.0,
+        "moving_time": 0
+    },
+    "recent_run_totals": {
+        "achievement_count": 0,
+        "count": 0,
+        "distance": 0.0,
+        "elapsed_time": 0,
+        "elevation_gain": 0.0,
+        "moving_time": 0
+    },
+    "resource_state": 3,
+    "sample_race_distance": 10000,
+    "sample_race_time": 5400,
+    "sex": "M",
+    "shoes": [
+        {
+            "distance": 3264.67236328125,
+            "id": "g69911",
+            "name": "Salomon XT Wings 2",
+            "primary": true,
+            "resource_state": 2
+        }
+    ],
+    "state": "California",
+    "super_user": true,
+    "updated_at": "2013-11-26T23:28:17Z",
+    "username": "jeffremer",
+    "weight": 75.2963,
+    "ytd_ride_totals": {
+        "count": 20,
+        "distance": 585559,
+        "elapsed_time": 126841,
+        "elevation_gain": 8024,
+        "moving_time": 126841
+    },
+    "ytd_run_totals": {
+        "count": 0,
+        "distance": 0,
+        "elapsed_time": 0,
+        "elevation_gain": 0,
+        "moving_time": 0
+    }
+}

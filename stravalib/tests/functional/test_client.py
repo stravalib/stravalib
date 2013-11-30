@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from stravalib import model
-from stravalib.client import Client, IMPERIAL
+from stravalib.client import Client, STANDARD
 from stravalib.tests import TestBase
 
 class ClientTest(TestBase):
