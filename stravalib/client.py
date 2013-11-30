@@ -5,8 +5,15 @@ import logging
 import functools
 
 from stravalib import model
-from stravalib.protocol import v1, v2, scrape
-from stravalib.measurement import IMPERIAL, METRIC
+from stravalib.protocol import v3, scrape
+from stravalib.measurement import STANDARD, METRIC
+
+# TODO: "constants" for access scopes?
+# 
+#public    default, private activities are not returned, privacy zones are respected in stream requests
+#write    modify activities, upload on the user's behalf
+#view_private    view private activities and data within privacy zones
+#view_private,write    both 'write' and 'view_private' access
 
 class Client(object):
     """
@@ -16,7 +23,7 @@ class Client(object):
     the main website) to provide a simple and full-featured API.
     """
     
-    def __init__(self, units=IMPERIAL):
+    def __init__(self, client_id, units=STANDARD):
         """
         Initialize a new client object.
         
@@ -25,9 +32,17 @@ class Client(object):
         :type units: str
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.v1client = v1.ApiV1Client(units=units)
-        self.v2client = v2.ApiV2Client(units=units)
+        self.client_id = client_id
+        self.v3client = v3.ApiV3Client(units=units)
 
+    def authorization_url(self, redirect_uri, approval_prompt='auto', scope=None, state=None):
+        if isinstance(scope, (list, tuple)):
+            scope = ','.join(scope)
+        # client_id
+    
+    def get_authorization_token(self, ):
+        pass
+    
     def get_rides(self, full_objects=True, limit=50, include_geo=False, **kwargs):
         """
         Enumerate rides for specified attribute/value.

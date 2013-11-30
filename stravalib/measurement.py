@@ -8,19 +8,19 @@ import units.predefined
 
 
 METRIC = 'metric'
-IMPERIAL = 'imperial'
+STANDARD = 'standard'
 
 # Setup the units we will use in this module.
 units.predefined.define_units()
 
-meter = unit('m')
-second = unit('s')
-hour = unit('h')
-foot = unit('ft')
-mile = unit('mi')
-kilometer = unit('km')
+meter = meters = unit('m')
+second = seconds = unit('s')
+hour = hours = unit('h')
+foot = feet = unit('ft')
+mile = miles = unit('mi')
+kilometer = kilometers = unit('km')
 
 meters_per_second = meter / second
-mph = mile / hour
-kph = kilometer / hour
+miles_per_hour = mph = mile / hour
+kilometers_per_hour = kph = kilometer / hour
     

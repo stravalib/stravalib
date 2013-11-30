@@ -3,6 +3,7 @@ import abc
 import json
 import logging
 import collections
+import urlparse
 
 import requests
 from pytz import FixedOffset
@@ -10,7 +11,7 @@ from dateutil import parser as date_parser
 from units.abstract import AbstractUnit
 
 from stravalib import exc
-from stravalib.measurement import IMPERIAL, METRIC
+from stravalib.measurement import STANDARD, METRIC
 from stravalib import measurement
 
 Credentials = collections.namedtuple('Credentials', ('username', 'password'))
@@ -40,7 +41,7 @@ class BaseModelMapper(object):
 
     @units.setter
     def units(self, v):
-        valid_units = (IMPERIAL, METRIC)
+        valid_units = (STANDARD, METRIC)
         if not v in valid_units:
             raise ValueError("units param must be one of: {0}".format(valid_units))
         self._units = v
@@ -66,7 +67,7 @@ class BaseModelMapper(object):
         if not isinstance(v, AbstractUnit):
             v = measurement.meter(v)
             
-        if self.units == IMPERIAL:
+        if self.units == STANDARD:
             result = measurement.mile(v)
         else:
             result = measurement.kilometer(v)
@@ -85,7 +86,7 @@ class BaseModelMapper(object):
         
         #print("Normalized: %r" % (v,))
         
-        if self.units == IMPERIAL:
+        if self.units == STANDARD:
             result = measurement.mph(v)
         else:
             result = measurement.kph(v)
@@ -101,7 +102,7 @@ class BaseModelMapper(object):
         if not isinstance(v, AbstractUnit):
             v = measurement.meter(v)
             
-        if self.units == IMPERIAL:
+        if self.units == STANDARD:
             result = measurement.foot(v)
         else:
             result = measurement.meter(v)
@@ -137,6 +138,13 @@ class BaseApiClient(object):
     mapper = None
     
     @abc.abstractproperty
+    def base_url(self):
+        """
+        The base URL for the API calls.
+        (E.g. https://www.strava.com/api/v3/) 
+        """
+        
+    @abc.abstractproperty
     def mapper_class(self):
         """ The class to instantiate for mapping results to model entities. """
         
@@ -155,7 +163,9 @@ class BaseApiClient(object):
             self.rsession = requests.Session()
         self.mapper = self.mapper_class(client=self, units=units)
     
-    def _get(self, url, params=None):
+    def _get(self, url, params=None, base_url=None):
+        if not url.startswith('http'):
+            url = urlparse.urljoin(self.base_url, url)
         self.log.debug("GET {0!r} with params {1!r}".format(url, params))
         raw = self.rsession.get(url, params=params)
         raw.raise_for_status()
