@@ -2,20 +2,19 @@ from __future__ import absolute_import
 
 from stravalib import model
 from stravalib.client import Client, STANDARD
-from stravalib.tests import TestBase
+from stravalib.tests.functional import FunctionalTestBase
 
-class ClientTest(TestBase):
+class ClientTest(FunctionalTestBase):
     
-    def setUp(self):
-        super(ClientTest, self).setUp()
-        self.client = Client(units=IMPERIAL)
-    
-    def test_get_ride(self):
+    def test_get_activity(self):
         """ Test basic ride fetching. """
-        ride = self.client.get_ride(34813017)
-        self.assertTrue(isinstance(ride, model.Ride))
-        self.assertEquals(u'Arlington Big Loop - Windy', ride.name)
-        self.assertAlmostEqual(22.52, ride.distance, places=2)
+        activity = self.client.get_activity(96089609)
+        print activity
+        print ativity.__dict__
+        assert False
+        #self.assertTrue(isinstance(ride, model.Ride))
+        #self.assertEquals(u'Arlington Big Loop - Windy', ride.name)
+        #self.assertAlmostEqual(22.52, ride.distance, places=2)
         
     def test_get_segment_efforts(self):
         segment = self.client.get_segment(1154455)

@@ -6,6 +6,7 @@ structures and for capturing additional information about the model attributes.
 """
 import logging
 from datetime import datetime, timedelta
+from collections import namedtuple
 
 import pytz
 
@@ -94,12 +95,24 @@ class FloatAttribute(Attribute):
     """
     def __init__(self, resource_states=None, units=None):
         super(FloatAttribute, self).__init__(float, resource_states=resource_states, units=units)
- 
+
+class BoolAttribute(Attribute):
+    """
+    """
+    def __init__(self, resource_states=None):
+        super(BoolAttribute, self).__init__(float, resource_states=resource_states)
+
+class TextAttribute(Attribute):
+    """
+    """
+    def __init__(self, resource_states=None):
+        super(TextAttribute, self).__init__(str, resource_states=resource_states)
+
 class TimestampAttribute(Attribute):
     """
     """
-    def __init__(self, resource_states=None, units=None):
-        super(IntAttribute, self).__init__(datetime, resource_states=resource_states, units=units)
+    def __init__(self, resource_states=None):
+        super(TimestampAttribute, self).__init__(datetime, resource_states=resource_states)
 
     def unmarshal(self, v):
         """
@@ -110,12 +123,27 @@ class TimestampAttribute(Attribute):
             # (The time is not necessarily GMT, though that should be considered the default.
             v = pytz.utc.localize(datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ"))
         return v
+
+LatLon = namedtuple('LatLon', ['lat', 'lon'])
+
+class LocationAttribute(Attribute):
+    """
+    """
+    def __init__(self, resource_states=None):
+        super(LocationAttribute, self).__init__(LatLon, resource_states=resource_states)
+
+    def unmarshal(self, v):
+        """
+        """
+        if not isinstance(v, LatLon):
+            v = LatLon(lat=v[0], lon=v[1])
+        return v
     
 class TimezoneAttribute(Attribute):
     """
     """
-    def __init__(self, resource_states=None, units=None):
-        super(IntAttribute, self).__init__(str, resource_states=resource_states, units=units)
+    def __init__(self, resource_states=None):
+        super(TimezoneAttribute, self).__init__(pytz.timezone, resource_states=resource_states)
 
     def unmarshal(self, v):
         """
@@ -127,8 +155,6 @@ class TimezoneAttribute(Attribute):
             tzname = v.split(' ')[-1]
             v = pytz.timezone(tzname)
         return v
-    
-#     
     
 class TimeIntervalAttribute(Attribute):
     """
@@ -189,8 +215,13 @@ class EntityAttribute(Attribute):
                 raise Exception("Unable to unmarshall object {0!r}".format(value))
         return value
     
-class Collection(object):
+class EntityCollection(EntityAttribute):
     
-    def __init__(self, type_):
-        raise NotImplementedError()
-    
+    def unmarshal(self, values):
+        """
+        Cast the list.
+        """
+        results = []
+        for v in values:
+            results.append(super(EntityCollection, self).unmarshal(v))
+        return results

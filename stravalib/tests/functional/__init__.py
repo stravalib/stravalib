@@ -9,5 +9,4 @@ class FunctionalTestBase(TestBase):
     
     def setUp(self):
         super(FunctionalTestBase, self).setUp()
-        self.client = Client(units=STANDARD)
-        self.client.
+        self.client = Client(access_token=TEST_ACCESS_TOKEN, units=STANDARD)
