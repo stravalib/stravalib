@@ -6,10 +6,6 @@ These are really just thin wrappers to the brilliant 'units' python library.
 from units import unit
 import units.predefined
 
-
-METRIC = 'metric'
-STANDARD = 'standard'
-
 # Setup the units we will use in this module.
 units.predefined.define_units()
 
@@ -23,4 +19,6 @@ kilometer = kilometers = unit('km')
 meters_per_second = meter / second
 miles_per_hour = mph = mile / hour
 kilometers_per_hour = kph = kilometer / hour
-    
+
+kilogram = kilograms = kg = kgs = unit('kg')
+pound = pounds = lb = lbs = unit('lb')

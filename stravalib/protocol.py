@@ -13,10 +13,6 @@ from dateutil import parser as date_parser
 from units.abstract import AbstractUnit
 
 from stravalib import exc
-from stravalib.measurement import STANDARD, METRIC
-from stravalib import measurement
-
-Credentials = collections.namedtuple('Credentials', ('username', 'password'))
         
 class ApiV3(object):
     """

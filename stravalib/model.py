@@ -7,13 +7,11 @@ from datetime import datetime
 from collections import namedtuple
 
 from stravalib import exc
-from stravalib import measurement
-from stravalib.attributes import EntityCollection, META, SUMMARY, DETAILED, IntAttribute, \
-                                 TextAttribute, BoolAttribute, FloatAttribute, EntityAttribute, \
-                                 TimestampAttribute, LocationAttribute
+from stravalib import unithelper as uh
 
-class Entity(object):
-    pass
+from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute, 
+                                  TimestampAttribute, LocationAttribute, EntityCollection, 
+                                  EntityAttribute, TimeIntervalAttribute, TimezoneAttribute)
 
 class BaseEntity(object):
     """
@@ -48,35 +46,40 @@ class BaseEntity(object):
         o.from_dict(v)
         return o
     
-    #def __repr__(self):
-    #    return '<{0} id={id} name={name!r}>'.format(self.__class__.__name__, id=self.id, name=self.name)
-
+    def __repr__(self):
+        attrs = []
+        if hasattr(self.__class__, 'id'):
+            attrs.append('id={0}'.format(self.id))
+        if hasattr(self.__class__, 'name'):
+            attrs.append('name={0!r}'.format(self.name))
+        if hasattr(self.__class__, 'resource_state'):
+            attrs.append('resource_state={0}'.format(self.resource_state))
+            
+        return '<{0} {1}>'.format(self.__class__.__name__, ' '.join(attrs))
 
 class ResourceStateEntity(BaseEntity):
     """
     A base class for all entities in the system.
     """
-    resource_state = IntAttribute((META,SUMMARY,DETAILED))
-
+    resource_state = Attribute(int, (META,SUMMARY,DETAILED))
+    
 class IdentifiableEntity(ResourceStateEntity):
     """
     A base class for all entities in the system.
     """
-    id = IntAttribute((META,SUMMARY,DETAILED))
+    id = Attribute(int, (META,SUMMARY,DETAILED))
     
-class BoundEntity(IdentifiableEntity):
+class BoundEntity(BaseEntity):
     """
     The base class for entities that support lazy loading additional data using a bound client.
     """
-    __metaclass__ = abc.ABCMeta
-            
+    
+    bind_client = None
+    
     def __init__(self, bind_client=None, **kwargs):
         """
         Base entity initializer, which accepts a client parameter that creates a "bound" entity
         which can perform additional lazy loading of content.
-        
-        :param resource_state: The detail level for this entity.
-        :type resource_state: int
         
         :param bind_client: The client instance to bind to this entity.
         :type bind_client: :class:`stravalib.simple.Client`
@@ -92,7 +95,14 @@ class BoundEntity(IdentifiableEntity):
         o = cls(bind_client=bind_client)
         o.from_dict(v)
         return o
+
     
+    def assert_bind_client(self):
+        if self.bind_client is None:
+            raise exc.UnboundEntity("Unable to fetch objects for unbound {0} entity.".format(self.__class__))
+
+class LoadableEntity(BoundEntity, IdentifiableEntity):
+        
     def hydrate(self):
         """
         Fill this object with data from the bound client.
@@ -102,100 +112,93 @@ class BoundEntity(IdentifiableEntity):
         """
         if not self.bind_client:
             raise exc.UnboundEntity("Cannot set entity attributes for unbound entity.")
+        raise NotImplementedError()
+        # TODO: Decided whether we want to keep this
         assumed_method_name = '_populate_{0}'.format(self.__class__.__name__.lower())
         method = getattr(self.bind_client, assumed_method_name)
         method(self.id, self)
-    
-    
-class Club(BoundEntity):
+
+class Club(LoadableEntity):
     """
     Class to represent a club.
     
     Currently summary and detail resource states have the same attributes.
-    {
-      "id": 1,
-      "resource_state": 2,
-      "name": "Team Strava Cycling"
-    }
     """
-
+    name = Attribute(str, (SUMMARY,DETAILED))
+    
     @property
     def members(self):
         if self._members is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve members for unbound {0} entity.".format(self.__class__))
-            else:
-                self._members = self.bind_client.get_club_members(self.id)  
+            self.assert_bind_client()
+            self._members = self.bind_client.get_club_members(self.id)  
         return self._members
 
     @property
     def activities(self):
         if self._activities is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve activities for unbound {0} entity.".format(self.__class__))
-            else:
-                self._activities = self.bind_client.get_club_activities(self.id)  
+            self.assert_bind_client()
+            self._activities = self.bind_client.get_club_activities(self.id)  
         return self._activities
     
 class Bike(IdentifiableEntity):
     """
     
     """
-    id = TextAttribute((META,SUMMARY,DETAILED))
-    name = TextAttribute((SUMMARY,DETAILED))
-    distance = FloatAttribute((SUMMARY,DETAILED))
-    primary = BoolAttribute((SUMMARY,DETAILED))
+    id = Attribute(str, (META,SUMMARY,DETAILED))
+    name = Attribute(str, (SUMMARY,DETAILED))
+    distance = Attribute(float, (SUMMARY,DETAILED))
+    primary = Attribute(bool, (SUMMARY,DETAILED))
     
 class Shoe(IdentifiableEntity):
     """
     
     """
-    id = TextAttribute((META,SUMMARY,DETAILED))
-    name = TextAttribute((SUMMARY,DETAILED))
-    distance = FloatAttribute((SUMMARY,DETAILED))
-    primary = BoolAttribute((SUMMARY,DETAILED))
+    id = Attribute(str, (META,SUMMARY,DETAILED))
+    name = Attribute(str, (SUMMARY,DETAILED))
+    distance = Attribute(float, (SUMMARY,DETAILED))
+    primary = Attribute(bool, (SUMMARY,DETAILED))
     
-class Athlete(BoundEntity):
+class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
     """
-    firstname = TextAttribute((SUMMARY,DETAILED))
-    lastname = TextAttribute((SUMMARY,DETAILED))
-    profile_medium = TextAttribute((SUMMARY,DETAILED)) # URL to a 62x62 pixel profile picture
-    profile = TextAttribute((SUMMARY,DETAILED)) # URL to a 124x124 pixel profile picture
-    city = TextAttribute((SUMMARY,DETAILED))
-    state = TextAttribute((SUMMARY,DETAILED))
-    sex = TextAttribute((SUMMARY,DETAILED)) # 'M', 'F' or null
-    friend = TextAttribute((SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = TextAttribute((SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    preimum = BoolAttribute((SUMMARY,DETAILED)) # true/false
+    firstname = Attribute(str, (SUMMARY,DETAILED))
+    lastname = Attribute(str, (SUMMARY,DETAILED))
+    profile_medium = Attribute(str, (SUMMARY,DETAILED)) # URL to a 62x62 pixel profile picture
+    profile = Attribute(str, (SUMMARY,DETAILED)) # URL to a 124x124 pixel profile picture
+    city = Attribute(str, (SUMMARY,DETAILED))
+    state = Attribute(str, (SUMMARY,DETAILED))
+    sex = Attribute(str, (SUMMARY,DETAILED)) # 'M', 'F' or null
+    friend = Attribute(str, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(str, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    preimum = Attribute(bool, (SUMMARY,DETAILED)) # true/false
     
     created_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
     updated_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
     
-    follower_count = IntAttribute((DETAILED,))
-    friend_count = IntAttribute((DETAILED,))
-    mutual_friend_count = IntAttribute((DETAILED,))
-    date_preference = TextAttribute((DETAILED,)) # "%m/%d/%Y"
-    measurement_preference = TextAttribute((DETAILED,)) # "feet" (or what "meters"?)
+    follower_count = Attribute(int, (DETAILED,))
+    friend_count = Attribute(int, (DETAILED,))
+    mutual_friend_count = Attribute(int, (DETAILED,))
+    date_preference = Attribute(str, (DETAILED,)) # "%m/%d/%Y"
+    measurement_preference = Attribute(str, (DETAILED,)) # "feet" (or what "meters"?)
     
-    clubs = None # Club[]
-    bikes = None # Bike[]
-    shoes = None # Shoe[]
+    clubs = EntityCollection(Club, (DETAILED,))
+    bikes = EntityCollection(Bike, (DETAILED,))
+    shoes = EntityCollection(Shoe, (DETAILED,))
 
     
-class ActivityComment(BoundEntity):
-    activity_id = IntAttribute((META,SUMMARY,DETAILED))
-    text = TextAttribute((META,SUMMARY,DETAILED))
+class ActivityComment(LoadableEntity):
+    activity_id = Attribute(int, (META,SUMMARY,DETAILED))
+    text = Attribute(str, (META,SUMMARY,DETAILED))
     created_at = TimestampAttribute((SUMMARY,DETAILED))
     
     athlete = None
     # 'athlete' is a summary-level representation of commenter
 
 class Map(IdentifiableEntity):
-    id = TextAttribute((SUMMARY,DETAILED))
-    polyline = TextAttribute((SUMMARY,DETAILED))
-    summary_polyline = TextAttribute((SUMMARY,DETAILED))
+    id = Attribute(str, (SUMMARY,DETAILED))
+    polyline = Attribute(str, (SUMMARY,DETAILED))
+    summary_polyline = Attribute(str, (SUMMARY,DETAILED))
 
 class BaseSplit(BaseEntity):
     pass
@@ -206,183 +209,122 @@ class MetricSplit(BaseSplit):  # This is not a BaseEntity, since there is no id 
     A metric-unit split.
     """
     
-    distance = FloatAttribute(units=measurement.meters)
-    elapsed_time = IntAttribute(units=measurement.seconds)
-    elevation_difference = FloatAttribute(units=measurement.meters) 
-    moving_time = IntAttribute(units=measurement.seconds)
-    split = IntAttribute()
+    distance = Attribute(float, units=uh.meters)
+    elapsed_time = Attribute(int, units=uh.seconds)
+    elevation_difference = Attribute(float, units=uh.meters) 
+    moving_time = Attribute(int, units=uh.seconds)
+    split = Attribute(int)
 
 class StandardSplit(BaseSplit):  # This is not a BaseEntity, since there is no id or resource_state ... maybe we need a simpler Base?
     """
     A standard-unit (not metric) split.
     """
-    distance = FloatAttribute(units=measurement.feet)
-    elapsed_time = IntAttribute(units=measurement.seconds)
-    elevation_difference = FloatAttribute(units=measurement.feet) 
-    moving_time = IntAttribute(units=measurement.seconds)
-    split = IntAttribute()
+    distance = Attribute(float, units=uh.feet)
+    elapsed_time = Attribute(int, units=uh.seconds)
+    elevation_difference = Attribute(float, units=uh.feet) 
+    moving_time = Attribute(int, units=uh.seconds)
+    split = Attribute(int)
 
-class Segment(BoundEntity):
+class Segment(LoadableEntity):
     """
     """
-    name = TextAttribute((SUMMARY,DETAILED))
-    activity_type = TextAttribute((SUMMARY,DETAILED))
-    distance = FloatAttribute((SUMMARY,DETAILED), units=measurement.meters)
-    average_grade = FloatAttribute((SUMMARY,DETAILED)) # percent
-    maximum_grade = FloatAttribute((SUMMARY,DETAILED)) # percent
-    elevation_high = FloatAttribute((SUMMARY,DETAILED), units=measurement.meters)
-    elevation_low = FloatAttribute((SUMMARY,DETAILED), units=measurement.meters)
+    name = Attribute(str, (SUMMARY,DETAILED))
+    activity_type = Attribute(str, (SUMMARY,DETAILED))
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    average_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
+    maximum_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
+    elevation_high = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    elevation_low = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     start_latlng = LocationAttribute((SUMMARY,DETAILED))
     end_latlng = LocationAttribute((SUMMARY,DETAILED))
-    start_latitude = FloatAttribute((SUMMARY,DETAILED))
-    end_latitude = FloatAttribute((SUMMARY,DETAILED))
-    start_longitude = FloatAttribute((SUMMARY,DETAILED))
-    end_longitude = FloatAttribute((SUMMARY,DETAILED))
-    climb_category = IntAttribute((SUMMARY,DETAILED)) # 0-5, lower is harder
-    city = TextAttribute((SUMMARY,DETAILED))
-    state = TextAttribute((SUMMARY,DETAILED))
-    private = BoolAttribute((SUMMARY,DETAILED))
+    start_latitude = Attribute(float, (SUMMARY,DETAILED))
+    end_latitude = Attribute(float, (SUMMARY,DETAILED))
+    start_longitude = Attribute(float, (SUMMARY,DETAILED))
+    end_longitude = Attribute(float, (SUMMARY,DETAILED))
+    climb_category = Attribute(int, (SUMMARY,DETAILED)) # 0-5, lower is harder
+    city = Attribute(str, (SUMMARY,DETAILED))
+    state = Attribute(str, (SUMMARY,DETAILED))
+    private = Attribute(bool, (SUMMARY,DETAILED))
     
     # detailed attribs
     created_at = TimestampAttribute((DETAILED,))
     updated_at = TimestampAttribute((DETAILED,))
-    total_elevation_gain = FloatAttribute((DETAILED,), units=measurement.meters)
+    total_elevation_gain = Attribute(float, (DETAILED,), units=uh.meters)
     map = EntityAttribute(Map, (DETAILED,))
-    effort_count = IntAttribute((DETAILED,))
-    athlete_count = IntAttribute((DETAILED,))
-    hazardous = BoolAttribute((DETAILED,))
-    pr_time = IntAttribute((DETAILED,), units=measurement.seconds)
-    pr_distance = FloatAttribute((DETAILED,), units=measurement.meters)
-    starred = BoolAttribute((DETAILED,))
+    effort_count = Attribute(int, (DETAILED,))
+    athlete_count = Attribute(int, (DETAILED,))
+    hazardous = Attribute(bool, (DETAILED,))
+    pr_time = Attribute(int, (DETAILED,), units=uh.seconds)
+    pr_distance = Attribute(float, (DETAILED,), units=uh.meters)
+    starred = Attribute(bool, (DETAILED,))
     
-    
-class BaseEffort(BoundEntity):
-    pass
+class BaseEffort(LoadableEntity):
+    name = Attribute(str, (SUMMARY,DETAILED))
+    segment = EntityAttribute(Segment, (SUMMARY,DETAILED))
+    activity = EntityAttribute("Activity", (SUMMARY,DETAILED))
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
+    kom_rank = Attribute(int, (SUMMARY,DETAILED))
+    pr_rank = Attribute(int, (SUMMARY,DETAILED))
+    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
+    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
+    start_date = TimestampAttribute((SUMMARY,DETAILED))
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED))
+    distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters)
 
 class BestEffort(BaseEffort):
-    name = TextAttribute((SUMMARY,DETAILED))
-    segment = EntityAttribute(Segment, (SUMMARY,DETAILED))
-    activity = EntityAttribute("Activity", (SUMMARY,DETAILED)) # How to use actual classes?
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
-    kom_rank = IntAttribute((SUMMARY,DETAILED))
-    pr_rank = IntAttribute((SUMMARY,DETAILED))
-    moving_time = IntAttribute((SUMMARY,DETAILED))
-    elapsed_time = IntAttribute((SUMMARY,DETAILED))
-    start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED))
-    distance = IntAttribute((SUMMARY,DETAILED), units=measurement.meters)
-      
-class SegmentEffort(BaseEffort):
-    """
-    A class that can represent an effort for a segment.
-    """
-    start_index = IntAttribute((SUMMARY,DETAILED)) # the activity stream index of the start of this effort
-    end_index = IntAttribute((SUMMARY,DETAILED)) # the activity stream index of the end of this effort
-    
-    _segment_id = None
-    _activity_id = None
-    _segment = None
-    _ride = None
-    
-    @property
-    def segment_id(self):
-        if self._segment_id is not None:
-            return self._segment_id
-        elif self._segment is not None:
-            return self._segment.id
-        else:
-            return None
-        
-    @segment_id.setter
-    def segment_id(self, v):
-        self._segment_id = v
-        
-    @property
-    def segment(self):
-        if self._segment is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve segment for unbound {0} entity.".format(self.__class__))
-            elif self.segment_id is None:
-                raise RuntimeError("Cannot lookup segment; no segment_id has been set for this effort.")
-            else:
-                self._segment = self.bind_client.get_segment(self.segment_id)  
-        return self._segment
-    
-    @segment.setter
-    def segment(self, value):
-        self._segment = value
+    pass
 
-    @property
-    def activity_id(self):
-        if self._activity_id is not None:
-            return self._activity_id
-        elif self._ride is not None:
-            return self._ride.id
-        else:
-            return None
-        
-    @activity_id.setter
-    def activity_id(self, v):
-        self._activity_id = v
-        
-    @property
-    def activity(self):
-        if self._ride is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve activity for unbound {0} entity.".format(self.__class__))
-            elif self.activity_id is None:
-                raise RuntimeError("Cannot lookup activity; no activity_id has been set for this effort.")
-            else:
-                self._ride = self.bind_client.get_ride(self.activity_id)
-        return self._ride
-    
-    @activity.setter
-    def activity(self, v):
-        self._ride = v
-              
-class Activity(BoundEntity):
+class SegmentEffort(BaseEffort):
+    start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
+    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort
+                    
+class Activity(LoadableEntity):
     """
     
     """
-    external_id = TextAttribute((SUMMARY,DETAILED))
-    upload_id = TextAttribute((SUMMARY,DETAILED))
+    guid = Attribute(str, (SUMMARY,DETAILED)) # An undocumented attribute
+    
+    external_id = Attribute(str, (SUMMARY,DETAILED))
+    upload_id = Attribute(str, (SUMMARY,DETAILED))
     athlete = None # META-level
-    name = TextAttribute((SUMMARY,DETAILED))
-    moving_time = IntAttribute((SUMMARY,DETAILED)) # seconds
-    elapsed_time = IntAttribute((SUMMARY,DETAILED)) # seconds
-    total_elevation_gain = FloatAttribute((SUMMARY,DETAILED)) # meters
-    type = TextAttribute((SUMMARY,DETAILED))
+    name = Attribute(str, (SUMMARY,DETAILED))
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
+    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
+    total_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    type = Attribute(str, (SUMMARY,DETAILED))
     start_date = TimestampAttribute((SUMMARY,DETAILED))
     start_date_local = TimestampAttribute((SUMMARY,DETAILED))
-    timezone = TextAttribute((SUMMARY,DETAILED))
+    timezone = TimezoneAttribute((SUMMARY,DETAILED))
     start_latlng = LocationAttribute((SUMMARY,DETAILED))
     end_latlng = LocationAttribute((SUMMARY,DETAILED))
-
-    location_city = TextAttribute((SUMMARY,DETAILED)),
-    location_state = TextAttribute((SUMMARY,DETAILED)),
-    start_latitude = FloatAttribute((SUMMARY,DETAILED)),
-    start_longitude = FloatAttribute((SUMMARY,DETAILED)),
-    achievement_count = IntAttribute((SUMMARY,DETAILED)),
-    kudos_count = IntAttribute((SUMMARY,DETAILED)),
-    comment_count = IntAttribute((SUMMARY,DETAILED)),
-    athlete_count = IntAttribute((SUMMARY,DETAILED)),
-    photo_count = IntAttribute((SUMMARY,DETAILED)),
+    
+    location_city = Attribute(str, (SUMMARY,DETAILED)),
+    location_state = Attribute(str, (SUMMARY,DETAILED)),
+    start_latitude = Attribute(float, (SUMMARY,DETAILED)),
+    start_longitude = Attribute(float, (SUMMARY,DETAILED)),
+    
+    achievement_count = Attribute(int, (SUMMARY,DETAILED)),
+    kudos_count = Attribute(int, (SUMMARY,DETAILED)),
+    comment_count = Attribute(int, (SUMMARY,DETAILED)),
+    athlete_count = Attribute(int, (SUMMARY,DETAILED)),
+    photo_count = Attribute(int, (SUMMARY,DETAILED)),
     map = EntityAttribute(Map, (SUMMARY,DETAILED))
     
-    trainer = BoolAttribute((SUMMARY,DETAILED))
-    commute = BoolAttribute((SUMMARY,DETAILED))
-    manual = BoolAttribute((SUMMARY,DETAILED))
-    flagged = BoolAttribute((SUMMARY,DETAILED))
+    trainer = Attribute(bool, (SUMMARY,DETAILED))
+    commute = Attribute(bool, (SUMMARY,DETAILED))
+    manual = Attribute(bool, (SUMMARY,DETAILED))
+    private = Attribute(bool, (SUMMARY,DETAILED))
+    flagged = Attribute(bool, (SUMMARY,DETAILED))
     
-    # TODO: gear?  (LazyAttribute)
-    gear_id = TextAttribute((SUMMARY,DETAILED))
+    _gear = None
+    gear_id = Attribute(str, (SUMMARY,DETAILED))
     
-    
-    average_speed = FloatAttribute((SUMMARY,DETAILED)) # meters/sec
-    max_speed = FloatAttribute((SUMMARY,DETAILED)) # meters/sec
-    calories = FloatAttribute((SUMMARY,DETAILED)) 
-    truncated = IntAttribute((SUMMARY,DETAILED))
-    has_kudoed = BoolAttribute((SUMMARY,DETAILED))
+    average_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
+    max_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
+    calories = Attribute(float, (SUMMARY,DETAILED)) 
+    truncated = Attribute(int, (SUMMARY,DETAILED))
+    has_kudoed = Attribute(bool, (SUMMARY,DETAILED))
   
     segment_efforts = EntityCollection(SegmentEffort, (DETAILED,))
     splits_metric = EntityCollection(MetricSplit, (DETAILED,))
@@ -399,10 +341,17 @@ class Activity(BoundEntity):
                 self._efforts = self.bind_client.get_ride_efforts(self.id)  
         return self._efforts
     """
+    @property
+    def gear(self):
+        if self._gear is None:
+            self.assert_bind_client()
+            if self.gear_id is not None:
+                self._gear = self.bind_client.get_gear(self.gear_id)
+        return self._gear
+        
 
 
-
-class SegmentLeaderboard(object):
+class SegmentLeaderboard(BoundEntity):
     """
     {
   "effort_count": 7037,
@@ -445,42 +394,25 @@ class SegmentLeaderboard(object):
     """
     
     
-class ActivityZone(object):
+class DistributionBucket(BaseEntity):
+    max = Attribute(int)
+    min = Attribute(int)
+    time = Attribute(int, units=uh.seconds)
+
+class BaseActivityZone(LoadableEntity):
     """
-    {
-    "score": 215,
-    "distribution_buckets": [
-      { "max": 115, "min": 0,   "time": 1735 },
-      { "max": 152, "min": 115, "time": 5966 },
-      { "max": 171, "min": 152, "time": 4077 },
-      { "max": 190, "min": 171, "time": 4238 },
-      { "max": -1,  "min": 190, "time": 36 }
-    ],
-    "type": "heartrate",
-    "resource_state": 3,
-    "sensor_based": true,
-    "points": 119,
-    "custom_zones": false,
-    "max": 196
-  },
-  {
-    "distribution_buckets": [
-      { "max": 0,   "min": 0,   "time": 3043 },
-      { "max": 50,  "min": 0,   "time": 999 },
-      { "max": 100, "min": 50,  "time": 489 },
-      { "max": 150, "min": 100, "time": 737 },
-      { "max": 200, "min": 150, "time": 1299 },
-      { "max": 250, "min": 200, "time": 1478 },
-      { "max": 300, "min": 250, "time": 1523 },
-      { "max": 350, "min": 300, "time": 2154 },
-      { "max": 400, "min": 350, "time": 2226 },
-      { "max": 450, "min": 400, "time": 1181 },
-      { "max": -1,  "min": 450, "time": 923 }
-    ],
-    "type": "power",
-    "resource_state": 3,
-    "sensor_based": true,
-    "bike_weight": 8.16466,
-    "athlete_weight": 68.0389
-  }
+    Base class for activity zones.
     """
+    distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED))
+    type = Attribute(str, (SUMMARY, DETAILED))
+    sensor_based = Attribute(bool, (SUMMARY, DETAILED))
+    
+class HeartrateActivityZone(BaseActivityZone):
+    score = Attribute(int, (SUMMARY, DETAILED))
+    points = Attribute(int, (SUMMARY, DETAILED))
+    custom_zones = Attribute(bool, (SUMMARY, DETAILED))
+    max = Attribute(int, (SUMMARY, DETAILED))
+    
+class PowerActivityZone(BaseActivityZone):
+    bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)
+    athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)

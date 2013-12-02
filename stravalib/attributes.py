@@ -5,7 +5,7 @@ The types system provides a mechanism for serializing/un the data to/from JSON
 structures and for capturing additional information about the model attributes.  
 """
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from collections import namedtuple
 
 import pytz
@@ -32,10 +32,11 @@ class Attribute(object):
     def __get__(self, obj, objtype):
         if obj is not None:
             # It is being called on an object (not class)
-            if hasattr(obj, 'resource_state') \
-               and obj.resource_state is not None \
-               and not obj.resource_state in self.resource_states:
-                raise AttributeError("attribute required resource state not satisfied by object")
+            # This can cause infinite loops, when we're attempting to get the resource_state attribute ...
+            #if hasattr(objtype, 'resource_state') \
+            #   and obj.resource_state is not None \
+            #   and not obj.resource_state in self.resource_states:
+            #    raise AttributeError("attribute required resource state not satisfied by object")
             return self.value
         else:
             # Rather than return the wrapped value, return the actual descriptor object
@@ -84,30 +85,11 @@ class Attribute(object):
             v = self.type(v)
         return v
 
-class IntAttribute(Attribute):
-    """
-    """
-    def __init__(self, resource_states=None, units=None):
-        super(IntAttribute, self).__init__(int, resource_states=resource_states, units=units)
-
-class FloatAttribute(Attribute):
-    """
-    """
-    def __init__(self, resource_states=None, units=None):
-        super(FloatAttribute, self).__init__(float, resource_states=resource_states, units=units)
-
-class BoolAttribute(Attribute):
-    """
-    """
-    def __init__(self, resource_states=None):
-        super(BoolAttribute, self).__init__(float, resource_states=resource_states)
-
-class TextAttribute(Attribute):
-    """
-    """
-    def __init__(self, resource_states=None):
-        super(TextAttribute, self).__init__(str, resource_states=resource_states)
-
+class UnitAttribute(Attribute):
+    def __init__(self, type_, resource_states=None, units=None):
+        super(UnitAttribute, self).__init__(int, resource_states=resource_states)
+        self.units = units
+    
 class TimestampAttribute(Attribute):
     """
     """
@@ -150,7 +132,7 @@ class TimezoneAttribute(Attribute):
         Convert a timestamp in format "(GMT-08:00) America/Los_Angeles" to 
         a `pytz.timestamp` object.
         """
-        if not isinstance(v, pytz.timezone):
+        if not isinstance(v, tzinfo):
             # (GMT-08:00) America/Los_Angeles
             tzname = v.split(' ')[-1]
             v = pytz.timezone(tzname)
@@ -196,7 +178,29 @@ class EntityAttribute(Attribute):
             self._lazytype = v
         else:
             self._type = v
-            
+    
+    @property
+    def bind_client(self):
+        if hasattr(self.value, 'bind_client'):
+            return self.value.bind_client
+        else:
+            return None
+    
+    @bind_client.setter
+    def bind_client(self, client):
+        if hasattr(self.type, 'bind_client'):
+            if self.value is not None:
+                self.value.bind_client = client
+            else:
+                raise Exception("Cannot bind client to null value.")
+        else:
+            self.log.warning("Cannot bind client to unsupported entity: {0}".format(self.type))
+    
+    def __set__(self, obj, val):
+        self.value = val
+        if hasattr(obj, 'bind_client'):
+            self.bind_client = obj.bind_client
+        
     def unmarshal(self, value):
         """
         Cast the specified value to the entity type.
@@ -216,6 +220,26 @@ class EntityAttribute(Attribute):
         return value
     
 class EntityCollection(EntityAttribute):
+
+    @property
+    def bind_client(self):
+        # We assume homogenous collection, so we grab bind client from the first element
+        if self.value and hasattr(self.value[0], 'bind_client'):
+            return self.value[0].bind_client
+        else:
+            return None
+    
+    @bind_client.setter
+    def bind_client(self, client):
+        if hasattr(self.type, 'bind_client'):
+            if self.value:
+                # Set the bind_client on all entities in our list
+                for v in self.value:
+                    v.bind_client = client
+            else:
+                self.log.warning("Cannot bind client to empty list (of type {0}".format(self.type))
+        else:
+            self.log.warning("Cannot bind client to unsupported entity: {0}".format(self.type))
     
     def unmarshal(self, values):
         """

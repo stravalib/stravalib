@@ -1,5 +1,5 @@
 from stravalib import model
-from stravalib.client import Client, STANDARD
+from stravalib.client import Client
 
 from stravalib.tests import TestBase
 
@@ -9,4 +9,4 @@ class FunctionalTestBase(TestBase):
     
     def setUp(self):
         super(FunctionalTestBase, self).setUp()
-        self.client = Client(access_token=TEST_ACCESS_TOKEN, units=STANDARD)
+        self.client = Client(access_token=TEST_ACCESS_TOKEN)

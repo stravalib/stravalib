@@ -10,7 +10,6 @@ from dateutil.parser import parser as dateparser
 
 from stravalib import model
 from stravalib.protocol import ApiV3
-from stravalib.measurement import STANDARD, METRIC
 
 # TODO: "constants" for access scopes?
 # 
@@ -27,21 +26,16 @@ class Client(object):
     the main website) to provide a simple and full-featured API.
     """
     
-    def __init__(self, access_token=None, units=STANDARD):
+    def __init__(self, access_token=None):
         """
         Initialize a new client object.
         
         :param access_token: The token that provides access to a specific Strava account.  If empty, assume that this
                              account is not yet authenticated.
         :type access_token: str
-        
-        :param units: Whether to default to using standard or metric units (value must be 'standard' or 'metric', 
-                      also provided by module-level constants)
-        :type units: str
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.protocol = ApiV3(access_token=access_token)
-        self.units = units
         
     @property
     def access_token(self):
@@ -211,34 +205,32 @@ class Client(object):
         
         :param club_id: The ID of the club to fetch.
         """
-        response = self._get("/clubs/{0}".format(club_id))
-        return response['club']
+        raw = self.protocol.get("/clubs/{id}", id=club_id)
+        return model.Club.deserialize(raw, bind_client=self)
     
-    def get_club_members(self, club_id, **kwargs):
+    def get_club_members(self, club_id, limit=50):
         """
         Gets the member objects for specified club ID.
         http://strava.github.io/api/v3/clubs/#get-members
         
-        :param club_id: The numeric ID for a club.
-        :keyword page: The page number to fetch.
-        :keyword per_page: Number of rows to return per page.
+        :param club_id: The numeric ID for the club.
         """
-        response = self._get("/clubs/{0}/members".format(club_id), params=kwargs)
-        return response['members']
+        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/members', id=club_id)
+        return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
 
-    def get_club_activities(self, club_id, **kwargs):
+    def get_club_activities(self, club_id, limit=50):
         """
         Gets the activities associated with specified club.
         http://strava.github.io/api/v3/clubs/#get-activities
         
-        :param club_id: The numeric ID for a club.
-        :keyword page: The page number to fetch.
-        :keyword per_page: Number of rows to return per page.
+        :param club_id: The numeric ID for the club.
         """
-        # TODO: Pager
-        response = self._get("/clubs/{0}/activities".format(club_id), params=kwargs)
-        return response
-    
+        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/activities', id=club_id)
+        return BatchedResultsIterator(entity=model.Activity, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+
+
     def get_activity(self, activity_id):
         """
         Gets specified activity.
@@ -251,23 +243,15 @@ class Client(object):
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id)
         return model.Activity.deserialize(raw, bind_client=self)
-            
-    def get_athlete_activities(self, **kwargs):
-        """
-        Enumerate rides for current athlete.
-        :keyword before:
-        :keyword after:
-        :keyword page: The page number to fetch.
-        :keyword per_page: Number of rows to return per page.
-        """
-        response = self._get("/athlete/activities", params=kwargs)
-        return response
     
-    def get_friend_activities(self):
+    def get_friend_activities(self, limit=50):
         """
         http://strava.github.io/api/v3/activities/#get-feed
         """
-        
+        result_fetcher = functools.partial(self.protocol.get, '/activities/following')
+        return BatchedResultsIterator(entity=model.Activity, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+
     def update_activity(self, **kwargs):
         """
         http://strava.github.io/api/v3/activities/#put-updates
@@ -278,7 +262,7 @@ class Client(object):
         """
         http://strava.github.io/api/v3/activities/#zones
         """
-        return self._get('/activities/{0}/zones'.format(activity_id))
+        return self.protocol.get('/activities/{id}/zones', id=activity_id)
     
     def get_gear(self, gear_id):
         """
