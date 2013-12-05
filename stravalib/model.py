@@ -32,7 +32,7 @@ class BaseEntity(object):
         for (k,v) in d.items():
             # Only set defined attributes.
             if hasattr(self.__class__, k):
-                self.log.debug("Setting attribute {0} on entity {1} with value {2}".format(k, self, v))
+                self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
                 setattr(self, k, v)
             else:
                 self.log.warning("No such attribute {0} on entity {1}".format(k, self))
@@ -92,6 +92,8 @@ class BoundEntity(BaseEntity):
         """
         Creates a new object based on serialized (dict) struct. 
         """
+        if v is None:
+            return None
         o = cls(bind_client=bind_client)
         o.from_dict(v)
         return o
@@ -139,24 +141,40 @@ class Club(LoadableEntity):
             self.assert_bind_client()
             self._activities = self.bind_client.get_club_activities(self.id)  
         return self._activities
-    
-class Bike(IdentifiableEntity):
+
+class Gear(IdentifiableEntity):
     """
-    
-    """
-    id = Attribute(str, (META,SUMMARY,DETAILED))
-    name = Attribute(str, (SUMMARY,DETAILED))
-    distance = Attribute(float, (SUMMARY,DETAILED))
-    primary = Attribute(bool, (SUMMARY,DETAILED))
-    
-class Shoe(IdentifiableEntity):
-    """
-    
     """
     id = Attribute(str, (META,SUMMARY,DETAILED))
     name = Attribute(str, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED))
     primary = Attribute(bool, (SUMMARY,DETAILED))
+    brand_name = Attribute(str, (DETAILED,))
+    model_name = Attribute(str, (DETAILED,))
+    description = Attribute(str, (DETAILED,))
+    
+    @classmethod
+    def deserialize(cls, v):
+        """
+        Creates a new object based on serialized (dict) struct. 
+        """
+        if v is None:
+            return None
+        if 'frame_type' in v:
+            o = Bike()
+        else:
+            o = Shoe()
+        o.from_dict(v)
+        return o
+    
+class Bike(Gear):
+    """    
+    """
+    frame_type = Attribute(int, (DETAILED,))
+    
+class Shoe(Gear):
+    """
+    """
     
 class Athlete(LoadableEntity):
     """
@@ -406,6 +424,24 @@ class BaseActivityZone(LoadableEntity):
     distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED))
     type = Attribute(str, (SUMMARY, DETAILED))
     sensor_based = Attribute(bool, (SUMMARY, DETAILED))
+    
+    @classmethod
+    def deserialize(cls, v):
+        """
+        Creates a new object based on serialized (dict) struct. 
+        """
+        if v is None:
+            return None
+        if v['type'] == 'heartrate':
+            o = HeartrateActivityZone()
+        elif v['type'] == 'power':
+            o = PowerActivityZone()
+        else:
+            raise ValueError("Unsupported activity zone type: {0}".format(v['type']))
+        
+        o.from_dict(v)
+        return o
+    
     
 class HeartrateActivityZone(BaseActivityZone):
     score = Attribute(int, (SUMMARY, DETAILED))

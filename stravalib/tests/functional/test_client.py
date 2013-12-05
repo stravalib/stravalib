@@ -7,23 +7,47 @@ from stravalib.tests.functional import FunctionalTestBase
 class ClientTest(FunctionalTestBase):
     
     def test_get_activity(self):
-        """ Test basic ride fetching. """
+        """ Test basic activity fetching. """
         activity = self.client.get_activity(96089609)
         self.assertEquals('El Dorado County, CA, USA', activity.location_city)
         
         self.assertIsInstance(activity.start_latlng, attributes.LatLon)
         self.assertEquals(-120.4357631, activity.start_latlng.lon)
         self.assertEquals(38.74263759999999, activity.start_latlng.lat)
-        print activity
-        print activity.__dict__
-        assert False
-        #self.assertTrue(isinstance(ride, model.Ride))
-        #self.assertEquals(u'Arlington Big Loop - Windy', ride.name)
-        #self.assertAlmostEqual(22.52, ride.distance, places=2)
         
-    def test_get_club(self):
-        club = self.client.get_club(15)
-        self.assertEquals('Mission Cycling', club.name)
+        self.assertIsInstance(activity.map, model.Map)
+        
+        # I am sure there is much more we can do here ...
+        
+    def test_get_curr_athlete(self):
+        athlete = self.client.get_athlete()
+        print athlete
+        print athlete.clubs
+        print athlete.shoes
+        print athlete.bikes
+        
+        self.assertEquals(3, len(athlete.clubs))
+        self.assertEquals('Team Roaring Mouse', athlete.clubs[0].name)
+        
+        assert False
+        
+    def test_get_athlete_clubs(self):
+        clubs = self.client.get_athlete_clubs()
+        self.assertEquals(3, len(clubs))
+        self.assertEquals('Team Roaring Mouse', clubs[0].name)
+        self.assertEquals('Team Strava Cycling', clubs[1].name)
+        self.assertEquals('Team Strava Cyclocross', clubs[2].name)
+        
+    def test_get_gear(self):
+        g = self.client.get_gear("g69911")
+        self.assertAlmostEqual(3264.67, g.distance, places=2)
+        self.assertEquals('Salomon XT Wings 2', g.name)
+        self.assertEquals('Salomon', g.brand_name)
+        self.assertTrue(g.primary)
+        self.assertEquals(model.DETAILED, g.resource_state)
+        self.assertEquals('g69911', g.id)
+        self.assertEquals('XT Wings 2', g.model_name)
+        self.assertEquals('', g.description)
         
 """            
     def test_get_clubs(self):

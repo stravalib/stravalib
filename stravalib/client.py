@@ -196,7 +196,8 @@ class Client(object):
         
         :rtype: list
         """    
-        return [model.Club.deserialize(raw, bind_client=self) for raw in self.protocol.get('/athlete/clubs')]
+        club_structs = self.protocol.get('/athlete/clubs')
+        return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
     
     def get_club(self, club_id):
         """
@@ -262,7 +263,9 @@ class Client(object):
         """
         http://strava.github.io/api/v3/activities/#zones
         """
-        return self.protocol.get('/activities/{id}/zones', id=activity_id)
+        zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
+        # We use a factory to give us the correct zone based on type.
+        return [model.BaseActivityZone.deserialize(z) for z in zones]
     
     def get_gear(self, gear_id):
         """
@@ -272,7 +275,7 @@ class Client(object):
         :param gear_id: The gear id.
         :type gear_id: str
         """
-    
+        return model.Gear.deserialize(self.protocol.get('/gear/{id}', id=gear_id))
     
     def get_ride_efforts(self, ride_id):
         """
