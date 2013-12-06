@@ -3,10 +3,20 @@ Providing a simplified, protocol-version-abstracting interface to Strava web ser
 """
 import logging
 import functools
+import time
+import collections
+
+from dateutil.parser import parser as dateparser
 
 from stravalib import model
-from stravalib.protocol import v1, v2, scrape
-from stravalib.measurement import IMPERIAL, METRIC
+from stravalib.protocol import ApiV3
+
+# TODO: "constants" for access scopes?
+# 
+#public    default, private activities are not returned, privacy zones are respected in stream requests
+#write    modify activities, upload on the user's behalf
+#view_private    view private activities and data within privacy zones
+#view_private,write    both 'write' and 'view_private' access
 
 class Client(object):
     """
@@ -16,282 +26,367 @@ class Client(object):
     the main website) to provide a simple and full-featured API.
     """
     
-    def __init__(self, units=IMPERIAL):
+    def __init__(self, access_token=None):
         """
         Initialize a new client object.
         
-        :param units: Whether to use imperial or metric units (value must be 'imperial' or 'metric', 
-                      also provided by module-level constants)
-        :type units: str
+        :param access_token: The token that provides access to a specific Strava account.  If empty, assume that this
+                             account is not yet authenticated.
+        :type access_token: str
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.v1client = v1.ApiV1Client(units=units)
-        self.v2client = v2.ApiV2Client(units=units)
-
-    def get_rides(self, full_objects=True, limit=50, include_geo=False, **kwargs):
+        self.protocol = ApiV3(access_token=access_token)
+        
+    @property
+    def access_token(self):
+        return self.protocol.access_token
+    
+    @access_token.setter
+    def access_token(self, v):
+        self.protocol.access_token = v
+    
+    def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
         """
-        Enumerate rides for specified attribute/value.
+        Get the URL needed to authorize your application to access a Strava user's information.
         
-        :keyword full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
-        :type full_objects: bool
+        :param client_id: The numeric developer client id.
+        :type client_id: int
         
-        :keyword limit: The maximum number of rides to return. Defaults to 50, set to None to retrieve all results.
-        :type limit: int
+        :param redirect_uri: The URL that Strava will redirect to after successful (or failed) authorization.
+        :type redirect_uri: str
         
-        :keyword include_geo: Whether to include lat/lon information on full objects (requires additional call).
-        :type include_geo: bool
+        :param approval_prompt: Whether to prompt for approval even if approval already granted to app.
+                                Choices are 'auto' or 'force'.  (Default is 'auto')
+        :type approval_prompt: str
         
-        :keyword club_id: Optional. Id of the Club for which to search for member's Rides.
-        :type club_id: int
+        :param scope: The access scope required.  Omit to imply "public".  Valid values are 'public', 'write', 'view_private', 'view_private,write'
+        :type scope: str
         
-        :keyword athlete_id: Optional. Id of the Athlete for which to search for Rides.
-        :type athlete_id: int
+        :param state: An arbitrary variable that will be returned to your application in the redirect URI.
+        :type state: str
         
-        :keyword athlete_name: Optional. Username of the Athlete for which to search for Rides.
-        :type athlete_name: str
+        :return: The URL to use for authorization link.
+        :rtype: str
+        """
+        return self.protocol.authorization_url(client_id=client_id, redirect_uri=redirect_uri,
+                                               approval_prompt=approval_prompt, scope=scope, state=state)
         
-        :keyword start_date: Optional. Day on which to start search for Rides.  The date is the local time of when the ride started.
-        :type start_date: :class:`datetime.datetime`
+    def exchange_code_for_token(self, client_id, client_secret, code):
+        """
+        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
+        for a permanent access token.
         
-        :keyword end_date: Optional. Day on which to end search for Rides. The date is the local time of when the ride ended.
-        :type end_date: :class:`datetime.datetime`
+        :param client_id: The numeric developer client id.
+        :type client_id: int
         
-        :keyword start_id: Optional. Only return Rides with an Id greater than or equal to the startId.
-        :type start_id: int
+        :param client_secret: The developer client secret
+        :type client_secret: str
+        
+        :param code: The temporary authorization code
+        :type code: str
+        
+        :return: The access token.
+        :rtype: str
+        """
+        return self.protocol.exchange_code_for_token(client_id=client_id,
+                                                     client_secret=client_secret,
+                                                     code=code)
+    
+    
+    def get_activities(self, limit=50, before=None, after=None, page=None, per_page=None):
+        """
+        Get activities for authenticated user sorted by newest first.
+        
+        :param limit: 
+        :param before: Result will start with activities whose start date is 
+                       before specified date. (UTC)
+        :type before: datetime.datetime or str
+        :param after: Result will start with activities whose start date is after
+                      specified value. (UTC)
+        :type after: datetime.datetime or str
+        """
+        if before and after:
+            raise ValueError("Cannot specify both 'before' and 'after' params.")
+        
+        if before:
+            if isinstance(before, str):
+                before = dateparser.parse(before, ignoretz=True)
+            before = time.mktime(before.timetuple())
+        elif after:
+            if isinstance(after, str):
+                after = dateparser.parse(after, ignoretz=True)
+            after = time.mktime(after.timetuple())
+        
+        params = dict(before=before, after=after, page=page, per_page=per_page)
+        result_fetcher = functools.partial(self.protocol.get, '/athlete/activities', **params)
+        
+        results = BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        return results 
+    
+    def get_athlete(self, athlete_id=None):
+        """
+        Gets the specified athlete; if athlete_id is None then retrieves a detail-
+        level representation of currently authenticated athlete; otherwise 
+        summary-level representation returned of athlete.
+        
+        http://strava.github.io/api/v3/athlete/#get-details
+        http://strava.github.io/api/v3/athlete/#get-another-details
+        
+        :param: athlete_id: The numeric ID of the athlete to fetch.
+        :rtype: dict
+        """
+        if athlete_id is None:
+            raw = self.protocol.get('/athlete')
+        else:
+            raw = self.protocol.get('/athletes/{athlete_id}', athlete_id=athlete_id)
+            
+        return model.Athlete.deserialize(raw, bind_client=self)
+    
+    def get_athlete_friends(self, athlete_id=None, limit=50):
+        """
+        http://strava.github.io/api/v3/follow/#friends
+        
+        :param athlete_id
+        :param limit: Maximum number of athletes to return.
+        """
+        if athlete_id is None:
+            result_fetcher = functools.partial(self.protocol.get, '/athlete/friends')
+        else:
+            result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/friends', id=athlete_id)
+            
+        return BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+    
+    def get_athlete_followers(self, athlete_id=None, limit=50):
+        """
+        http://strava.github.io/api/v3/follow/#followers
+        
+        :param athlete_id
+        :param limit: Maximum number of athletes to return.
+        """
+        if athlete_id is None:
+            result_fetcher = functools.partial(self.protocol.get, '/athlete/followers')
+        else:
+            result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/followers', id=athlete_id)
+            
+        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        
+    def get_both_following(self, athlete_id, limit=50):
+        """
+        Retrieve the athletes who both the authenticated user and the indicated athlete are following.
+        
+        http://strava.github.io/api/v3/follow/#both
+        
+        :param athlete_id
+        :param limit: Maximum number of athletes to return.
+        """
+        result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/both-following', id=athlete_id)
+        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        
+    def update_athlete(self, **kwargs):
+        """
+        http://strava.github.io/api/v3/athlete/#get-details
+        """
+        raise NotImplementedError()
+    
+    def get_athlete_clubs(self):
+        """
+        List the clubs for the currently authenticated athlete.
+        
+        http://strava.github.io/api/v3/clubs/#get-athletes
         
         :rtype: list
-        """
-        result_fetcher = functools.partial(self.v1client.get_rides, **kwargs)
-        v1rides = v1.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
-        rides = []
-        for v1ride in v1rides:
-            if full_objects:
-                ride = model.Ride(bind_client=self)
-                self._populate_ride(v1ride['id'], ride, include_geo=include_geo)
-            else:
-                ride = model.Ride(bind_client=self)
-                self.v1client.mapper.populate_minimal(ride, v1ride)
-            rides.append(ride)
-        
-        return rides
+        """    
+        club_structs = self.protocol.get('/athlete/clubs')
+        return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
     
-    def _populate_ride(self, ride_id, ride_model, include_geo=False):
-        """
-        Internal function to populate a ride model for specified ID.
-        :param ride_id:
-        :param ride_model:
-        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api).
-        """
-        v1ride = self.v1client.get_ride(ride_id)
-        self.v1client.mapper.populate_ride(ride_model, v1ride)
-        if include_geo:
-            v2ride = self.v2client.get_ride(ride_id)
-            self.v2client.mapper.populate_ride(ride_model, v2ride)
-        
-    def get_ride(self, ride_id, include_geo=False):
-        """
-        :param ride_id:
-        :param include_geo: Whether to include lat/lon for the ride start/end (adds a call to v2 api). 
-        :rtype: :class:`stravalib.model.Ride`
-        """
-        ride = model.Ride(bind_client=self)
-        self._populate_ride(ride_id, ride)
-        return ride
-    
-    def _populate_effort(self, effort_id, effort_model):
-        """
-        Internal function to populate a ride/segment effort model for specified ID.
-        
-        :param effort_id: The effort ID.
-        :type effort_id: int
-        :param effort_model: The model object to populate.
-        :type effort_model: :class:`stravalib.model.Effort`
-        """
-        v1effort = self.v1client.get_effort(effort_id)
-        self.v1client.mapper.populate_effort(effort_model, v1effort)
-
-    def _populate_segment(self, segment_id, segment_model, include_geo=False):
-        """
-        Internal function to populate a segment model for specified ID.
-        
-        :param segment_id:
-        :param segment_model:
-        :param include_geo: Whether to include lat/lon for the segment start/end (adds a call to v2 api).
-        """
-        v1segment = self.v1client.get_segment(segment_id)
-        self.v1client.mapper.populate_segment(segment_model, v1segment)
-        
-        if include_geo:
-            # Need to get from a segment to an effort and then back to a segment ... since
-            # V2 API only allows for getting efforts.  Luckly the geo in the v2 efforts appears to be
-            #  specific to the segment (and not where the effort began matching the segment, etc.)
-            v2segment = None
-            first_effort = self.get_segment_efforts(segment_id, full_objects=False, limit=1)[0]
-            for eff in self.v2client.get_ride_efforts(first_effort.activity_id):
-                if eff['segment']['id'] == segment_id:
-                    v2segment = eff['segment']
-                    break
-            else:
-                raise RuntimeError("Exhausted effort {0} looking for segment {1} match".format(first_effort.activity_id, segment_id))
-            
-            print "Effort raw = %r" % (v2segment,)
-            self.v2client.mapper.populate_segment(segment_model, v2segment)
-            
-                    
-    def get_ride_efforts(self, ride_id, full_objects=False):
-        """
-        Get the efforts (segment performance) on a specific ride.
-        
-        :param ride_id: The activity id.
-        :type ride_id: int
-        :keyword full_objects: Whether to return full effort objects (as opposed to just basic attributes, which is much faster).
-        :type full_objects: bool
-        """
-        # This one appears to return all results w/o batching?
-        v1efforts = self.v1client.get_ride_efforts(ride_id)
-        
-        # TODO: Consider how best (or whether) to integrate the V2 ride efforts data.
-        
-        efforts = []
-        for v1effort in v1efforts:
-            if full_objects:
-                effort = model.Effort(bind_client=self)
-                self._populate_effort(v1effort['id'], effort)
-            else:
-                effort = model.Effort(bind_client=self)
-                self.v1client.mapper.populate_minimal_ride_effort(effort, v1effort)
-                effort.activity_id = ride_id
-                
-            efforts.append(effort)
-        
-        return efforts
-
-    def get_segment_efforts(self, segment_id, full_objects=False, limit=50, **kwargs):
-        """
-        Get efforts for a specific segment.
-        
-        :param segment_id: The ID of the segment for which to fetch efforts.
-        :type segment_id: int
-        
-        :keyword full_objects: Whether to return full effort objects (as opposed to just id+name, which is faster).
-        :type full_objects: bool
-        
-        :keyword limit: The maximum number of efforts to return. Defaults to 50, set to None to retrieve all results. 
-        :type limit: int
-        
-        :keyword club_id: Optional. Id of the Club for which to search for member's Efforts.
-        :type club_id: int
-        
-        :keyword athlete_id: Optional. Id of the Athlete for which to search for Efforts.
-        :type athlete_id: int
-        
-        :keyword athlete_name: Optional. Username of the Athlete for which to search for Efforts.
-        :type athlete_name: str
-        
-        :keyword start_date: Optional. Day on which to end search for Efforts. The date is the local time of when the effort started.
-        :type start_date: :class:`datetime.datetime`
-        
-        :keyword end_date: Optional. Day on which to end search for Efforts. The date is the local time of when the effort ended.
-        :type end_date: :class:`datetime.datetime`
-        
-        :keyword start_id: Optional. Only return Efforts with an Id greater than or equal to the startId.
-        :type start_id: int
-        
-        :keyword best: Optional. Shows an best efforts per athlete sorted by elapsed time ascending (segment leaderboard).
-        :type best: bool
-        
-        :rtype: list
-        """
-        result_fetcher = functools.partial(self.v1client.get_segment_efforts, segment_id, **kwargs)
-        v1efforts = v1.BatchedResultsIterator(result_fetcher=result_fetcher, limit=limit)
-        
-        efforts = []
-        for v1effort in v1efforts:
-            if full_objects:
-                effort = model.Effort(bind_client=self)
-                self._populate_effort(v1effort['id'], effort)
-            else:
-                effort = model.Effort(bind_client=self)
-                self.v1client.mapper.populate_minimal_segment_effort(effort, v1effort)
-                effort.segment_id = segment_id
-            efforts.append(effort)
-        
-        return efforts
-    
-    def get_effort(self, effort_id):
-        """
-        Gets a specific Effort (including both activity and segment information) by ID.
-        
-        :rtype: :class:`stravalib.model.Effort`
-        """
-        effort = model.Effort(bind_client=self)
-        self._populate_effort(effort_id, effort)
-        return effort
-    
-    def get_segment(self, segment_id, include_geo=False):
-        """
-        Gets a specific segment.
-        
-        :rtype: :class:`stravalib.model.Segment`
-        """
-        segment = model.Segment(bind_client=self)
-        self._populate_segment(segment_id, segment, include_geo=include_geo)
-        return segment
-
-    def _populate_club(self, club_id, club_model):
-        """
-        Internal function to populate a club model for specified ID.
-        :param club_id:
-        :param club_model:
-        :type club_model: :class:`stravalib.model.Club`
-        """
-        v1ride = self.v1client.get_club(club_id)
-        self.v1client.mapper.populate_club(club_model, v1ride)
-
-    def get_clubs(self, name, full_objects=False):
-        """
-        Search for clubs by name (substring/keyword match).
-        
-        :param name: The name (or substring) of club.
-        :type name: str
-        
-        :param full_objects: Whether to return full ride objects (as opposed to just id+name, which is faster).
-        :type full_objects: bool
-        
-        :rtype: list of :class:`stravalib.model.Club`
-        """
-        v1clubs = self.v1client.get_clubs(name)
-        clubs = []
-        for v1club in v1clubs:
-            club = model.Club(bind_client=self)
-            if full_objects:
-                self._populate_club(v1club['id'], club)
-            else:
-                self.v1client.mapper.populate_minimal(club, v1club)
-            clubs.append(club)
-        return clubs
-        
     def get_club(self, club_id):
         """
-        Gets a club for specified ID.
+        Return V3 object structure for club
+        http://strava.github.io/api/v3/clubs/#get-details
         
-        :rtype: :class:`stravalib.model.Club`
+        :param club_id: The ID of the club to fetch.
         """
-        club = model.Club(bind_client=self)
-        self._populate_club(club_id, club)
-        return club
+        raw = self.protocol.get("/clubs/{id}", id=club_id)
+        return model.Club.deserialize(raw, bind_client=self)
     
-    def get_club_members(self, club_id):
+    def get_club_members(self, club_id, limit=50):
         """
-        Get the members for club specified by ID.
+        Gets the member objects for specified club ID.
+        http://strava.github.io/api/v3/clubs/#get-members
         
-        :param club_id: The numeric ID of the club.
-        :type club_id: int
+        :param club_id: The numeric ID for the club.
         """
-        v1clubmembers = self.v1client.get_club_members(club_id)
-        members = []
-        for athlete_struct in v1clubmembers:
-            a = model.Athlete(bind_client=self)
-            self.v1client.mapper.populate_athlete(a, athlete_struct)
-            members.append(a)
-        return members
+        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/members', id=club_id)
+        return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+
+    def get_club_activities(self, club_id, limit=50):
+        """
+        Gets the activities associated with specified club.
+        http://strava.github.io/api/v3/clubs/#get-activities
+        
+        :param club_id: The numeric ID for the club.
+        """
+        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/activities', id=club_id)
+        return BatchedResultsIterator(entity=model.Activity, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+
+
+    def get_activity(self, activity_id):
+        """
+        Gets specified activity.
+        
+        Will be detail-level if owned by authenticated user; otherwise summary-level.
+        
+        http://strava.github.io/api/v3/activities/#get-details
+        
+        :param activity_id: The activity_id of ride to fetch.
+        """
+        raw = self.protocol.get('/activities/{id}', id=activity_id)
+        return model.Activity.deserialize(raw, bind_client=self)
+    
+    def get_friend_activities(self, limit=50):
+        """
+        http://strava.github.io/api/v3/activities/#get-feed
+        """
+        result_fetcher = functools.partial(self.protocol.get, '/activities/following')
+        return BatchedResultsIterator(entity=model.Activity, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+
+    def update_activity(self, **kwargs):
+        """
+        http://strava.github.io/api/v3/activities/#put-updates
+        """
+        raise NotImplementedError()
+    
+    def get_activity_zones(self, activity_id):
+        """
+        http://strava.github.io/api/v3/activities/#zones
+        """
+        zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
+        # We use a factory to give us the correct zone based on type.
+        return [model.BaseActivityZone.deserialize(z) for z in zones]
+    
+    def get_gear(self, gear_id):
+        """
+        Get details for an item of gear.
+        http://strava.github.io/api/v3/gear/#show
+        
+        :param gear_id: The gear id.
+        :type gear_id: str
+        """
+        return model.Gear.deserialize(self.protocol.get('/gear/{id}', id=gear_id))
+    
+    def get_segment_effort(self, effort_id):
+        """
+        Return detailed structure for segment efforts.
+        
+        http://strava.github.io/api/v3/efforts/#retrieve
+        
+        :param effort_id: The id of associated effort to fetch.
+        """
+        return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}', id=effort_id))
+
+    def get_segment(self, segment_id):
+        """
+        http://strava.github.io/api/v3/segments/#retrieve 
+        """
+        return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id))
+    
+    def get_segment_leaderboard(self, segment_id):
+        """
+        http://strava.github.io/api/v3/segments/#leaderboard
+        """
+        raise NotImplementedError()
+    
+    def explore_segments(self, bounds, activity_type, min_cat, max_cat):
+        """
+        Returns an array of up to 10 segments.
+        http://strava.github.io/api/v3/segments/#explore
+        """
+        assert activity_type in ('riding', 'running')
+        raise NotImplementedError()
+    
+    # TODO: Streams
+    # TODO: Uploads
+    # TODO: fun.
+    
+class BatchedResultsIterator(object):
+    """
+    Iterates over requests that return a batch of (typically 50) results and support an offset parameter.
+    
+    For example, Strava API only returns 50 rides at a time, so this provides a mechanism to abstract over
+    that limitation. 
+    """
+    
+    default_per_page = 50 #: How many results returned in a batch.
+     
+    def __init__(self, entity, bind_client, result_fetcher, limit=None, per_page=None):
+        """
+        :param entity: The class for the model entity.
+        :type entity: type
+        
+        :param bind_client: The client object to pass to the entities for supporting further
+                             fetching of objects.
+        :type bind_client: :class:`stravalib.client.Client`
+        
+        :param result_fetcher: The callable that will return another batch of results.
+        :type result_fetcher: callable
+        
+        :param limit: The maximum number of rides to return.
+        :type limit: int
+        """
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.entity = entity
+        self.bind_client = bind_client
+        self.result_fetcher = result_fetcher
+        self.limit = limit
+        
+        if per_page is not None:
+            self.per_page = per_page
+        else:
+            self.per_page = self.default_per_page
+            
+        self._counter = 0
+        self._buffer = None
+        self._page = 0
+        self._all_results_fetched = False
+    
+    def _fill_buffer(self):
+        """
+        Fills the internal size-50 buffer from Strava API.
+        """
+        # If we cannot fetch anymore from the server then we're done here.
+        if self._all_results_fetched:
+            raise StopIteration
+        
+        raw_results = self.result_fetcher(page=self._page, per_page=self.per_page)
+        entities = []
+        for raw in raw_results:
+            entities.append(self.entity.deserialize(raw, bind_client=self.bind_client))
+            
+        self._buffer = collections.deque(entities)
+        
+        self.log.debug("Requested page {0} (got: {1} items)".format(self._offset,
+                                                                    len(self._buffer)))
+        if len(self._buffer) < self.per_page:
+            self._all_results_fetched = True
+        
+        self._page += 1
+
+    def __iter__(self):
+        return self
+    
+    def next(self):
+        if self.limit and self._counter >= self.limit:
+            raise StopIteration
+        if not self._buffer:
+            self._fill_buffer()
+        try:
+            result = self._buffer.popleft()
+        except IndexError:
+            raise StopIteration
+        else:
+            self._counter += 1
+            return result
+        

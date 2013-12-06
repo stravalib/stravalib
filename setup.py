@@ -11,7 +11,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.2'
 
 news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
 news = open(news).read()
@@ -26,7 +26,7 @@ if not found_news:
 
 long_description = """
 stravalib is a Python 2.x and 3.x library that provides a simple API for interacting 
-with the Strava ride/run tracking website.
+with the Strava activity tracking website.
 """
 
 if found_news:
