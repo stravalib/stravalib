@@ -277,26 +277,28 @@ class Client(object):
         """
         return model.Gear.deserialize(self.protocol.get('/gear/{id}', id=gear_id))
     
-    def get_ride_efforts(self, ride_id):
+    def get_segment_effort(self, effort_id):
         """
-        Return V1 object structure for ride efforts.
+        Return detailed structure for segment efforts.
         
-        :param ride_id: The id of associated ride to fetch.
+        http://strava.github.io/api/v3/efforts/#retrieve
+        
+        :param effort_id: The id of associated effort to fetch.
         """
-        url = "http://{0}/api/v1/rides/{1}/efforts".format(self.server, ride_id)
-        return self._get(url)['efforts']
+        return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}', id=effort_id))
 
     def get_segment(self, segment_id):
         """
         http://strava.github.io/api/v3/segments/#retrieve 
         """
-        url = "/segments/{0}".format(segment_id)
-        return self._get(url)['segment']
+        return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id))
     
     def get_segment_leaderboard(self, segment_id):
         """
         http://strava.github.io/api/v3/segments/#leaderboard
         """
+        raise NotImplementedError()
+    
     def explore_segments(self, bounds, activity_type, min_cat, max_cat):
         """
         Returns an array of up to 10 segments.
@@ -305,18 +307,10 @@ class Client(object):
         assert activity_type in ('riding', 'running')
         raise NotImplementedError()
     
-    def get_segment_effort(self, effort_id):
-        """
-        http://strava.github.io/api/v3/efforts/#retrieve
-        """
-        return self._get('/segment_efforts/{0}'.format(effort_id))         
-    
     # TODO: Streams
     # TODO: Uploads
+    # TODO: fun.
     
-    
-    
-
 class BatchedResultsIterator(object):
     """
     Iterates over requests that return a batch of (typically 50) results and support an offset parameter.

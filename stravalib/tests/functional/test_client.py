@@ -21,15 +21,19 @@ class ClientTest(FunctionalTestBase):
         
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
-        print athlete
-        print athlete.clubs
-        print athlete.shoes
-        print athlete.bikes
         
+        # Just some basic sanity checks here
+        self.assertEquals('Jeff', athlete.firstname)
+        self.assertEquals('Remer', athlete.lastname)
         self.assertEquals(3, len(athlete.clubs))
         self.assertEquals('Team Roaring Mouse', athlete.clubs[0].name)
         
-        assert False
+        self.assertEquals(1, len(athlete.shoes))
+        print athlete.shoes
+        
+        self.assertIsInstance(athlete.shoes[0], model.Shoe)
+        self.assertIsInstance(athlete.clubs[0], model.Club)
+        self.assertIsInstance(athlete.bikes[0], model.Bike)
         
     def test_get_athlete_clubs(self):
         clubs = self.client.get_athlete_clubs()

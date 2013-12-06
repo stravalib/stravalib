@@ -205,6 +205,11 @@ class Athlete(LoadableEntity):
     shoes = EntityCollection(Shoe, (DETAILED,))
 
     
+    def __repr__(self):
+        return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
+                                                                             fname=self.firstname,
+                                                                             lname=self.lastname)
+    
 class ActivityComment(LoadableEntity):
     activity_id = Attribute(int, (META,SUMMARY,DETAILED))
     text = Attribute(str, (META,SUMMARY,DETAILED))
