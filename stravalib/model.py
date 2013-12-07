@@ -32,7 +32,7 @@ class BaseEntity(object):
         for (k,v) in d.items():
             # Only set defined attributes.
             if hasattr(self.__class__, k):
-                self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
+                #self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
                 setattr(self, k, v)
             else:
                 self.log.warning("No such attribute {0} on entity {1}".format(k, self))

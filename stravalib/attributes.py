@@ -198,7 +198,7 @@ class EntityAttribute(Attribute):
                     if not hasattr(o.__class__, k):
                         self.log.warning("Unable to set attribute {0} on entity {1!r}".format(k, o))
                     else:
-                        self.log.debug("Setting attribute {0} on entity {1!r}".format(k, o))
+                        #self.log.debug("Setting attribute {0} on entity {1!r}".format(k, o))
                         setattr(o, k, v)                    
                 value = o
             else:

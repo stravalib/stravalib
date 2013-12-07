@@ -1,16 +1,11 @@
 from __future__ import division, absolute_import, print_function
 import abc
 import os.path
-import json
 import logging
-import collections
 import urlparse
 from urllib import urlencode
 
 import requests
-from pytz import FixedOffset
-from dateutil import parser as date_parser
-from units.abstract import AbstractUnit
 
 from stravalib import exc
         
@@ -23,7 +18,7 @@ class ApiV3(object):
     server = 'www.strava.com'
     api_base = '/api/v3'
         
-    def __init__(self, access_token=None, requests_session=None):
+    def __init__(self, access_token=None, requests_session=None, rate_limiter=None):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
         object.
@@ -37,6 +32,12 @@ class ApiV3(object):
             self.rsession = requests_session
         else:
             self.rsession = requests.Session()
+        if rate_limiter is None:
+            # Make it a dummy function, so we don't have to check if it's defined before
+            # calling it later
+            rate_limiter = lambda: None
+             
+        self.rate_limiter = rate_limiter
     
     def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
         """
@@ -107,6 +108,16 @@ class ApiV3(object):
         raw = self.rsession.get(url, params=params)
         raw.raise_for_status()
         resp = self._handle_protocol_error(raw.json())
+        
+        # TODO: We should parse the response to get the rate limit details and
+        # update our rate limiter.
+        # see: http://strava.github.io/api/#access 
+        
+        # At this stage we should assume that request was successful and we should invoke
+        # our rate limiter.  (Note that this may need to be reviewed; some failures may
+        # also count toward the limit?)
+        self.rate_limiter()
+        
         return resp
     
     def _handle_protocol_error(self, response):

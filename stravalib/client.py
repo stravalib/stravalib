@@ -10,6 +10,7 @@ from dateutil.parser import parser as dateparser
 
 from stravalib import model
 from stravalib.protocol import ApiV3
+from stravalib.util import limiter
 
 # TODO: "constants" for access scopes?
 # 
@@ -17,6 +18,8 @@ from stravalib.protocol import ApiV3
 #write    modify activities, upload on the user's behalf
 #view_private    view private activities and data within privacy zones
 #view_private,write    both 'write' and 'view_private' access
+
+
 
 class Client(object):
     """
@@ -26,16 +29,32 @@ class Client(object):
     the main website) to provide a simple and full-featured API.
     """
     
-    def __init__(self, access_token=None):
+    def __init__(self, access_token=None, rate_limit_requests=True, rate_limiter=None):
         """
         Initialize a new client object.
         
         :param access_token: The token that provides access to a specific Strava account.  If empty, assume that this
                              account is not yet authenticated.
         :type access_token: str
+        
+        :param rate_limit_requests: Whether to apply a rate limiter to the requests. (default True)
+        :type rate_limit_requests: bool
+        
+        :param rate_limiter: A :class:`stravalib.util.limiter.RateLimiter' object to use.
+                             If not specified (and rate_limit_requests is True), then
+                             :class:`stravalib.util.limiter.DefaultRateLimiter' will 
+                             be used.
+        :type rate_limiter: callable
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.protocol = ApiV3(access_token=access_token)
+        
+        if rate_limit_requests:
+            if not rate_limiter:
+                rate_limiter = limiter.DefaultRateLimiter()
+        elif rate_limiter:
+            raise ValueError("Cannot specify rate_limiter object when rate_limit_requests is False")
+        
+        self.protocol = ApiV3(access_token=access_token, rate_limiter=rate_limiter)
         
     @property
     def access_token(self):
