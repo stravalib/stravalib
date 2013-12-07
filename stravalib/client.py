@@ -321,20 +321,23 @@ class BatchedResultsIterator(object):
     
     default_per_page = 50 #: How many results returned in a batch.
      
-    def __init__(self, entity, bind_client, result_fetcher, limit=None, per_page=None):
+    def __init__(self, entity, result_fetcher, bind_client=None, limit=None, per_page=None):
         """
         :param entity: The class for the model entity.
         :type entity: type
-        
+                
+        :param result_fetcher: The callable that will return another batch of results.
+        :type result_fetcher: callable
+
         :param bind_client: The client object to pass to the entities for supporting further
                              fetching of objects.
         :type bind_client: :class:`stravalib.client.Client`
         
-        :param result_fetcher: The callable that will return another batch of results.
-        :type result_fetcher: callable
-        
         :param limit: The maximum number of rides to return.
         :type limit: int
+        
+        :param per_page: How many rows to fetch per page (default is 50).
+        :type per_page: int
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.entity = entity
@@ -367,7 +370,7 @@ class BatchedResultsIterator(object):
             
         self._buffer = collections.deque(entities)
         
-        self.log.debug("Requested page {0} (got: {1} items)".format(self._offset,
+        self.log.debug("Requested page {0} (got: {1} items)".format(self._page,
                                                                     len(self._buffer)))
         if len(self._buffer) < self.per_page:
             self._all_results_fetched = True
