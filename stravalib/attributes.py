@@ -76,6 +76,8 @@ class Attribute(object):
         """
         if not isinstance(v, self.type):
             v = self.type(v)
+            if self.units:
+                v = self.units(v)
         return v
 
 class UnitAttribute(Attribute):
