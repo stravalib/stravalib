@@ -17,7 +17,9 @@ class ClientTest(FunctionalTestBase):
         
         self.assertIsInstance(activity.map, model.Map)
         
-        # I am sure there is much more we can do here ...
+        self.assertIsInstance(activity.athlete, model.Athlete)
+        self.assertEquals(1513, activity.athlete.id)
+        
         
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()

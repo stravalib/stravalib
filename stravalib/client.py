@@ -342,7 +342,7 @@ class BatchedResultsIterator(object):
     that limitation. 
     """
     
-    default_per_page = 50 #: How many results returned in a batch.
+    default_per_page = 200 #: How many results returned in a batch.
      
     def __init__(self, entity, result_fetcher, bind_client=None, limit=None, per_page=None):
         """
@@ -359,7 +359,7 @@ class BatchedResultsIterator(object):
         :param limit: The maximum number of rides to return.
         :type limit: int
         
-        :param per_page: How many rows to fetch per page (default is 50).
+        :param per_page: How many rows to fetch per page (default is 200).
         :type per_page: int
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))

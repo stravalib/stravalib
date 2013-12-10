@@ -331,7 +331,7 @@ class Activity(LoadableEntity):
     
     external_id = Attribute(str, (SUMMARY,DETAILED))
     upload_id = Attribute(str, (SUMMARY,DETAILED))
-    athlete = None # META-level
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
     name = Attribute(str, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
