@@ -105,13 +105,15 @@ class BoundEntity(BaseEntity):
 
 class LoadableEntity(BoundEntity, IdentifiableEntity):
         
-    def hydrate(self):
+    def expand(self):
         """
-        Fill this object with data from the bound client.
+        Expand this object with data from the bound client.
         
         This default implementation assumes things about the names of methods in the client, so
         may need to be overridden by subclasses.
         """
+        raise NotImplementedError() # This is a little harder now that we don't have _populate_* methods.
+        
         if not self.bind_client:
             raise exc.UnboundEntity("Cannot set entity attributes for unbound entity.")
         raise NotImplementedError()
@@ -199,6 +201,8 @@ class Athlete(LoadableEntity):
     mutual_friend_count = Attribute(int, (DETAILED,))
     date_preference = Attribute(str, (DETAILED,)) # "%m/%d/%Y"
     measurement_preference = Attribute(str, (DETAILED,)) # "feet" (or what "meters"?)
+    premium = Attribute(bool, (DETAILED,))
+    email = Attribute(str, (DETAILED,))
     
     clubs = EntityCollection(Club, (DETAILED,))
     bikes = EntityCollection(Bike, (DETAILED,))
@@ -291,7 +295,7 @@ class BaseEffort(LoadableEntity):
     moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
     elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
     start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED))
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
     distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters)
 
 class BestEffort(BaseEffort):
@@ -305,6 +309,24 @@ class Activity(LoadableEntity):
     """
     
     """
+    # "Constants" for types of activities
+    RIDE = "Ride"
+    RUN = "Run"
+    SWIM = "Swim" 
+    HIKE = "Hike"
+    WALK = "Walk"
+    NORDICSKI = "NordicSki"
+    ALPINESKI = "AlpineSki"
+    BACKCOUNTRYSKI = "BackcountrySki"
+    ICESKATE = "IceSkate"
+    INLINESKATE = "InlineSkate"
+    KITESURF = "Kitesurf"
+    ROLLERSKI = "RollerSki"
+    WINDSURF = "Windsurf"
+    WORKOUT = "Workout"
+    SNOWBOARD = "Snowboard"
+    SNOWSHOE = "Snowshoe"
+    
     guid = Attribute(str, (SUMMARY,DETAILED)) # An undocumented attribute
     
     external_id = Attribute(str, (SUMMARY,DETAILED))
@@ -317,7 +339,7 @@ class Activity(LoadableEntity):
     total_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     type = Attribute(str, (SUMMARY,DETAILED))
     start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED))
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
     timezone = TimezoneAttribute((SUMMARY,DETAILED))
     start_latlng = LocationAttribute((SUMMARY,DETAILED))
     end_latlng = LocationAttribute((SUMMARY,DETAILED))

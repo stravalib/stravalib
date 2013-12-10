@@ -48,7 +48,7 @@ setup(
     package_data={'stravalib': ['tests/resources/*']},
     install_requires=['python-dateutil{0}'.format('>=2.0,<3.0dev' if sys.version_info[0] == 3 else '>=1.5,<2.0dev'), # version 1.x is for python 2 and version 2.x is for python 3.
                       'pytz',
-                      'requests>=1.1.0,<2.0dev',
+                      'requests>=2.0,<3.0dev',
                       'beautifulsoup4>=4.0,<5.0dev',
                       'units'],
     tests_require = ['nose>=1.0.3'],

@@ -3,6 +3,7 @@ import abc
 import os.path
 import logging
 import urlparse
+import functools
 from urllib import urlencode
 
 import requests
@@ -32,6 +33,7 @@ class ApiV3(object):
             self.rsession = requests_session
         else:
             self.rsession = requests.Session()
+        
         if rate_limiter is None:
             # Make it a dummy function, so we don't have to check if it's defined before
             # calling it later
@@ -42,6 +44,8 @@ class ApiV3(object):
     def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
+        
+        See http://strava.github.io/api/v3/oauth/
         
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -62,11 +66,13 @@ class ApiV3(object):
         :return: The URL to use for authorization link.
         :rtype: str
         """
+        assert approval_prompt in ('auto', 'force')
         if isinstance(scope, (list, tuple)):
             scope = ','.join(scope)
         params = {'client_id': client_id,
                   'redirect_uri': redirect_uri,
-                  'approval_prompt': approval_prompt}
+                  'approval_prompt': approval_prompt,
+                  'response_type': 'code'}
         if scope is not None:
             params['scope'] = scope
         if state is not None:
@@ -91,21 +97,37 @@ class ApiV3(object):
         :return: The access token.
         :rtype: str
         """
-        response = self._get('https://{0}/oath/token'.format(self.server),
-                             params={'client_id': client_id, 'client_secret': client_secret, 'code': code})
+        response = self._request('https://{0}/oauth/token'.format(self.server),
+                              params={'client_id': client_id, 'client_secret': client_secret, 'code': code},
+                              method='POST')
         token = response['access_token']
         self.access_token = token
         return token
     
-    def _get(self, url, params=None):
+    def _resolve_url(self, url):
         if not url.startswith('http'):
             url = urlparse.urljoin('https://{0}'.format(self.server), os.path.join(self.api_base, url.strip('/')))
-        self.log.debug("GET {0!r} with params {1!r}".format(url, params))
+        return url
+    
+    def _request(self, url, params=None, method='GET'):
+        url = self._resolve_url(url)
+        self.log.info("GET {0!r} with params {1!r}".format(url, params))
         if params is None:
             params = {}
         if self.access_token:
             params['access_token'] = self.access_token
-        raw = self.rsession.get(url, params=params)
+        
+        methods = {'GET': self.rsession.get,
+                   'POST': self.rsession.post,
+                   'PUT': self.rsession.put,
+                   'DELETE': self.rsession.delete}
+        
+        try:
+            requester = methods[method.upper()]
+        except KeyError:
+            raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
+        
+        raw = requester(url, params=params)
         raw.raise_for_status()
         resp = self._handle_protocol_error(raw.json())
         
@@ -159,4 +181,4 @@ class ApiV3(object):
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
-        return self._get(url, params=params)
+        return self._request(url, params=params)

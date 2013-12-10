@@ -86,17 +86,17 @@ class UnitAttribute(Attribute):
 class TimestampAttribute(Attribute):
     """
     """
-    def __init__(self, resource_states=None):
+    def __init__(self, resource_states=None, tzinfo=pytz.utc):
         super(TimestampAttribute, self).__init__(datetime, resource_states=resource_states)
-
+        self.tzinfo = tzinfo
+        
     def unmarshal(self, v):
         """
         Convert a timestamp in "2012-12-13T03:43:19Z" format to a `datetime.datetime` object.
         """
         if not isinstance(v, datetime):
             # 2012-12-13T03:43:19Z
-            # (The time is not necessarily GMT, though that should be considered the default.
-            v = pytz.utc.localize(datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ"))
+            v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=self.tzinfo)
         return v
 
 LatLon = namedtuple('LatLon', ['lat', 'lon'])

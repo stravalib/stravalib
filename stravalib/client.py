@@ -112,17 +112,21 @@ class Client(object):
                                                      code=code)
     
     
-    def get_activities(self, limit=50, before=None, after=None, page=None, per_page=None):
+    def get_activities(self, before=None, after=None, limit=None):
         """
         Get activities for authenticated user sorted by newest first.
         
-        :param limit: 
+        
         :param before: Result will start with activities whose start date is 
                        before specified date. (UTC)
         :type before: datetime.datetime or str
+        
         :param after: Result will start with activities whose start date is after
                       specified value. (UTC)
         :type after: datetime.datetime or str
+        
+        :param limit: How many maximum activities to return.
+        :type limit: int  
         """
         if before and after:
             raise ValueError("Cannot specify both 'before' and 'after' params.")
@@ -136,7 +140,7 @@ class Client(object):
                 after = dateparser.parse(after, ignoretz=True)
             after = time.mktime(after.timetuple())
         
-        params = dict(before=before, after=after, page=page, per_page=per_page)
+        params = dict(before=before, after=after)
         result_fetcher = functools.partial(self.protocol.get, '/athlete/activities', **params)
         
         results = BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
@@ -161,7 +165,7 @@ class Client(object):
             
         return model.Athlete.deserialize(raw, bind_client=self)
     
-    def get_athlete_friends(self, athlete_id=None, limit=50):
+    def get_athlete_friends(self, athlete_id=None, limit=None):
         """
         http://strava.github.io/api/v3/follow/#friends
         
@@ -175,7 +179,7 @@ class Client(object):
             
         return BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
     
-    def get_athlete_followers(self, athlete_id=None, limit=50):
+    def get_athlete_followers(self, athlete_id=None, limit=None):
         """
         http://strava.github.io/api/v3/follow/#followers
         
@@ -189,7 +193,7 @@ class Client(object):
             
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
         
-    def get_both_following(self, athlete_id, limit=50):
+    def get_both_following(self, athlete_id, limit=None):
         """
         Retrieve the athletes who both the authenticated user and the indicated athlete are following.
         
@@ -228,7 +232,7 @@ class Client(object):
         raw = self.protocol.get("/clubs/{id}", id=club_id)
         return model.Club.deserialize(raw, bind_client=self)
     
-    def get_club_members(self, club_id, limit=50):
+    def get_club_members(self, club_id, limit=None):
         """
         Gets the member objects for specified club ID.
         http://strava.github.io/api/v3/clubs/#get-members
@@ -239,7 +243,7 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-    def get_club_activities(self, club_id, limit=50):
+    def get_club_activities(self, club_id, limit=None):
         """
         Gets the activities associated with specified club.
         http://strava.github.io/api/v3/clubs/#get-activities
@@ -264,7 +268,7 @@ class Client(object):
         raw = self.protocol.get('/activities/{id}', id=activity_id)
         return model.Activity.deserialize(raw, bind_client=self)
     
-    def get_friend_activities(self, limit=50):
+    def get_friend_activities(self, limit=None):
         """
         http://strava.github.io/api/v3/activities/#get-feed
         """
