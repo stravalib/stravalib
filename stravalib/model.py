@@ -376,16 +376,15 @@ class Activity(LoadableEntity):
     splits_standard = EntityCollection(StandardSplit, (DETAILED,))
     best_efforts = EntityCollection(BestEffort, (DETAILED,))
     
-    """
-    @property
-    def efforts(self):
-        if self._efforts is None:
-            if self.bind_client is None:
-                raise exc.UnboundEntity("Unable to retrieve efforts for unbound {0} entity.".format(self.__class__))
-            else:
-                self._efforts = self.bind_client.get_ride_efforts(self.id)  
-        return self._efforts
-    """
+    # Undocumented attributes
+    average_watts = Attribute(float, (SUMMARY,DETAILED))
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED))
+    max_heartrate = Attribute(int, (SUMMARY,DETAILED))
+    average_cadence = Attribute(float, (SUMMARY,DETAILED))
+    kilojoules = Attribute(float, (SUMMARY,DETAILED))
+    
+    average_temp = Attribute(int, (SUMMARY,DETAILED))
+    
     @property
     def gear(self):
         if self._gear is None:

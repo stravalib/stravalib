@@ -22,3 +22,7 @@ kilometers_per_hour = kph = kilometer / hour
 
 kilogram = kilograms = kg = kgs = unit('kg')
 pound = pounds = lb = lbs = unit('lb')
+
+def c2f(celsius):
+    """ Convert Celcius to Farenheit """
+    return 9.0/5.0 * celsius + 32

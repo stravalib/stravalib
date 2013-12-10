@@ -188,7 +188,8 @@ class EntityAttribute(Attribute):
         """
         Cast the specified value to the entity type.
         """
-        if not isinstance(value, self._type):
+        #self.log.debug("Unmarshall {0!r}: {1!r}".format(self, value))
+        if not isinstance(value, self.type):
             o = self.type()
             if bind_client is not None and hasattr(o.__class__, 'bind_client'):
                 o.bind_client = bind_client
