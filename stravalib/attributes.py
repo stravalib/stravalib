@@ -76,14 +76,9 @@ class Attribute(object):
         """
         if not isinstance(v, self.type):
             v = self.type(v)
-            if self.units:
-                v = self.units(v)
+        if self.units:
+            v = self.units(v)
         return v
-
-class UnitAttribute(Attribute):
-    def __init__(self, type_, resource_states=None, units=None):
-        super(UnitAttribute, self).__init__(int, resource_states=resource_states)
-        self.units = units
     
 class TimestampAttribute(Attribute):
     """

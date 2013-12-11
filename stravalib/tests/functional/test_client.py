@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
-from stravalib import model, attributes
+from stravalib import model, attributes, unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
 
@@ -20,6 +20,9 @@ class ClientTest(FunctionalTestBase):
         self.assertIsInstance(activity.athlete, model.Athlete)
         self.assertEquals(1513, activity.athlete.id)
         
+        #self.assertAlmostEqual(first, second, places, msg, delta)
+        # Ensure that iw as read in with correct units
+        self.assertEquals(22.5308, float(uh.kilometers(activity.distance)))
         
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()

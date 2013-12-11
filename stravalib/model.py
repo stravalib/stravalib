@@ -3,8 +3,6 @@ Entity classes for representing the various Strava datatypes.
 """
 import abc
 import logging
-from datetime import datetime
-from collections import namedtuple
 
 from stravalib import exc
 from stravalib import unithelper as uh
@@ -149,7 +147,7 @@ class Gear(IdentifiableEntity):
     """
     id = Attribute(str, (META,SUMMARY,DETAILED))
     name = Attribute(str, (SUMMARY,DETAILED))
-    distance = Attribute(float, (SUMMARY,DETAILED))
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     primary = Attribute(bool, (SUMMARY,DETAILED))
     brand_name = Attribute(str, (DETAILED,))
     model_name = Attribute(str, (DETAILED,))
