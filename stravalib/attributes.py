@@ -10,6 +10,7 @@ from collections import namedtuple
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 import pytz
+from units.quantity import Quantity
 
 import stravalib.model 
 
@@ -74,10 +75,12 @@ class Attribute(object):
         typically convert to native types. The exception may be date strings or other
         more complex types, where subclasses will override this behavior.
         """
-        if not isinstance(v, self.type):
-            v = self.type(v)
         if self.units:
-            v = self.units(v)
+            # Note that we don't want to cast to type in this case!
+            if not isinstance(v, Quantity):
+                v = self.units(v)
+        elif not isinstance(v, self.type):
+            v = self.type(v)
         return v
     
 class TimestampAttribute(Attribute):

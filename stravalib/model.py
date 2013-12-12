@@ -363,8 +363,8 @@ class Activity(LoadableEntity):
     _gear = None
     gear_id = Attribute(unicode, (SUMMARY,DETAILED))
     
-    average_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
-    max_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
+    average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second)
+    max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second)
     calories = Attribute(float, (SUMMARY,DETAILED)) 
     truncated = Attribute(int, (SUMMARY,DETAILED))
     has_kudoed = Attribute(bool, (SUMMARY,DETAILED))
