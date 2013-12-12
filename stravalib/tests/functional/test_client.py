@@ -49,7 +49,7 @@ class ClientTest(FunctionalTestBase):
         
     def test_get_gear(self):
         g = self.client.get_gear("g69911")
-        self.assertAlmostEqual(3264.67, g.distance, places=2)
+        self.assertAlmostEqual(3264.67, float(g.distance), places=2)
         self.assertEquals('Salomon XT Wings 2', g.name)
         self.assertEquals('Salomon', g.brand_name)
         self.assertTrue(g.primary)

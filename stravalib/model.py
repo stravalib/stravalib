@@ -126,7 +126,7 @@ class Club(LoadableEntity):
     
     Currently summary and detail resource states have the same attributes.
     """
-    name = Attribute(str, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED))
     
     @property
     def members(self):
@@ -145,13 +145,13 @@ class Club(LoadableEntity):
 class Gear(IdentifiableEntity):
     """
     """
-    id = Attribute(str, (META,SUMMARY,DETAILED))
-    name = Attribute(str, (SUMMARY,DETAILED))
+    id = Attribute(unicode, (META,SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     primary = Attribute(bool, (SUMMARY,DETAILED))
-    brand_name = Attribute(str, (DETAILED,))
-    model_name = Attribute(str, (DETAILED,))
-    description = Attribute(str, (DETAILED,))
+    brand_name = Attribute(unicode, (DETAILED,))
+    model_name = Attribute(unicode, (DETAILED,))
+    description = Attribute(unicode, (DETAILED,))
     
     @classmethod
     def deserialize(cls, v):
@@ -180,15 +180,15 @@ class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
     """
-    firstname = Attribute(str, (SUMMARY,DETAILED))
-    lastname = Attribute(str, (SUMMARY,DETAILED))
-    profile_medium = Attribute(str, (SUMMARY,DETAILED)) # URL to a 62x62 pixel profile picture
-    profile = Attribute(str, (SUMMARY,DETAILED)) # URL to a 124x124 pixel profile picture
-    city = Attribute(str, (SUMMARY,DETAILED))
-    state = Attribute(str, (SUMMARY,DETAILED))
-    sex = Attribute(str, (SUMMARY,DETAILED)) # 'M', 'F' or null
-    friend = Attribute(str, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(str, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    firstname = Attribute(unicode, (SUMMARY,DETAILED))
+    lastname = Attribute(unicode, (SUMMARY,DETAILED))
+    profile_medium = Attribute(unicode, (SUMMARY,DETAILED)) # URL to a 62x62 pixel profile picture
+    profile = Attribute(unicode, (SUMMARY,DETAILED)) # URL to a 124x124 pixel profile picture
+    city = Attribute(unicode, (SUMMARY,DETAILED))
+    state = Attribute(unicode, (SUMMARY,DETAILED))
+    sex = Attribute(unicode, (SUMMARY,DETAILED)) # 'M', 'F' or null
+    friend = Attribute(unicode, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(unicode, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
     preimum = Attribute(bool, (SUMMARY,DETAILED)) # true/false
     
     created_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
@@ -197,10 +197,10 @@ class Athlete(LoadableEntity):
     follower_count = Attribute(int, (DETAILED,))
     friend_count = Attribute(int, (DETAILED,))
     mutual_friend_count = Attribute(int, (DETAILED,))
-    date_preference = Attribute(str, (DETAILED,)) # "%m/%d/%Y"
-    measurement_preference = Attribute(str, (DETAILED,)) # "feet" (or what "meters"?)
+    date_preference = Attribute(unicode, (DETAILED,)) # "%m/%d/%Y"
+    measurement_preference = Attribute(unicode, (DETAILED,)) # "feet" (or what "meters"?)
     premium = Attribute(bool, (DETAILED,))
-    email = Attribute(str, (DETAILED,))
+    email = Attribute(unicode, (DETAILED,))
     
     clubs = EntityCollection(Club, (DETAILED,))
     bikes = EntityCollection(Bike, (DETAILED,))
@@ -214,16 +214,16 @@ class Athlete(LoadableEntity):
     
 class ActivityComment(LoadableEntity):
     activity_id = Attribute(int, (META,SUMMARY,DETAILED))
-    text = Attribute(str, (META,SUMMARY,DETAILED))
+    text = Attribute(unicode, (META,SUMMARY,DETAILED))
     created_at = TimestampAttribute((SUMMARY,DETAILED))
     
     athlete = None
     # 'athlete' is a summary-level representation of commenter
 
 class Map(IdentifiableEntity):
-    id = Attribute(str, (SUMMARY,DETAILED))
-    polyline = Attribute(str, (SUMMARY,DETAILED))
-    summary_polyline = Attribute(str, (SUMMARY,DETAILED))
+    id = Attribute(unicode, (SUMMARY,DETAILED))
+    polyline = Attribute(unicode, (SUMMARY,DETAILED))
+    summary_polyline = Attribute(unicode, (SUMMARY,DETAILED))
 
 class BaseSplit(BaseEntity):
     pass
@@ -253,8 +253,8 @@ class StandardSplit(BaseSplit):  # This is not a BaseEntity, since there is no i
 class Segment(LoadableEntity):
     """
     """
-    name = Attribute(str, (SUMMARY,DETAILED))
-    activity_type = Attribute(str, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED))
+    activity_type = Attribute(unicode, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     average_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
     maximum_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
@@ -267,8 +267,8 @@ class Segment(LoadableEntity):
     start_longitude = Attribute(float, (SUMMARY,DETAILED))
     end_longitude = Attribute(float, (SUMMARY,DETAILED))
     climb_category = Attribute(int, (SUMMARY,DETAILED)) # 0-5, lower is harder
-    city = Attribute(str, (SUMMARY,DETAILED))
-    state = Attribute(str, (SUMMARY,DETAILED))
+    city = Attribute(unicode, (SUMMARY,DETAILED))
+    state = Attribute(unicode, (SUMMARY,DETAILED))
     private = Attribute(bool, (SUMMARY,DETAILED))
     
     # detailed attribs
@@ -284,7 +284,7 @@ class Segment(LoadableEntity):
     starred = Attribute(bool, (DETAILED,))
     
 class BaseEffort(LoadableEntity):
-    name = Attribute(str, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED))
     segment = EntityAttribute(Segment, (SUMMARY,DETAILED))
     activity = EntityAttribute("Activity", (SUMMARY,DETAILED))
     athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
@@ -325,25 +325,25 @@ class Activity(LoadableEntity):
     SNOWBOARD = "Snowboard"
     SNOWSHOE = "Snowshoe"
     
-    guid = Attribute(str, (SUMMARY,DETAILED)) # An undocumented attribute
+    guid = Attribute(unicode, (SUMMARY,DETAILED)) # An undocumented attribute
     
-    external_id = Attribute(str, (SUMMARY,DETAILED))
-    upload_id = Attribute(str, (SUMMARY,DETAILED))
+    external_id = Attribute(unicode, (SUMMARY,DETAILED))
+    upload_id = Attribute(unicode, (SUMMARY,DETAILED))
     athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
-    name = Attribute(str, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
     moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
     elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
     total_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    type = Attribute(str, (SUMMARY,DETAILED))
+    type = Attribute(unicode, (SUMMARY,DETAILED))
     start_date = TimestampAttribute((SUMMARY,DETAILED))
     start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
     timezone = TimezoneAttribute((SUMMARY,DETAILED))
     start_latlng = LocationAttribute((SUMMARY,DETAILED))
     end_latlng = LocationAttribute((SUMMARY,DETAILED))
     
-    location_city = Attribute(str, (SUMMARY,DETAILED)),
-    location_state = Attribute(str, (SUMMARY,DETAILED)),
+    location_city = Attribute(unicode, (SUMMARY,DETAILED)),
+    location_state = Attribute(unicode, (SUMMARY,DETAILED)),
     start_latitude = Attribute(float, (SUMMARY,DETAILED)),
     start_longitude = Attribute(float, (SUMMARY,DETAILED)),
     
@@ -361,7 +361,7 @@ class Activity(LoadableEntity):
     flagged = Attribute(bool, (SUMMARY,DETAILED))
     
     _gear = None
-    gear_id = Attribute(str, (SUMMARY,DETAILED))
+    gear_id = Attribute(unicode, (SUMMARY,DETAILED))
     
     average_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
     max_speed = Attribute(float, (SUMMARY,DETAILED)) # meters/sec
@@ -446,7 +446,7 @@ class BaseActivityZone(LoadableEntity):
     Base class for activity zones.
     """
     distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED))
-    type = Attribute(str, (SUMMARY, DETAILED))
+    type = Attribute(unicode, (SUMMARY, DETAILED))
     sensor_based = Attribute(bool, (SUMMARY, DETAILED))
     
     @classmethod
