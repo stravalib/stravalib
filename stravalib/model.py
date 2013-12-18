@@ -325,6 +325,10 @@ class Activity(LoadableEntity):
     SNOWBOARD = "Snowboard"
     SNOWSHOE = "Snowshoe"
     
+    TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
+             ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT, 
+             SNOWBOARD, SNOWSHOE)
+    
     guid = Attribute(unicode, (SUMMARY,DETAILED)) # An undocumented attribute
     
     external_id = Attribute(unicode, (SUMMARY,DETAILED))

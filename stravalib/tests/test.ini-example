@@ -1,0 +1,7 @@
+[write_tests]
+
+# Add a Strava access token for the write/upload functional tests
+# (This token must have been created with the ability to write data -- i.e.
+# scope=write or scope=private,write.)
+
+access_token = xxxxxxxxxxxxxxxx

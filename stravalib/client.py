@@ -5,12 +5,15 @@ import logging
 import functools
 import time
 import collections
+from datetime import datetime, timedelta
 
 from dateutil.parser import parser as dateparser
+from units.quantity import Quantity
 
 from stravalib import model
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
+from stravalib import unithelper
 
 # TODO: "constants" for access scopes?
 # 
@@ -275,6 +278,51 @@ class Client(object):
         result_fetcher = functools.partial(self.protocol.get, '/activities/following')
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
+
+    def create_activity(self, name, activity_type, start_date_local, elapsed_time, description=None, distance=None):
+        """
+        Create a new manual activity.
+        
+        :param name: The name of the activity.
+        :param activity_type: The activity type (case-insensitive).  
+                              Possible values: ride, run, swim, workout, hike, walk, nordicski, 
+                              alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski, 
+                              windsurf, workout, snowboard, snowshoe
+        :param start_date: Local date/time of activity start. (TZ info will be ignored)
+        :type start_date: :class:`datetime.datetime` or string in ISO8601 format.
+        :param elapsed_time: The time in seconds or a :class:`datetime.timedelta` object.
+        :type elapsed_time: :class:`datetime.timedelta` or int (seconds)
+        :param description: The description for the activity.
+        :type description: str
+        :param distance: The distance in meters (float) or a :class:`units.quantity.Quantity` instance.
+        :type distance: :class:`units.quantity.Quantity` or float (meters)
+        """
+        if isinstance(elapsed_time, timedelta):
+            elapsed_time = unithelper.timedelta_to_seconds(elapsed_time)
+        
+        if isinstance(distance, Quantity):
+            distance = float(unithelper.meters(distance))
+            
+        if isinstance(start_date_local, datetime):
+            start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
+        
+        if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
+            raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
+        
+        params = dict(name=name, type=activity_type, start_date_local=start_date_local,
+                      elapsed_time=elapsed_time)
+        
+        if description is not None:
+            params['description'] = description
+        
+        if distance is not None:
+            params['distance'] = distance
+            
+        raw_activity = self.protocol.post('/activities', **params)
+        
+        print raw_activity
+        
+        return model.Activity.deserialize(raw_activity)
 
     def update_activity(self, **kwargs):
         """

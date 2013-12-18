@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import, print_function
+from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
 import os.path
 import logging
@@ -111,7 +111,7 @@ class ApiV3(object):
     
     def _request(self, url, params=None, method='GET'):
         url = self._resolve_url(url)
-        self.log.info("GET {0!r} with params {1!r}".format(url, params))
+        self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
             params = {}
         if self.access_token:
@@ -128,8 +128,25 @@ class ApiV3(object):
             raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
         
         raw = requester(url, params=params)
+        
+        # {"message":"Bad Request","errors":[{"resource":"Activity","field":"type","code":"missing_field"}]}
+        
+#         def raise_for_status(self):
+#             """Raises stored :class:`HTTPError`, if one occurred."""
+#         
+#             http_error_msg = ''
+#         
+#             if 400 <= self.status_code < 500:
+#                 http_error_msg = '%s Client Error: %s' % (self.status_code, self.reason)
+#         
+#             elif 500 <= self.status_code < 600:
+#                 http_error_msg = '%s Server Error: %s' % (self.status_code, self.reason)
+#         
+#             if http_error_msg:
+#                 raise HTTPError(http_error_msg, response=self)
+        
         raw.raise_for_status()
-        resp = self._handle_protocol_error(raw.json())
+        resp = self._handle_protocol_error(raw).json()
         
         # TODO: We should parse the response to get the rate limit details and
         # update our rate limiter.
@@ -144,15 +161,33 @@ class ApiV3(object):
     
     def _handle_protocol_error(self, response):
         """
-        Parses the JSON response from the server, raising a :class:`stravalib.exc.Fault` if the
+        Parses the raw response from the server, raising a :class:`stravalib.exc.Fault` if the
         server returned an error.
         
-        :param response: The response JSON
+        :param response: The response object.
         :raises Fault: If the response contains an error. 
         """
-        if 'error' in response:
-            raise exc.Fault(response['error'])
-        return response
+        error_str = None
+        try:
+            json_response = response.json()
+        except ValueError:
+            pass
+        else:
+            if 'message' in json_response or 'errors' in json_response:
+                error_str = '{0}: {1!r}'.format(json_response.get('message', 'Undefined error'), response.get('errors'))
+        
+        x = None
+        if 400 <= response.status_code < 500:
+            x = requests.exceptions.HTTPError('%s Client Error: %s %s' % (response.status_code, response.reason, error_str))
+        elif 500 <= response.status_code < 600:
+            x = requests.exceptions.HTTPError('%s Server Error: %s %s' % (response.status_code, response.reason, error_str))
+        elif error_str:
+            x = exc.Fault(error_str)
+     
+        if x is not None:
+            raise x
+        
+        return response 
     
     def _extract_referenced_vars(self, s):
         """
@@ -182,3 +217,12 @@ class ApiV3(object):
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
         return self._request(url, params=params)
+    
+    def post(self, url, **kwargs):
+        """
+        Performs a generic POST request for specified params, returning the response.
+        """
+        referenced = self._extract_referenced_vars(url)
+        url = url.format(**kwargs)
+        params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
+        return self._request(url, params=params, method='POST')

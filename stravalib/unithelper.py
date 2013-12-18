@@ -26,3 +26,19 @@ pound = pounds = lb = lbs = unit('lb')
 def c2f(celsius):
     """ Convert Celcius to Farenheit """
     return 9.0/5.0 * celsius + 32
+
+def timedelta_to_seconds(td):
+    """
+    Converts a timedelta to total seconds, including support for microseconds.
+    
+    Return value is (potentially truncated) integer.
+    
+    (This is built-in in Python >= 2.7, but we are still supporting Python 2.6 here.)
+    :param td: The timedelta object
+    :type td: :class:`datetime.timedelta`
+    :return: The number of total seconds in the timedelta object.
+    :rtype: int
+    """
+    if not td:
+        return None
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6

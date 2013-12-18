@@ -10,7 +10,8 @@ if sys.version_info < (2, 7):
 else:
     from unittest import TestCase
 
-RESOURCES_DIR = os.path.join(os.path.dirname(__file__), 'resources')
+TESTS_DIR = os.path.dirname(__file__)
+RESOURCES_DIR = os.path.join(TESTS_DIR, 'resources')
 
 
 class TestBase(TestCase):
