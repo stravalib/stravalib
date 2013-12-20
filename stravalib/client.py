@@ -320,15 +320,40 @@ class Client(object):
             
         raw_activity = self.protocol.post('/activities', **params)
         
-        print raw_activity
-        
         return model.Activity.deserialize(raw_activity)
 
-    def update_activity(self, **kwargs):
+    def update_activity(self, activity_id, **kwargs):
         """
+        Updates the properties of a specific activity.
+         
         http://strava.github.io/api/v3/activities/#put-updates
+        
+        :param activity_id: The ID of the activity to update.
+        :keyword name: The name of the activity.
+        :keyword activity_type: The activity type (case-insensitive).  
+                              Possible values: ride, run, swim, workout, hike, walk, nordicski, 
+                              alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski, 
+                              windsurf, workout, snowboard, snowshoe
+        :keyword private: Whether the activity is private.
+        :keyword commute: Whether the activity is a commute.
+        :keyword trainer: Whether this is a trainer activity.
+        :keyword gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
+        :keyword description: Description for the activity.
+        :return: The updated activity.
+        :rtype: :class:`stravalib.model.Activity`
         """
-        raise NotImplementedError()
+        
+        # Convert the kwargs into a params dict
+        params = dict(activity_id=activity_id)
+        for (k,v) in kwargs.items():
+            if k == 'activity_type':
+                k = 'type'
+            if isinstance(v, bool):
+                v = int(v)
+            params[k] = v
+            
+        raw_activity = self.protocol.put('/activities/{activity_id}', **params)
+        return model.Activity.deserialize(raw_activity)
     
     def get_activity_zones(self, activity_id):
         """

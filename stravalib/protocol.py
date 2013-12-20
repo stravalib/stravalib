@@ -226,3 +226,12 @@ class ApiV3(object):
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, method='POST')
+    
+    def put(self, url, **kwargs):
+        """
+        Performs a generic PUT request for specified params, returning the response.
+        """
+        referenced = self._extract_referenced_vars(url)
+        url = url.format(**kwargs)
+        params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
+        return self._request(url, params=params, method='PUT')

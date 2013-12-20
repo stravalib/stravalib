@@ -387,6 +387,8 @@ class Activity(LoadableEntity):
     
     average_temp = Attribute(int, (SUMMARY,DETAILED))
     
+    description = Attribute(unicode, (DETAILED,))  # Is this also in summary?
+    
     @property
     def gear(self):
         if self._gear is None:
