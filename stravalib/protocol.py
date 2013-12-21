@@ -109,7 +109,7 @@ class ApiV3(object):
             url = urlparse.urljoin('https://{0}'.format(self.server), os.path.join(self.api_base, url.strip('/')))
         return url
     
-    def _request(self, url, params=None, method='GET'):
+    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
         url = self._resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
@@ -118,7 +118,7 @@ class ApiV3(object):
             params['access_token'] = self.access_token
         
         methods = {'GET': self.rsession.get,
-                   'POST': self.rsession.post,
+                   'POST': functools.partial(self.rsession.post, files=files),
                    'PUT': self.rsession.put,
                    'DELETE': self.rsession.delete}
         
@@ -128,25 +128,10 @@ class ApiV3(object):
             raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
         
         raw = requester(url, params=params)
-        
-        # {"message":"Bad Request","errors":[{"resource":"Activity","field":"type","code":"missing_field"}]}
-        
-#         def raise_for_status(self):
-#             """Raises stored :class:`HTTPError`, if one occurred."""
-#         
-#             http_error_msg = ''
-#         
-#             if 400 <= self.status_code < 500:
-#                 http_error_msg = '%s Client Error: %s' % (self.status_code, self.reason)
-#         
-#             elif 500 <= self.status_code < 600:
-#                 http_error_msg = '%s Server Error: %s' % (self.status_code, self.reason)
-#         
-#             if http_error_msg:
-#                 raise HTTPError(http_error_msg, response=self)
-        
-        raw.raise_for_status()
-        resp = self._handle_protocol_error(raw).json()
+        if check_for_errors:
+            self._handle_protocol_error(raw)
+            
+        resp = raw.json()
         
         # TODO: We should parse the response to get the rate limit details and
         # update our rate limiter.
@@ -174,7 +159,7 @@ class ApiV3(object):
             pass
         else:
             if 'message' in json_response or 'errors' in json_response:
-                error_str = '{0}: {1!r}'.format(json_response.get('message', 'Undefined error'), response.get('errors'))
+                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), response.get('errors'))
         
         x = None
         if 400 <= response.status_code < 500:
@@ -209,29 +194,29 @@ class ApiV3(object):
                 break
         return d.keys()
 
-    def get(self, url, **kwargs):
+    def get(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic GET request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params)
+        return self._request(url, params=params, check_for_errors=check_for_errors)
     
-    def post(self, url, **kwargs):
+    def post(self, url, files=None, check_for_errors=True, **kwargs):
         """
         Performs a generic POST request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='POST')
+        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
     
-    def put(self, url, **kwargs):
+    def put(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic PUT request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='PUT')
+        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors)

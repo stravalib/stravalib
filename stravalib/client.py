@@ -6,11 +6,12 @@ import functools
 import time
 import collections
 from datetime import datetime, timedelta
+from io import BytesIO
 
 from dateutil.parser import parser as dateparser
 from units.quantity import Quantity
 
-from stravalib import model
+from stravalib import model, exc
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
@@ -208,11 +209,6 @@ class Client(object):
         result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/both-following', id=athlete_id)
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
         
-    def update_athlete(self, **kwargs):
-        """
-        http://strava.github.io/api/v3/athlete/#get-details
-        """
-        raise NotImplementedError()
     
     def get_athlete_clubs(self):
         """
@@ -266,7 +262,7 @@ class Client(object):
         
         http://strava.github.io/api/v3/activities/#get-details
         
-        :param activity_id: The activity_id of ride to fetch.
+        :param activity_id: The ID of activity to fetch.
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id)
         return model.Activity.deserialize(raw, bind_client=self)
@@ -322,38 +318,100 @@ class Client(object):
         
         return model.Activity.deserialize(raw_activity)
 
-    def update_activity(self, activity_id, **kwargs):
+    def update_activity(self, activity_id, name=None, activity_type=None, private=None, commute=None, trainer=None, gear_id=None, description=None):
         """
         Updates the properties of a specific activity.
          
         http://strava.github.io/api/v3/activities/#put-updates
         
         :param activity_id: The ID of the activity to update.
-        :keyword name: The name of the activity.
-        :keyword activity_type: The activity type (case-insensitive).  
+        :param name: The name of the activity.
+        :param activity_type: The activity type (case-insensitive).  
                               Possible values: ride, run, swim, workout, hike, walk, nordicski, 
                               alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski, 
                               windsurf, workout, snowboard, snowshoe
-        :keyword private: Whether the activity is private.
-        :keyword commute: Whether the activity is a commute.
-        :keyword trainer: Whether this is a trainer activity.
-        :keyword gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
-        :keyword description: Description for the activity.
+        :param private: Whether the activity is private.
+        :param commute: Whether the activity is a commute.
+        :param trainer: Whether this is a trainer activity.
+        :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
+        :param description: Description for the activity.
         :return: The updated activity.
         :rtype: :class:`stravalib.model.Activity`
         """
         
         # Convert the kwargs into a params dict
         params = dict(activity_id=activity_id)
-        for (k,v) in kwargs.items():
-            if k == 'activity_type':
-                k = 'type'
-            if isinstance(v, bool):
-                v = int(v)
-            params[k] = v
+        if name is not None:
+            params['name'] = name
+        if activity_type is not None:
+            if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
+                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
+            params['type'] = activity_type
+        if private is not None:
+            params['private'] = int(private)
+        if commute is not None:
+            params['commute'] = int(commute)
+        if trainer is not None:
+            params['trainer'] = int(trainer)            
+        if gear_id is not None:
+            params['gear_id'] = gear_id
             
         raw_activity = self.protocol.put('/activities/{activity_id}', **params)
         return model.Activity.deserialize(raw_activity)
+
+    def upload_activity(self, activity_file, data_type, name=None, activity_type=None, private=None, external_id=None):
+        """
+        http://strava.github.io/api/v3/athlete/#get-details
+        
+        :param activity_file: The file object to upload or file contents.
+        :type activity_file: file or str
+        
+        :param data_type: File format for upload. Possible values: fit, fit.gz, tcx, tcx.gz, gpx, gpx.gz
+        :type data_type: str
+        
+        :param name: (optional) if not provided, will be populated using start date and location, if available
+        :type name: str
+        
+        :param activity_type: (optional) case-insensitive type of activity. 
+                              possible values: ride, run, swim, workout, hike, walk, 
+                              nordicski, alpineski, backcountryski, iceskate, inlineskate, 
+                              kitesurf, rollerski, windsurf, workout, snowboard, snowshoe
+                              Type detected from file overrides, uses athlete's default type if not specified
+        :type activity_type: str
+        
+        :param private: (optional) set to True to mark the resulting activity as private, 'view_private' permissions will be necessary to view the activity
+        :type private: bool
+        
+        :param external_id: (optional) An arbitrary unique identifier may be specified which will be included in status responses.
+        :type external_id: str
+        """
+        if not hasattr(activity_file, 'read'):
+            if isinstance(file, unicode):
+                activity_file = BytesIO(file.encode('utf-8'))
+            elif isinstance(file, str):
+                activity_file = BytesIO(file)
+            else:
+                raise TypeError("Invalid type specified for actvitity_file: {0}".type(file))
+        
+        valid_data_types = ('fit', 'fit.gz', 'tcx', 'tcx.gz', 'gpx', 'gpx.gz')
+        if not data_type in valid_data_types:
+            raise ValueError("Invalid data type {0}. Possible vavlues {1!r}".format(data_type, valid_data_types))
+        
+        params = {'data_type': data_type}
+        if name is not None:
+            params['activity_name'] = name
+        if activity_type is not None:
+            if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
+                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
+            params['activity_type'] = activity_type
+        if private is not None:
+            params['private'] = int(private)
+        if external_id is not None:
+            params['external_id'] = external_id
+            
+        initial_response = self.protocol.post('/uploads', files={'file': activity_file},
+                                              check_for_errors=False, **params)
+        return ActivityUploader(self, response=initial_response)
     
     def get_activity_zones(self, activity_id):
         """
@@ -404,8 +462,6 @@ class Client(object):
         raise NotImplementedError()
     
     # TODO: Streams
-    # TODO: Uploads
-    # TODO: fun.
     
 class BatchedResultsIterator(object):
     """
@@ -415,7 +471,7 @@ class BatchedResultsIterator(object):
     that limitation. 
     """
     
-    default_per_page = 200 #: How many results returned in a batch.
+    default_per_page = 200 #: How many results returned in a batch.  We maximize this to minimize requests to server (rate limiting)
      
     def __init__(self, entity, result_fetcher, bind_client=None, limit=None, per_page=None):
         """
@@ -488,4 +544,89 @@ class BatchedResultsIterator(object):
         else:
             self._counter += 1
             return result
+
+class ActivityUploader(object):
+    """
+    The "future" object that holds information about an activity file upload and can
+    wait for upload to finish, etc.
+    """
+    
+    def __init__(self, client, response):
+        """
+        :param client: The :class:`stravalib.client.Client` object that is handling the upload.
+        :type client: :class:`stravalib.client.Client`
+        :param response: The initial upload response.
+        :type response: dict
+        """
+        self.client = client
+        self.update_from_repsonse(response)
         
+    def update_from_repsonse(self, response, raise_exc=True):
+        """
+        Updates internal state of object.
+        
+        :param response: The response object (dict).
+        :type response: dict
+        :param raise_exc: Whether to raise an exception if the response indicates an error state. (default True)
+        :type raise_exc: bool 
+        :raise stravalib.exc.ActivityUploadFailed: If the response indicates an error and raise_exc is True. 
+        """
+        self.upload_id = response['id']
+        self.external_id = response.get('external_id')
+        self.activity_id = response.get('activity_id')
+        self.status = response['status']
+        self.error = response['error']
+        if raise_exc:
+            self.raise_for_error()
+    
+    @property
+    def is_processing(self):
+        return (self.activity_id is None and self.error is None)
+    
+    @property
+    def is_error(self):
+        return (self.error is not None)
+    
+    @property
+    def is_complete(self):
+        return (self.activity_id is not None)
+    
+    def raise_for_error(self):
+        if self.error:
+            raise exc.ActivityUploadFailed(self.error)
+        elif self.status == "The created activity has been deleted.":
+            raise exc.CreatedActivityDeleted(self.status)
+        
+    def poll(self):
+        """
+        Update internal state from polling strava.com. 
+        
+        :raise stravalib.exc.ActivityUploadFailed: If the poll returns an error.
+        """
+        response = self.client.protocol.get('/uploads/{upload_id}', upload_id=self.upload_id, check_for_errors=False)
+        self.update_from_repsonse(response)
+        
+    def wait(self, timeout=None, poll_interval=1.0):
+        """
+        Wait for the upload to complete or to err out.
+        
+        Will return the resulting Activity or raise an exception if the upload fails.
+        :param timeout: The max seconds to wait. Will raise TimeoutExceeded exception if this 
+                        time passes without success or error response.
+        :type timeout: float
+        :param poll_interval: How long to wait between upload checks.  Strava recommends 1s minimum. (default 1.0s)
+        :type poll_interval: float
+        :return: The uploaded Activity object (fetched from server)
+        :rtype: :class:`stravalib.model.Activity`
+        :raise stravalib.exc.TimeoutExceeded: If a timeout was specified and activity is 
+                                              still processing after timeout has elapsed.
+        :raise stravalib.exc.ActivityUploadFailed: If the poll returns an error.
+        """
+        start = time.time()
+        while self.activity_id is None:
+            self.poll()
+            time.sleep(poll_interval)
+            if timeout and (time.time() - start) > timeout:
+                raise exc.TimeoutExceeded()
+        # If we got this far, we must have an activity!        
+        return self.client.get_activity(self.activity_id)

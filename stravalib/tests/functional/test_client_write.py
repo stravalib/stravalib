@@ -2,10 +2,11 @@ from __future__ import absolute_import, unicode_literals
 import os
 import ConfigParser
 from datetime import datetime, timedelta
+from io import BytesIO
 
-from stravalib import model, attributes, unithelper as uh
+from stravalib import model, exc, attributes, unithelper as uh
 from stravalib.client import Client
-from stravalib.tests import TestBase, TESTS_DIR
+from stravalib.tests import TestBase, TESTS_DIR, RESOURCES_DIR
 
 TEST_CFG = os.path.join(TESTS_DIR, 'test.ini')
 
@@ -67,4 +68,25 @@ class ClientWriteTest(TestBase):
         update3 = self.client.update_activity(a.id, trainer=True)
         self.assertTrue(update3.private)
         self.assertTrue(update3.trainer)
+        
+        
+        
+    def test_upload_activity(self):
+        """
+        Test uploading an activity.
+        
+        NOTE: This requires clearing out the uploaded activities from configured 
+        writable Strava acct.
+        """
+        with open(os.path.join(RESOURCES_DIR, 'sample.tcx')) as fp:
+            uploader = self.client.upload_activity(fp, data_type='tcx')
+            self.assertTrue(uploader.is_processing)
+            a = uploader.wait()
+            self.assertTrue(uploader.is_complete)
+            self.assertIsInstance(a, model.Activity)
+            self.assertEquals("02/21/2009 Leiden, ZH, The Netherlands", a.name)
+            
+            # And we'll get an error if we try the same file again
+            with self.assertRaises(exc.ActivityUploadFailed):
+                self.client.upload_activity(fp, data_type='tcx')
         

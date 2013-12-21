@@ -29,3 +29,15 @@ class RateLimitExceeded(RuntimeError):
     
     http://strava.github.io/api/#access
     """
+    
+class ActivityUploadFailed(RuntimeError):
+    pass
+
+class ErrorProcessingActivity(ActivityUploadFailed):
+    pass
+
+class CreatedActivityDeleted(ActivityUploadFailed):
+    pass
+
+class TimeoutExceeded(RuntimeError):
+    pass
