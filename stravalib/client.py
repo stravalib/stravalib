@@ -421,6 +421,23 @@ class Client(object):
         # We use a factory to give us the correct zone based on type.
         return [model.BaseActivityZone.deserialize(z) for z in zones]
     
+    def get_activity_comments(self, activity_id, markdown=False, limit=None):
+        """
+        Gets the comments for an activity.
+        
+        http://strava.github.io/api/v3/comments/#list
+        
+        :param activity_id: The activity for which to fetch comments.
+        :param markdown: Whether to include markdown in comments (default is false/filterout).
+        :param limit: Max rows to return.
+        :return: An iterator of activity comment objects.
+        :rtype: :class:`BatchedResultsIterator` of :class:`stravalib.model.ActivityComment`
+        """
+        result_fetcher = functools.partial(self.protocol.get, '/activities/{id}/comments',
+                                           id=activity_id, markdown=int(markdown))
+        return BatchedResultsIterator(entity=model.ActivityComment, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
+    
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
@@ -428,6 +445,8 @@ class Client(object):
         
         :param gear_id: The gear id.
         :type gear_id: str
+        :return: The Bike or Shoe subclass object.
+        :rtype: :class:`stravalib.model.Gear`
         """
         return model.Gear.deserialize(self.protocol.get('/gear/{id}', id=gear_id))
     
@@ -504,8 +523,11 @@ class BatchedResultsIterator(object):
             
         self._counter = 0
         self._buffer = None
-        self._page = 0
+        self._page = 1
         self._all_results_fetched = False
+    
+    def __repr__(self):
+        return '<{0} entity={1}>'.format(self.__class__.__name__, self.entity.__name__)
     
     def _fill_buffer(self):
         """

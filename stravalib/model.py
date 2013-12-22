@@ -160,10 +160,13 @@ class Gear(IdentifiableEntity):
         """
         if v is None:
             return None
-        if 'frame_type' in v:
-            o = Bike()
+        if cls == Gear and v.get('resource_state') == 3:            
+            if 'frame_type' in v:
+                o = Bike()
+            else:
+                o = Shoe()
         else:
-            o = Shoe()
+            o = cls()
         o.from_dict(v)
         return o
     
@@ -217,7 +220,7 @@ class ActivityComment(LoadableEntity):
     text = Attribute(unicode, (META,SUMMARY,DETAILED))
     created_at = TimestampAttribute((SUMMARY,DETAILED))
     
-    athlete = None
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
     # 'athlete' is a summary-level representation of commenter
 
 class Map(IdentifiableEntity):
@@ -225,29 +228,15 @@ class Map(IdentifiableEntity):
     polyline = Attribute(unicode, (SUMMARY,DETAILED))
     summary_polyline = Attribute(unicode, (SUMMARY,DETAILED))
 
-class BaseSplit(BaseEntity):
-    pass
-    # Consider pushing up attribs from MetricSplit and StandardSplit (challenge is in class-level specification of units)
-
-class MetricSplit(BaseSplit):  # This is not a BaseEntity, since there is no id or resource_state ... maybe we need a simpler Base?
+class Split(BaseEntity):
     """
-    A metric-unit split.
+    A split -- may be metric or standard units (which has no bearing
+    on the units used in this object, just the binning of values).
     """
-    
     distance = Attribute(float, units=uh.meters)
-    elapsed_time = Attribute(int, units=uh.seconds)
+    elapsed_time = TimeIntervalAttribute()
     elevation_difference = Attribute(float, units=uh.meters) 
-    moving_time = Attribute(int, units=uh.seconds)
-    split = Attribute(int)
-
-class StandardSplit(BaseSplit):  # This is not a BaseEntity, since there is no id or resource_state ... maybe we need a simpler Base?
-    """
-    A standard-unit (not metric) split.
-    """
-    distance = Attribute(float, units=uh.feet)
-    elapsed_time = Attribute(int, units=uh.seconds)
-    elevation_difference = Attribute(float, units=uh.feet) 
-    moving_time = Attribute(int, units=uh.seconds)
+    moving_time = TimeIntervalAttribute()
     split = Attribute(int)
 
 class Segment(LoadableEntity):
@@ -305,7 +294,7 @@ class SegmentEffort(BaseEffort):
                     
 class Activity(LoadableEntity):
     """
-    
+    Represents an activity (ride, run, etc.).
     """
     # "Constants" for types of activities
     RIDE = "Ride"
@@ -324,6 +313,8 @@ class Activity(LoadableEntity):
     WORKOUT = "Workout"
     SNOWBOARD = "Snowboard"
     SNOWSHOE = "Snowshoe"
+    
+    _comments = None
     
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
              ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT, 
@@ -374,8 +365,8 @@ class Activity(LoadableEntity):
     has_kudoed = Attribute(bool, (SUMMARY,DETAILED))
   
     segment_efforts = EntityCollection(SegmentEffort, (DETAILED,))
-    splits_metric = EntityCollection(MetricSplit, (DETAILED,))
-    splits_standard = EntityCollection(StandardSplit, (DETAILED,))
+    splits_metric = EntityCollection(Split, (DETAILED,))
+    splits_standard = EntityCollection(Split, (DETAILED,))
     best_efforts = EntityCollection(BestEffort, (DETAILED,))
     
     # Undocumented attributes
@@ -398,7 +389,17 @@ class Activity(LoadableEntity):
         return self._gear
         
 
-
+    @property
+    def comments(self):
+        if self._comments is None:
+            self.assert_bind_client()
+            if self.comment_count > 0:
+                self._comments = self.bind_client.get_activity_comments(self.id)
+            else:
+                # Shortcut if we know there aren't any
+                self._comments = []
+        return self._comments
+    
 class SegmentLeaderboard(BoundEntity):
     """
     {
@@ -441,7 +442,9 @@ class SegmentLeaderboard(BoundEntity):
 }
     """
     
-    
+class SegmentLeaderboardEntry(BoundEntity):
+    pass
+
 class DistributionBucket(BaseEntity):
     max = Attribute(int)
     min = Attribute(int)

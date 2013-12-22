@@ -159,13 +159,13 @@ class ApiV3(object):
             pass
         else:
             if 'message' in json_response or 'errors' in json_response:
-                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), response.get('errors'))
+                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), json_response.get('errors'))
         
         x = None
         if 400 <= response.status_code < 500:
-            x = requests.exceptions.HTTPError('%s Client Error: %s %s' % (response.status_code, response.reason, error_str))
+            x = requests.exceptions.HTTPError('%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str))
         elif 500 <= response.status_code < 600:
-            x = requests.exceptions.HTTPError('%s Server Error: %s %s' % (response.status_code, response.reason, error_str))
+            x = requests.exceptions.HTTPError('%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str))
         elif error_str:
             x = exc.Fault(error_str)
      

@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from stravalib import model
 from stravalib import unithelper as uh
 from stravalib.tests import TestBase
+from units.quantity import Quantity
 
 class ModelTest(TestBase):
     
@@ -34,10 +35,48 @@ class ModelTest(TestBase):
         
         self.assertAlmostEqual(1.61, float(uh.kph(a.max_speed)), places=2)
         
-
+    def test_time_intervals(self):
+        pass
+    
     def test_distance_units(self):
+        
+        # Gear
+        g = model.Gear()
+        g.distance = 1000
+        self.assertEquals(1.0, float(uh.kilometers(g.distance)))
+        
+        # Metric Split
+        split = model.Split()
+        split.distance = 1000 # meters
+        split.elevation_difference = 1000 # meters
+        self.assertIsInstance(split.distance, Quantity)
+        self.assertIsInstance(split.elevation_difference, Quantity)
+        self.assertEquals(1.0, float(uh.kilometers(split.distance)))
+        self.assertEquals(1.0, float(uh.kilometers(split.elevation_difference)))
+        split = None
+        
+        # Segment
+        s = model.Segment()
+        s.distance = 1000
+        s.elevation_high = 2000
+        s.elevation_low = 1000
+        self.assertIsInstance(s.distance, Quantity)
+        self.assertIsInstance(s.elevation_high, Quantity)
+        self.assertIsInstance(s.elevation_low, Quantity)
+        self.assertEquals(1.0, float(uh.kilometers(s.distance)))
+        self.assertEquals(2.0, float(uh.kilometers(s.elevation_high)))
+        self.assertEquals(1.0, float(uh.kilometers(s.elevation_low)))
+        
+        # Activity
         a = model.Activity()
-        
         a.distance = 1000 # m
+        a.total_elevation_gain = 1000 # m
+        self.assertIsInstance(a.distance, Quantity)
+        self.assertIsInstance(a.total_elevation_gain, Quantity)
         self.assertEquals(1.0, float(uh.kilometers(a.distance)))
+        self.assertEquals(1.0, float(uh.kilometers(a.total_elevation_gain)))
         
+    def test_weight_units(self):
+        """
+        """
+        # PowerActivityZone

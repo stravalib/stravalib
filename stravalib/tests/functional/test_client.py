@@ -23,7 +23,18 @@ class ClientTest(FunctionalTestBase):
         #self.assertAlmostEqual(first, second, places, msg, delta)
         # Ensure that iw as read in with correct units
         self.assertEquals(22.5308, float(uh.kilometers(activity.distance)))
-        
+
+    
+    def test_activity_comments(self):
+        """
+        Test loading comments for already-loaded activity.
+        """
+        activity = self.client.get_activity(2290897)
+        self.assertTrue(activity.comment_count > 0)
+        comments= list(activity.comments)
+        self.assertEquals(3, len(comments))
+        self.assertEquals("I love Gordo's. I've been eating there for 20 years!", comments[0].text)
+            
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
         
@@ -57,7 +68,7 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals('g69911', g.id)
         self.assertEquals('XT Wings 2', g.model_name)
         self.assertEquals('', g.description)
-        
+
 """            
     def test_get_clubs(self):
         clubs = self.client.get_clubs('mission')
