@@ -5,7 +5,7 @@ The types system provides a mechanism for serializing/un the data to/from JSON
 structures and for capturing additional information about the model attributes.  
 """
 import logging
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, tzinfo, date
 from collections import namedtuple
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
@@ -81,6 +81,21 @@ class Attribute(object):
                 v = self.units(v)
         elif not isinstance(v, self.type):
             v = self.type(v)
+        return v
+
+class DateAttribute(Attribute):
+    """
+    """
+    def __init__(self, resource_states=None):
+        super(DateAttribute, self).__init__(date, resource_states=resource_states)
+        
+    def unmarshal(self, v):
+        """
+        Convert a date in "2012-12-13" format to a :class:`datetime.date` object.
+        """
+        if not isinstance(v, date):
+            # 2012-12-13
+            v = datetime.strptime(v, "%Y-%m-%d").date()
         return v
     
 class TimestampAttribute(Attribute):

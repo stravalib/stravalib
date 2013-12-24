@@ -3,13 +3,15 @@ Entity classes for representing the various Strava datatypes.
 """
 import abc
 import logging
+from collections import Sequence
 
 from stravalib import exc
 from stravalib import unithelper as uh
 
 from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute, 
                                   TimestampAttribute, LocationAttribute, EntityCollection, 
-                                  EntityAttribute, TimeIntervalAttribute, TimezoneAttribute)
+                                  EntityAttribute, TimeIntervalAttribute, TimezoneAttribute,
+                                  DateAttribute)
 
 class BaseEntity(object):
     """
@@ -179,6 +181,17 @@ class Shoe(Gear):
     """
     """
     
+class ActivityTotals(BaseEntity):
+    """
+    Represent ytd/recent/all run/ride totals. 
+    """
+    achievement_count = Attribute(int)
+    count = Attribute(int)
+    distance = Attribute(float, units=uh.meters)
+    elapsed_time = TimeIntervalAttribute()
+    elevation_gain = Attribute(float, units=uh.meters)
+    moving_time = TimeIntervalAttribute()
+    
 class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
@@ -197,6 +210,8 @@ class Athlete(LoadableEntity):
     created_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
     updated_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
     
+    approve_followers = Attribute(bool, (SUMMARY,DETAILED))
+    
     follower_count = Attribute(int, (DETAILED,))
     friend_count = Attribute(int, (DETAILED,))
     mutual_friend_count = Attribute(int, (DETAILED,))
@@ -209,6 +224,49 @@ class Athlete(LoadableEntity):
     bikes = EntityCollection(Bike, (DETAILED,))
     shoes = EntityCollection(Shoe, (DETAILED,))
 
+    # Some undocumented summary & detailed  attributes
+    ytd_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    recent_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    all_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    
+    ytd_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    recent_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    all_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    
+    super_user = Attribute(bool, (SUMMARY,DETAILED))
+    biggest_ride_distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    biggest_climb_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    
+    email_language = Attribute(unicode, (SUMMARY,DETAILED)) #: The user's preferred lang/locale (e.g. en-US)     
+    
+    # A bunch more undocumented detailed-resolution attribs
+    weight = Attribute(float, (DETAILED,), units=uh.kg)
+    max_heartrate = Attribute(float, (DETAILED,))
+    
+    username = Attribute(unicode, (DETAILED,))
+    description = Attribute(unicode, (DETAILED,))
+    instagram_username = Attribute(unicode, (DETAILED,))
+    
+    offer_in_app_payment = Attribute(bool, (DETAILED,))
+    global_privacy = Attribute(bool, (DETAILED,))
+    receive_newsletter = Attribute(bool, (DETAILED,))
+    email_kom_lost = Attribute(bool, (DETAILED,))
+    dateofbirth = DateAttribute((DETAILED,))
+    facebook_sharing_enabled = Attribute(bool, (DETAILED,))
+    ftp = Attribute(unicode, (DETAILED,))  # What is this?
+    profile_original = Attribute(unicode, (DETAILED,))
+    premium_expiration_date = Attribute(int, (DETAILED,)) #: Unix epoch
+    email_send_follower_notices = Attribute(bool, (DETAILED,))
+    plan = Attribute(unicode, (DETAILED,))
+    agreed_to_terms = Attribute(unicode, (DETAILED,))
+    follower_request_count = Attribute(int, (DETAILED,))
+    email_facebook_twitter_friend_joins = Attribute(bool, (DETAILED,))
+    receive_kudos_emails = Attribute(bool, (DETAILED,))
+    receive_follower_feed_emails = Attribute(bool, (DETAILED,))
+    receive_comment_emails = Attribute(bool, (DETAILED,))
+    
+    sample_race_distance = Attribute(int, (DETAILED,)) # What is this?
+    sample_race_time = Attribute(int, (DETAILED,)) # What is this?
     
     def __repr__(self):
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
@@ -225,8 +283,8 @@ class ActivityComment(LoadableEntity):
 
 class Map(IdentifiableEntity):
     id = Attribute(unicode, (SUMMARY,DETAILED))
-    polyline = Attribute(unicode, (SUMMARY,DETAILED))
-    summary_polyline = Attribute(unicode, (SUMMARY,DETAILED))
+    polyline = Attribute(str, (SUMMARY,DETAILED))
+    summary_polyline = Attribute(str, (SUMMARY,DETAILED))
 
 class Split(BaseEntity):
     """
@@ -239,9 +297,39 @@ class Split(BaseEntity):
     moving_time = TimeIntervalAttribute()
     split = Attribute(int)
 
+class SegmentExplorerResult(LoadableEntity):
+    """
+    Represents a segment result from the segment explorer feature.
+    
+    (These are not full segment objects, but the segment object can be fetched
+    via the 'segment' property of this object.)
+    """
+    _segment = None
+    id = Attribute(int)
+    name = Attribute(unicode)
+    climb_category = Attribute(int)
+    climb_category_desc = Attribute(unicode)
+    avg_grade = Attribute(float)
+    start_latlng = LocationAttribute()
+    end_latlng = LocationAttribute()
+    elev_difference = Attribute(float, units=uh.meters)
+    distance = Attribute(float, units=uh.meters)
+    points = Attribute(str) #: Encoded polyline 
+    
+    @property
+    def segment(self):
+        if self._segment is None:
+            self.assert_bind_client()
+            if self.id is not None:
+                self._segment = self.bind_client.get_segment(self.id)
+        return self._segment
+    
 class Segment(LoadableEntity):
     """
+    Represents a single Strava segment.
     """
+    _leaderboard = None
+    
     name = Attribute(unicode, (SUMMARY,DETAILED))
     activity_type = Attribute(unicode, (SUMMARY,DETAILED))
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
@@ -268,9 +356,17 @@ class Segment(LoadableEntity):
     effort_count = Attribute(int, (DETAILED,))
     athlete_count = Attribute(int, (DETAILED,))
     hazardous = Attribute(bool, (DETAILED,))
-    pr_time = Attribute(int, (DETAILED,), units=uh.seconds)
+    pr_time = TimeIntervalAttribute((DETAILED,))
     pr_distance = Attribute(float, (DETAILED,), units=uh.meters)
     starred = Attribute(bool, (DETAILED,))
+    
+    @property
+    def leaderboard(self):
+        if self._leaderboard is None:
+            self.assert_bind_client()
+            if self.id is not None:
+                self._leaderboard = self.bind_client.get_segment_leaderboard(self.id)
+        return self._leaderboard
     
 class BaseEffort(LoadableEntity):
     name = Attribute(unicode, (SUMMARY,DETAILED))
@@ -399,52 +495,80 @@ class Activity(LoadableEntity):
                 # Shortcut if we know there aren't any
                 self._comments = []
         return self._comments
-    
-class SegmentLeaderboard(BoundEntity):
-    """
-    {
-  "effort_count": 7037,
-  "entry_count": 7037,
-  "entries": [
-    {
-      "athlete_name": "Jim Whimpey",
-      "athlete_id": 123529,
-      "athlete_gender": "M",
-      "average_hr": 190.519,
-      "average_watts": 460.805,
-      "distance": 2659.89,
-      "elapsed_time": 360,
-      "moving_time": 360,
-      "start_date": "2013-03-29T13:49:35Z",
-      "start_date_local": "2013-03-29T06:49:35Z",
-      "activity_id": 46320211,
-      "effort_id": 801006623,
-      "rank": 1,
-      "athlete_profile": "http://pics.com/227615/large.jpg"
-    },
-    {
-      "athlete_name": "Chris Zappala",
-      "athlete_id": 11673,
-      "athlete_gender": "M",
-      "average_hr": null,
-      "average_watts": 368.288,
-      "distance": 2705.77,
-      "elapsed_time": 374,
-      "moving_time": 374,
-      "start_date": "2012-02-23T14:50:16Z",
-      "start_date_local": "2012-02-23T06:50:16Z",
-      "activity_id": 4431903,
-      "effort_id": 83383918,
-      "rank": 2,
-      "athlete_profile": "http://pics.com/227615/large.jpg"
-    }
-  ]
-}
-    """
-    
-class SegmentLeaderboardEntry(BoundEntity):
-    pass
 
+class SegmentLeaderboardEntry(BoundEntity):
+    """
+    Represents a single entry on a segment leaderboard.
+    """
+    _athlete = None
+    _activity = None
+    _effort = None
+    
+    effort_id = Attribute(int)
+    athlete_id = Attribute(int)
+    athlete_name = Attribute(unicode)
+    athlete_gender = Attribute(unicode)
+    average_hr = Attribute(float)
+    average_watts = Attribute(float)
+    distance = Attribute(float, units=uh.meters)
+    elapsed_time = TimeIntervalAttribute()
+    moving_time = TimeIntervalAttribute()
+    start_date = TimestampAttribute((SUMMARY,DETAILED))
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
+    activity_id = Attribute(int)
+    rank = Attribute(int)
+    athlete_profile = Attribute(unicode)
+    
+    def __repr__(self):
+        return '<SegmentLeaderboardEntry rank={0} athlete_name={1!r}>'.format(self.rank, self.athlete_name)
+    
+    @property
+    def athlete(self):
+        """ The related athlete (performs additional server fetch). """
+        if self._athlete is None:
+            self.assert_bind_client()
+            if self.athlete_id is not None:
+                self._athlete = self.bind_client.get_athlete(self.athlete_id)
+        return self._athlete
+
+    @property
+    def activity(self):
+        """ The related activity (performs additional server fetch). """
+        if self._activity is None:
+            self.assert_bind_client()
+            if self.activity_id is not None:
+                self._activity = self.bind_client.get_activity(self.activity_id)
+        return self._activity
+    
+    @property
+    def effort(self):
+        """ The related effort (performs additional server fetch). """
+        if self._effort is None:
+            self.assert_bind_client()
+            if self.effort_id is not None:
+                self._effort = self.bind_client.get_segment_effort(self.effort_id)
+        return self._effort
+    
+class SegmentLeaderboard(Sequence, BoundEntity):
+    """
+    The ranked leaderboard for a segment.
+    """
+    effort_count = Attribute(int)
+    entry_count = Attribute(int)
+    entries = EntityCollection(SegmentLeaderboardEntry)
+    
+    def __iter__(self):
+        return iter(self.entries)
+    
+    def __len__(self):
+        return len(self.entries)
+    
+    def __contains__(self, k):
+        return k in self.entries
+    
+    def __getitem__(self, k):
+        return self.entries[k]
+    
 class DistributionBucket(BaseEntity):
     max = Attribute(int)
     min = Attribute(int)

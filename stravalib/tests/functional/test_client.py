@@ -58,6 +58,13 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals('Team Strava Cycling', clubs[1].name)
         self.assertEquals('Team Strava Cyclocross', clubs[2].name)
         
+        clubs_indirect = self.client.get_athlete().clubs
+        self.assertEquals(3, len(clubs_indirect))
+        self.assertEquals(clubs[0].name, clubs_indirect[0].name)
+        self.assertEquals(clubs[1].name, clubs_indirect[1].name)
+        self.assertEquals(clubs[2].name, clubs_indirect[2].name)
+        
+        
     def test_get_gear(self):
         g = self.client.get_gear("g69911")
         self.assertAlmostEqual(3264.67, float(g.distance), places=2)
@@ -69,6 +76,58 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals('XT Wings 2', g.model_name)
         self.assertEquals('', g.description)
 
+    def test_get_segment_leaderboard(self):
+        lb = self.client.get_segment_leaderboard(229781)
+        print(lb.effort_count)
+        print(lb.entry_count)
+        for i,e in enumerate(lb):
+            print '{0}: {1}'.format(i, e)
+                
+        self.assertEquals(15, len(lb.entries)) # 10 top results, 5 bottom results
+        self.assertIsInstance(lb.entries[0], model.SegmentLeaderboardEntry)
+        self.assertEquals(1, lb.entries[0].rank)
+        self.assertTrue(lb.effort_count > 8000) # At time of writing 8206
+        
+        # Check the relationships
+        athlete = lb[0].athlete
+        print(athlete)
+        self.assertEquals(lb[0].athlete_name, "{0} {1}".format(athlete.firstname, athlete.lastname))
+        
+        effort = lb[0].effort
+        print effort
+        self.assertIsInstance(effort, model.SegmentEffort)
+        self.assertEquals('Hawk Hill', effort.name)
+        
+        activity = lb[0].activity
+        self.assertIsInstance(activity, model.Activity)
+        # Can't assert much since #1 ranked activity will likely change in the future.
+        
+    def test_get_segment(self):
+        segment = self.client.get_segment(229781)
+        self.assertIsInstance(segment, model.Segment)
+        print segment
+        self.assertEquals('Hawk Hill', segment.name)
+        self.assertAlmostEqual(2.68, float(uh.kilometers(segment.distance)), places=2)
+        
+        # Fetch leaderboard
+        lb = segment.leaderboard
+        self.assertEquals(15, len(lb)) # 10 top results, 5 bottom results
+        
+    
+    def test_segment_explorer(self):
+        bounds = (37.821362,-122.505373,37.842038,-122.465977)
+        results = self.client.explore_segments(bounds)
+        
+        # This might be brittle
+        self.assertEquals('Hawk Hill', results[0].name)
+        
+        # Fetch full segment
+        segment = results[0].segment
+        self.assertEquals(results[0].name, segment.name)
+        
+        # For some reason these don't follow the simple math rules one might expect (so we round to int)
+        self.assertAlmostEqual(results[0].elev_difference, segment.elevation_high - segment.elevation_low, places=0)
+        
 """            
     def test_get_clubs(self):
         clubs = self.client.get_clubs('mission')
@@ -79,15 +138,4 @@ class ClientTest(FunctionalTestBase):
         self.assertTrue(len(clubs) > 1)
         self.assertNotEqual(None, clubs[0].location)
     
-    def test_get_segment(self):
-        segment_id = 708743
-        segment = self.client.get_segment(segment_id)
-        self.assertTrue('Rosslyn' in segment.name)
-        self.assertTrue(segment.end_latlng is None)
-        
-        segment2 = self.client.get_segment(segment_id, include_geo=True)
-        self.assertEquals(segment.id, segment2.id)
-        self.assertEquals(segment.name, segment2.name)
-        self.assertTrue(segment2.start_latlng is not None)
-        self.assertTrue(segment2.end_latlng is not None)
 """

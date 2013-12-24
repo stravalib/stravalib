@@ -209,7 +209,6 @@ class Client(object):
         result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/both-following', id=athlete_id)
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
         
-    
     def get_athlete_clubs(self):
         """
         List the clubs for the currently authenticated athlete.
@@ -223,7 +222,8 @@ class Client(object):
     
     def get_club(self, club_id):
         """
-        Return V3 object structure for club
+        Return V3 object structure for club.
+        
         http://strava.github.io/api/v3/clubs/#get-details
         
         :param club_id: The ID of the club to fetch.
@@ -234,6 +234,7 @@ class Client(object):
     def get_club_members(self, club_id, limit=None):
         """
         Gets the member objects for specified club ID.
+        
         http://strava.github.io/api/v3/clubs/#get-members
         
         :param club_id: The numeric ID for the club.
@@ -316,7 +317,7 @@ class Client(object):
             
         raw_activity = self.protocol.post('/activities', **params)
         
-        return model.Activity.deserialize(raw_activity)
+        return model.Activity.deserialize(raw_activity, bind_client=self)
 
     def update_activity(self, activity_id, name=None, activity_type=None, private=None, commute=None, trainer=None, gear_id=None, description=None):
         """
@@ -357,7 +358,7 @@ class Client(object):
             params['gear_id'] = gear_id
             
         raw_activity = self.protocol.put('/activities/{activity_id}', **params)
-        return model.Activity.deserialize(raw_activity)
+        return model.Activity.deserialize(raw_activity, bind_client=self)
 
     def upload_activity(self, activity_file, data_type, name=None, activity_type=None, private=None, external_id=None):
         """
@@ -415,11 +416,15 @@ class Client(object):
     
     def get_activity_zones(self, activity_id):
         """
+        Gets zones for activity.
+        
+        Requires premium account.
+        
         http://strava.github.io/api/v3/activities/#zones
         """
         zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
         # We use a factory to give us the correct zone based on type.
-        return [model.BaseActivityZone.deserialize(z) for z in zones]
+        return [model.BaseActivityZone.deserialize(z, bind_client=self) for z in zones]
     
     def get_activity_comments(self, activity_id, markdown=False, limit=None):
         """
@@ -464,21 +469,106 @@ class Client(object):
         """
         http://strava.github.io/api/v3/segments/#retrieve 
         """
-        return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id))
+        return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id), bind_client=self)
     
-    def get_segment_leaderboard(self, segment_id):
+    def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None, 
+                                following=None, club_id=None, timeframe=None, top_results_limit=None):
         """
+        Gets the leaderboard for a segment.
+        
         http://strava.github.io/api/v3/segments/#leaderboard
+        
+        Note that by default Strava will return the top 10 results *and then will also include
+        the bottom 5 results*.  The top X results can be configured by setting the top_results_limit
+        parameter; however,the bottom 5 results are always included.  (i.e. if you specify top_results_limit=15,
+        you will get a total of 20 entries back.)
+        
+        :param segment_id: ID of the segment.
+        :param gender: (optional) 'M' or 'F'
+        :param age_group: (optional) '0_24', '25_34', '35_44', '45_54', '55_64', '65_plus'
+        :param weight_class: (optional) pounds '0_124', '125_149', '150_164', '165_179', '180_199', '200_plus' 
+                             or kilograms '0_54', '55_64', '65_74', '75_84', '85_94', '95_plus'
+        :param following: (optional) Limit to athletes current user is following.
+        :param club_id: (optional) limit to specific club
+        :param timeframe: (optional)  'this_year', 'this_month', 'this_week', 'today'
+        :param top_results_limit: (optional, strava default is 10 + 5 from end) How many of leading leaderboard entries to display.
+                            See description for why this is a little confusing.
+        :rtype: :class:`stravalib.model.SegmentLeaderboard`
         """
-        raise NotImplementedError()
+        params = {}
+        if gender is not None:
+            if gender.upper() not in ('M', 'F'):
+                raise ValueError("Invalid gender: {0}. Possible values: 'M' or 'F'".format(gender))
+            params['gender'] = gender
+        
+        valid_age_groups = ('0_24', '25_34', '35_44', '45_54', '55_64', '65_plus')
+        if age_group is not None:
+            if not age_group in valid_age_groups:
+                raise ValueError("Invalid age group: {0}.  Possible values: {1!r}".format(age_group, valid_age_groups))
+            params['age_group'] = age_group
+        
+        valid_weight_classes = ('0_124', '125_149', '150_164', '165_179', '180_199', '200_plus', 
+                                '0_54', '55_64', '65_74', '75_84', '85_94', '95_plus')
+        if weight_class is not None:
+            if not weight_class in valid_weight_classes:
+                raise ValueError("Invalid weight class: {0}.  Possible values: {1!r}".format(weight_class, valid_weight_classes))
+            params['weight_class'] = weight_class
+        
+        if following is not None:
+            params['following'] = int(following)
+        
+        if club_id is not None:
+            params['club_id'] = club_id
+            
+        if timeframe is not None:
+            valid_timeframes = 'this_year', 'this_month', 'this_week', 'today'
+            if not timeframe in valid_timeframes:
+                raise ValueError("Invalid timeframe: {0}.  Possible values: {1!r}".format(timeframe, valid_timeframes))
+            params['date_range'] = timeframe
+            
+        if top_results_limit is not None:
+            params['per_page'] = top_results_limit
+        
+        return model.SegmentLeaderboard.deserialize(self.protocol.get('/segments/{id}/leaderboard',
+                                                                      id=segment_id, **params),
+                                                    bind_client=self)
     
-    def explore_segments(self, bounds, activity_type, min_cat, max_cat):
+    def explore_segments(self, bounds, activity_type=None, min_cat=None, max_cat=None):
         """
         Returns an array of up to 10 segments.
+        
         http://strava.github.io/api/v3/segments/#explore
+        
+        :param bounds: list of bounding box corners lat/lon [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
+        :type bounds: list of 4 floats or list of 2 (lat,lon) tuples
+        :param activity_type: (optional, default is riding)  'running' or 'riding'
+        :type activity_type: str
+        :param min_cat: (optional) Minimum climb category filter
+        :type min_cat: int
+        :param max_cat: (optional) Maximum climb category filter
+        :type max_cat: int
         """
-        assert activity_type in ('riding', 'running')
-        raise NotImplementedError()
+        if len(bounds) == 2:
+            bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][2])
+        elif len(bounds) != 4:
+            raise ValueError("Invalid bounds specified: {0!r}. Must be list of 4 float values or list of 2 (lat,lon) tuples.") 
+        
+        params = {'bounds': ','.join(str(b) for b in bounds)} 
+        
+        valid_activity_types = ('riding', 'running')
+        if activity_type is not None:
+            if activity_type not in ('riding', 'running'):
+                raise ValueError('Invalid activity type: {0}.  Possible values: {1!r}'.format(activity_type, valid_activity_types))
+            params['activity_type'] = activity_type
+        
+        if min_cat is not None:
+            params['min_cat'] = min_cat
+        if max_cat is not None:
+            params['max_cat'] = max_cat
+        
+        raw = self.protocol.get('/segments/explore', **params)
+        return [model.SegmentExplorerResult.deserialize(v, bind_client=self) for v in raw['segments']]
+    
     
     # TODO: Streams
     
