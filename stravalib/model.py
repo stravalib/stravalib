@@ -411,6 +411,8 @@ class Activity(LoadableEntity):
     SNOWSHOE = "Snowshoe"
     
     _comments = None
+    _zones = None
+    _gear = None
     
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
              ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT, 
@@ -451,7 +453,6 @@ class Activity(LoadableEntity):
     private = Attribute(bool, (SUMMARY,DETAILED))
     flagged = Attribute(bool, (SUMMARY,DETAILED))
     
-    _gear = None
     gear_id = Attribute(unicode, (SUMMARY,DETAILED))
     
     average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second)
@@ -475,6 +476,7 @@ class Activity(LoadableEntity):
     average_temp = Attribute(int, (SUMMARY,DETAILED))
     
     description = Attribute(unicode, (DETAILED,))  # Is this also in summary?
+    workout_type = Attribute(unicode, (DETAILED,))  # Is this also in summary?
     
     @property
     def gear(self):
@@ -495,6 +497,13 @@ class Activity(LoadableEntity):
                 # Shortcut if we know there aren't any
                 self._comments = []
         return self._comments
+
+    @property
+    def zones(self):
+        if self._zones is None:
+            self.assert_bind_client()
+            self._zones = self.bind_client.get_activity_zones(self.id)
+        return self._zones
 
 class SegmentLeaderboardEntry(BoundEntity):
     """
@@ -583,21 +592,23 @@ class BaseActivityZone(LoadableEntity):
     sensor_based = Attribute(bool, (SUMMARY, DETAILED))
     
     @classmethod
-    def deserialize(cls, v):
+    def deserialize(cls, v, bind_client=None):
         """
         Creates a new object based on serialized (dict) struct. 
         """
         if v is None:
             return None
-        if v['type'] == 'heartrate':
-            o = HeartrateActivityZone()
-        elif v['type'] == 'power':
-            o = PowerActivityZone()
-        else:
+        az_classes = {'heartrate': HeartrateActivityZone,
+                      'power': PowerActivityZone,
+                      'pace': PaceActivityZone} 
+        try:
+            clazz = az_classes[v['type']]
+        except KeyError:
             raise ValueError("Unsupported activity zone type: {0}".format(v['type']))
-        
-        o.from_dict(v)
-        return o
+        else:
+            o = clazz(bind_client=bind_client)
+            o.from_dict(v)
+            return o
     
     
 class HeartrateActivityZone(BaseActivityZone):
@@ -605,7 +616,12 @@ class HeartrateActivityZone(BaseActivityZone):
     points = Attribute(int, (SUMMARY, DETAILED))
     custom_zones = Attribute(bool, (SUMMARY, DETAILED))
     max = Attribute(int, (SUMMARY, DETAILED))
-    
+
+class PaceActivityZone(BaseActivityZone):
+    score = Attribute(int, (SUMMARY, DETAILED))
+    sample_race_distance = Attribute(int, (SUMMARY, DETAILED), units=uh.meters)
+    sample_race_time = TimeIntervalAttribute((SUMMARY, DETAILED))
+        
 class PowerActivityZone(BaseActivityZone):
     bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)

@@ -24,7 +24,20 @@ class ClientTest(FunctionalTestBase):
         # Ensure that iw as read in with correct units
         self.assertEquals(22.5308, float(uh.kilometers(activity.distance)))
 
-    
+    def test_get_activity_zones(self):
+        """
+        Test loading zones for activity.
+        """
+        zones = self.client.get_activity_zones(99895560)
+        print zones
+        self.assertEquals(1, len(zones))
+        self.assertIsInstance(zones[0], model.PaceActivityZone)
+        
+        # Indirectly
+        activity = self.client.get_activity(99895560)
+        self.assertEquals(len(zones), len(activity.zones))
+        self.assertEquals(zones[0].score, activity.zones[0].score)
+        
     def test_activity_comments(self):
         """
         Test loading comments for already-loaded activity.
@@ -67,7 +80,7 @@ class ClientTest(FunctionalTestBase):
         
     def test_get_gear(self):
         g = self.client.get_gear("g69911")
-        self.assertAlmostEqual(3264.67, float(g.distance), places=2)
+        self.assertTrue(float(g.distance) >= 3264.67)
         self.assertEquals('Salomon XT Wings 2', g.name)
         self.assertEquals('Salomon', g.brand_name)
         self.assertTrue(g.primary)
@@ -128,14 +141,3 @@ class ClientTest(FunctionalTestBase):
         # For some reason these don't follow the simple math rules one might expect (so we round to int)
         self.assertAlmostEqual(results[0].elev_difference, segment.elevation_high - segment.elevation_low, places=0)
         
-"""            
-    def test_get_clubs(self):
-        clubs = self.client.get_clubs('mission')
-        self.assertTrue(len(clubs) > 1)
-        self.assertEquals(None, clubs[0].location)
-        
-        clubs = self.client.get_clubs('mission', full_objects=True)
-        self.assertTrue(len(clubs) > 1)
-        self.assertNotEqual(None, clubs[0].location)
-    
-"""
