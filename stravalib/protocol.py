@@ -1,3 +1,6 @@
+"""
+Low-level classes for interacting directly with the Strava API webservers. 
+"""
 from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
 import os.path
@@ -12,7 +15,7 @@ from stravalib import exc
         
 class ApiV3(object):
     """
-    The common functionality for Strava REST API client implementations.
+    This class is responsible for performing the HTTP requests, rate limiting, and error handling.
     """
     __metaclass__ = abc.ABCMeta
     

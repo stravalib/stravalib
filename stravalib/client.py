@@ -1,5 +1,5 @@
 """
-Providing a simplified, protocol-version-abstracting interface to Strava web services. 
+Provides the main interface classes for the Strava version 3 REST API. 
 """
 import logging
 import functools
@@ -16,21 +16,12 @@ from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
 
-# TODO: "constants" for access scopes?
-# 
-#public    default, private activities are not returned, privacy zones are respected in stream requests
-#write    modify activities, upload on the user's behalf
-#view_private    view private activities and data within privacy zones
-#view_private,write    both 'write' and 'view_private' access
-
-
-
 class Client(object):
     """
-    Main client class for interacting with the Strava backends.
+    Main client class for interacting with the exposed Strava v3 API methods.
     
-    This class abstracts interactions with Strava's various protocols (REST v1 & v2,
-    the main website) to provide a simple and full-featured API.
+    This class can be instantiated without an access_token when performing authentication;
+    however, most methods will require a valid access token.
     """
     
     def __init__(self, access_token=None, rate_limit_requests=True, rate_limiter=None):
@@ -62,10 +53,16 @@ class Client(object):
         
     @property
     def access_token(self):
+        """
+        The currently configured authorization token.
+        """
         return self.protocol.access_token
     
     @access_token.setter
     def access_token(self, v):
+        """
+        Set the currently configured authorization token.
+        """
         self.protocol.access_token = v
     
     def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
@@ -157,10 +154,13 @@ class Client(object):
         summary-level representation returned of athlete.
         
         http://strava.github.io/api/v3/athlete/#get-details
+        
         http://strava.github.io/api/v3/athlete/#get-another-details
         
         :param: athlete_id: The numeric ID of the athlete to fetch.
-        :rtype: dict
+        :type: athlete_id: int
+        :return: The athlete model object.
+        :rtype: :class:`stravalib.model.Athlete`
         """
         if athlete_id is None:
             raw = self.protocol.get('/athlete')
@@ -171,24 +171,36 @@ class Client(object):
     
     def get_athlete_friends(self, athlete_id=None, limit=None):
         """
+        Gets friends for current (or specified) athlete.
+        
         http://strava.github.io/api/v3/follow/#friends
         
         :param athlete_id
-        :param limit: Maximum number of athletes to return.
+        :type athlete_id: int
+        :param limit: Maximum number of athletes to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/friends')
         else:
             result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/friends', id=athlete_id)
             
-        return BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
     
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
+        Gets followers for current (or specified) athlete.
+        
         http://strava.github.io/api/v3/follow/#followers
         
         :param athlete_id
-        :param limit: Maximum number of athletes to return.
+        :type athlete_id: int
+        :param limit: Maximum number of athletes to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/followers')
@@ -203,8 +215,12 @@ class Client(object):
         
         http://strava.github.io/api/v3/follow/#both
         
-        :param athlete_id
-        :param limit: Maximum number of athletes to return.
+        :param athlete_id: The ID of the other athlete (for follower intersection with current athlete) 
+        :type athlete_id: int
+        :param limit: Maximum number of athletes to return. (default unlimited)
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/both-following', id=athlete_id)
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
@@ -215,18 +231,19 @@ class Client(object):
         
         http://strava.github.io/api/v3/clubs/#get-athletes
         
-        :rtype: list
+        :rtype: list of :class:`stravalib.model.Club`
         """    
         club_structs = self.protocol.get('/athlete/clubs')
         return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
     
     def get_club(self, club_id):
         """
-        Return V3 object structure for club.
+        Return a specific club object.
         
         http://strava.github.io/api/v3/clubs/#get-details
         
         :param club_id: The ID of the club to fetch.
+        :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
         return model.Club.deserialize(raw, bind_client=self)
@@ -238,6 +255,10 @@ class Client(object):
         http://strava.github.io/api/v3/clubs/#get-members
         
         :param club_id: The numeric ID for the club.
+        :param limit: Maximum number of athletes to return. (default unlimited)
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/members', id=club_id)
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
@@ -246,9 +267,14 @@ class Client(object):
     def get_club_activities(self, club_id, limit=None):
         """
         Gets the activities associated with specified club.
+        
         http://strava.github.io/api/v3/clubs/#get-activities
         
         :param club_id: The numeric ID for the club.
+        :param limit: Maximum number of activities to return. (default unlimited)
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Activity` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/activities', id=club_id)
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
@@ -264,13 +290,21 @@ class Client(object):
         http://strava.github.io/api/v3/activities/#get-details
         
         :param activity_id: The ID of activity to fetch.
+        :rtype: :class:`stravalib.model.Activity`
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id)
         return model.Activity.deserialize(raw, bind_client=self)
     
     def get_friend_activities(self, limit=None):
         """
+        Gets activities for friends (of currently authenticated athlete).
+        
         http://strava.github.io/api/v3/activities/#get-feed
+        
+        :param limit: Maximum number of activities to return. (default unlimited)
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Activity` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/activities/following')
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
@@ -279,6 +313,9 @@ class Client(object):
     def create_activity(self, name, activity_type, start_date_local, elapsed_time, description=None, distance=None):
         """
         Create a new manual activity.
+        
+        If you would like to create an activity from an uploaded GPS file, see the
+        :meth:`stravalib.client.Client.upload_activity` method instead. 
         
         :param name: The name of the activity.
         :param activity_type: The activity type (case-insensitive).  
@@ -362,6 +399,8 @@ class Client(object):
 
     def upload_activity(self, activity_file, data_type, name=None, activity_type=None, private=None, external_id=None):
         """
+        Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
+        
         http://strava.github.io/api/v3/athlete/#get-details
         
         :param activity_file: The file object to upload or file contents.
@@ -434,9 +473,10 @@ class Client(object):
         
         :param activity_id: The activity for which to fetch comments.
         :param markdown: Whether to include markdown in comments (default is false/filterout).
-        :param limit: Max rows to return.
-        :return: An iterator of activity comment objects.
-        :rtype: :class:`BatchedResultsIterator` of :class:`stravalib.model.ActivityComment`
+        :param limit: Max rows to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.ActivityComment` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/activities/{id}/comments',
                                            id=activity_id, markdown=int(markdown))
@@ -446,6 +486,7 @@ class Client(object):
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
+        
         http://strava.github.io/api/v3/gear/#show
         
         :param gear_id: The gear id.
@@ -457,17 +498,23 @@ class Client(object):
     
     def get_segment_effort(self, effort_id):
         """
-        Return detailed structure for segment efforts.
+        Return a specific segment effort by ID.
         
         http://strava.github.io/api/v3/efforts/#retrieve
         
         :param effort_id: The id of associated effort to fetch.
+        :rtype: :class:`stravalib.model.SegmentEffort`
         """
         return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}', id=effort_id))
 
     def get_segment(self, segment_id):
         """
-        http://strava.github.io/api/v3/segments/#retrieve 
+        Gets a specific segment by ID.
+        
+        http://strava.github.io/api/v3/segments/#retrieve
+        
+        :param segment_id: The segment to fetch.
+        :rtype: :class:`stravalib.model.Segment` 
         """
         return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id), bind_client=self)
     
@@ -574,10 +621,7 @@ class Client(object):
     
 class BatchedResultsIterator(object):
     """
-    Iterates over requests that return a batch of (typically 50) results and support an offset parameter.
-    
-    For example, Strava API only returns 50 rides at a time, so this provides a mechanism to abstract over
-    that limitation. 
+    An iterator that enables iterating over requests that return paged results.
     """
     
     default_per_page = 200 #: How many results returned in a batch.  We maximize this to minimize requests to server (rate limiting)

@@ -21,10 +21,14 @@ In its simplest form::
     from stravalib import Client
     client = Client()
     url = client.authorization_url(client_id=MY_STRAVA_CLIENT_ID,
-                                   redirect_uri='http://myapp.example.com/authorization',
-                                   approval_prompt='auto')
-   
-Now you can display the resulting URL in your webapp to allow users to authorize your
+                                   redirect_uri='http://myapp.example.com/authorization')
+
+Note that for development, you can use localhost or 127.0.0.1 as the redirect host.::
+
+    url = client.authorization_url(client_id=MY_STRAVA_CLIENT_ID,
+                                   redirect_uri='http://127.0.0.1:5000/authorization')
+
+Now you can display the resulting URL in your webapp to allow athletes to authorize your
 application to read their data.  In the /authorization handler, you will need to exchange
 a temporary code for a permanent token. ::
 

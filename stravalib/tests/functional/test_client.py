@@ -12,8 +12,8 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals('El Dorado County, CA, USA', activity.location_city)
         
         self.assertIsInstance(activity.start_latlng, attributes.LatLon)
-        self.assertEquals(-120.4357631, activity.start_latlng.lon)
-        self.assertEquals(38.74263759999999, activity.start_latlng.lat)
+        self.assertAlmostEquals(-120.4357631, activity.start_latlng.lon, places=2)
+        self.assertAlmostEquals(38.74263759999999, activity.start_latlng.lat, places=2)
         
         self.assertIsInstance(activity.map, model.Map)
         

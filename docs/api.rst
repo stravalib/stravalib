@@ -14,14 +14,14 @@ Client
 	
 .. automodule:: stravalib.client
    :synopsis: The maininterface to the v3 REST API.
-   :members: Client
+   :members: Client, ActivityUploader, BatchedResultsIterator
 
 Model
 -----
 
 .. automodule:: stravalib.model
    :synopsis: The entity objects that are instantiated from the API.
-   :members:
+   :members: Athlete, Club, Gear, Activity, ActivityComment, Bike, Shoe, ActivityTotals, Split, SegmentExplorerResult, BestEffort, Segment, SegmentEffort, SegmentLeaderboard, SegmentLeaderboardEntry, DistributionBucket, HeartrateActivityZone, PaceActivityZone, PowerActivityZone    
 
 Errors
 ------
@@ -36,3 +36,5 @@ Under-the-Hood
 ==============
 
 This part of the documentation describes the under-the-hood implementation of the model.
+
+(TODO)
