@@ -1,1 +1,2 @@
-include docs/news.rst
+recursive-include docs *
+recursive-include stravalib/tests/resources *

@@ -36,7 +36,8 @@ list this package as a dependency in your own `install_requires` directive in `s
 download it and explore Strava content in your favorite python REPL.
 
 In order to make use of this library, you will need to have access keys for one or more Strava users.
-These access keys can be fetched by 
+These access keys can be fetched by using helper methods provided by :class:`stravalib.client.Client` class.
+See :ref:`auth` for more details.
    
 Usage
 -----

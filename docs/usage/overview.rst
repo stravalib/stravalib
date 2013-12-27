@@ -10,7 +10,7 @@ Retrieving Single Entities
 ==========================
 
 The simplest case are the client methods that return single entities. The entity object
-types are instances of :module:`stravalib.model` classes. For example::
+types are instances of :mod:`stravalib.model` classes. For example::
 
    client = Client(access_token=JOHNS_ACCESS_TOKEN)
    athlete = client.get_athlete() # Get John's full athlete record

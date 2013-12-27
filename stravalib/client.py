@@ -767,6 +767,7 @@ class ActivityUploader(object):
         Wait for the upload to complete or to err out.
         
         Will return the resulting Activity or raise an exception if the upload fails.
+        
         :param timeout: The max seconds to wait. Will raise TimeoutExceeded exception if this 
                         time passes without success or error response.
         :type timeout: float
