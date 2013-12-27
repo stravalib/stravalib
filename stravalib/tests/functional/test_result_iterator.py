@@ -10,13 +10,24 @@ class ResultIteratorTest(FunctionalTestBase):
         super(ResultIteratorTest, self).setUp()
         self.protocol = self.client.protocol
         
-    def test_limit(self):
-        """ Test setting the limit on iterator. """
+    def test_limit_call(self):
+        """ Test setting the limit in method call. """
         
         result_fetcher = functools.partial(self.protocol.get, '/athlete/activities')
         results = BatchedResultsIterator(entity=model.Activity, result_fetcher=result_fetcher, limit=10, per_page=2)
         results = list(results)
         self.assertEquals(10, len(results))
+
+    def test_limit_iterator(self):
+        """ Test setting the limit on the iterator. """
+        
+        result_fetcher = functools.partial(self.protocol.get, '/athlete/activities')
+        results = BatchedResultsIterator(entity=model.Activity, result_fetcher=result_fetcher, limit=10, per_page=2)
+        results.limit = 10
+        results = list(results)
+        self.assertEquals(10, len(results))
+            
+        
         # TODO: use a mock here to figure out how many calls are happening under the hood.
                           
     def test_empty(self):
