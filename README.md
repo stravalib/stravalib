@@ -5,16 +5,17 @@
 The new codebase supports only [version 3 API](http://strava.github.io/api/) of the Strava API (since v1 and v2 are no longer available).
 
 **IMPORTANT**
-This is currently under active development.  It is only partially implemented and still very broken.  
-This documentation is also obviously very basic/incomplete.  It will get better.
+This is currently under active development.  Parts have been tested, but some aspects may be broken.
 
 The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
 abstracting the v3 REST API around a rich and easy-to-use object model.
 
+See the [online documentation](http://pythonhosted.org/stravalib/) for more comprehensive documentation.
+
 ## Dependencies
  
-* Python 2.6+.  (This is intended to work with Python 3, but is being developed on Python 2.7)
-* Setuptools/distributeb for installing dependencies
+* Python 2.6+.  (This is intended to work with Python 3 using 2to3, but is being developed on Python 2.7)
+* Setuptools/distribute for installing dependencies
 * Other python libraries (installed automatically when  using pip/easy_install): requests, pytz, units, python-dateutil
 
 ## Installation
