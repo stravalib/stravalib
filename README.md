@@ -13,46 +13,30 @@ abstracting the v3 REST API around a rich and easy-to-use object model.
 
 ## Dependencies
  
-* Python 2.6+.  (This is intended to work with Python 3, but is being developed on Python 2.x)
-* Setuptools/Distribute
-* Virtualenv 
+* Python 2.6+.  (This is intended to work with Python 3, but is being developed on Python 2.7)
+* Setuptools/distributeb for installing dependencies
+* Other python libraries (installed automatically when  using pip/easy_install): requests, pytz, units, python-dateutil
 
 ## Installation
 
-Eventually this will be installable via setuptools/distribute/pip; however, currently you must 
-download / clone the source and run the python setup.py install command.
-
-Here are some instructions for setting up a development environment, which is more appropriate
-at this juncture:
-
-	shell$ git clone https://github.com/hozn/stravalib.git
-	shell$ cd stravalib
-	shell$ python -m virtualenv --no-site-packages --distribute env
-	shell$ source env/bin/activate
-    (env) shell$ python setup.py develop
-
-We will assume for any subsequent shell examples that you are running in that activated virtualenv.  (This is denoted by using 
-the "(env) shell$" prefix before shell commands.)
-
-You can run the functional tests if you like.
-
-	(env) shell$ python setup.py test
-
-Or you can install ipython and play around with stuff:
-
-	(env) shell$ easy_install ipython    
-
-(You can try some of the examples below or explore the client APIs.)
+The package is avialable on PyPI to be installed using easy_install or pip:
+   
+   shell$ pip install stravalib
+   
+Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will 
+list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can 
+download it and explore Strava content in your favorite python REPL.
 
 ## Basic Usage
-   
+
 Please take a look at the source (in particular the stravalib.client.Client class, if you'd like to play around with the 
-API.  Most of the Strava API is implemented at this point; however, certain features such as V2API uploads are not yet supported.
+API.  Most of the Strava API is implemented at this point; however, certain features such as streams are still on the
+to-do list.
 
 ### Authentication
 
-Actually getting access to an account requires you to run a webserver; this is outside the scope of this library, but there
-are helper methods to make it easier.
+In order to make use of this library, you will need to have access keys for one or more Strava users. This 
+effectively requires you to run a webserver; this is outside the scope of this library, but stravalib does provide helper methods to make it easier.
 
 ```python
 from stravalib.client import Client
@@ -72,7 +56,7 @@ athlete = client.get_athlete()
 print("For {id}, I now have an access token {token}".format(id=athlete.id, token=access_token))
 ```
 
-### Rides and Efforts/Segments
+### Athletes and Activities
 
 (This is a glimpse into what you can do.)
 
@@ -80,29 +64,44 @@ print("For {id}, I now have an access token {token}".format(id=athlete.id, token
 from stravalib.client import Client
 
 client = Client(access_token='xxxxxxxxx')
-ride = client.get_ride(44708813)
-print("Ride name: {0}".format(ride.name))
 
-for effort in ride.efforts:
-  print "Effort: {0}, segment: {1}".format(effort, effort.segment)
+# Currently-authenticated (based on provided token) athlete
+# Will have maximum detail exposed (resource_state=3)
+curr_athlete = client.get_athlete()
+
+# Fetch another athlete
+other_athlete = client.get_athlete(123)
+# Will only have summary-level attributes exposed (resource_state=2)
+
+# Get an activity
+activity = client.get_activity(123)
+# If activity is owned by current user, will have full detail (resource_state=3)
+# otherwise summary-level detail.
 ```
 
-### Clubs
+### Working with Units
+
+stravalib uses the [python units library](https://pypi.python.org/pypi/units/) to facilitate working
+with the values in the API that have associated units (e.g. distance, speed).  You can use the units library
+directly  
+stravalib.unithelper module for shortcuts
 
 ```python
-from stravalib.client import Client
 
-client = Client()
-club = client.get_club(15)
-print("Club name: {0}".format(club.name))
+activity = client.get_activity(96089609)
+assert isinstance(activity.distance, units.quantity.Quantity)
+print(activity.distance)
+# 22530.80 m
 
-for athlete in club.members:
-  print "Member: {0}".format(athlete)
- 
-# Or search by name
-clubs = client.get_clubs(name='monkey')
+# Meters!?
+
+from stravalib import unithelper
+
+print(unithelper.miles(activity.distance))
+# 14.00 mi
+
+# And to get the number:
+num_value = float(unithelper.miles(activity.distance))
+# Or: 
+num_value = unithelper.miles(activity.distance).num
 ```
-
-## Uploading Files
-
-(TODO)
