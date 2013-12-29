@@ -49,7 +49,8 @@ More detailed documentation to get you started
 
    usage/auth
    usage/overview
-
+   usage/athletes
+   
 (MORE COMING SOON)
    
 API Reference
