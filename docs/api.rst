@@ -14,15 +14,18 @@ Client
 	
 .. automodule:: stravalib.client
    :synopsis: The maininterface to the v3 REST API.
-   :members: Client, ActivityUploader, BatchedResultsIterator
-
+   :members:
+   :inherited-members:
+   :show-inheritance:
+   
 Model
 -----
 
 .. automodule:: stravalib.model
-   :synopsis: The entity objects that are instantiated from the API.
-   :members: Athlete, Club, Gear, Activity, ActivityComment, Bike, Shoe, ActivityTotals, Split, SegmentExplorerResult, BestEffort, Segment, SegmentEffort, SegmentLeaderboard, SegmentLeaderboardEntry, DistributionBucket, HeartrateActivityZone, PaceActivityZone, PowerActivityZone    
-
+   :synopsis: The entity objects that are instantiated from the API. 
+   :members: 
+   :show-inheritance:
+   
 Errors
 ------
 
@@ -31,7 +34,9 @@ The exception classes raised by the library.
 .. automodule:: stravalib.exc
    :synopsis: The exception classes raised by the application.
    :members:
-	
+   :inherited-members:
+	:show-inheritance:
+   
 Under-the-Hood
 ==============
 

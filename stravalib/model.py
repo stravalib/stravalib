@@ -15,7 +15,8 @@ from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute,
 
 class BaseEntity(object):
     """
-    A base class for all entities in the system.
+    A base class for all entities in the system, including objects that may not
+    be first-class entities in Strava.
     """
     __metaclass__ = abc.ABCMeta
     
@@ -59,22 +60,22 @@ class BaseEntity(object):
 
 class ResourceStateEntity(BaseEntity):
     """
-    A base class for all entities in the system.
+    Mixin for entities that include the resource_state attribute.
     """
-    resource_state = Attribute(int, (META,SUMMARY,DETAILED))
+    resource_state = Attribute(int, (META,SUMMARY,DETAILED)) #: The detail-level for this entity.
     
 class IdentifiableEntity(ResourceStateEntity):
     """
-    A base class for all entities in the system.
+    Mixin for entities that include an ID attribute.
     """
-    id = Attribute(int, (META,SUMMARY,DETAILED))
+    id = Attribute(int, (META,SUMMARY,DETAILED)) #: The numeric ID for this entity.
     
 class BoundEntity(BaseEntity):
     """
-    The base class for entities that support lazy loading additional data using a bound client.
+    Base class for entities that support lazy loading additional data using a bound client.
     """
     
-    bind_client = None
+    bind_client = None #: The :class:`stravalib.client.Client` that can be used to load related resources.
     
     def __init__(self, bind_client=None, **kwargs):
         """
@@ -104,23 +105,19 @@ class BoundEntity(BaseEntity):
             raise exc.UnboundEntity("Unable to fetch objects for unbound {0} entity.".format(self.__class__))
 
 class LoadableEntity(BoundEntity, IdentifiableEntity):
-        
+    """
+    Base class for entities that are bound and have an ID associated with them.
+    
+    In theory these entities can be "expaned" by additional Client queries.  In practice this is not
+    implemented, since usefulness is limited due to resource-state limitations, etc. 
+    """        
     def expand(self):
         """
         Expand this object with data from the bound client.
         
-        This default implementation assumes things about the names of methods in the client, so
-        may need to be overridden by subclasses.
+        (THIS IS NOT IMPLEMENTED CURRENTLY.)
         """
-        raise NotImplementedError() # This is a little harder now that we don't have _populate_* methods.
-        
-        if not self.bind_client:
-            raise exc.UnboundEntity("Cannot set entity attributes for unbound entity.")
-        raise NotImplementedError()
-        # TODO: Decided whether we want to keep this
-        assumed_method_name = '_populate_{0}'.format(self.__class__.__name__.lower())
-        method = getattr(self.bind_client, assumed_method_name)
-        method(self.id, self)
+        raise NotImplementedError() # This is a little harder now due to resource states, etc.
 
 class Club(LoadableEntity):
     """
@@ -128,10 +125,11 @@ class Club(LoadableEntity):
     
     Currently summary and detail resource states have the same attributes.
     """
-    name = Attribute(unicode, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of the club.
     
     @property
     def members(self):
+        """ An iterator of :class:`stravalib.model.Athlete` members of this club. """
         if self._members is None:
             self.assert_bind_client()
             self._members = self.bind_client.get_club_members(self.id)  
@@ -139,6 +137,7 @@ class Club(LoadableEntity):
 
     @property
     def activities(self):
+        """ An iterator of reverse-chronological :class:`stravalib.model.Activity` activities for this club. """
         if self._activities is None:
             self.assert_bind_client()
             self._activities = self.bind_client.get_club_activities(self.id)  
@@ -147,13 +146,13 @@ class Club(LoadableEntity):
 class Gear(IdentifiableEntity):
     """
     """
-    id = Attribute(unicode, (META,SUMMARY,DETAILED))
-    name = Attribute(unicode, (SUMMARY,DETAILED))
-    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    primary = Attribute(bool, (SUMMARY,DETAILED))
-    brand_name = Attribute(unicode, (DETAILED,))
-    model_name = Attribute(unicode, (DETAILED,))
-    description = Attribute(unicode, (DETAILED,))
+    id = Attribute(unicode, (META,SUMMARY,DETAILED)) #: Alpha-numeric gear ID.
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name athlete entered for bike (does not apply to shoes)
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: Distance for this bike/shoes.
+    primary = Attribute(bool, (SUMMARY,DETAILED)) #: athlete's default bike/shoes
+    brand_name = Attribute(unicode, (DETAILED,)) #: Brand name of bike/shoes.
+    model_name = Attribute(unicode, (DETAILED,)) #: Modelname of bike/shoes.
+    description = Attribute(unicode, (DETAILED,)) #: Description of bike/shoe item.
     
     @classmethod
     def deserialize(cls, v):
@@ -174,99 +173,100 @@ class Gear(IdentifiableEntity):
     
 class Bike(Gear):
     """    
+    Represents an athlete's bike.
     """
-    frame_type = Attribute(int, (DETAILED,))
+    frame_type = Attribute(int, (DETAILED,)) #: (detailed-only) Type of bike frame.
     
 class Shoe(Gear):
     """
+    Represent's an athlete's pair of shoes.
     """
     
 class ActivityTotals(BaseEntity):
     """
     Represent ytd/recent/all run/ride totals. 
     """
-    achievement_count = Attribute(int)
-    count = Attribute(int)
-    distance = Attribute(float, units=uh.meters)
-    elapsed_time = TimeIntervalAttribute()
-    elevation_gain = Attribute(float, units=uh.meters)
-    moving_time = TimeIntervalAttribute()
+    achievement_count = Attribute(int) #: How many achievements
+    count = Attribute(int) #: How many activities
+    distance = Attribute(float, units=uh.meters) #: Total distance travelled
+    elapsed_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of total elapsed time 
+    elevation_gain = Attribute(float, units=uh.meters) #: Total elevation gain
+    moving_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of total moving time
     
 class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
     """
-    firstname = Attribute(unicode, (SUMMARY,DETAILED))
-    lastname = Attribute(unicode, (SUMMARY,DETAILED))
-    profile_medium = Attribute(unicode, (SUMMARY,DETAILED)) # URL to a 62x62 pixel profile picture
-    profile = Attribute(unicode, (SUMMARY,DETAILED)) # URL to a 124x124 pixel profile picture
-    city = Attribute(unicode, (SUMMARY,DETAILED))
-    state = Attribute(unicode, (SUMMARY,DETAILED))
-    sex = Attribute(unicode, (SUMMARY,DETAILED)) # 'M', 'F' or null
-    friend = Attribute(unicode, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(unicode, (SUMMARY,DETAILED)) # 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    preimum = Attribute(bool, (SUMMARY,DETAILED)) # true/false
+    firstname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's first name.
+    lastname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's last name.
+    profile_medium = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 62x62 pixel profile picture
+    profile = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 124x124 pixel profile picture
+    city = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home city 
+    state = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home state
+    sex = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's sex ('M', 'F' or null)
+    friend = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    premium = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete is a premium member (true/false)
     
-    created_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
-    updated_at = TimestampAttribute((SUMMARY,DETAILED)) # time string
+    created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was created.
+    updated_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was last updated.
     
-    approve_followers = Attribute(bool, (SUMMARY,DETAILED))
+    approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
     
-    follower_count = Attribute(int, (DETAILED,))
-    friend_count = Attribute(int, (DETAILED,))
-    mutual_friend_count = Attribute(int, (DETAILED,))
-    date_preference = Attribute(unicode, (DETAILED,)) # "%m/%d/%Y"
-    measurement_preference = Attribute(unicode, (DETAILED,)) # "feet" (or what "meters"?)
-    premium = Attribute(bool, (DETAILED,))
-    email = Attribute(unicode, (DETAILED,))
+    follower_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people are following this athlete
+    friend_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people is this athlete following
+    mutual_friend_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people are both following and being followed by this athlete
+    date_preference = Attribute(unicode, (DETAILED,)) #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
+    measurement_preference = Attribute(unicode, (DETAILED,)) #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
+    email = Attribute(unicode, (DETAILED,)) #: (detailed-only)  Athlete's email address 
     
-    clubs = EntityCollection(Club, (DETAILED,))
-    bikes = EntityCollection(Bike, (DETAILED,))
-    shoes = EntityCollection(Shoe, (DETAILED,))
+    clubs = EntityCollection(Club, (DETAILED,)) #: (detailed-only) Which clubs athlete belongs to. (:class:`list` of :class:`stravalib.model.Club`)
+    bikes = EntityCollection(Bike, (DETAILED,)) #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
+    shoes = EntityCollection(Shoe, (DETAILED,)) #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
 
     # Some undocumented summary & detailed  attributes
-    ytd_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
-    recent_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
-    all_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    ytd_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    recent_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    all_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
     
-    ytd_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
-    recent_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
-    all_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))
+    ytd_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    recent_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    all_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED)) #: (undocumented) All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
     
-    super_user = Attribute(bool, (SUMMARY,DETAILED))
-    biggest_ride_distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    biggest_climb_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
+    super_user = Attribute(bool, (SUMMARY,DETAILED)) #: (undocumented) Whether athlete is a super user (not 
+    biggest_ride_distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: (undocumented) Longest ride for athlete.
+    biggest_climb_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: (undocumented) Greatest single elevation gain for athlete.
     
     email_language = Attribute(unicode, (SUMMARY,DETAILED)) #: The user's preferred lang/locale (e.g. en-US)     
     
     # A bunch more undocumented detailed-resolution attribs
-    weight = Attribute(float, (DETAILED,), units=uh.kg)
-    max_heartrate = Attribute(float, (DETAILED,))
+    weight = Attribute(float, (DETAILED,), units=uh.kg) #: (undocumented, detailed-only)  Athlete's configured weight.
+    max_heartrate = Attribute(float, (DETAILED,)) #: (undocumented, detailed-only) Athlete's configured max HR
     
-    username = Attribute(unicode, (DETAILED,))
-    description = Attribute(unicode, (DETAILED,))
-    instagram_username = Attribute(unicode, (DETAILED,))
+    username = Attribute(unicode, (DETAILED,)) #:  (undocumented, detailed-only) Athlete's username.
+    description = Attribute(unicode, (DETAILED,)) #:  (undocumented, detailed-only) Athlete's personal description
+    instagram_username = Attribute(unicode, (DETAILED,)) #:  (undocumented, detailed-only) Associated instagram username
     
-    offer_in_app_payment = Attribute(bool, (DETAILED,))
-    global_privacy = Attribute(bool, (DETAILED,))
-    receive_newsletter = Attribute(bool, (DETAILED,))
-    email_kom_lost = Attribute(bool, (DETAILED,))
-    dateofbirth = DateAttribute((DETAILED,))
-    facebook_sharing_enabled = Attribute(bool, (DETAILED,))
-    ftp = Attribute(unicode, (DETAILED,))  # What is this?
-    profile_original = Attribute(unicode, (DETAILED,))
-    premium_expiration_date = Attribute(int, (DETAILED,)) #: Unix epoch
-    email_send_follower_notices = Attribute(bool, (DETAILED,))
-    plan = Attribute(unicode, (DETAILED,))
-    agreed_to_terms = Attribute(unicode, (DETAILED,))
-    follower_request_count = Attribute(int, (DETAILED,))
-    email_facebook_twitter_friend_joins = Attribute(bool, (DETAILED,))
-    receive_kudos_emails = Attribute(bool, (DETAILED,))
-    receive_follower_feed_emails = Attribute(bool, (DETAILED,))
-    receive_comment_emails = Attribute(bool, (DETAILED,))
+    offer_in_app_payment = Attribute(bool, (DETAILED,)) #:  (undocumented, detailed-only) 
+    global_privacy = Attribute(bool, (DETAILED,)) #:  (undocumented, detailed-only) Whether athlete has global privacy enabled.
+    receive_newsletter = Attribute(bool, (DETAILED,)) #:  (undocumented, detailed-only) Whether athlete has elected to receive newsletter
+    email_kom_lost = Attribute(bool, (DETAILED,)) #:  (undocumented, detailed-only) Whether athlete has elected to receive emails when KOMs are lost.
+    dateofbirth = DateAttribute((DETAILED,)) #:  (undocumented, detailed-only) Athlete's date of birth
+    facebook_sharing_enabled = Attribute(bool, (DETAILED,)) #:  (undocumented, detailed-only) Whether Athlete has enabled sharing on Facebook
+    ftp = Attribute(unicode, (DETAILED,))  # (undocumented, detailed-only)
+    profile_original = Attribute(unicode, (DETAILED,)) #: (undocumented, detailed-only)
+    premium_expiration_date = Attribute(int, (DETAILED,)) #:  (undocumented, detailed-only) When does premium membership expire (:class:`int` unix epoch)
+    email_send_follower_notices = Attribute(bool, (DETAILED,)) #: (undocumented, detailed-only)
+    plan = Attribute(unicode, (DETAILED,)) #: (undocumented, detailed-only)
+    agreed_to_terms = Attribute(unicode, (DETAILED,)) #: (undocumented, detailed-only) Whether athlete has agreed to terms
+    follower_request_count = Attribute(int, (DETAILED,)) #: (undocumented, detailed-only) How many people have requested to follow this athlete
+    email_facebook_twitter_friend_joins = Attribute(bool, (DETAILED,)) #: (undocumented, detailed-only) Whether athlete has elected to receve emails when a twitter or facebook friend joins Strava
+    receive_kudos_emails = Attribute(bool, (DETAILED,)) #: (undocumented, detailed-only) Whether athlete has elected to receive emails on kudos
+    receive_follower_feed_emails = Attribute(bool, (DETAILED,)) #: (undocumented, detailed-only) Whether athlete has elected to receive emails on new followers
+    receive_comment_emails = Attribute(bool, (DETAILED,)) #: (undocumented, detailed-only) Whether athlete has elected to receive emails on activity comments
     
-    sample_race_distance = Attribute(int, (DETAILED,)) # What is this?
-    sample_race_time = Attribute(int, (DETAILED,)) # What is this?
+    sample_race_distance = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
+    sample_race_time = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
     
     def __repr__(self):
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
@@ -274,28 +274,26 @@ class Athlete(LoadableEntity):
                                                                              lname=self.lastname)
     
 class ActivityComment(LoadableEntity):
-    activity_id = Attribute(int, (META,SUMMARY,DETAILED))
-    text = Attribute(unicode, (META,SUMMARY,DETAILED))
-    created_at = TimestampAttribute((SUMMARY,DETAILED))
-    
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
-    # 'athlete' is a summary-level representation of commenter
+    activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
+    text = Attribute(unicode, (META,SUMMARY,DETAILED)) #: Text of comment
+    created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was coment created
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
 class Map(IdentifiableEntity):
-    id = Attribute(unicode, (SUMMARY,DETAILED))
-    polyline = Attribute(str, (SUMMARY,DETAILED))
-    summary_polyline = Attribute(str, (SUMMARY,DETAILED))
+    id = Attribute(unicode, (SUMMARY,DETAILED)) #: Alpha-numeric identifier
+    polyline = Attribute(str, (SUMMARY,DETAILED)) #: Google polyline encoding
+    summary_polyline = Attribute(str, (SUMMARY,DETAILED)) #: Google polyline encoding for summary shape
 
 class Split(BaseEntity):
     """
     A split -- may be metric or standard units (which has no bearing
     on the units used in this object, just the binning of values).
     """
-    distance = Attribute(float, units=uh.meters)
-    elapsed_time = TimeIntervalAttribute()
-    elevation_difference = Attribute(float, units=uh.meters) 
-    moving_time = TimeIntervalAttribute()
-    split = Attribute(int)
+    distance = Attribute(float, units=uh.meters) #: Distance for this split
+    elapsed_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of elapsed time for split
+    elevation_difference = Attribute(float, units=uh.meters)  #: Elevation difference for split
+    moving_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of moving time for split
+    split = Attribute(int) #: Which split number
 
 class SegmentExplorerResult(LoadableEntity):
     """
@@ -305,19 +303,20 @@ class SegmentExplorerResult(LoadableEntity):
     via the 'segment' property of this object.)
     """
     _segment = None
-    id = Attribute(int)
-    name = Attribute(unicode)
-    climb_category = Attribute(int)
-    climb_category_desc = Attribute(unicode)
-    avg_grade = Attribute(float)
-    start_latlng = LocationAttribute()
-    end_latlng = LocationAttribute()
-    elev_difference = Attribute(float, units=uh.meters)
-    distance = Attribute(float, units=uh.meters)
-    points = Attribute(str) #: Encoded polyline 
+    id = Attribute(int) #: ID of the segment.
+    name = Attribute(unicode) #: Name of the segment
+    climb_category = Attribute(int) #: Climb category for the segment (0 is higher)
+    climb_category_desc = Attribute(unicode) #: Climb category text
+    avg_grade = Attribute(float) #: Average grade for segment.
+    start_latlng = LocationAttribute() #: Start lat/lon for segment
+    end_latlng = LocationAttribute() #: End lat/lon for segment
+    elev_difference = Attribute(float, units=uh.meters) #: Total elevation difference over segment.
+    distance = Attribute(float, units=uh.meters) #: Distance of segment.
+    points = Attribute(str) #: Encoded Google polyline of points in segment 
     
     @property
     def segment(self):
+        """ Associated (full) :class:`stravalib.model.Segment` object. """
         if self._segment is None:
             self.assert_bind_client()
             if self.id is not None:
@@ -330,38 +329,41 @@ class Segment(LoadableEntity):
     """
     _leaderboard = None
     
-    name = Attribute(unicode, (SUMMARY,DETAILED))
-    activity_type = Attribute(unicode, (SUMMARY,DETAILED))
-    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    average_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
-    maximum_grade = Attribute(float, (SUMMARY,DETAILED)) # percent
-    elevation_high = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    elevation_low = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    start_latlng = LocationAttribute((SUMMARY,DETAILED))
-    end_latlng = LocationAttribute((SUMMARY,DETAILED))
-    start_latitude = Attribute(float, (SUMMARY,DETAILED))
-    end_latitude = Attribute(float, (SUMMARY,DETAILED))
-    start_longitude = Attribute(float, (SUMMARY,DETAILED))
-    end_longitude = Attribute(float, (SUMMARY,DETAILED))
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of the segment.
+    activity_type = Attribute(unicode, (SUMMARY,DETAILED)) #: Activity type of segment ('Ride' or 'Run')
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: Distance of segment
+    average_grade = Attribute(float, (SUMMARY,DETAILED)) #: Average grade (%) for segment
+    maximum_grade = Attribute(float, (SUMMARY,DETAILED)) #: Maximum grade (%) for segment
+    elevation_high = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The highest point of the segment.
+    elevation_low = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The lowest point of the segment.
+    start_latlng = LocationAttribute((SUMMARY,DETAILED)) #: The start lat/lon (:class:`tuple`)
+    end_latlng = LocationAttribute((SUMMARY,DETAILED)) #: The end lat/lon (:class:`tuple`)
+    start_latitude = Attribute(float, (SUMMARY,DETAILED)) #: The start latitude (:class:`float`)
+    end_latitude = Attribute(float, (SUMMARY,DETAILED)) #: The end latitude (:class:`float`)
+    start_longitude = Attribute(float, (SUMMARY,DETAILED)) #: The start longitude (:class:`float`)
+    end_longitude = Attribute(float, (SUMMARY,DETAILED)) #: The end longitude (:class:`float`)
     climb_category = Attribute(int, (SUMMARY,DETAILED)) # 0-5, lower is harder
-    city = Attribute(unicode, (SUMMARY,DETAILED))
-    state = Attribute(unicode, (SUMMARY,DETAILED))
-    private = Attribute(bool, (SUMMARY,DETAILED))
+    city = Attribute(unicode, (SUMMARY,DETAILED)) #: The city this segment is in.
+    state = Attribute(unicode, (SUMMARY,DETAILED)) #: The state this segment is in.
+    private = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this is a private segment.
     
     # detailed attribs
-    created_at = TimestampAttribute((DETAILED,))
-    updated_at = TimestampAttribute((DETAILED,))
-    total_elevation_gain = Attribute(float, (DETAILED,), units=uh.meters)
-    map = EntityAttribute(Map, (DETAILED,))
-    effort_count = Attribute(int, (DETAILED,))
-    athlete_count = Attribute(int, (DETAILED,))
-    hazardous = Attribute(bool, (DETAILED,))
-    pr_time = TimeIntervalAttribute((DETAILED,))
-    pr_distance = Attribute(float, (DETAILED,), units=uh.meters)
-    starred = Attribute(bool, (DETAILED,))
+    created_at = TimestampAttribute((DETAILED,)) #: :class:`datetime.datetime` when was segment created.
+    updated_at = TimestampAttribute((DETAILED,)) #: :class:`datetime.datetime` when was segment last updated.
+    total_elevation_gain = Attribute(float, (DETAILED,), units=uh.meters) #: What is total elevation gain for segment.
+    map = EntityAttribute(Map, (DETAILED,)) #: :class:`stravalib.model.Map` object for segment.
+    effort_count = Attribute(int, (DETAILED,)) #: How many times has this segment been ridden.
+    athlete_count = Attribute(int, (DETAILED,)) #: How many athletes have ridden this segment
+    hazardous = Attribute(bool, (DETAILED,)) #: Whether this segment has been flagged as hazardous
+    pr_time = TimeIntervalAttribute((DETAILED,)) #: :class:`datetime.timedelta`  of the PR time for authenticated athlete
+    pr_distance = Attribute(float, (DETAILED,), units=uh.meters) #: The PR distance for authenticated athlete
+    starred = Attribute(bool, (DETAILED,)) #: Whether this segment is starred by authenticated athlete
     
     @property
     def leaderboard(self):
+        """
+        The :class:`stravalib.model.SegmentLeaderboard` object for this segment.
+        """
         if self._leaderboard is None:
             self.assert_bind_client()
             if self.id is not None:
@@ -369,22 +371,30 @@ class Segment(LoadableEntity):
         return self._leaderboard
     
 class BaseEffort(LoadableEntity):
-    name = Attribute(unicode, (SUMMARY,DETAILED))
-    segment = EntityAttribute(Segment, (SUMMARY,DETAILED))
-    activity = EntityAttribute("Activity", (SUMMARY,DETAILED))
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
-    kom_rank = Attribute(int, (SUMMARY,DETAILED))
-    pr_rank = Attribute(int, (SUMMARY,DETAILED))
-    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
-    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
-    start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
-    distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters)
+    """
+    Base class for a best effort or segment effort.
+    """
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: The name of the segment
+    segment = EntityAttribute(Segment, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Segment` for this effort 
+    activity = EntityAttribute("Activity", (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Activity`
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Athlete` 
+    kom_rank = Attribute(int, (SUMMARY,DETAILED)) #: 1-10 segment KOM ranking for athlete at time of upload
+    pr_rank = Attribute(int, (SUMMARY,DETAILED)) #: 1-3 personal record ranking for athlete at time of upload
+    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED)) #: :class:`datetime.timedelta` 
+    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))#: :class:`datetime.timedelta` 
+    start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when effort was started in GMT
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when effort was started in activity timezone for this effort
+    distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this effort. 
 
 class BestEffort(BaseEffort):
-    pass
+    """
+    Class representing a best effort (e.g. best time for 5k) 
+    """
 
 class SegmentEffort(BaseEffort):
+    """
+    Class representing a best effort on a particular segment.
+    """
     start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
     end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort
                     
@@ -418,68 +428,71 @@ class Activity(LoadableEntity):
              ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT, 
              SNOWBOARD, SNOWSHOE)
     
-    guid = Attribute(unicode, (SUMMARY,DETAILED)) # An undocumented attribute
+    guid = Attribute(unicode, (SUMMARY,DETAILED)) #: (undocumented)
     
-    external_id = Attribute(unicode, (SUMMARY,DETAILED))
-    upload_id = Attribute(unicode, (SUMMARY,DETAILED))
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
-    name = Attribute(unicode, (SUMMARY,DETAILED))
-    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED))
-    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED))
-    total_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters)
-    type = Attribute(unicode, (SUMMARY,DETAILED))
-    start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
-    timezone = TimezoneAttribute((SUMMARY,DETAILED))
-    start_latlng = LocationAttribute((SUMMARY,DETAILED))
-    end_latlng = LocationAttribute((SUMMARY,DETAILED))
+    external_id = Attribute(unicode, (SUMMARY,DETAILED)) #: An external ID for the activity (relevant when specified during upload).
+    upload_id = Attribute(unicode, (SUMMARY,DETAILED)) #: The upload ID for an activit.
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Athlete` that performed this activity.
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: The name of the activity. 
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The distance for the activity.
+    moving_time = TimeIntervalAttribute((SUMMARY,DETAILED)) #: The moving time duration for this activity.
+    elapsed_time = TimeIntervalAttribute((SUMMARY,DETAILED)) #: The total elapsed time (including stopped time) for this activity.
+    total_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: Total elevation gain for activity. 
+    type = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity type. 
+    start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when activity was started in GMT
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when activity was started in activity timezone
+    timezone = TimezoneAttribute((SUMMARY,DETAILED)) #: The timezone for activity.
+    start_latlng = LocationAttribute((SUMMARY,DETAILED))#: The start location (lat/lon :class:`tuple`)
+    end_latlng = LocationAttribute((SUMMARY,DETAILED)) #: The end location (lat/lon :class:`tuple`)
     
-    location_city = Attribute(unicode, (SUMMARY,DETAILED)),
-    location_state = Attribute(unicode, (SUMMARY,DETAILED)),
-    start_latitude = Attribute(float, (SUMMARY,DETAILED)),
-    start_longitude = Attribute(float, (SUMMARY,DETAILED)),
+    location_city = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity location city
+    location_state = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity location state 
+    start_latitude = Attribute(float, (SUMMARY,DETAILED)) #: The start latitude 
+    start_longitude = Attribute(float, (SUMMARY,DETAILED)) #: The start longitude 
     
-    achievement_count = Attribute(int, (SUMMARY,DETAILED)),
-    kudos_count = Attribute(int, (SUMMARY,DETAILED)),
-    comment_count = Attribute(int, (SUMMARY,DETAILED)),
-    athlete_count = Attribute(int, (SUMMARY,DETAILED)),
-    photo_count = Attribute(int, (SUMMARY,DETAILED)),
-    map = EntityAttribute(Map, (SUMMARY,DETAILED))
+    achievement_count = Attribute(int, (SUMMARY,DETAILED)) #: How many achievements earned for the activity
+    kudos_count = Attribute(int, (SUMMARY,DETAILED)) #: How many kudos received for activity
+    comment_count = Attribute(int, (SUMMARY,DETAILED)) #: How many comments  for activity.
+    athlete_count = Attribute(int, (SUMMARY,DETAILED)) #: How many other athlete's participated in activity 
+    photo_count = Attribute(int, (SUMMARY,DETAILED)) #: How many photos linked to activity
+    map = EntityAttribute(Map, (SUMMARY,DETAILED)) #: :class:`stravavlib.model.Map` of activity.  
     
-    trainer = Attribute(bool, (SUMMARY,DETAILED))
-    commute = Attribute(bool, (SUMMARY,DETAILED))
-    manual = Attribute(bool, (SUMMARY,DETAILED))
-    private = Attribute(bool, (SUMMARY,DETAILED))
-    flagged = Attribute(bool, (SUMMARY,DETAILED))
+    trainer = Attribute(bool, (SUMMARY,DETAILED)) #: Whether activity was performed on a stationary trainer.
+    commute = Attribute(bool, (SUMMARY,DETAILED)) #: Whether activity is a commute.
+    manual = Attribute(bool, (SUMMARY,DETAILED)) #: Whether activity was manually entered.
+    private = Attribute(bool, (SUMMARY,DETAILED)) #: Whether activity is private
+    flagged = Attribute(bool, (SUMMARY,DETAILED))  #: Whether activity was flagged.
     
-    gear_id = Attribute(unicode, (SUMMARY,DETAILED))
+    gear_id = Attribute(unicode, (SUMMARY,DETAILED)) #: Which bike/shoes were used on activity.
     
-    average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second)
-    max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second)
-    calories = Attribute(float, (SUMMARY,DETAILED)) 
-    truncated = Attribute(int, (SUMMARY,DETAILED))
-    has_kudoed = Attribute(bool, (SUMMARY,DETAILED))
+    average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Average speed for activity.
+    max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Max speed for activity
+    calories = Attribute(float, (SUMMARY,DETAILED))  #: Calculation of how many calories burned on activity 
+    truncated = Attribute(int, (SUMMARY,DETAILED)) #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones 
+    has_kudoed = Attribute(bool, (SUMMARY,DETAILED)) #: If authenticated user has kudoed this activity
   
-    segment_efforts = EntityCollection(SegmentEffort, (DETAILED,))
-    splits_metric = EntityCollection(Split, (DETAILED,))
-    splits_standard = EntityCollection(Split, (DETAILED,))
-    best_efforts = EntityCollection(BestEffort, (DETAILED,))
+    best_efforts = EntityCollection(BestEffort, (DETAILED,)) #: :class:`list` of metric :class:`stravalib.model.BestEffort` summaries
+    segment_efforts = EntityCollection(SegmentEffort, (DETAILED,)) #: :class:`list` of :class:`stravalib.model.SegmentEffort` efforts for activity.
+    splits_metric = EntityCollection(Split, (DETAILED,)) #: :class:`list` of metric :class:`stravalib.model.Split` summaries (running activities only) 
+    splits_standard = EntityCollection(Split, (DETAILED,)) #: :class:`list` of standard/imperial :class:`stravalib.model.Split` summaries (running activities only)
     
     # Undocumented attributes
-    average_watts = Attribute(float, (SUMMARY,DETAILED))
-    average_heartrate = Attribute(float, (SUMMARY,DETAILED))
-    max_heartrate = Attribute(int, (SUMMARY,DETAILED))
-    average_cadence = Attribute(float, (SUMMARY,DETAILED))
-    kilojoules = Attribute(float, (SUMMARY,DETAILED))
+    average_watts = Attribute(float, (SUMMARY,DETAILED)) #: (undocumented) Average power during activity
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Average HR during activity 
+    max_heartrate = Attribute(int, (SUMMARY,DETAILED))  #: (undocumented) Max HR during activity
+    average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Average cadence during activity
+    kilojoules = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Kilojoules of energy used during activity
     
-    average_temp = Attribute(int, (SUMMARY,DETAILED))
+    average_temp = Attribute(int, (SUMMARY,DETAILED)) #: (undocumented) Average temperature (when available from device) during activity.
     
-    description = Attribute(unicode, (DETAILED,))  # Is this also in summary?
-    workout_type = Attribute(unicode, (DETAILED,))  # Is this also in summary?
+    description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
+    workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
     
     @property
     def gear(self):
+        """
+        The associated :class:`stravalib.model.Gear` object for this activity. 
+        """
         if self._gear is None:
             self.assert_bind_client()
             if self.gear_id is not None:
@@ -489,6 +502,9 @@ class Activity(LoadableEntity):
 
     @property
     def comments(self):
+        """
+        Iterator of :class:`stravalib.model.ActivityComment` objects for this activity.
+        """
         if self._comments is None:
             self.assert_bind_client()
             if self.comment_count > 0:
@@ -500,6 +516,9 @@ class Activity(LoadableEntity):
 
     @property
     def zones(self):
+        """
+        :class:`list` of :class:`stravalib.model.ActivityZone` objects for this activity.
+        """
         if self._zones is None:
             self.assert_bind_client()
             self._zones = self.bind_client.get_activity_zones(self.id)
@@ -508,32 +527,35 @@ class Activity(LoadableEntity):
 class SegmentLeaderboardEntry(BoundEntity):
     """
     Represents a single entry on a segment leaderboard.
+    
+    The :class:`stravalib.model.SegmentLeaderboard` object is essentially a collection
+    of instances of this class.
     """
     _athlete = None
     _activity = None
     _effort = None
     
-    effort_id = Attribute(int)
-    athlete_id = Attribute(int)
-    athlete_name = Attribute(unicode)
-    athlete_gender = Attribute(unicode)
-    average_hr = Attribute(float)
-    average_watts = Attribute(float)
-    distance = Attribute(float, units=uh.meters)
-    elapsed_time = TimeIntervalAttribute()
-    moving_time = TimeIntervalAttribute()
-    start_date = TimestampAttribute((SUMMARY,DETAILED))
-    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)
-    activity_id = Attribute(int)
-    rank = Attribute(int)
-    athlete_profile = Attribute(unicode)
+    effort_id = Attribute(int) #: The numeric ID for the segment effort.
+    athlete_id = Attribute(int) #: The numeric ID for the athlete.
+    athlete_name = Attribute(unicode) #: The athlete's name.
+    athlete_gender = Attribute(unicode) #: The athlete's sex (M/F)
+    athlete_profile = Attribute(unicode) #: Link to athlete profile photo 
+    average_hr = Attribute(float) #: The athlete's average HR for this effort 
+    average_watts = Attribute(float) #: The athlete's average power for this effort
+    distance = Attribute(float, units=uh.meters) #: The distance for this effort.
+    elapsed_time = TimeIntervalAttribute() #: The elapsed time for this effort 
+    moving_time = TimeIntervalAttribute() #: The moving time for this effort
+    start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when this effot was started in GMT
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when this effort was started in activity timezone
+    activity_id = Attribute(int) #: The numeric ID of the associated activity for this effort.
+    rank = Attribute(int) #: The rank on the leaderboard.
     
     def __repr__(self):
         return '<SegmentLeaderboardEntry rank={0} athlete_name={1!r}>'.format(self.rank, self.athlete_name)
     
     @property
     def athlete(self):
-        """ The related athlete (performs additional server fetch). """
+        """ The related :class:`stravalib.model.Athlete` (performs additional server fetch). """
         if self._athlete is None:
             self.assert_bind_client()
             if self.athlete_id is not None:
@@ -542,7 +564,7 @@ class SegmentLeaderboardEntry(BoundEntity):
 
     @property
     def activity(self):
-        """ The related activity (performs additional server fetch). """
+        """ The related :class:`stravalib.model.Activity` (performs additional server fetch). """
         if self._activity is None:
             self.assert_bind_client()
             if self.activity_id is not None:
@@ -551,7 +573,7 @@ class SegmentLeaderboardEntry(BoundEntity):
     
     @property
     def effort(self):
-        """ The related effort (performs additional server fetch). """
+        """ The related :class:`stravalib.model.SegmentEffort` (performs additional server fetch). """
         if self._effort is None:
             self.assert_bind_client()
             if self.effort_id is not None:
@@ -561,6 +583,8 @@ class SegmentLeaderboardEntry(BoundEntity):
 class SegmentLeaderboard(Sequence, BoundEntity):
     """
     The ranked leaderboard for a segment.
+    
+    This class is effectively a collection of :class:`stravalib.model.SegmentLeaderboardEntry` objects.
     """
     effort_count = Attribute(int)
     entry_count = Attribute(int)
@@ -579,17 +603,22 @@ class SegmentLeaderboard(Sequence, BoundEntity):
         return self.entries[k]
     
 class DistributionBucket(BaseEntity):
-    max = Attribute(int)
-    min = Attribute(int)
-    time = Attribute(int, units=uh.seconds)
+    """
+    A single distribution bucket object, used for activity zones.
+    """
+    max = Attribute(int) #: Max datatpoint
+    min = Attribute(int) #: Min datapoint
+    time = Attribute(int, units=uh.seconds) #: Time in seconds (*not* a :class:`datetime.timedelta`)
 
 class BaseActivityZone(LoadableEntity):
     """
     Base class for activity zones.
+    
+    A collection of :class:`stravalib.model.DistributionBucket` objects.
     """
-    distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED))
-    type = Attribute(unicode, (SUMMARY, DETAILED))
-    sensor_based = Attribute(bool, (SUMMARY, DETAILED))
+    distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED)) #: The collection of :class:`stravalib.model.DistributionBucket` objects
+    type = Attribute(unicode, (SUMMARY, DETAILED)) #: Type of activity zone (heartrate, power, pace).
+    sensor_based = Attribute(bool, (SUMMARY, DETAILED)) #: Whether zone data is sensor-based (as opposed to calculated)
     
     @classmethod
     def deserialize(cls, v, bind_client=None):
@@ -612,16 +641,25 @@ class BaseActivityZone(LoadableEntity):
     
     
 class HeartrateActivityZone(BaseActivityZone):
-    score = Attribute(int, (SUMMARY, DETAILED))
-    points = Attribute(int, (SUMMARY, DETAILED))
-    custom_zones = Attribute(bool, (SUMMARY, DETAILED))
-    max = Attribute(int, (SUMMARY, DETAILED))
+    """
+    Activity zone for heart rate.
+    """
+    score = Attribute(int, (SUMMARY, DETAILED)) #: The score (suffer score) for this HR zone.
+    points = Attribute(int, (SUMMARY, DETAILED)) #: The points for this HR zone.
+    custom_zones = Attribute(bool, (SUMMARY, DETAILED)) #: Whether athlete has setup custom zones.
+    max = Attribute(int, (SUMMARY, DETAILED)) #: The max heartrate
 
 class PaceActivityZone(BaseActivityZone):
-    score = Attribute(int, (SUMMARY, DETAILED))
-    sample_race_distance = Attribute(int, (SUMMARY, DETAILED), units=uh.meters)
-    sample_race_time = TimeIntervalAttribute((SUMMARY, DETAILED))
+    """
+    Activity zone for pace.
+    """
+    score = Attribute(int, (SUMMARY, DETAILED)) #: The score for this zone.
+    sample_race_distance = Attribute(int, (SUMMARY, DETAILED), units=uh.meters) #: (Not sure?)
+    sample_race_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: (Not sure?)
         
 class PowerActivityZone(BaseActivityZone):
-    bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)
-    athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)
+    """
+    Activity zone for power.
+    """
+    bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of bike being used (factored into power calculations)
+    athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of athlete (factored into power calculations)

@@ -8,7 +8,8 @@ The new codebase supports only [version 3 API](http://strava.github.io/api/) of 
 This is currently under active development.  Parts have been tested, but some aspects may be broken.
 
 The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
-abstracting the v3 REST API around a rich and easy-to-use object model.
+abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporarl attributes
+and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)). 
 
 See the [online documentation](http://pythonhosted.org/stravalib/) for more comprehensive documentation.
 

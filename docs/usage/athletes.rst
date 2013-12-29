@@ -3,13 +3,13 @@
 Athletes
 ********
 
-This page is designed to mirror the structure of the documentation at `http://strava.github.io/api/v3/athlete/`_ and
-describe the methods for working with athlete data in the Strava API. 
+This page is designed to mirror the structure of the documentation at http://strava.github.io/api/v3/athlete/ and
+describe the methods for working with athlete data in the Strava API.
 
 Retrieve Current Athlete
 ========================
 
-This is the simplest request.  It is provided by the :method:`stravalib.client.Client.get_athlete` when called
+This is the simplest request.  It is provided by the :meth:`stravalib.client.Client.get_athlete` when called
 with no parameters.::
 
    athlete = client.get_athlete()
@@ -21,7 +21,7 @@ attribute set is returned.
 Retrieve Another Athlete
 ========================
 
-A variation on the above request, this is provided by the :method:`stravalib.client.Client.get_athlete` when called
+A variation on the above request, this is provided by the :meth:`stravalib.client.Client.get_athlete` when called
 with an athlete ID.::
 
    athlete = client.get_athlete(227615)
@@ -38,7 +38,7 @@ Strava allows fetching both an athlete's friends and those that are following (h
 List athlete friends
 --------------------
 
-The :method:`stravalib.client.Client.get_athete_friends` method may be called with our without an athlete ID parameter,
+The :meth:`stravalib.client.Client.get_athete_friends` method may be called with our without an athlete ID parameter,
 depending on whether the friends for another or the current athlete (respectively) are being requested.::
 
    johns_friends = client.get_athlete_friends(227615)
