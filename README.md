@@ -22,9 +22,11 @@ See the [online documentation](http://pythonhosted.org/stravalib/) for more comp
 ## Installation
 
 The package is avialable on PyPI to be installed using easy_install or pip:
-   
+
+``` none
    shell$ pip install stravalib
-   
+```
+
 Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will 
 list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can 
 download it and explore Strava content in your favorite python REPL.
