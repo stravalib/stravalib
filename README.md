@@ -27,7 +27,7 @@ The package is avialable on PyPI to be installed using easy_install or pip:
 shell$ pip install stravalib
 ```
 
-(Installing in a [virutal environment](https://pypi.python.org/pypi/virtualenv) is always recommended.)
+(Installing in a [virtual environment](https://pypi.python.org/pypi/virtualenv) is always recommended.)
 
 Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will 
 list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can 
@@ -111,3 +111,7 @@ num_value = float(unithelper.miles(activity.distance))
 # Or: 
 num_value = unithelper.miles(activity.distance).num
 ```
+
+## Still reading?
+
+The [published sphinx documentation](http://pythonhosted.org/stravalib/) provides much more.
