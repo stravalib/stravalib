@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.2.1
+-----
+* Changed Activity.gear to be a full entity attribute (Strava API changed)
+
 0.2.0
 -----
 * Added core functionality for Strava API v3.
