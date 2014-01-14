@@ -425,7 +425,7 @@ class Activity(LoadableEntity):
     
     _comments = None
     _zones = None
-    _gear = None
+    #_gear = None
     
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
              ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT, 
@@ -467,6 +467,7 @@ class Activity(LoadableEntity):
     flagged = Attribute(bool, (SUMMARY,DETAILED))  #: Whether activity was flagged.
     
     gear_id = Attribute(unicode, (SUMMARY,DETAILED)) #: Which bike/shoes were used on activity.
+    gear = EntityAttribute(Gear, (DETAILED,))
     
     average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Average speed for activity.
     max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Max speed for activity
@@ -490,19 +491,7 @@ class Activity(LoadableEntity):
     
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
-    
-    @property
-    def gear(self):
-        """
-        The associated :class:`stravalib.model.Gear` object for this activity. 
-        """
-        if self._gear is None:
-            self.assert_bind_client()
-            if self.gear_id is not None:
-                self._gear = self.bind_client.get_gear(self.gear_id)
-        return self._gear
         
-
     @property
     def comments(self):
         """
