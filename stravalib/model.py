@@ -37,7 +37,7 @@ class BaseEntity(object):
                 try:
                     setattr(self, k, v)
                 except AttributeError:
-                    raise AttributeError("Error setting attribute {0} on entity {1}".format(k, self))
+                    raise AttributeError("Error setting attribute {0} on entity {1}, value: {2!r}".format(k, self, v))
             else:
                 self.log.warning("No such attribute {0} on entity {1}".format(k, self))
     
