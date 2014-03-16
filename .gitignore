@@ -5,4 +5,4 @@ dist/
 .*
 *.egg-info/
 *.egg/
-docs-html/
+docs/_build/
