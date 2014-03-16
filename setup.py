@@ -11,7 +11,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-version = '0.2.1'
+version = '0.2.2'
 
 news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
 news = open(news).read()
@@ -25,19 +25,19 @@ if not found_news:
     warnings.warn('No news for this version found.')
 
 long_description = """
-stravalib is a Python 2.x and 3.x library that provides a simple API for interacting 
+stravalib is a Python 2.x and 3.x library that provides a simple API for interacting
 with the Strava activity tracking website.
 """
 
 if found_news:
     title = 'Changes in %s' % version
     long_description += "\n%s\n%s\n" % (title, '-'*len(title))
-    long_description += found_news 
+    long_description += found_news
 
-setup( 
-    name = "stravalib", 
-    version = version, 
-    author = "Hans Lellelid", 
+setup(
+    name = "stravalib",
+    version = version,
+    author = "Hans Lellelid",
     author_email = "hans@xmpl.org",
     url = "http://github.com/hozn/stravalib",
     license = "Apache",
@@ -64,5 +64,5 @@ setup(
        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     use_2to3=True,
-    zip_safe=False # Technically it should be fine, but there are issues w/ 2to3 
+    zip_safe=False # Technically it should be fine, but there are issues w/ 2to3
 )

@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.2.2
+-----
+* Fixed the _resolve_url to not assume running on **nix system.
+
 0.2.1
 -----
 * Changed Activity.gear to be a full entity attribute (Strava API changed)
@@ -11,7 +15,7 @@ Changes
 -----
 * Added core functionality for Strava API v3.
 * Mostly redesigned codebase based on drastic changes in v3 API.
-* Dropped support for API v1, v2 and the "scrape" module. 
+* Dropped support for API v1, v2 and the "scrape" module.
 
 0.1.0
 -----

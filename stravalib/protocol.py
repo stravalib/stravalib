@@ -1,5 +1,5 @@
 """
-Low-level classes for interacting directly with the Strava API webservers. 
+Low-level classes for interacting directly with the Strava API webservers.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
@@ -12,21 +12,21 @@ from urllib import urlencode
 import requests
 
 from stravalib import exc
-        
+
 class ApiV3(object):
     """
     This class is responsible for performing the HTTP requests, rate limiting, and error handling.
     """
     __metaclass__ = abc.ABCMeta
-    
+
     server = 'www.strava.com'
     api_base = '/api/v3'
-        
+
     def __init__(self, access_token=None, requests_session=None, rate_limiter=None):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
         object.
-        
+
         :param access_token: The token that provides access to a specific Strava account.
         :param requests_session: An existing :class:`requests.Session` object to use.
         """
@@ -36,36 +36,36 @@ class ApiV3(object):
             self.rsession = requests_session
         else:
             self.rsession = requests.Session()
-        
+
         if rate_limiter is None:
             # Make it a dummy function, so we don't have to check if it's defined before
             # calling it later
             rate_limiter = lambda: None
-             
+
         self.rate_limiter = rate_limiter
-    
+
     def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
-        
+
         See http://strava.github.io/api/v3/oauth/
-        
+
         :param client_id: The numeric developer client id.
         :type client_id: int
-        
+
         :param redirect_uri: The URL that Strava will redirect to after successful (or failed) authorization.
         :type redirect_uri: str
-        
+
         :param approval_prompt: Whether to prompt for approval even if approval already granted to app.
                                 Choices are 'auto' or 'force'.  (Default is 'auto')
         :type approval_prompt: str
-        
+
         :param scope: The access scope required.  Omit to imply "public".  Valid values are 'public', 'write', 'view_private', 'view_private,write'
         :type scope: str
-        
+
         :param state: An arbitrary variable that will be returned to your application in the redirect URI.
         :type state: str
-        
+
         :return: The URL to use for authorization link.
         :rtype: str
         """
@@ -80,23 +80,23 @@ class ApiV3(object):
             params['scope'] = scope
         if state is not None:
             params['state'] = state
-            
+
         return urlparse.urlunsplit(('https', self.server, '/oauth/authorize', urlencode(params), ''))
-    
+
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
         for a permanent access token.
-        
+
         :param client_id: The numeric developer client id.
         :type client_id: int
-        
+
         :param client_secret: The developer client secret
         :type client_secret: str
-        
+
         :param code: The temporary authorization code
         :type code: str
-        
+
         :return: The access token.
         :rtype: str
         """
@@ -106,12 +106,12 @@ class ApiV3(object):
         token = response['access_token']
         self.access_token = token
         return token
-    
+
     def _resolve_url(self, url):
         if not url.startswith('http'):
-            url = urlparse.urljoin('https://{0}'.format(self.server), os.path.join(self.api_base, url.strip('/')))
+            url = urlparse.urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
         return url
-    
+
     def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
         url = self._resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
@@ -119,41 +119,41 @@ class ApiV3(object):
             params = {}
         if self.access_token:
             params['access_token'] = self.access_token
-        
+
         methods = {'GET': self.rsession.get,
                    'POST': functools.partial(self.rsession.post, files=files),
                    'PUT': self.rsession.put,
                    'DELETE': self.rsession.delete}
-        
+
         try:
             requester = methods[method.upper()]
         except KeyError:
             raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
-        
+
         raw = requester(url, params=params)
         if check_for_errors:
             self._handle_protocol_error(raw)
-            
+
         resp = raw.json()
-        
+
         # TODO: We should parse the response to get the rate limit details and
         # update our rate limiter.
-        # see: http://strava.github.io/api/#access 
-        
+        # see: http://strava.github.io/api/#access
+
         # At this stage we should assume that request was successful and we should invoke
         # our rate limiter.  (Note that this may need to be reviewed; some failures may
         # also count toward the limit?)
         self.rate_limiter()
-        
+
         return resp
-    
+
     def _handle_protocol_error(self, response):
         """
         Parses the raw response from the server, raising a :class:`stravalib.exc.Fault` if the
         server returned an error.
-        
+
         :param response: The response object.
-        :raises Fault: If the response contains an error. 
+        :raises Fault: If the response contains an error.
         """
         error_str = None
         try:
@@ -163,7 +163,7 @@ class ApiV3(object):
         else:
             if 'message' in json_response or 'errors' in json_response:
                 error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), json_response.get('errors'))
-        
+
         x = None
         if 400 <= response.status_code < 500:
             x = requests.exceptions.HTTPError('%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str))
@@ -171,12 +171,12 @@ class ApiV3(object):
             x = requests.exceptions.HTTPError('%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str))
         elif error_str:
             x = exc.Fault(error_str)
-     
+
         if x is not None:
             raise x
-        
-        return response 
-    
+
+        return response
+
     def _extract_referenced_vars(self, s):
         """
         Utility method to find the referenced format variables in a string.
@@ -205,7 +205,7 @@ class ApiV3(object):
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, check_for_errors=check_for_errors)
-    
+
     def post(self, url, files=None, check_for_errors=True, **kwargs):
         """
         Performs a generic POST request for specified params, returning the response.
@@ -214,7 +214,7 @@ class ApiV3(object):
         url = url.format(**kwargs)
         params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
-    
+
     def put(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic PUT request for specified params, returning the response.

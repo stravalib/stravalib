@@ -6,26 +6,25 @@ API
 Main Interaction
 ================
 
-This part of the documentation covers the primary API for interacting with the
-keepass database. 
+This part of the documentation covers the primary API for interacting with Strava.
 
 Client
 ------
-	
+
 .. automodule:: stravalib.client
    :synopsis: The maininterface to the v3 REST API.
    :members:
    :inherited-members:
    :show-inheritance:
-   
+
 Model
 -----
 
 .. automodule:: stravalib.model
-   :synopsis: The entity objects that are instantiated from the API. 
-   :members: 
+   :synopsis: The entity objects that are instantiated from the API.
+   :members:
    :show-inheritance:
-   
+
 Errors
 ------
 
@@ -36,7 +35,7 @@ The exception classes raised by the library.
    :members:
    :inherited-members:
 	:show-inheritance:
-   
+
 Under-the-Hood
 ==============
 
