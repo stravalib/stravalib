@@ -450,6 +450,7 @@ class Activity(LoadableEntity):
     
     location_city = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity location city
     location_state = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity location state 
+    location_country = Attribute(unicode, (SUMMARY,DETAILED)) #: The activity location state 
     start_latitude = Attribute(float, (SUMMARY,DETAILED)) #: The start latitude 
     start_longitude = Attribute(float, (SUMMARY,DETAILED)) #: The start longitude 
     
