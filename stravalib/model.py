@@ -129,6 +129,8 @@ class Club(LoadableEntity):
     Currently summary and detail resource states have the same attributes.
     """
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of the club.
+    profile_medium = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 62x62 pixel club picture
+    profile = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 124x124 pixel club picture
     
     @property
     def members(self):
@@ -206,6 +208,7 @@ class Athlete(LoadableEntity):
     profile = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 124x124 pixel profile picture
     city = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home city 
     state = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home state
+    country = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home country
     sex = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's sex ('M', 'F' or null)
     friend = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
     follower = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
