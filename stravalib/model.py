@@ -275,9 +275,11 @@ class Athlete(LoadableEntity):
     sample_race_time = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
     
     def __repr__(self):
+        fname = self.firstname and self.firstname.encode('utf-8')
+        lname = self.lastname and self.lastname.encode('utf-8')
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
-                                                                             fname=self.firstname,
-                                                                             lname=self.lastname)
+                                                                             fname=fname,
+                                                                             lname=lname)
     
 class ActivityComment(LoadableEntity):
     activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
