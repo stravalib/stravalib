@@ -24,6 +24,15 @@ from datetime import datetime, timedelta
 
 from stravalib import exc
 
+
+def total_seconds(td):
+    """Alternative to datetime.timedelta.total_seconds
+    total_seconds() only available since Python 2.7
+    https://docs.python.org/2/library/datetime.html#datetime.timedelta.total_seconds
+    """
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+
 class RateLimiter(object):
     
     def __init__(self):
@@ -68,8 +77,10 @@ class RateLimitRule(object):
                     raise exc.RateLimitExceeded("Rate limit exceeded (can try again in {0})".format(self.timeframe - delta))
                 else:
                     # Wait the difference between timeframe and the oldest request. 
-                    self.log.debug("Rate limit triggered; sleeping for {0}".format(delta))
-                    time.sleep(self.timeframe - delta)
+                    td = self.timeframe - delta
+                    sleeptime = hasattr(td, 'total_seconds') and td.total_seconds() or total_seconds(td)
+                    self.log.debug("Rate limit triggered; sleeping for {0}".format(sleeptime))
+                    time.sleep(sleeptime)
         self.tab.append(datetime.now())        
         
 class DefaultRateLimiter(RateLimiter):
