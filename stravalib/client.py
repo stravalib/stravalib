@@ -5,11 +5,12 @@ import logging
 import functools
 import time
 import collections
+from io import BytesIO
+from datetime import datetime, timedelta
+
 from dateutil.parser import parser
 dateparser = parser()
-from io import BytesIO
 
-from dateutil.parser import parser as dateparser
 from units.quantity import Quantity
 
 from stravalib import model, exc
