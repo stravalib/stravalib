@@ -581,6 +581,70 @@ class Client(object):
                                                                       id=segment_id, **params),
                                                     bind_client=self)
 
+    def get_segment_efforts(self, segment_id, athlete_id=None,
+                            start_date_local=None, end_date_local=None,
+                            limit=None ):
+        """
+        Gets all efforts on a particular segment sorted by start_date_local
+
+        Returns an array of segment effort summary representations sorted by
+        start_date_local ascending or by elapsed_time if an athlete_id is
+        provided.
+
+        If no filtering parameters is provided all efforts for the segment
+        will be returned.
+
+        Date range filtering is accomplished using an inclusive start and end time,
+        thus start_date_local and end_date_local must be sent together. For open
+        ended ranges pick dates significantly in the past or future. The
+        filtering is done over local time for the segment, so there is no need
+        for timezone conversion. For example, all efforts on Jan. 1st, 2014
+        for a segment in San Francisco, CA can be fetched using
+        2014-01-01T00:00:00Z and 2014-01-01T23:59:59Z.
+
+        http://strava.github.io/api/v3/segments/#all_efforts
+
+        :param segment_id: ID of the segment.
+        :type segment_id: int
+
+        :param athlete_id: (optional) ID of athlete.
+        :type athlete_id: int
+
+        :param start_date_local: (optional) efforts before this date will be excluded.
+                                            Either as ISO8601 or datetime object
+        :type start_date_local: datetime.datetime or str
+
+        :param end_date_local: (optional) efforts after this date will be excluded.
+                                           Either as ISO8601 or datetime object
+        :type end_date_local: datetime.datetime or str
+
+        :param top_results_limit: (optional),
+        :type results_limit: int
+
+        :rtype: :class:`stravalib.model.SegmentEffort`
+
+        """
+        params = {"segment_id": segment_id}
+
+        if athlete_id is not None:
+            params['athlete_id'] = athlete_id
+
+        if start_date_local:
+            if isinstance(start_date_local, str):
+                start_date_local = dateparser.parse(start_date_local, ignoretz=True)
+            params["start_date_local"] = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        if end_date_local:
+            if isinstance(end_date_local, str):
+                end_date_local = dateparser.parse(end_date_local, ignoretz=True)
+            params["end_date_local"] = end_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        if limit is not None:
+            params["limit"] = limit
+
+        result_fetcher = functools.partial(self.protocol.get, '/segments/' + str(segment_id) + '/all_efforts', **params)
+        return BatchedResultsIterator(entity=model.BaseEffort, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+
     def explore_segments(self, bounds, activity_type=None, min_cat=None, max_cat=None):
         """
         Returns an array of up to 10 segments.
