@@ -90,8 +90,10 @@ class Client(object):
         :return: The URL to use for authorization link.
         :rtype: str
         """
-        return self.protocol.authorization_url(client_id=client_id, redirect_uri=redirect_uri,
-                                               approval_prompt=approval_prompt, scope=scope, state=state)
+        return self.protocol.authorization_url(client_id=client_id,
+                                               redirect_uri=redirect_uri,
+                                               approval_prompt=approval_prompt,
+                                               scope=scope, state=state)
 
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
@@ -144,16 +146,21 @@ class Client(object):
             after = time.mktime(after.timetuple())
 
         params = dict(before=before, after=after)
-        result_fetcher = functools.partial(self.protocol.get, '/athlete/activities', **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/athlete/activities',
+                                           **params)
 
-        results = BatchedResultsIterator(entity=model.Activity, bind_client=self, result_fetcher=result_fetcher, limit=limit)
-        return results
+        return BatchedResultsIterator(entity=model.Activity,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
 
     def get_athlete(self, athlete_id=None):
         """
-        Gets the specified athlete; if athlete_id is None then retrieves a detail-
-        level representation of currently authenticated athlete; otherwise
-        summary-level representation returned of athlete.
+        Gets the specified athlete; if athlete_id is None then retrieves a
+        detail-level representation of currently authenticated athlete;
+        otherwise summary-level representation returned of athlete.
 
         http://strava.github.io/api/v3/athlete/#get-details
 
@@ -187,9 +194,14 @@ class Client(object):
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/friends')
         else:
-            result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/friends', id=athlete_id)
+            result_fetcher = functools.partial(self.protocol.get,
+                                               '/athletes/{id}/friends',
+                                               id=athlete_id)
 
-        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        return BatchedResultsIterator(entity=model.Athlete,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
 
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
@@ -207,13 +219,19 @@ class Client(object):
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/followers')
         else:
-            result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/followers', id=athlete_id)
+            result_fetcher = functools.partial(self.protocol.get,
+                                               '/athletes/{id}/followers',
+                                               id=athlete_id)
 
-        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        return BatchedResultsIterator(entity=model.Athlete,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
 
     def get_both_following(self, athlete_id, limit=None):
         """
-        Retrieve the athletes who both the authenticated user and the indicated athlete are following.
+        Retrieve the athletes who both the authenticated user and the indicated
+         athlete are following.
 
         http://strava.github.io/api/v3/follow/#both
 
@@ -224,8 +242,15 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get, '/athletes/{id}/both-following', id=athlete_id)
-        return BatchedResultsIterator(entity=model.Athlete, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/athletes/{id}/both-following',
+                                           id=athlete_id)
+
+        return BatchedResultsIterator(entity=model.Athlete,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
 
     def get_athlete_clubs(self):
         """
@@ -262,7 +287,10 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/members', id=club_id)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/clubs/{id}/members',
+                                           id=club_id)
+
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
@@ -278,7 +306,10 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get, '/clubs/{id}/activities', id=club_id)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/clubs/{id}/activities',
+                                           id=club_id)
+
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
@@ -309,8 +340,10 @@ class Client(object):
         :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/activities/following')
+
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
+
 
     def create_activity(self, name, activity_type, start_date_local, elapsed_time, description=None, distance=None):
         """
@@ -358,7 +391,9 @@ class Client(object):
 
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
-    def update_activity(self, activity_id, name=None, activity_type=None, private=None, commute=None, trainer=None, gear_id=None, description=None):
+    def update_activity(self, activity_id, name=None, activity_type=None,
+                        private=None, commute=None, trainer=None, gear_id=None,
+                        description=None):
         """
         Updates the properties of a specific activity.
 
@@ -367,8 +402,9 @@ class Client(object):
         :param activity_id: The ID of the activity to update.
         :param name: The name of the activity.
         :param activity_type: The activity type (case-insensitive).
-                              Possible values: ride, run, swim, workout, hike, walk, nordicski,
-                              alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski,
+                              Possible values: ride, run, swim, workout, hike,
+                              walk, nordicski, alpineski, backcountryski,
+                              iceskate, inlineskate, kitesurf, rollerski,
                               windsurf, workout, snowboard, snowshoe
         :param private: Whether the activity is private.
         :param commute: Whether the activity is a commute.
@@ -399,7 +435,8 @@ class Client(object):
         raw_activity = self.protocol.put('/activities/{activity_id}', **params)
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
-    def upload_activity(self, activity_file, data_type, name=None, activity_type=None, private=None, external_id=None):
+    def upload_activity(self, activity_file, data_type, name=None,
+                        activity_type=None, private=None, external_id=None):
         """
         Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
 
@@ -451,8 +488,11 @@ class Client(object):
         if external_id is not None:
             params['external_id'] = external_id
 
-        initial_response = self.protocol.post('/uploads', files={'file': activity_file},
-                                              check_for_errors=False, **params)
+        initial_response = self.protocol.post('/uploads',
+                                              files={'file': activity_file},
+                                              check_for_errors=False,
+                                              **params)
+
         return ActivityUploader(self, response=initial_response)
 
     def get_activity_zones(self, activity_id):
@@ -482,8 +522,11 @@ class Client(object):
         """
         result_fetcher = functools.partial(self.protocol.get, '/activities/{id}/comments',
                                            id=activity_id, markdown=int(markdown))
-        return BatchedResultsIterator(entity=model.ActivityComment, bind_client=self,
-                                      result_fetcher=result_fetcher, limit=limit)
+
+        return BatchedResultsIterator(entity=model.ActivityComment,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
 
     def get_gear(self, gear_id):
         """
@@ -507,7 +550,8 @@ class Client(object):
         :param effort_id: The id of associated effort to fetch.
         :rtype: :class:`stravalib.model.SegmentEffort`
         """
-        return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}', id=effort_id))
+        return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}',
+                                                                 id=effort_id))
 
     def get_segment(self, segment_id):
         """
@@ -518,7 +562,9 @@ class Client(object):
         :param segment_id: The segment to fetch.
         :rtype: :class:`stravalib.model.Segment`
         """
-        return model.Segment.deserialize(self.protocol.get('/segments/{id}', id=segment_id), bind_client=self)
+        return model.Segment.deserialize(self.protocol.get('/segments/{id}',
+                                         id=segment_id), bind_client=self)
+
 
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
                                 following=None, club_id=None, timeframe=None, top_results_limit=None):
@@ -579,7 +625,8 @@ class Client(object):
             params['per_page'] = top_results_limit
 
         return model.SegmentLeaderboard.deserialize(self.protocol.get('/segments/{id}/leaderboard',
-                                                                      id=segment_id, **params),
+                                                                      id=segment_id,
+                                                                      **params),
                                                     bind_client=self)
 
     def get_segment_efforts(self, segment_id, athlete_id=None,
@@ -643,8 +690,12 @@ class Client(object):
         if limit is not None:
             params["limit"] = limit
 
-        result_fetcher = functools.partial(self.protocol.get, '/segments/' + str(segment_id) + '/all_efforts', **params)
-        return BatchedResultsIterator(entity=model.BaseEffort, bind_client=self, result_fetcher=result_fetcher, limit=limit)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segments/{}/all_efforts'.format(segment_id),
+                                           **params)
+
+        return BatchedResultsIterator(entity=model.BaseEffort, bind_client=self,
+                                      result_fetcher=result_fetcher, limit=limit)
 
     def explore_segments(self, bounds, activity_type=None, min_cat=None, max_cat=None):
         """
@@ -690,7 +741,9 @@ class BatchedResultsIterator(object):
     An iterator that enables iterating over requests that return paged results.
     """
 
-    default_per_page = 200 #: How many results returned in a batch.  We maximize this to minimize requests to server (rate limiting)
+    # How many results returned in a batch.  We maximize this to minimize
+    #  requests to server (rate limiting)
+    default_per_page = 200
 
     def __init__(self, entity, result_fetcher, bind_client=None, limit=None, per_page=None):
         """
@@ -789,7 +842,8 @@ class ActivityUploader(object):
 
         :param response: The response object (dict).
         :type response: dict
-        :param raise_exc: Whether to raise an exception if the response indicates an error state. (default True)
+        :param raise_exc: Whether to raise an exception if the response
+                          indicates an error state. (default True)
         :type raise_exc: bool
         :raise stravalib.exc.ActivityUploadFailed: If the response indicates an error and raise_exc is True.
         """
@@ -825,7 +879,10 @@ class ActivityUploader(object):
 
         :raise stravalib.exc.ActivityUploadFailed: If the poll returns an error.
         """
-        response = self.client.protocol.get('/uploads/{upload_id}', upload_id=self.upload_id, check_for_errors=False)
+        response = self.client.protocol.get('/uploads/{upload_id}',
+                                            upload_id=self.upload_id,
+                                            check_for_errors=False)
+
         self.update_from_repsonse(response)
 
     def wait(self, timeout=None, poll_interval=1.0):
@@ -834,15 +891,17 @@ class ActivityUploader(object):
 
         Will return the resulting Activity or raise an exception if the upload fails.
 
-        :param timeout: The max seconds to wait. Will raise TimeoutExceeded exception if this
-                        time passes without success or error response.
+        :param timeout: The max seconds to wait. Will raise TimeoutExceeded
+                        exception if this time passes without success or error response.
         :type timeout: float
-        :param poll_interval: How long to wait between upload checks.  Strava recommends 1s minimum. (default 1.0s)
+        :param poll_interval: How long to wait between upload checks.  Strava
+                              recommends 1s minimum. (default 1.0s)
         :type poll_interval: float
         :return: The uploaded Activity object (fetched from server)
         :rtype: :class:`stravalib.model.Activity`
-        :raise stravalib.exc.TimeoutExceeded: If a timeout was specified and activity is
-                                              still processing after timeout has elapsed.
+        :raise stravalib.exc.TimeoutExceeded: If a timeout was specified and
+                                              activity is still processing after
+                                              timeout has elapsed.
         :raise stravalib.exc.ActivityUploadFailed: If the poll returns an error.
         """
         start = time.time()
