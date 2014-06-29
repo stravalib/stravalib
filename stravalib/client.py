@@ -26,7 +26,8 @@ class Client(object):
     however, most methods will require a valid access token.
     """
 
-    def __init__(self, access_token=None, rate_limit_requests=True, rate_limiter=None):
+    def __init__(self, access_token=None, rate_limit_requests=True,
+                 rate_limiter=None, requests_session=None):
         """
         Initialize a new client object.
 
@@ -51,7 +52,9 @@ class Client(object):
         elif rate_limiter:
             raise ValueError("Cannot specify rate_limiter object when rate_limit_requests is False")
 
-        self.protocol = ApiV3(access_token=access_token, rate_limiter=rate_limiter)
+        self.protocol = ApiV3(access_token=access_token,
+                              requests_session=requests_session,
+                              rate_limiter=rate_limiter)
 
     @property
     def access_token(self):
