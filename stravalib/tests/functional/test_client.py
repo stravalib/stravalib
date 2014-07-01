@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from stravalib import model, attributes, unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
+import datetime
 
 class ClientTest(FunctionalTestBase):
     
@@ -135,11 +136,29 @@ class ClientTest(FunctionalTestBase):
         i = 0
         for effort in efforts:
             print effort
-            self.assertEqual('Jedi climb', effort.name)
             self.assertEqual(4357415, effort.segment.id)
             self.assertIsInstance(effort, model.BaseEffort)
             effort_date = effort.start_date_local
             self.assertEqual(effort_date.strftime("%Y-%m-%d"), "2012-12-23")
+            i+=1
+        print i
+
+        self.assertGreater(i, 2)
+
+        start_date = datetime.datetime(2012, 12, 31, 6, 0)
+        end_date = start_date + datetime.timedelta(hours=12)
+        efforts = self.client.get_segment_efforts(4357415,
+                                        start_date_local = start_date,
+                                        end_date_local = end_date,)
+        print efforts
+
+        i = 0
+        for effort in efforts:
+            print effort
+            self.assertEqual(4357415, effort.segment.id)
+            self.assertIsInstance(effort, model.BaseEffort)
+            effort_date = effort.start_date_local
+            self.assertEqual(effort_date.strftime("%Y-%m-%d"), "2012-12-31")
             i+=1
         print i
 
