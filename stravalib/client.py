@@ -124,6 +124,8 @@ class Client(object):
         """
         Get activities for authenticated user sorted by newest first.
 
+        http://strava.github.io/api/v3/activities/
+
 
         :param before: Result will start with activities whose start date is
                        before specified date. (UTC)
@@ -136,14 +138,14 @@ class Client(object):
         :param limit: How many maximum activities to return.
         :type limit: int
         """
-        if before and after:
-            raise ValueError("Cannot specify both 'before' and 'after' params.")
+        #if before and after:
+        #    raise ValueError("Cannot specify both 'before' and 'after' params.")
 
         if before:
             if isinstance(before, str):
                 before = dateparser.parse(before, ignoretz=True)
             before = time.mktime(before.timetuple())
-        elif after:
+        if after:
             if isinstance(after, str):
                 after = dateparser.parse(after, ignoretz=True)
             after = time.mktime(after.timetuple())
