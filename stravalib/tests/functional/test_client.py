@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from stravalib import model, attributes, unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
+import datetime
 
 class ClientTest(FunctionalTestBase):
     
@@ -125,8 +126,45 @@ class ClientTest(FunctionalTestBase):
         # Fetch leaderboard
         lb = segment.leaderboard
         self.assertEquals(15, len(lb)) # 10 top results, 5 bottom results
-        
-    
+
+    def test_get_segment_efforts(self):
+        efforts = self.client.get_segment_efforts(4357415,
+                                     start_date_local = "2012-12-23T00:00:00Z",
+                                     end_date_local   = "2012-12-23T11:00:00Z",)
+        print efforts
+
+        i = 0
+        for effort in efforts:
+            print effort
+            self.assertEqual(4357415, effort.segment.id)
+            self.assertIsInstance(effort, model.BaseEffort)
+            effort_date = effort.start_date_local
+            self.assertEqual(effort_date.strftime("%Y-%m-%d"), "2012-12-23")
+            i+=1
+        print i
+
+        self.assertGreater(i, 2)
+
+        start_date = datetime.datetime(2012, 12, 31, 6, 0)
+        end_date = start_date + datetime.timedelta(hours=12)
+        efforts = self.client.get_segment_efforts(4357415,
+                                        start_date_local = start_date,
+                                        end_date_local = end_date,)
+        print efforts
+
+        i = 0
+        for effort in efforts:
+            print effort
+            self.assertEqual(4357415, effort.segment.id)
+            self.assertIsInstance(effort, model.BaseEffort)
+            effort_date = effort.start_date_local
+            self.assertEqual(effort_date.strftime("%Y-%m-%d"), "2012-12-31")
+            i+=1
+        print i
+
+        self.assertGreater(i, 2)
+
+
     def test_segment_explorer(self):
         bounds = (37.821362,-122.505373,37.842038,-122.465977)
         results = self.client.explore_segments(bounds)
