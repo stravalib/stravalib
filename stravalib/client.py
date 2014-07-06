@@ -553,6 +553,24 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def get_activity_photos(self, activity_id):
+        """
+        Gets the photos from an activity.
+
+        http://strava.github.io/api/v3/photos/
+
+        :param activity_id: The activity for which to fetch kudos.
+        :return: An iterator of :class:`stravalib.model.ActivityPhoto` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/photos',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityPhoto,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.

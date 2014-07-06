@@ -49,18 +49,27 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals(3, len(comments))
         self.assertEquals("I love Gordo's. I've been eating there for 20 years!", comments[0].text)
 
+    def test_activity_photos(self):
+        """
+        Test photos on activity
+        """
+        activity = self.client.get_activity(152668627)
+        self.assertTrue(activity.photo_count > 0)
+        photos = list(activity.photos)
+        self.assertEqual(len(photos), 1)
+        self.assertEqual(len(photos), activity.photo_count)
+        self.assertIsInstance(photos[0], model.ActivityPhoto)
+
     def test_activity_kudos(self):
         """
-        Test .
+        Test kudos on activity
         """
-        activity = self.client.get_activity(159562120)
+        activity = self.client.get_activity(152668627)
         self.assertTrue(activity.kudos_count > 0)
         kudos = list(activity.kudos)
         self.assertGreater(len(kudos), 6)
         self.assertEqual(len(kudos), activity.kudos_count)
         self.assertIsInstance(kudos[0], model.ActivityKudos )
-
-
 
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()

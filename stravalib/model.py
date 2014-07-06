@@ -319,10 +319,19 @@ class ActivityComment(LoadableEntity):
     created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was coment created
     athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
+class ActivityPhoto(LoadableEntity):
+    activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
+    ref = Attribute(unicode, (META,SUMMARY,DETAILED)) #: ref eg. "http://instagram.com/p/eAvA-tir85/"
+    uid = Attribute(unicode, (META,SUMMARY,DETAILED)) #: unique id
+    caption = Attribute(unicode, (META,SUMMARY,DETAILED)) #: caption on photo
+    #type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
+    uploaded_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto uploaded
+    created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto created
+    location = LocationAttribute() #: Start lat/lon of photo
 
 class ActivityKudos(LoadableEntity):
     """
-     activity kudos are a subset of athlete properties. This may be better
+     activity kudos are a subset of athlete properties.
     """
     firstname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's first name.
     lastname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's last name.
@@ -485,6 +494,7 @@ class Activity(LoadableEntity):
     _comments = None
     _zones = None
     _kudos = None
+    _photos = None
     #_gear = None
 
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
@@ -587,6 +597,18 @@ class Activity(LoadableEntity):
             self._kudos = self.bind_client.get_activity_kudos(self.id)
         return self._kudos
 
+    @property
+    def photos(self):
+        """
+        :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
+        """
+        if self._photos is None:
+            if self.photo_count > 0:
+                self.assert_bind_client()
+                self._photos = self.bind_client.get_activity_photos(self.id)
+            else:
+                self._photos = []
+        return self._photos
 
 class SegmentLeaderboardEntry(BoundEntity):
     """
