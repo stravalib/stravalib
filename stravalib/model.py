@@ -275,12 +275,43 @@ class Athlete(LoadableEntity):
     sample_race_distance = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
     sample_race_time = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
 
+    _friends = None
+    _followers = None
+
+
     def __repr__(self):
         fname = self.firstname and self.firstname.encode('utf-8')
         lname = self.lastname and self.lastname.encode('utf-8')
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
                                                                              fname=fname,
                                                                              lname=lname)
+    @property
+    def friends(self):
+        """
+        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        """
+        if self._friends is None:
+            self.assert_bind_client()
+            if self.friend_count > 0:
+                self._friends = list(self.bind_client.get_athlete_friends(self.id))
+            else:
+                # Shortcut if we know there aren't any
+                self._friends = []
+        return self._friends
+
+    @property
+    def followers(self):
+        """
+        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        """
+        if self._followers is None:
+            self.assert_bind_client()
+            if self.follower_count > 0:
+                self._followers = list(self.bind_client.get_athlete_followers(self.id))
+            else:
+                # Shortcut if we know there aren't any
+                self._followers = []
+        return self._followers
 
 class ActivityComment(LoadableEntity):
     activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity

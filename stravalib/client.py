@@ -138,13 +138,12 @@ class Client(object):
         :param limit: How many maximum activities to return.
         :type limit: int
         """
-        #if before and after:
-        #    raise ValueError("Cannot specify both 'before' and 'after' params.")
 
         if before:
             if isinstance(before, str):
                 before = dateparser.parse(before, ignoretz=True)
             before = time.mktime(before.timetuple())
+
         if after:
             if isinstance(after, str):
                 after = dateparser.parse(after, ignoretz=True)
