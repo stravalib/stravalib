@@ -49,6 +49,19 @@ class ClientTest(FunctionalTestBase):
         self.assertEquals(3, len(comments))
         self.assertEquals("I love Gordo's. I've been eating there for 20 years!", comments[0].text)
 
+    def test_activity_kudos(self):
+        """
+        Test .
+        """
+        activity = self.client.get_activity(159562120)
+        self.assertTrue(activity.kudos_count > 0)
+        kudos = list(activity.kudos)
+        self.assertGreater(len(kudos), 6)
+        self.assertEqual(len(kudos), activity.kudos_count)
+        self.assertIsInstance(kudos[0], model.ActivityKudos )
+
+
+
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
 
@@ -65,11 +78,13 @@ class ClientTest(FunctionalTestBase):
 
         self.assertIsInstance(athlete.bikes[0], model.Bike)
 
-        self.assertGreater(len(athlete.friends), 1)
-        self.assertIsInstance(athlete.friends[0], model.Athlete)
+        friends = list(athlete.friends)
+        self.assertGreater(len(friends), 1)
+        self.assertIsInstance(friends[0], model.Athlete)
 
-        self.assertGreater(len(athlete.followers), 1)
-        self.assertIsInstance(athlete.followers[0], model.Athlete)
+        followers = list(athlete.followers)
+        self.assertGreater(len(followers), 1)
+        self.assertIsInstance(followers[0], model.Athlete)
 
     def test_get_athlete_clubs(self):
         clubs = self.client.get_athlete_clubs()

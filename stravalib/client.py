@@ -532,6 +532,27 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def get_activity_kudos(self, activity_id, limit=None):
+        """
+        Gets the kudos for an activity.
+
+        http://strava.github.io/api/v3/kudos/#list
+
+        :param activity_id: The activity for which to fetch kudos.
+        :param limit: Max rows to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/kudos',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityKudos,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
