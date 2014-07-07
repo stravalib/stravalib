@@ -138,13 +138,12 @@ class Client(object):
         :param limit: How many maximum activities to return.
         :type limit: int
         """
-        #if before and after:
-        #    raise ValueError("Cannot specify both 'before' and 'after' params.")
 
         if before:
             if isinstance(before, str):
                 before = dateparser.parse(before, ignoretz=True)
             before = time.mktime(before.timetuple())
+
         if after:
             if isinstance(after, str):
                 after = dateparser.parse(after, ignoretz=True)
@@ -532,6 +531,45 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
+
+    def get_activity_kudos(self, activity_id, limit=None):
+        """
+        Gets the kudos for an activity.
+
+        http://strava.github.io/api/v3/kudos/#list
+
+        :param activity_id: The activity for which to fetch kudos.
+        :param limit: Max rows to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/kudos',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityKudos,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
+    def get_activity_photos(self, activity_id):
+        """
+        Gets the photos from an activity.
+
+        http://strava.github.io/api/v3/photos/
+
+        :param activity_id: The activity for which to fetch kudos.
+        :return: An iterator of :class:`stravalib.model.ActivityPhoto` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/photos',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityPhoto,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
 
     def get_gear(self, gear_id):
         """

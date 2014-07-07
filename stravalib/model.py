@@ -275,18 +275,80 @@ class Athlete(LoadableEntity):
     sample_race_distance = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
     sample_race_time = Attribute(int, (DETAILED,)) # (undocumented, detailed-only)
 
+    _friends = None
+    _followers = None
+
+
     def __repr__(self):
         fname = self.firstname and self.firstname.encode('utf-8')
         lname = self.lastname and self.lastname.encode('utf-8')
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
                                                                              fname=fname,
                                                                              lname=lname)
+    @property
+    def friends(self):
+        """
+        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        """
+        if self._friends is None:
+            self.assert_bind_client()
+            if self.friend_count > 0:
+                self._friends = self.bind_client.get_athlete_friends(self.id)
+            else:
+                # Shortcut if we know there aren't any
+                self._friends = []
+        return self._friends
+
+    @property
+    def followers(self):
+        """
+        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        """
+        if self._followers is None:
+            self.assert_bind_client()
+            if self.follower_count > 0:
+                self._followers = self.bind_client.get_athlete_followers(self.id)
+            else:
+                # Shortcut if we know there aren't any
+                self._followers = []
+        return self._followers
 
 class ActivityComment(LoadableEntity):
     activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
     text = Attribute(unicode, (META,SUMMARY,DETAILED)) #: Text of comment
     created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was coment created
     athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
+
+class ActivityPhoto(LoadableEntity):
+    activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
+    ref = Attribute(unicode, (META,SUMMARY,DETAILED)) #: ref eg. "http://instagram.com/p/eAvA-tir85/"
+    uid = Attribute(unicode, (META,SUMMARY,DETAILED)) #: unique id
+    caption = Attribute(unicode, (META,SUMMARY,DETAILED)) #: caption on photo
+    #type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
+    uploaded_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto uploaded
+    created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto created
+    location = LocationAttribute() #: Start lat/lon of photo
+
+class ActivityKudos(LoadableEntity):
+    """
+     activity kudos are a subset of athlete properties.
+    """
+    firstname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's first name.
+    lastname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's last name.
+    profile_medium = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 62x62 pixel profile picture
+    profile = Attribute(unicode, (SUMMARY,DETAILED)) #: URL to a 124x124 pixel profile picture
+    city = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home city
+    state = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home state
+    country = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's home country
+    sex = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's sex ('M', 'F' or null)
+    friend = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(unicode, (SUMMARY,DETAILED)) #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    premium = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete is a premium member (true/false)
+
+    created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was created.
+    updated_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was last updated.
+
+    approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
 
 class Map(IdentifiableEntity):
     id = Attribute(unicode, (SUMMARY,DETAILED)) #: Alpha-numeric identifier
@@ -431,6 +493,8 @@ class Activity(LoadableEntity):
 
     _comments = None
     _zones = None
+    _kudos = None
+    _photos = None
     #_gear = None
 
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
@@ -522,6 +586,29 @@ class Activity(LoadableEntity):
             self.assert_bind_client()
             self._zones = self.bind_client.get_activity_zones(self.id)
         return self._zones
+
+    @property
+    def kudos(self):
+        """
+        :class:`list` of :class:`stravalib.model.ActivityKudos` objects for this activity.
+        """
+        if self._kudos is None:
+            self.assert_bind_client()
+            self._kudos = self.bind_client.get_activity_kudos(self.id)
+        return self._kudos
+
+    @property
+    def photos(self):
+        """
+        :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
+        """
+        if self._photos is None:
+            if self.photo_count > 0:
+                self.assert_bind_client()
+                self._photos = self.bind_client.get_activity_photos(self.id)
+            else:
+                self._photos = []
+        return self._photos
 
 class SegmentLeaderboardEntry(BoundEntity):
     """
