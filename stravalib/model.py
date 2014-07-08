@@ -455,6 +455,10 @@ class BaseEffort(LoadableEntity):
     start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when effort was started in GMT
     start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when effort was started in activity timezone for this effort
     distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this effort.
+    average_watts = Attribute(float, (SUMMARY,DETAILED)) #: Average power during effort
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Average HR during effort
+    average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: Average cadence during effort
+
 
 class BestEffort(BaseEffort):
     """
