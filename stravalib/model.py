@@ -417,6 +417,7 @@ class Segment(LoadableEntity):
     city = Attribute(unicode, (SUMMARY,DETAILED)) #: The city this segment is in.
     state = Attribute(unicode, (SUMMARY,DETAILED)) #: The state this segment is in.
     private = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this is a private segment.
+    starred = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this segment is starred by authenticated athlete
 
     # detailed attribs
     created_at = TimestampAttribute((DETAILED,)) #: :class:`datetime.datetime` when was segment created.
@@ -426,9 +427,7 @@ class Segment(LoadableEntity):
     effort_count = Attribute(int, (DETAILED,)) #: How many times has this segment been ridden.
     athlete_count = Attribute(int, (DETAILED,)) #: How many athletes have ridden this segment
     hazardous = Attribute(bool, (DETAILED,)) #: Whether this segment has been flagged as hazardous
-    pr_time = TimeIntervalAttribute((DETAILED,)) #: :class:`datetime.timedelta`  of the PR time for authenticated athlete
-    pr_distance = Attribute(float, (DETAILED,), units=uh.meters) #: The PR distance for authenticated athlete
-    starred = Attribute(bool, (DETAILED,)) #: Whether this segment is starred by authenticated athlete
+    star_count = Attribute(int, (DETAILED,)) #: number of stars on this segment.
 
     @property
     def leaderboard(self):
