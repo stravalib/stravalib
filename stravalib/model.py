@@ -750,5 +750,7 @@ class PowerActivityZone(BaseActivityZone):
     """
     Activity zone for power.
     """
+    # these 2 below were removed according to June 3, 2014 update @
+    #    http://strava.github.io/api/v3/changelog/
     bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of bike being used (factored into power calculations)
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of athlete (factored into power calculations)
