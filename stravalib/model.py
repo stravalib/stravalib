@@ -324,7 +324,7 @@ class ActivityPhoto(LoadableEntity):
     ref = Attribute(unicode, (META,SUMMARY,DETAILED)) #: ref eg. "http://instagram.com/p/eAvA-tir85/"
     uid = Attribute(unicode, (META,SUMMARY,DETAILED)) #: unique id
     caption = Attribute(unicode, (META,SUMMARY,DETAILED)) #: caption on photo
-    #type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
+    type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
     uploaded_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto uploaded
     created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto created
     location = LocationAttribute() #: Start lat/lon of photo
@@ -349,6 +349,25 @@ class ActivityKudos(LoadableEntity):
     updated_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was last updated.
 
     approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
+
+class ActivityLaps(LoadableEntity):
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
+
+    elapsed_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of elapsed time for lap
+    moving_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of moving time for lap
+    start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when lap was started in GMT
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when lap was started local
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this lap.
+    start_index= Attribute(int, (SUMMARY,DETAILED)) #:
+    end_index= Attribute(int, (SUMMARY,DETAILED)) #:
+    total_elevation_gain = Attribute(float, (SUMMARY,DETAILED,), units=uh.meters) #: What is total elevation gain for lap
+    average_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Average speed for lap
+    max_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Max speed for lap
+    average_cadence = Attribute(float, (SUMMARY,DETAILED,)) #: Average cadence for lap
+    average_watts = Attribute(float, (SUMMARY,DETAILED,)) #: Average watts for lap
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED,)) #: Average heartrate for lap
+    max_heartrate = Attribute(float, (SUMMARY,DETAILED,)) #: Max heartrate for lap
+    lap_index = Attribute(int, (SUMMARY,DETAILED)) #: Index of lap
 
 class Map(IdentifiableEntity):
     id = Attribute(unicode, (SUMMARY,DETAILED)) #: Alpha-numeric identifier

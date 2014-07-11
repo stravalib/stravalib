@@ -571,6 +571,25 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
+
+    def get_activity_laps(self, activity_id):
+        """
+        Gets the laps from an activity.
+
+        http://strava.github.io/api/v3/activities/#laps
+
+        :param activity_id: The activity for which to fetch laps.
+        :return: An iterator of :class:`stravalib.model.ActivityLaps` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/laps',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityLaps,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
@@ -806,6 +825,7 @@ class BatchedResultsIterator(object):
         :param per_page: How many rows to fetch per page (default is 200).
         :type per_page: int
         """
+
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.entity = entity
         self.bind_client = bind_client
@@ -834,6 +854,7 @@ class BatchedResultsIterator(object):
             raise StopIteration
 
         raw_results = self.result_fetcher(page=self._page, per_page=self.per_page)
+
         entities = []
         for raw in raw_results:
             entities.append(self.entity.deserialize(raw, bind_client=self.bind_client))
