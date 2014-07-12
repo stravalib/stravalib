@@ -113,6 +113,7 @@ class ApiV3(object):
         return url
 
     def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
+
         url = self._resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
@@ -134,7 +135,11 @@ class ApiV3(object):
         if check_for_errors:
             self._handle_protocol_error(raw)
 
-        resp = raw.json()
+        # 204 = No content
+        if raw.status_code in [204,]:
+            resp = []
+        else:
+            resp = raw.json()
 
         # TODO: We should parse the response to get the rate limit details and
         # update our rate limiter.

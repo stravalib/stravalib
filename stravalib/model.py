@@ -353,8 +353,8 @@ class ActivityKudos(LoadableEntity):
 class ActivityLaps(LoadableEntity):
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
 
-    elapsed_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of elapsed time for lap
-    moving_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of moving time for lap
+    elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of elapsed time for lap
+    moving_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of moving time for lap
     start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when lap was started in GMT
     start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when lap was started local
     distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this lap.
