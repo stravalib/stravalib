@@ -798,7 +798,7 @@ class Client(object):
 
 
     def get_activity_streams(self, activity_id, types=None,
-                             resolution = None, series_type='distance'):
+                             resolution=None, series_type=None):
         """
         Returns an streams for an activity.
 
@@ -839,20 +839,21 @@ class Client(object):
         if resolution is not None:
             params["resolution"] = resolution
 
-        params["series_type"] = series_type
+        if series_type is not None:
+            params["series_type"] = series_type
 
         result_fetcher = functools.partial(
                               self.protocol.get,
                               '/activities/{id}/streams/{types}'.format(id=activity_id,
                                                                         types=types),
-                                            **params)
+                                                              **params)
 
         return BatchedResultsIterator(entity=model.Stream,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
     def get_effort_streams(self, effort_id, types=None,
-                           resolution = None, series_type='distance'):
+                           resolution=None, series_type=None):
         """
         Returns an streams for an effort.
 
@@ -900,7 +901,7 @@ class Client(object):
                               self.protocol.get,
                               '/segment_efforts/{id}/streams/{types}'.format(id=effort_id,
                                                                         types=types),
-                                         **params)
+                                                           **params)
 
         return BatchedResultsIterator(entity=model.Stream,
                                       bind_client=self,
@@ -908,7 +909,7 @@ class Client(object):
 
 
     def get_segment_streams(self, segment_id, types=None,
-                            resolution = None, series_type='distance'):
+                            resolution=None, series_type=None):
         """
         Returns an streams for a segment.
 
@@ -949,13 +950,14 @@ class Client(object):
         if resolution is not None:
             params["resolution"] = resolution
 
-        params["series_type"] = series_type
+        if series_type is not None:
+            params["series_type"] = series_type
 
         result_fetcher = functools.partial(
                               self.protocol.get,
                               '/segments/{id}/streams/{types}'.format(id=segment_id,
                                                                         types=types),
-                                         **params)
+                                                            **params)
 
         return BatchedResultsIterator(entity=model.Stream,
                                       bind_client=self,
