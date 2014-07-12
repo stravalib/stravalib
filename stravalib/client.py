@@ -793,10 +793,65 @@ class Client(object):
             params['max_cat'] = max_cat
 
         raw = self.protocol.get('/segments/explore', **params)
-        return [model.SegmentExplorerResult.deserialize(v, bind_client=self) for v in raw['segments']]
+        return [model.SegmentExplorerResult.deserialize(v, bind_client=self)
+                                                    for v in raw['segments']]
 
 
-    # TODO: Streams
+    def get_activity_streams(self, activity_id, types=None,
+                             resolution = None, series_type='distance'):
+        """
+        Returns an array of streams.
+
+        Streams represent the raw data of the uploaded file. External
+        applications may only access this information for activities owned
+        by the authenticated athlete.
+
+        Streams are available in 11 different types. If the stream is not
+        available for a particular activity it will be left out of the request
+        results.
+
+        Streams are: time, latlng, distance, altitude, velocity_smooth,
+                     heartrate, cadence, watts, temp, moving, grade_smooth
+
+        http://strava.github.io/api/v3/streams/#activity
+
+        :param activity_id: The ID of activity to fetch.
+        :type: int
+        :param types: (optional) A list of the the types of streams to fetch.
+        :type types: list
+        :param resolution: (optional, default is 'all') indicates desired number
+                            of data points. 'low' (100), 'medium' (1000),
+                            'high' (10000) or 'all'.
+        :type resolution: str
+        :param series_type: (optional, default is 'distance'.  Relevant only if
+                             using resolution either 'time' or 'distance'.
+                             Used to index the streams if the stream is being
+                             reduced.
+        :type series_type: str
+        :rtype: :class:`stravalib.model.Stream`
+        """
+
+        # stream are comma seperated list
+        if types is not None:
+            types= ",".join(types)
+
+        params = {}
+        if resolution is not None:
+            params["resolution"] = resolution
+
+        if series_type is not None:
+            params["series_type"] = series_type
+
+        result_fetcher = functools.partial(
+                              self.protocol.get,
+                              '/activities/{id}/streams/{types}'.format(id=activity_id,
+                                                                        types=types),
+                              **params)
+
+        return BatchedResultsIterator(entity=model.Stream,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
 
 class BatchedResultsIterator(object):
     """
@@ -834,6 +889,8 @@ class BatchedResultsIterator(object):
 
         if per_page is not None:
             self.per_page = per_page
+        #elif limit is not None:
+        #    self.per_page = limit
         else:
             self.per_page = self.default_per_page
 

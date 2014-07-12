@@ -773,3 +773,14 @@ class PowerActivityZone(BaseActivityZone):
     #    http://strava.github.io/api/v3/changelog/
     bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of bike being used (factored into power calculations)
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of athlete (factored into power calculations)
+
+class Stream(LoadableEntity):
+    type = Attribute(unicode)
+    data = Attribute(list,) #: array of stream values
+    series_type = Attribute(unicode, ) #:
+    original_size = Attribute(int, ) #:
+    resolution = Attribute(unicode, ) #:
+    def __repr__(self):
+        return '<Stream type={} resolution={} original_size={}>'.format(self.type,
+                                                                        self.resolution,
+                                                                        self.original_size,)
