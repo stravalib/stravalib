@@ -586,7 +586,7 @@ class Client(object):
                                            '/activities/{id}/laps',
                                            id=activity_id)
 
-        return BatchedResultsIterator(entity=model.ActivityLaps,
+        return BatchedResultsIterator(entity=model.ActivityLap,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 

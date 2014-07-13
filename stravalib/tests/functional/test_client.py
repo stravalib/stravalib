@@ -25,6 +25,15 @@ class ClientTest(FunctionalTestBase):
         # Ensure that iw as read in with correct units
         self.assertEquals(22.5308, float(uh.kilometers(activity.distance)))
 
+    def test_get_activity_laps(self):
+        activity = self.client.get_activity(165094211)
+        laps = list(self.client.get_activity_laps(165094211))
+        self.assertEquals(5, len(laps))
+        # This obviously is far from comprehensive, just a sanity check
+        self.assertEquals(u'Lap 1', laps[0].name)
+        self.assertEquals(178.0, laps[0].max_heartrate)
+        
+        
     def test_get_activity_zones(self):
         """
         Test loading zones for activity.

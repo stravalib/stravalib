@@ -350,9 +350,12 @@ class ActivityKudos(LoadableEntity):
 
     approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
 
-class ActivityLaps(LoadableEntity):
+class ActivityLap(LoadableEntity):
+    
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
-
+    
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
+    
     elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of elapsed time for lap
     moving_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of moving time for lap
     start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when lap was started in GMT
@@ -361,8 +364,8 @@ class ActivityLaps(LoadableEntity):
     start_index= Attribute(int, (SUMMARY,DETAILED)) #:
     end_index= Attribute(int, (SUMMARY,DETAILED)) #:
     total_elevation_gain = Attribute(float, (SUMMARY,DETAILED,), units=uh.meters) #: What is total elevation gain for lap
-    average_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Average speed for lap
-    max_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Max speed for lap
+    average_speed = Attribute(float, (SUMMARY,DETAILED,), units=uh.meters_per_second) #: Average speed for lap
+    max_speed = Attribute(float, (SUMMARY,DETAILED,), units=uh.meters_per_second) #: Max speed for lap
     average_cadence = Attribute(float, (SUMMARY,DETAILED,)) #: Average cadence for lap
     average_watts = Attribute(float, (SUMMARY,DETAILED,)) #: Average watts for lap
     average_heartrate = Attribute(float, (SUMMARY,DETAILED,)) #: Average heartrate for lap
@@ -435,6 +438,7 @@ class Segment(LoadableEntity):
     climb_category = Attribute(int, (SUMMARY,DETAILED)) # 0-5, lower is harder
     city = Attribute(unicode, (SUMMARY,DETAILED)) #: The city this segment is in.
     state = Attribute(unicode, (SUMMARY,DETAILED)) #: The state this segment is in.
+    country = Attribute(unicode, (SUMMARY,DETAILED)) #: The country this segment is in.
     private = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this is a private segment.
     starred = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this segment is starred by authenticated athlete
 
@@ -476,6 +480,7 @@ class BaseEffort(LoadableEntity):
     distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this effort.
     average_watts = Attribute(float, (SUMMARY,DETAILED)) #: Average power during effort
     average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Average HR during effort
+    max_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Max HR during effort
     average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: Average cadence during effort
 
 
@@ -489,8 +494,10 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
     start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
-    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort
-
+    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort    
+    hidden = Attribute(bool, (SUMMARY,DETAILED,)) # indicates a hidden/non-important effort when returned as part of an activity, value may change over time.
+    
+    
 class Activity(LoadableEntity):
     """
     Represents an activity (ride, run, etc.).
@@ -564,7 +571,7 @@ class Activity(LoadableEntity):
 
     average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Average speed for activity.
     max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Max speed for activity
-    calories = Attribute(float, (SUMMARY,DETAILED))  #: Calculation of how many calories burned on activity
+    
     truncated = Attribute(int, (SUMMARY,DETAILED)) #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones
     has_kudoed = Attribute(bool, (SUMMARY,DETAILED)) #: If authenticated user has kudoed this activity
 
@@ -582,6 +589,7 @@ class Activity(LoadableEntity):
 
     average_temp = Attribute(int, (SUMMARY,DETAILED)) #: (undocumented) Average temperature (when available from device) during activity.
 
+    calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
@@ -599,6 +607,20 @@ class Activity(LoadableEntity):
                 self._comments = []
         return self._comments
 
+    @property
+    def laps(self):
+        """
+        Iterator of :class:`stravalib.model.ActivityLaps` objects for this activity.
+        """
+        if self._friends is None:
+            self.assert_bind_client()
+            if self.friend_count > 0:
+                self._friends = self.bind_client.get_athlete_friends(self.id)
+            else:
+                # Shortcut if we know there aren't any
+                self._friends = []
+        return self._friends
+    
     @property
     def zones(self):
         """
