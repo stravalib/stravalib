@@ -571,6 +571,25 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
+
+    def get_activity_laps(self, activity_id):
+        """
+        Gets the laps from an activity.
+
+        http://strava.github.io/api/v3/activities/#laps
+
+        :param activity_id: The activity for which to fetch laps.
+        :return: An iterator of :class:`stravalib.model.ActivityLaps` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/laps',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.ActivityLaps,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
@@ -774,10 +793,177 @@ class Client(object):
             params['max_cat'] = max_cat
 
         raw = self.protocol.get('/segments/explore', **params)
-        return [model.SegmentExplorerResult.deserialize(v, bind_client=self) for v in raw['segments']]
+        return [model.SegmentExplorerResult.deserialize(v, bind_client=self)
+                                                    for v in raw['segments']]
 
 
-    # TODO: Streams
+    def get_activity_streams(self, activity_id, types=None,
+                             resolution=None, series_type=None):
+        """
+        Returns an streams for an activity.
+
+        Streams represent the raw data of the uploaded file. External
+        applications may only access this information for activities owned
+        by the authenticated athlete.
+
+        Streams are available in 11 different types. If the stream is not
+        available for a particular activity it will be left out of the request
+        results.
+
+        Streams types are: time, latlng, distance, altitude, velocity_smooth,
+                           heartrate, cadence, watts, temp, moving, grade_smooth
+
+        http://strava.github.io/api/v3/streams/#activity
+
+        :param activity_id: The ID of activity.
+        :type: int
+        :param types: (optional) A list of the the types of streams to fetch.
+        :type types: list
+        :param resolution: (optional, default is 'all') indicates desired number
+                            of data points. 'low' (100), 'medium' (1000),
+                            'high' (10000) or 'all'.
+        :type resolution: str
+        :param series_type: (optional, default is 'distance'.  Relevant only if
+                             using resolution either 'time' or 'distance'.
+                             Used to index the streams if the stream is being
+                             reduced.
+        :type series_type: str
+        :rtype: :class:`stravalib.model.Stream`
+        """
+
+        # stream are comma seperated list
+        if types is not None:
+            types= ",".join(types)
+
+        params = {}
+        if resolution is not None:
+            params["resolution"] = resolution
+
+        if series_type is not None:
+            params["series_type"] = series_type
+
+        result_fetcher = functools.partial(
+                              self.protocol.get,
+                              '/activities/{id}/streams/{types}'.format(id=activity_id,
+                                                                        types=types),
+                                                              **params)
+
+        return BatchedResultsIterator(entity=model.Stream,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
+    def get_effort_streams(self, effort_id, types=None,
+                           resolution=None, series_type=None):
+        """
+        Returns an streams for an effort.
+
+        Streams represent the raw data of the uploaded file. External
+        applications may only access this information for activities owned
+        by the authenticated athlete.
+
+        Streams are available in 11 different types. If the stream is not
+        available for a particular activity it will be left out of the request
+        results.
+
+        Streams types are: time, latlng, distance, altitude, velocity_smooth,
+                           heartrate, cadence, watts, temp, moving, grade_smooth
+
+        http://strava.github.io/api/v3/streams/#effort
+
+        :param effort_id: The ID of effort.
+        :type: int
+        :param types: (optional) A list of the the types of streams to fetch.
+        :type types: list
+        :param resolution: (optional, default is 'all') indicates desired number
+                            of data points. 'low' (100), 'medium' (1000),
+                            'high' (10000) or 'all'.
+        :type resolution: str
+        :param series_type: (optional, default is 'distance'.  Relevant only if
+                             using resolution either 'time' or 'distance'.
+                             Used to index the streams if the stream is being
+                             reduced.
+        :type series_type: str
+        :rtype: :class:`stravalib.model.Stream`
+        """
+
+        # stream are comma seperated list
+        if types is not None:
+            types= ",".join(types)
+
+        params = {}
+        if resolution is not None:
+            params["resolution"] = resolution
+
+        if series_type is not None:
+            params["series_type"] = series_type
+
+        result_fetcher = functools.partial(
+                              self.protocol.get,
+                              '/segment_efforts/{id}/streams/{types}'.format(id=effort_id,
+                                                                        types=types),
+                                                           **params)
+
+        return BatchedResultsIterator(entity=model.Stream,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
+
+    def get_segment_streams(self, segment_id, types=None,
+                            resolution=None, series_type=None):
+        """
+        Returns an streams for a segment.
+
+        Streams represent the raw data of the uploaded file. External
+        applications may only access this information for activities owned
+        by the authenticated athlete.
+
+        Streams are available in 11 different types. If the stream is not
+        available for a particular activity it will be left out of the request
+        results.
+
+        Streams types are: time, latlng, distance, altitude, velocity_smooth,
+                           heartrate, cadence, watts, temp, moving, grade_smooth
+
+        http://strava.github.io/api/v3/streams/#effort
+
+        :param segment_id: The ID of segment.
+        :type: int
+        :param types: (optional) A list of the the types of streams to fetch.
+        :type types: list
+        :param resolution: (optional, default is 'all') indicates desired number
+                            of data points. 'low' (100), 'medium' (1000),
+                            'high' (10000) or 'all'.
+        :type resolution: str
+        :param series_type: (optional, default is 'distance'.  Relevant only if
+                             using resolution either 'time' or 'distance'.
+                             Used to index the streams if the stream is being
+                             reduced.
+        :type series_type: str
+        :rtype: :class:`stravalib.model.Stream`
+        """
+
+        # stream are comma seperated list
+        if types is not None:
+            types= ",".join(types)
+
+        params = {}
+        if resolution is not None:
+            params["resolution"] = resolution
+
+        if series_type is not None:
+            params["series_type"] = series_type
+
+        result_fetcher = functools.partial(
+                              self.protocol.get,
+                              '/segments/{id}/streams/{types}'.format(id=segment_id,
+                                                                        types=types),
+                                                            **params)
+
+        return BatchedResultsIterator(entity=model.Stream,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
+
+
 
 class BatchedResultsIterator(object):
     """
@@ -806,6 +992,7 @@ class BatchedResultsIterator(object):
         :param per_page: How many rows to fetch per page (default is 200).
         :type per_page: int
         """
+
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.entity = entity
         self.bind_client = bind_client
@@ -814,6 +1001,8 @@ class BatchedResultsIterator(object):
 
         if per_page is not None:
             self.per_page = per_page
+        #elif limit is not None:
+        #    self.per_page = limit
         else:
             self.per_page = self.default_per_page
 
@@ -834,6 +1023,7 @@ class BatchedResultsIterator(object):
             raise StopIteration
 
         raw_results = self.result_fetcher(page=self._page, per_page=self.per_page)
+
         entities = []
         for raw in raw_results:
             entities.append(self.entity.deserialize(raw, bind_client=self.bind_client))

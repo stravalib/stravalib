@@ -8,20 +8,20 @@ The new codebase supports only [version 3 API](http://strava.github.io/api/) of 
 This is currently under active development.  Parts have been tested, but some aspects may be broken.
 
 The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
-abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporarl attributes
-and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)). 
+abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
+and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
 
 See the [online documentation](http://pythonhosted.org/stravalib/) for more comprehensive documentation.
 
 ## Dependencies
- 
+
 * Python 2.6+.  (This is intended to work with Python 3 using 2to3, but is being developed on Python 2.7)
 * Setuptools/distribute for installing dependencies
-* Other python libraries (installed automatically when  using pip/easy_install): requests, pytz, units, python-dateutil
+* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, python-dateutil
 
 ## Installation
 
-The package is avialable on PyPI to be installed using easy_install or pip:
+The package is available on PyPI to be installed using easy_install or pip:
 
 ``` none
 shell$ pip install stravalib
@@ -29,19 +29,19 @@ shell$ pip install stravalib
 
 (Installing in a [virtual environment](https://pypi.python.org/pypi/virtualenv) is always recommended.)
 
-Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will 
-list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can 
+Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will
+list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can
 download it and explore Strava content in your favorite python REPL.
 
 ## Basic Usage
 
-Please take a look at the source (in particular the stravalib.client.Client class, if you'd like to play around with the 
+Please take a look at the source (in particular the stravalib.client.Client class, if you'd like to play around with the
 API.  Most of the Strava API is implemented at this point; however, certain features such as streams are still on the
 to-do list.
 
 ### Authentication
 
-In order to make use of this library, you will need to have access keys for one or more Strava users. This 
+In order to make use of this library, you will need to have access keys for one or more Strava users. This
 effectively requires you to run a webserver; this is outside the scope of this library, but stravalib does provide helper methods to make it easier.
 
 ```python
@@ -67,10 +67,6 @@ print("For {id}, I now have an access token {token}".format(id=athlete.id, token
 (This is a glimpse into what you can do.)
 
 ```python
-from stravalib.client import Client
-
-client = Client(access_token='xxxxxxxxx')
-
 # Currently-authenticated (based on provided token) athlete
 # Will have maximum detail exposed (resource_state=3)
 curr_athlete = client.get_athlete()
@@ -85,11 +81,41 @@ activity = client.get_activity(123)
 # otherwise summary-level detail.
 ```
 
+### Streams
+
+Streams represent the raw data of the uploaded file. Activities, efforts, and
+segments all have streams. There are many types of streams, if activity does
+not have requested stream type, it will not be part of returned set.
+
+```python
+
+# Activities have many streams, request desired type
+streams = client.get_activity_streams(123, types=['altitude',], resolution='low')
+
+#  The return is an enum type object
+print(next(streams).data)
+
+# You can request many stream types
+types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
+
+# Fetch many streams for an activity
+streams = {}
+for stream in client.get_activity_streams(123, types=types, resolution='medium'):
+    # each stream object has a type property
+    streams[stream.type] = stream
+
+# Length of stream.data is consitent for activity
+for t, latlng in zip(streams['time'].data, streams['latlng'].data):
+    print("{} : {}".format(t, latlng))
+
+```
+
+
 ### Working with Units
 
 stravalib uses the [python units library](https://pypi.python.org/pypi/units/) to facilitate working
 with the values in the API that have associated units (e.g. distance, speed).  You can use the units library
-directly  
+directly
 stravalib.unithelper module for shortcuts
 
 ```python
@@ -108,7 +134,7 @@ print(unithelper.miles(activity.distance))
 
 # And to get the number:
 num_value = float(unithelper.miles(activity.distance))
-# Or: 
+# Or:
 num_value = unithelper.miles(activity.distance).num
 ```
 
