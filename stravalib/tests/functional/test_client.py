@@ -82,7 +82,9 @@ class ClientTest(FunctionalTestBase):
 
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
-
+        
+        print athlete
+        self.fail("break")
         # Just some basic sanity checks here
         self.assertEquals('Jeff', athlete.firstname)
         self.assertEquals('Remer', athlete.lastname)

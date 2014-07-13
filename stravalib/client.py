@@ -1006,21 +1006,24 @@ class BatchedResultsIterator(object):
         else:
             self.per_page = self.default_per_page
 
+        self.reset()
+        
+    def __repr__(self):
+        return '<{0} entity={1}>'.format(self.__class__.__name__, self.entity.__name__)
+
+    def reset(self):
         self._counter = 0
         self._buffer = None
         self._page = 1
         self._all_results_fetched = False
-
-    def __repr__(self):
-        return '<{0} entity={1}>'.format(self.__class__.__name__, self.entity.__name__)
-
+        
     def _fill_buffer(self):
         """
         Fills the internal size-50 buffer from Strava API.
         """
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:
-            raise StopIteration
+            self._eof()
 
         raw_results = self.result_fetcher(page=self._page, per_page=self.per_page)
 
@@ -1040,15 +1043,19 @@ class BatchedResultsIterator(object):
     def __iter__(self):
         return self
 
+    def _eof(self):
+        self.reset()
+        raise StopIteration
+    
     def next(self):
         if self.limit and self._counter >= self.limit:
-            raise StopIteration
+            self._eof()
         if not self._buffer:
             self._fill_buffer()
         try:
             result = self._buffer.popleft()
         except IndexError:
-            raise StopIteration
+            self._eof()
         else:
             self._counter += 1
             return result
