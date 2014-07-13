@@ -324,7 +324,7 @@ class ActivityPhoto(LoadableEntity):
     ref = Attribute(unicode, (META,SUMMARY,DETAILED)) #: ref eg. "http://instagram.com/p/eAvA-tir85/"
     uid = Attribute(unicode, (META,SUMMARY,DETAILED)) #: unique id
     caption = Attribute(unicode, (META,SUMMARY,DETAILED)) #: caption on photo
-    #type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
+    type = Attribute(unicode, (META,SUMMARY,DETAILED)) #: type of photo #left this off to prevent name clash
     uploaded_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto uploaded
     created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was phto created
     location = LocationAttribute() #: Start lat/lon of photo
@@ -349,6 +349,25 @@ class ActivityKudos(LoadableEntity):
     updated_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when athlete record was last updated.
 
     approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
+
+class ActivityLaps(LoadableEntity):
+    name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
+
+    elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of elapsed time for lap
+    moving_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of moving time for lap
+    start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when lap was started in GMT
+    start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when lap was started local
+    distance = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this lap.
+    start_index= Attribute(int, (SUMMARY,DETAILED)) #:
+    end_index= Attribute(int, (SUMMARY,DETAILED)) #:
+    total_elevation_gain = Attribute(float, (SUMMARY,DETAILED,), units=uh.meters) #: What is total elevation gain for lap
+    average_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Average speed for lap
+    max_speed = Attribute(float, (SUMMARY,DETAILED,)) #: Max speed for lap
+    average_cadence = Attribute(float, (SUMMARY,DETAILED,)) #: Average cadence for lap
+    average_watts = Attribute(float, (SUMMARY,DETAILED,)) #: Average watts for lap
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED,)) #: Average heartrate for lap
+    max_heartrate = Attribute(float, (SUMMARY,DETAILED,)) #: Max heartrate for lap
+    lap_index = Attribute(int, (SUMMARY,DETAILED)) #: Index of lap
 
 class Map(IdentifiableEntity):
     id = Attribute(unicode, (SUMMARY,DETAILED)) #: Alpha-numeric identifier
@@ -417,6 +436,7 @@ class Segment(LoadableEntity):
     city = Attribute(unicode, (SUMMARY,DETAILED)) #: The city this segment is in.
     state = Attribute(unicode, (SUMMARY,DETAILED)) #: The state this segment is in.
     private = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this is a private segment.
+    starred = Attribute(bool, (SUMMARY,DETAILED)) #: Whether this segment is starred by authenticated athlete
 
     # detailed attribs
     created_at = TimestampAttribute((DETAILED,)) #: :class:`datetime.datetime` when was segment created.
@@ -426,9 +446,7 @@ class Segment(LoadableEntity):
     effort_count = Attribute(int, (DETAILED,)) #: How many times has this segment been ridden.
     athlete_count = Attribute(int, (DETAILED,)) #: How many athletes have ridden this segment
     hazardous = Attribute(bool, (DETAILED,)) #: Whether this segment has been flagged as hazardous
-    pr_time = TimeIntervalAttribute((DETAILED,)) #: :class:`datetime.timedelta`  of the PR time for authenticated athlete
-    pr_distance = Attribute(float, (DETAILED,), units=uh.meters) #: The PR distance for authenticated athlete
-    starred = Attribute(bool, (DETAILED,)) #: Whether this segment is starred by authenticated athlete
+    star_count = Attribute(int, (DETAILED,)) #: number of stars on this segment.
 
     @property
     def leaderboard(self):
@@ -456,6 +474,10 @@ class BaseEffort(LoadableEntity):
     start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when effort was started in GMT
     start_date_local = TimestampAttribute((SUMMARY,DETAILED), tzinfo=None) #: :class:`datetime.datetime` when effort was started in activity timezone for this effort
     distance = Attribute(int, (SUMMARY,DETAILED), units=uh.meters) #: The distance for this effort.
+    average_watts = Attribute(float, (SUMMARY,DETAILED)) #: Average power during effort
+    average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Average HR during effort
+    average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: Average cadence during effort
+
 
 class BestEffort(BaseEffort):
     """
@@ -747,5 +769,18 @@ class PowerActivityZone(BaseActivityZone):
     """
     Activity zone for power.
     """
+    # these 2 below were removed according to June 3, 2014 update @
+    #    http://strava.github.io/api/v3/changelog/
     bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of bike being used (factored into power calculations)
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of athlete (factored into power calculations)
+
+class Stream(LoadableEntity):
+    type = Attribute(unicode)
+    data = Attribute(list,) #: array of stream values
+    series_type = Attribute(unicode, ) #:
+    original_size = Attribute(int, ) #:
+    resolution = Attribute(unicode, ) #:
+    def __repr__(self):
+        return '<Stream type={} resolution={} original_size={}>'.format(self.type,
+                                                                        self.resolution,
+                                                                        self.original_size,)
