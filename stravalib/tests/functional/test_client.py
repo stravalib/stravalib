@@ -32,8 +32,8 @@ class ClientTest(FunctionalTestBase):
         # This obviously is far from comprehensive, just a sanity check
         self.assertEquals(u'Lap 1', laps[0].name)
         self.assertEquals(178.0, laps[0].max_heartrate)
-        
-        
+
+
     def test_get_activity_zones(self):
         """
         Test loading zones for activity.
@@ -80,9 +80,58 @@ class ClientTest(FunctionalTestBase):
         self.assertEqual(len(kudos), activity.kudos_count)
         self.assertIsInstance(kudos[0], model.ActivityKudos )
 
+    def test_activity_streams(self):
+        """
+        Test activity streams
+        """
+        stypes = ['time', 'latlng', 'distance','altitude', 'velocity_smooth',
+                  'heartrate', 'cadence', 'watts', 'temp', 'moving',
+                  'grade_smooth']
+
+        d = {}
+        for stream in self.client.get_activity_streams(152668627, stypes, 'low'):
+            d[stream.type] = stream
+
+        self.assertGreater(d.keys(), 3)
+        for k in d.keys():
+            self.assertIn(k, stypes)
+
+        # time stream
+        self.assertIsInstance(d['time'].data[0], int)
+        self.assertGreater(d['time'].original_size, 100)
+        self.assertEqual(d['time'].resolution, 'low')
+        self.assertEqual(len(d['time'].data), 100)
+
+        # latlng stream
+        self.assertIsInstance(d['latlng'].data[0], list)
+        self.assertIsInstance(d['latlng'].data[0][0], float)
+
+    def test_effort_streams(self):
+        """
+        Test effort streams
+        """
+        stypes = ['distance']
+
+        activity = self.client.get_activity(152668627) #165479860
+        streams = self.client.get_effort_streams(activity.segment_efforts[0].id,
+                                                stypes, 'medium')
+
+        d = {}
+        for stream in streams:
+            d[stream.type] = stream
+
+        self.assertEqual(d.keys(), ['distance'])
+
+        # distance stream
+        self.assertIsInstance(d['distance'].data[0], float)
+        self.assertEqual(d['distance'].resolution, 'medium')
+        self.assertEqual(len(d['distance'].data),
+                         min(1000, d['distance'].original_size))
+
+
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
-        
+
         print athlete
         self.fail("break")
         # Just some basic sanity checks here
