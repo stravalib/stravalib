@@ -525,6 +525,7 @@ class Activity(LoadableEntity):
     _kudos = None
     _photos = None
     #_gear = None
+    _laps = None
 
     TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
              ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT,
@@ -610,16 +611,12 @@ class Activity(LoadableEntity):
     @property
     def laps(self):
         """
-        Iterator of :class:`stravalib.model.ActivityLaps` objects for this activity.
+        Iterator of :class:`stravalib.model.ActivityLap` objects for this activity.
         """
-        if self._friends is None:
+        if self._laps is None:
             self.assert_bind_client()
-            if self.friend_count > 0:
-                self._friends = self.bind_client.get_athlete_friends(self.id)
-            else:
-                # Shortcut if we know there aren't any
-                self._friends = []
-        return self._friends
+            self._laps = self.bind_client.get_activity_laps(self.id)
+        return self._laps
     
     @property
     def zones(self):
