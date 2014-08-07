@@ -353,8 +353,9 @@ class ActivityKudos(LoadableEntity):
 class ActivityLap(LoadableEntity):
     
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
+    activity = EntityAttribute("Activity", (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Activity`
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Athlete`    
     
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
     
     elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of elapsed time for lap
     moving_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of moving time for lap
