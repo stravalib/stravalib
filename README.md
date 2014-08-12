@@ -89,24 +89,21 @@ not have requested stream type, it will not be part of returned set.
 
 ```python
 
-# Activities have many streams, request desired type
+# Activities have many streams, you can request desired stream type
 streams = client.get_activity_streams(123, types=['altitude',], resolution='low')
 
-#  The return is an enum type object
-print(next(streams).data)
+#  Result is always an enum object
+stream = next(streams)
+print(stream.type)
+print(stream.data)
 
 # You can request many stream types
 types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
 
-# Fetch many streams for an activity
-streams = {}
 for stream in client.get_activity_streams(123, types=types, resolution='medium'):
-    # each stream object has a type property
-    streams[stream.type] = stream
+    print(stream.type)
+    print(stream.data)
 
-# Length of stream.data is consitent for activity
-for t, latlng in zip(streams['time'].data, streams['latlng'].data):
-    print("{} : {}".format(t, latlng))
 
 ```
 
