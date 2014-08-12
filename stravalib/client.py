@@ -628,6 +628,31 @@ class Client(object):
                                          id=segment_id), bind_client=self)
 
 
+    def get_starred_segment(self, limit=None):
+        """
+        Returns a summary representation of the segments starred by the
+         authenticated user. Pagination is supported.
+
+        http://strava.github.io/api/v3/segments/#starred
+
+        :param limit: (optional), limit number of starred segments returned.
+        :type limit: int
+
+        :rtype: :class:`stravalib.model.Segment`
+        """
+
+        if limit is not None:
+            params["limit"] = limit
+
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segments/starred')
+
+        return BatchedResultsIterator(entity=model.Segment,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
+
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
                                 following=None, club_id=None, timeframe=None, top_results_limit=None):
         """
@@ -1007,7 +1032,7 @@ class BatchedResultsIterator(object):
             self.per_page = self.default_per_page
 
         self.reset()
-        
+
     def __repr__(self):
         return '<{0} entity={1}>'.format(self.__class__.__name__, self.entity.__name__)
 
@@ -1016,7 +1041,7 @@ class BatchedResultsIterator(object):
         self._buffer = None
         self._page = 1
         self._all_results_fetched = False
-        
+
     def _fill_buffer(self):
         """
         Fills the internal size-50 buffer from Strava API.
@@ -1046,7 +1071,7 @@ class BatchedResultsIterator(object):
     def _eof(self):
         self.reset()
         raise StopIteration
-    
+
     def next(self):
         if self.limit and self._counter >= self.limit:
             self._eof()
