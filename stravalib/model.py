@@ -387,6 +387,7 @@ class Split(BaseEntity):
     elapsed_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of elapsed time for split
     elevation_difference = Attribute(float, units=uh.meters)  #: Elevation difference for split
     moving_time = TimeIntervalAttribute() #: :class:`datetime.timedelta` of moving time for split
+    average_heartrate = Attribute(float)  #: Average HR for split
     split = Attribute(int) #: Which split number
 
 class SegmentExplorerResult(LoadableEntity):
@@ -483,7 +484,8 @@ class BaseEffort(LoadableEntity):
     average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Average HR during effort
     max_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Max HR during effort
     average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: Average cadence during effort
-
+    start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
+    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort  
 
 class BestEffort(BaseEffort):
     """
@@ -494,8 +496,6 @@ class SegmentEffort(BaseEffort):
     """
     Class representing a best effort on a particular segment.
     """
-    start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
-    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort    
     hidden = Attribute(bool, (SUMMARY,DETAILED,)) # indicates a hidden/non-important effort when returned as part of an activity, value may change over time.
     
     
