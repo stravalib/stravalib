@@ -6,6 +6,17 @@ from stravalib.tests.functional import FunctionalTestBase
 import datetime
 
 class ClientTest(FunctionalTestBase):
+    def test_get_starred_segment(self):
+        """
+        Test get_starred_segment
+        """
+        i = 0
+        for segment in self.client.get_starred_segment(limit=5):
+            self.assertIsInstance(segment, model.Segment)
+            i+=1
+        self.assertGreater(i, 0) # star at least one segment
+        self.assertLessEqual(i, 5)
+
 
     def test_get_activity(self):
         """ Test basic activity fetching. """
@@ -88,23 +99,21 @@ class ClientTest(FunctionalTestBase):
                   'heartrate', 'cadence', 'watts', 'temp', 'moving',
                   'grade_smooth']
 
-        d = {}
-        for stream in self.client.get_activity_streams(152668627, stypes, 'low'):
-            d[stream.type] = stream
+        streams = self.client.get_activity_streams(152668627, stypes, 'low')
 
-        self.assertGreater(d.keys(), 3)
-        for k in d.keys():
+        self.assertGreater(len(streams.keys()), 3)
+        for k in streams.keys():
             self.assertIn(k, stypes)
 
         # time stream
-        self.assertIsInstance(d['time'].data[0], int)
-        self.assertGreater(d['time'].original_size, 100)
-        self.assertEqual(d['time'].resolution, 'low')
-        self.assertEqual(len(d['time'].data), 100)
+        self.assertIsInstance(streams['time'].data[0], int)
+        self.assertGreater(streams['time'].original_size, 100)
+        self.assertEqual(streams['time'].resolution, 'low')
+        self.assertEqual(len(streams['time'].data), 100)
 
         # latlng stream
-        self.assertIsInstance(d['latlng'].data[0], list)
-        self.assertIsInstance(d['latlng'].data[0][0], float)
+        self.assertIsInstance(streams['latlng'].data, list)
+        self.assertIsInstance(streams['latlng'].data[0][0], float)
 
     def test_effort_streams(self):
         """
@@ -112,21 +121,18 @@ class ClientTest(FunctionalTestBase):
         """
         stypes = ['distance']
 
-        activity = self.client.get_activity(152668627) #165479860
+        activity = self.client.get_activity(165479860) #152668627)
         streams = self.client.get_effort_streams(activity.segment_efforts[0].id,
                                                 stypes, 'medium')
 
-        d = {}
-        for stream in streams:
-            d[stream.type] = stream
 
-        self.assertEqual(d.keys(), ['distance'])
+        self.assertIn('distance', streams.keys())
 
         # distance stream
-        self.assertIsInstance(d['distance'].data[0], float)
-        self.assertEqual(d['distance'].resolution, 'medium')
-        self.assertEqual(len(d['distance'].data),
-                         min(1000, d['distance'].original_size))
+        self.assertIsInstance(streams['distance'].data[0], float) #xxx
+        self.assertEqual(streams['distance'].resolution, 'medium')
+        self.assertEqual(len(streams['distance'].data),
+                         min(1000, streams['distance'].original_size))
 
 
     def test_get_curr_athlete(self):
@@ -186,7 +192,7 @@ class ClientTest(FunctionalTestBase):
         for i,e in enumerate(lb):
             print '{0}: {1}'.format(i, e)
 
-        self.assertEquals(15, len(lb.entries)) # 10 top results, 5 bottom results
+        self.assertEquals(10, len(lb.entries)) # 10 top results
         self.assertIsInstance(lb.entries[0], model.SegmentLeaderboardEntry)
         self.assertEquals(1, lb.entries[0].rank)
         self.assertTrue(lb.effort_count > 8000) # At time of writing 8206
@@ -214,7 +220,7 @@ class ClientTest(FunctionalTestBase):
 
         # Fetch leaderboard
         lb = segment.leaderboard
-        self.assertEquals(15, len(lb)) # 10 top results, 5 bottom results
+        self.assertEquals(10, len(lb)) # 10 top results, 5 bottom results
 
     def test_get_segment_efforts(self):
         # test with string

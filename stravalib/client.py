@@ -18,6 +18,11 @@ from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
 
+try:
+    unicode
+except:
+    unicode = str
+
 class Client(object):
     """
     Main client class for interacting with the exposed Strava v3 API methods.
@@ -641,6 +646,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Segment`
         """
 
+        params = {}
         if limit is not None:
             params["limit"] = limit
 
@@ -765,12 +771,12 @@ class Client(object):
             params['athlete_id'] = athlete_id
 
         if start_date_local:
-            if isinstance(start_date_local, str):
+            if isinstance(start_date_local, (str, unicode)):
                 start_date_local = dateparser.parse(start_date_local, ignoretz=True)
             params["start_date_local"] = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if end_date_local:
-            if isinstance(end_date_local, str):
+            if isinstance(end_date_local, (str, unicode)):
                 end_date_local = dateparser.parse(end_date_local, ignoretz=True)
             params["end_date_local"] = end_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -869,13 +875,18 @@ class Client(object):
 
         result_fetcher = functools.partial(
                               self.protocol.get,
-                              '/activities/{id}/streams/{types}'.format(id=activity_id,
-                                                                        types=types),
-                                                              **params)
+                              '/activities/{id}/streams/{types}'.format(
+                                                                id=activity_id,
+                                                                types=types),
+                                                                **params)
 
-        return BatchedResultsIterator(entity=model.Stream,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher)
+        streams = BatchedResultsIterator(entity=model.Stream,
+                                         bind_client=self,
+                                         result_fetcher=result_fetcher)
+
+        # Pack streams into dictionary
+        return {i.type : i for i in streams}
+
 
     def get_effort_streams(self, effort_id, types=None,
                            resolution=None, series_type=None):
@@ -928,10 +939,12 @@ class Client(object):
                                                                         types=types),
                                                            **params)
 
-        return BatchedResultsIterator(entity=model.Stream,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher)
+        streams = BatchedResultsIterator(entity=model.Stream,
+                                         bind_client=self,
+                                         result_fetcher=result_fetcher)
 
+        # Pack streams into dictionary
+        return {i.type : i for i in streams}
 
     def get_segment_streams(self, segment_id, types=None,
                             resolution=None, series_type=None):
@@ -984,9 +997,12 @@ class Client(object):
                                                                         types=types),
                                                             **params)
 
-        return BatchedResultsIterator(entity=model.Stream,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher)
+        streams = BatchedResultsIterator(entity=model.Stream,
+                                         bind_client=self,
+                                         result_fetcher=result_fetcher)
+
+        # Pack streams into dictionary
+        return {i.type : i for i in streams}
 
 
 

@@ -85,25 +85,18 @@ activity = client.get_activity(123)
 
 Streams represent the raw data of the uploaded file. Activities, efforts, and
 segments all have streams. There are many types of streams, if activity does
-not have requested stream type, it will not be part of returned set.
+not have requested stream type, returned set simply won't include it.
 
 ```python
 
-# Activities have many streams, you can request desired stream type
-streams = client.get_activity_streams(123, types=['altitude',], resolution='low')
-
-#  Result is always an enum object
-stream = next(streams)
-print(stream.type)
-print(stream.data)
-
-# You can request many stream types
+# Activities can have many streams, you can request n desired stream types
 types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
 
-for stream in client.get_activity_streams(123, types=types, resolution='medium'):
-    print(stream.type)
-    print(stream.data)
+streams = client.get_activity_streams(123, types=types, resolution='medium')
 
+#  Result is a dictionary object.  The dict's key are the stream type.
+if 'altitude' in streams.keys():
+    print(streams['altitude'].data)
 
 ```
 
