@@ -14,6 +14,7 @@ with the API, support modern versions of Python (2.x and 3.x), and expose the fu
 
 **Why use stravalib?**  The Strava REST API is fairly straightforward.  The main reasons to use something like
 stravalib would be:
+
 - Result structs (dicts) are returned as more "strongly typed" model objects.
 - Relationships can be traversedon model objects to pull in related content "seamlessly".
 - Units and date/time/durations types are converted to python objects to facilite converting and displaying these values.
