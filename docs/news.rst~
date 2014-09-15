@@ -3,13 +3,6 @@ Changes
 
 .. contents::
 
-0.3.0
------
-* Activity streams data (Ghis)
-* Friends/followers model attributes (Ghis)
-* Support for photos (Ghis)
-* Updates for new Strava exposed API attributes (Hans)
-
 0.2.2
 -----
 * Fixed the _resolve_url to not assume running on **nix system.
