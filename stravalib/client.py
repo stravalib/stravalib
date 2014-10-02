@@ -212,33 +212,6 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-    def get_athlete_koms(self, athlete_id, limit=None):
-        """
-        Gets Q/KOMs/CRs for specified athlete.
-        
-        KOMs are returned as `stravalib.model.SegmentEffort` objects.
-
-        http://strava.github.io/api/v3/athlete/#koms
-
-        :param athlete_id
-        :type athlete_id: int
-        :param limit: Maximum number of KOM segment efforts to return (default unlimited).
-        :type limit: int
-        :return: An iterator of :class:`stravalib.model.SegmentEffort` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        if athlete_id is None:
-            result_fetcher = functools.partial(self.protocol.get, '/athlete/koms')
-        else:
-            result_fetcher = functools.partial(self.protocol.get,
-                                               '/athletes/{id}/koms',
-                                               id=athlete_id)
-
-        return BatchedResultsIterator(entity=model.SegmentEffort,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher,
-                                      limit=limit)
-
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
         Gets followers for current (or specified) athlete.
@@ -286,6 +259,29 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def get_athlete_koms(self, athlete_id, limit=None):
+        """
+        Gets Q/KOMs/CRs for specified athlete.
+        
+        KOMs are returned as `stravalib.model.SegmentEffort` objects.
+
+        http://strava.github.io/api/v3/athlete/#koms
+
+        :param athlete_id
+        :type athlete_id: int
+        :param limit: Maximum number of KOM segment efforts to return (default unlimited).
+        :type limit: int
+        :return: An iterator of :class:`stravalib.model.SegmentEffort` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/athletes/{id}/koms',
+                                           id=athlete_id)
+
+        return BatchedResultsIterator(entity=model.SegmentEffort,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
 
     def get_athlete_clubs(self):
         """
