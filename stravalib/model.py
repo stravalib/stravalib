@@ -514,19 +514,32 @@ class Activity(LoadableEntity):
     RIDE = "Ride"
     RUN = "Run"
     SWIM = "Swim"
-    HIKE = "Hike"
     WALK = "Walk"
-    NORDICSKI = "NordicSki"
-    ALPINESKI = "AlpineSki"
-    BACKCOUNTRYSKI = "BackcountrySki"
-    ICESKATE = "IceSkate"
-    INLINESKATE = "InlineSkate"
-    KITESURF = "Kitesurf"
-    ROLLERSKI = "RollerSki"
-    WINDSURF = "Windsurf"
-    WORKOUT = "Workout"
-    SNOWBOARD = "Snowboard"
-    SNOWSHOE = "Snowshoe"
+
+    ALPINESKI           = "AlpineSki"
+    BACKCOUNTRYSKI      = "BackcountrySki"
+    CANOEING            = "Canoeing"
+    CROSSCOUNTRYSKIING  = "CrossCountrySkiing"
+    CROSSFIT            = "Crossfit"
+    ELLIPTICAL          = "Elliptical"
+    HIKE                = "Hike"
+    ICESKATE            = "IceSkate"
+    INLINESKATE         = "InlineSkate"
+    KAYAKING            = "Kayaking"
+    KITESURF            = "Kitesurf"
+    NORDICSKI           = "NordicSki"
+    ROCKCLIMBING        = "RockClimbing"
+    ROLLERSKI           = "RollerSki"
+    ROWING              = "Rowing"
+    SNOWBOARD           = "Snowboard"
+    SNOWSHOE            = "Snowshoe"
+    STAIRSTEPPER        = "StairStepper"
+    STANDUPPADDLING     = "StandUpPaddling"
+    SURFING             = "Surfing"
+    WEIGHTTRAINING      = "WeightTraining"
+    WINDSURF            = "Windsurf"
+    WORKOUT             = "Workout"
+    YOGA                = "Yoga"
 
     _comments = None
     _zones = None
@@ -535,9 +548,11 @@ class Activity(LoadableEntity):
     #_gear = None
     _laps = None
 
-    TYPES = (RIDE, RUN, SWIM, HIKE, WALK, NORDICSKI, ALPINESKI, BACKCOUNTRYSKI,
-             ICESKATE, INLINESKATE, KITESURF, ROLLERSKI, WINDSURF, WORKOUT,
-             SNOWBOARD, SNOWSHOE)
+    TYPES = ( RIDE, RUN, SWIM, WALK, ALPINESKI, BACKCOUNTRYSKI, CANOEING,
+              CROSSCOUNTRYSKIING, CROSSFIT, ELLIPTICAL, HIKE, ICESKATE,
+              INLINESKATE, KAYAKING, KITESURF, NORDICSKI, ROCKCLIMBING,
+              ROLLERSKI, ROWING, SNOWBOARD, SNOWSHOE, STAIRSTEPPER,
+              STANDUPPADDLING, SURFING, WEIGHTTRAINING, WINDSURF, WORKOUT, YOGA)
 
     guid = Attribute(unicode, (SUMMARY,DETAILED)) #: (undocumented)
 
@@ -591,11 +606,12 @@ class Activity(LoadableEntity):
 
     # Undocumented attributes
     average_watts = Attribute(float, (SUMMARY,DETAILED)) #: (undocumented) Average power during activity
+    weighted_average_watts = Attribute(int, (SUMMARY,DETAILED)) # rides with power meter data only similar to xPower or Normalized Power
     average_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Average HR during activity
     max_heartrate = Attribute(int, (SUMMARY,DETAILED))  #: (undocumented) Max HR during activity
     average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Average cadence during activity
     kilojoules = Attribute(float, (SUMMARY,DETAILED))  #: (undocumented) Kilojoules of energy used during activity
-
+    device_watts = Attribute(bool, (SUMMARY,DETAILED)) # true if the watts are from a power meter, false if estimated
     average_temp = Attribute(int, (SUMMARY,DETAILED)) #: (undocumented) Average temperature (when available from device) during activity.
 
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
