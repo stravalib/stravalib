@@ -151,6 +151,7 @@ class Club(LoadableEntity):
 
 class Gear(IdentifiableEntity):
     """
+    Information about Gear (bike or shoes) used during activity.
     """
     id = Attribute(unicode, (META,SUMMARY,DETAILED)) #: Alpha-numeric gear ID.
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name athlete entered for bike (does not apply to shoes)
@@ -314,12 +315,18 @@ class Athlete(LoadableEntity):
         return self._followers
 
 class ActivityComment(LoadableEntity):
+    """
+    Comments attached to an activity.
+    """
     activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
     text = Attribute(unicode, (META,SUMMARY,DETAILED)) #: Text of comment
     created_at = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when was coment created
     athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
 class ActivityPhoto(LoadableEntity):
+    """
+    Information about photos attached to an activity.
+    """
     activity_id = Attribute(int, (META,SUMMARY,DETAILED)) #: ID of activity
     ref = Attribute(unicode, (META,SUMMARY,DETAILED)) #: ref eg. "http://instagram.com/p/eAvA-tir85/"
     uid = Attribute(unicode, (META,SUMMARY,DETAILED)) #: unique id
@@ -331,7 +338,7 @@ class ActivityPhoto(LoadableEntity):
 
 class ActivityKudos(LoadableEntity):
     """
-     activity kudos are a subset of athlete properties.
+    Activity kudos are a subset of athlete properties.
     """
     firstname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's first name.
     lastname = Attribute(unicode, (SUMMARY,DETAILED)) #: Athlete's last name.
@@ -351,12 +358,12 @@ class ActivityKudos(LoadableEntity):
     approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
 
 class ActivityLap(LoadableEntity):
-    
+
     name = Attribute(unicode, (SUMMARY,DETAILED)) #: Name of lap
     activity = EntityAttribute("Activity", (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Activity`
-    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Athlete`    
-    
-    
+    athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED)) #: The associated :class:`stravalib.model.Athlete`
+
+
     elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of elapsed time for lap
     moving_time = TimeIntervalAttribute((SUMMARY, DETAILED)) #: :class:`datetime.timedelta` of moving time for lap
     start_date = TimestampAttribute((SUMMARY,DETAILED)) #: :class:`datetime.datetime` when lap was started in GMT
@@ -485,7 +492,7 @@ class BaseEffort(LoadableEntity):
     max_heartrate = Attribute(float, (SUMMARY,DETAILED))  #: Max HR during effort
     average_cadence = Attribute(float, (SUMMARY,DETAILED))  #: Average cadence during effort
     start_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the start of this effort
-    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort  
+    end_index = Attribute(int, (SUMMARY,DETAILED)) # the activity stream index of the end of this effort
 
 class BestEffort(BaseEffort):
     """
@@ -497,8 +504,8 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
     hidden = Attribute(bool, (SUMMARY,DETAILED,)) # indicates a hidden/non-important effort when returned as part of an activity, value may change over time.
-    
-    
+
+
 class Activity(LoadableEntity):
     """
     Represents an activity (ride, run, etc.).
@@ -573,7 +580,7 @@ class Activity(LoadableEntity):
 
     average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Average speed for activity.
     max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Max speed for activity
-    
+
     truncated = Attribute(int, (SUMMARY,DETAILED)) #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones
     has_kudoed = Attribute(bool, (SUMMARY,DETAILED)) #: If authenticated user has kudoed this activity
 
@@ -618,7 +625,7 @@ class Activity(LoadableEntity):
             self.assert_bind_client()
             self._laps = self.bind_client.get_activity_laps(self.id)
         return self._laps
-    
+
     @property
     def zones(self):
         """
@@ -795,6 +802,9 @@ class PowerActivityZone(BaseActivityZone):
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs) #: Weight of athlete (factored into power calculations)
 
 class Stream(LoadableEntity):
+    """
+    Stream of readings from the activity, effort or segment.
+    """
     type = Attribute(unicode)
     data = Attribute(list,) #: array of stream values
     series_type = Attribute(unicode, ) #:

@@ -142,6 +142,9 @@ class Client(object):
 
         :param limit: How many maximum activities to return.
         :type limit: int
+
+        :return: An iterator of :class:`stravalib.model.Activity` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
 
         if before:
@@ -193,8 +196,8 @@ class Client(object):
 
         http://strava.github.io/api/v3/follow/#friends
 
-        :param athlete_id
-        :type athlete_id: int
+        :param: athlete_id
+        :type: athlete_id: int
         :param limit: Maximum number of athletes to return (default unlimited).
         :type limit: int
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
@@ -218,7 +221,7 @@ class Client(object):
 
         http://strava.github.io/api/v3/follow/#followers
 
-        :param athlete_id
+        :param: athlete_id
         :type athlete_id: int
         :param limit: Maximum number of athletes to return (default unlimited).
         :type limit: int
@@ -236,6 +239,7 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
+
     def get_both_following(self, athlete_id, limit=None):
         """
         Retrieve the athletes who both the authenticated user and the indicated
@@ -262,7 +266,7 @@ class Client(object):
     def get_athlete_koms(self, athlete_id, limit=None):
         """
         Gets Q/KOMs/CRs for specified athlete.
-        
+
         KOMs are returned as `stravalib.model.SegmentEffort` objects.
 
         http://strava.github.io/api/v3/athlete/#koms
@@ -289,7 +293,8 @@ class Client(object):
 
         http://strava.github.io/api/v3/clubs/#get-athletes
 
-        :rtype: list of :class:`stravalib.model.Club`
+        :return: A list of :class:`stravalib.model.Club`
+        :rtype: list
         """
         club_structs = self.protocol.get('/athlete/clubs')
         return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
@@ -301,6 +306,8 @@ class Client(object):
         http://strava.github.io/api/v3/clubs/#get-details
 
         :param club_id: The ID of the club to fetch.
+        :type club_id: int
+
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
@@ -533,6 +540,11 @@ class Client(object):
         Requires premium account.
 
         http://strava.github.io/api/v3/activities/#zones
+
+        :param activity_id: The activity for which to zones.
+
+        :return: An list of :class:`stravalib.model.ActivityComment` objects.
+        :rtype: list
         """
         zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
         # We use a factory to give us the correct zone based on type.
@@ -568,7 +580,7 @@ class Client(object):
         :param activity_id: The activity for which to fetch kudos.
         :param limit: Max rows to return (default unlimited).
         :type limit: int
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+        :return: An iterator of :class:`stravalib.model.ActivityKudos` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get,
@@ -637,6 +649,7 @@ class Client(object):
         http://strava.github.io/api/v3/efforts/#retrieve
 
         :param effort_id: The id of associated effort to fetch.
+        :return: The specified effort on a segment.
         :rtype: :class:`stravalib.model.SegmentEffort`
         """
         return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}',
@@ -649,6 +662,7 @@ class Client(object):
         http://strava.github.io/api/v3/segments/#retrieve
 
         :param segment_id: The segment to fetch.
+        :return: A segment object.
         :rtype: :class:`stravalib.model.Segment`
         """
         return model.Segment.deserialize(self.protocol.get('/segments/{id}',
@@ -664,8 +678,8 @@ class Client(object):
 
         :param limit: (optional), limit number of starred segments returned.
         :type limit: int
-
-        :rtype: :class:`stravalib.model.Segment`
+        :return: An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+        :rtype: :class:`BatchedResultsIterator`
         """
 
         params = {}
@@ -784,7 +798,8 @@ class Client(object):
         :param top_results_limit: (optional),
         :type results_limit: int
 
-        :rtype: :class:`stravalib.model.SegmentEffort`
+        :return: An iterator of :class:`stravalib.model.SegmentEffort` efforts on a segment.
+        :rtype: :class:`BatchedResultsIterator`
 
         """
         params = {"segment_id": segment_id}
@@ -826,6 +841,9 @@ class Client(object):
         :type min_cat: int
         :param max_cat: (optional) Maximum climb category filter
         :type max_cat: int
+
+        :return: An list of :class:`stravalib.model.Segment`.
+        :rtype: list
         """
         if len(bounds) == 2:
             bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][2])
@@ -855,6 +873,8 @@ class Client(object):
         """
         Returns an streams for an activity.
 
+        http://strava.github.io/api/v3/streams/#activity
+
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
         by the authenticated athlete.
@@ -881,7 +901,9 @@ class Client(object):
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the activity.
+        :rtype: dict
         """
 
         # stream are comma seperated list
@@ -915,6 +937,8 @@ class Client(object):
         """
         Returns an streams for an effort.
 
+        http://strava.github.io/api/v3/streams/#effort
+
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
         by the authenticated athlete.
@@ -941,7 +965,9 @@ class Client(object):
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the effort.
+        :rtype: dict
         """
 
         # stream are comma seperated list
@@ -973,6 +999,8 @@ class Client(object):
         """
         Returns an streams for a segment.
 
+        http://strava.github.io/api/v3/streams/#segment
+
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
         by the authenticated athlete.
@@ -999,7 +1027,9 @@ class Client(object):
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the effort.
+        :rtype: dict
         """
 
         # stream are comma seperated list
