@@ -511,10 +511,10 @@ class Activity(LoadableEntity):
     Represents an activity (ride, run, etc.).
     """
     # "Constants" for types of activities
-    RIDE = "Ride"
-    RUN = "Run"
-    SWIM = "Swim"
-    WALK = "Walk"
+    RIDE                = "Ride"
+    RUN                 = "Run"
+    SWIM                = "Swim"
+    WALK                = "Walk"
 
     ALPINESKI           = "AlpineSki"
     BACKCOUNTRYSKI      = "BackcountrySki"
@@ -822,10 +822,10 @@ class Stream(LoadableEntity):
     Stream of readings from the activity, effort or segment.
     """
     type = Attribute(unicode)
-    data = Attribute(list,) #: array of stream values
-    series_type = Attribute(unicode, ) #:
-    original_size = Attribute(int, ) #:
-    resolution = Attribute(unicode, ) #:
+    data = Attribute(list,)            #: array of values
+    series_type = Attribute(unicode, ) #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
+    original_size = Attribute(int, )   #: the size of the complete stream (when not reduced with resolution)
+    resolution = Attribute(unicode, )  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
     def __repr__(self):
         return '<Stream type={} resolution={} original_size={}>'.format(self.type,
                                                                         self.resolution,
