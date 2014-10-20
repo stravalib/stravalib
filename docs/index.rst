@@ -58,6 +58,7 @@ More detailed documentation to get you started
    usage/auth
    usage/overview
    usage/athletes
+   usage/activities
 
 (MORE COMING SOON)
 
