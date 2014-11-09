@@ -130,6 +130,11 @@ class Client(object):
                                                      client_secret=client_secret,
                                                      code=code)
 
+    def _utc_datetime_to_epoch(self, activity_datetime):
+        if isinstance(activity_datetime, str):
+            activity_datetime = dateparser.parse(activity_datetime, ignoretz=True)
+
+        return time.mktime(activity_datetime.timetuple())
 
     def get_activities(self, before=None, after=None, limit=None):
         """
@@ -154,14 +159,10 @@ class Client(object):
         """
 
         if before:
-            if isinstance(before, str):
-                before = dateparser.parse(before, ignoretz=True)
-            before = time.mktime(before.timetuple())
+            before = self._utc_datetime_to_epoch(before)
 
         if after:
-            if isinstance(after, str):
-                after = dateparser.parse(after, ignoretz=True)
-            after = time.mktime(after.timetuple())
+            after = self._utc_datetime_to_epoch(after)
 
         params = dict(before=before, after=after)
         result_fetcher = functools.partial(self.protocol.get,
@@ -172,7 +173,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
-
 
     def get_athlete(self, athlete_id=None):
         """
