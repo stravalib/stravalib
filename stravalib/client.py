@@ -5,6 +5,7 @@ import logging
 import functools
 import time
 import collections
+import calendar
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -130,11 +131,13 @@ class Client(object):
                                                      client_secret=client_secret,
                                                      code=code)
 
+
     def _utc_datetime_to_epoch(self, activity_datetime):
         if isinstance(activity_datetime, str):
             activity_datetime = dateparser.parse(activity_datetime, ignoretz=True)
 
-        return time.mktime(activity_datetime.timetuple())
+        return calendar.timegm(activity_datetime.timetuple())
+
 
     def get_activities(self, before=None, after=None, limit=None):
         """
