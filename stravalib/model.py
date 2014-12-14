@@ -247,6 +247,8 @@ class Athlete(LoadableEntity):
 
     email_language = Attribute(unicode, (SUMMARY,DETAILED)) #: The user's preferred lang/locale (e.g. en-US)
 
+    badge_type_id = Attribute(int) #: (undocumented)
+
     # A bunch more undocumented detailed-resolution attribs
     weight = Attribute(float, (DETAILED,), units=uh.kg) #: (undocumented, detailed-only)  Athlete's configured weight.
     max_heartrate = Attribute(float, (DETAILED,)) #: (undocumented, detailed-only) Athlete's configured max HR
