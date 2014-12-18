@@ -770,7 +770,8 @@ class Client(object):
 
 
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
-                                following=None, club_id=None, timeframe=None, top_results_limit=None):
+                                following=None, club_id=None, timeframe=None, top_results_limit=None,
+                                page=None):
         """
         Gets the leaderboard for a segment.
 
@@ -806,6 +807,9 @@ class Client(object):
         :param top_results_limit: (optional, strava default is 10 + 5 from end) How many of leading leaderboard entries to display.
                             See description for why this is a little confusing.
         :type top_results_limit: int
+
+        :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
+        :type page: int
 
         :return: An iterator of :class:`stravalib.model.SegmentLeaderboard`
         :rtype: :class:`BatchedResultsIterator`
@@ -844,6 +848,9 @@ class Client(object):
 
         if top_results_limit is not None:
             params['per_page'] = top_results_limit
+
+        if page is not None:
+            params['page'] = page
 
         return model.SegmentLeaderboard.deserialize(self.protocol.get('/segments/{id}/leaderboard',
                                                                       id=segment_id,

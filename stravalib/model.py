@@ -221,6 +221,8 @@ class Athlete(LoadableEntity):
 
     approve_followers = Attribute(bool, (SUMMARY,DETAILED)) #: Whether athlete has elected to approve followers
 
+    badge_type_id = Attribute(int, (SUMMARY,DETAILED)) #: (undocumented) 
+
     follower_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people are following this athlete
     friend_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people is this athlete following
     mutual_friend_count = Attribute(int, (DETAILED,)) #: (detailed-only) How many people are both following and being followed by this athlete
@@ -246,8 +248,6 @@ class Athlete(LoadableEntity):
     biggest_climb_elevation_gain = Attribute(float, (SUMMARY,DETAILED), units=uh.meters) #: (undocumented) Greatest single elevation gain for athlete.
 
     email_language = Attribute(unicode, (SUMMARY,DETAILED)) #: The user's preferred lang/locale (e.g. en-US)
-
-    badge_type_id = Attribute(int) #: (undocumented)
 
     # A bunch more undocumented detailed-resolution attribs
     weight = Attribute(float, (DETAILED,), units=uh.kg) #: (undocumented, detailed-only)  Athlete's configured weight.
@@ -597,6 +597,8 @@ class Activity(LoadableEntity):
 
     average_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Average speed for activity.
     max_speed = Attribute(float, (SUMMARY,DETAILED), units=uh.meters_per_second) #: Max speed for activity
+
+    device_watts = Attribute(bool, (SUMMARY,DETAILED)) #: True if the watts are from a power meter, false if estimated
 
     truncated = Attribute(int, (SUMMARY,DETAILED)) #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones
     has_kudoed = Attribute(bool, (SUMMARY,DETAILED)) #: If authenticated user has kudoed this activity
