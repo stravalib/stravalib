@@ -24,6 +24,7 @@ try:
 except:
     unicode = str
 
+
 class Client(object):
     """
     Main client class for interacting with the exposed Strava v3 API methods.
@@ -80,7 +81,6 @@ class Client(object):
         """
         self.protocol.access_token = v
 
-
     def authorization_url(self, client_id, redirect_uri, approval_prompt='auto',
                           scope=None, state=None):
         """
@@ -131,13 +131,11 @@ class Client(object):
                                                      client_secret=client_secret,
                                                      code=code)
 
-
     def _utc_datetime_to_epoch(self, activity_datetime):
         if isinstance(activity_datetime, str):
             activity_datetime = dateparser.parse(activity_datetime, ignoretz=True)
 
         return calendar.timegm(activity_datetime.timetuple())
-
 
     def get_activities(self, before=None, after=None, limit=None):
         """
@@ -200,7 +198,6 @@ class Client(object):
 
         return model.Athlete.deserialize(raw, bind_client=self)
 
-
     def get_athlete_friends(self, athlete_id=None, limit=None):
         """
         Gets friends for current (or specified) athlete.
@@ -227,7 +224,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
-
 
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
@@ -256,7 +252,6 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
     def get_both_following(self, athlete_id, limit=None):
         """
         Retrieve the athletes who both the authenticated user and the indicated
@@ -281,7 +276,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
-
 
     def get_athlete_koms(self, athlete_id, limit=None):
         """
@@ -309,7 +303,6 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
     def get_athlete_clubs(self):
         """
         List the clubs for the currently authenticated athlete.
@@ -321,7 +314,6 @@ class Client(object):
         """
         club_structs = self.protocol.get('/athlete/clubs')
         return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
-
 
     def get_club(self, club_id):
         """
@@ -336,7 +328,6 @@ class Client(object):
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
         return model.Club.deserialize(raw, bind_client=self)
-
 
     def get_club_members(self, club_id, limit=None):
         """
@@ -360,7 +351,6 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Athlete, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-
     def get_club_activities(self, club_id, limit=None):
         """
         Gets the activities associated with specified club.
@@ -383,7 +373,6 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-
     def get_activity(self, activity_id):
         """
         Gets specified activity.
@@ -399,7 +388,6 @@ class Client(object):
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id)
         return model.Activity.deserialize(raw, bind_client=self)
-
 
     def get_friend_activities(self, limit=None):
         """
@@ -417,7 +405,6 @@ class Client(object):
 
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
-
 
     def create_activity(self, name, activity_type, start_date_local, elapsed_time,
                         description=None, distance=None):
@@ -473,7 +460,6 @@ class Client(object):
 
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
-
     def update_activity(self, activity_id, name=None, activity_type=None,
                         private=None, commute=None, trainer=None, gear_id=None,
                         description=None):
@@ -520,7 +506,6 @@ class Client(object):
 
         raw_activity = self.protocol.put('/activities/{activity_id}', **params)
         return model.Activity.deserialize(raw_activity, bind_client=self)
-
 
     def upload_activity(self, activity_file, data_type, name=None,
                         activity_type=None, private=None, external_id=None):
@@ -582,7 +567,6 @@ class Client(object):
 
         return ActivityUploader(self, response=initial_response)
 
-
     def get_activity_zones(self, activity_id):
         """
         Gets zones for activity.
@@ -600,7 +584,6 @@ class Client(object):
         zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
         # We use a factory to give us the correct zone based on type.
         return [model.BaseActivityZone.deserialize(z, bind_client=self) for z in zones]
-
 
     def get_activity_comments(self, activity_id, markdown=False, limit=None):
         """
@@ -628,7 +611,6 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
     def get_activity_kudos(self, activity_id, limit=None):
         """
         Gets the kudos for an activity.
@@ -653,7 +635,6 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
     def get_activity_photos(self, activity_id):
         """
         Gets the photos from an activity.
@@ -673,7 +654,6 @@ class Client(object):
         return BatchedResultsIterator(entity=model.ActivityPhoto,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
-
 
     def get_activity_laps(self, activity_id):
         """
@@ -695,7 +675,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
-
     def get_gear(self, gear_id):
         """
         Get details for an item of gear.
@@ -709,7 +688,6 @@ class Client(object):
         :rtype: :class:`stravalib.model.Gear`
         """
         return model.Gear.deserialize(self.protocol.get('/gear/{id}', id=gear_id))
-
 
     def get_segment_effort(self, effort_id):
         """
@@ -741,7 +719,6 @@ class Client(object):
         return model.Segment.deserialize(self.protocol.get('/segments/{id}',
                                          id=segment_id), bind_client=self)
 
-
     def get_starred_segment(self, limit=None):
         """
         Returns a summary representation of the segments starred by the
@@ -767,7 +744,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
-
 
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
                                 following=None, club_id=None, timeframe=None, top_results_limit=None,
@@ -857,10 +833,9 @@ class Client(object):
                                                                       **params),
                                                     bind_client=self)
 
-
     def get_segment_efforts(self, segment_id, athlete_id=None,
                             start_date_local=None, end_date_local=None,
-                            limit=None ):
+                            limit=None):
         """
         Gets all efforts on a particular segment sorted by start_date_local
 
@@ -882,9 +857,9 @@ class Client(object):
         http://strava.github.io/api/v3/segments/#all_efforts
 
         :param segment_id: ID of the segment.
-        :type segment_id: int
+        :type segment_id: param
 
-        :param athlete_id: (optional) ID of athlete.
+        :int athlete_id: (optional) ID of athlete.
         :type athlete_id: int
 
         :param start_date_local: (optional) efforts before this date will be excluded.
@@ -926,7 +901,6 @@ class Client(object):
 
         return BatchedResultsIterator(entity=model.BaseEffort, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
-
 
     def explore_segments(self, bounds, activity_type=None, min_cat=None, max_cat=None):
         """
@@ -970,8 +944,7 @@ class Client(object):
 
         raw = self.protocol.get('/segments/explore', **params)
         return [model.SegmentExplorerResult.deserialize(v, bind_client=self)
-                                                    for v in raw['segments']]
-
+                for v in raw['segments']]
 
     def get_activity_streams(self, activity_id, types=None,
                              resolution=None, series_type=None):
@@ -1017,7 +990,7 @@ class Client(object):
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -1026,20 +999,16 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/activities/{id}/streams/{types}'.format(
-                                                                id=activity_id,
-                                                                types=types),
-                                                                **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/streams/{types}'.format(id=activity_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
-
+        return {i.type: i for i in streams}
 
     def get_effort_streams(self, effort_id, types=None, resolution=None,
                            series_type=None):
@@ -1085,7 +1054,7 @@ class Client(object):
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -1094,19 +1063,16 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/segment_efforts/{id}/streams/{types}'.format(id=effort_id,
-                                                                        types=types),
-                                                           **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segment_efforts/{id}/streams/{types}'.format(id=effort_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
-
+        return {i.type: i for i in streams}
 
     def get_segment_streams(self, segment_id, types=None, resolution=None,
                             series_type=None):
@@ -1151,7 +1117,7 @@ class Client(object):
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -1160,18 +1126,16 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/segments/{id}/streams/{types}'.format(id=segment_id,
-                                                                        types=types),
-                                                            **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segments/{id}/streams/{types}'.format(id=segment_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
+        return {i.type: i for i in streams}
 
 
 class BatchedResultsIterator(object):

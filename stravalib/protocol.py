@@ -13,6 +13,7 @@ import requests
 
 from stravalib import exc
 
+
 class ApiV3(object):
     """
     This class is responsible for performing the HTTP requests, rate limiting, and error handling.
@@ -101,8 +102,8 @@ class ApiV3(object):
         :rtype: str
         """
         response = self._request('https://{0}/oauth/token'.format(self.server),
-                              params={'client_id': client_id, 'client_secret': client_secret, 'code': code},
-                              method='POST')
+                                 params={'client_id': client_id, 'client_secret': client_secret, 'code': code},
+                                 method='POST')
         token = response['access_token']
         self.access_token = token
         return token
@@ -136,7 +137,7 @@ class ApiV3(object):
             self._handle_protocol_error(raw)
 
         # 204 = No content
-        if raw.status_code in [204,]:
+        if raw.status_code in [204]:
             resp = []
         else:
             resp = raw.json()
@@ -208,7 +209,7 @@ class ApiV3(object):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
+        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, check_for_errors=check_for_errors)
 
     def post(self, url, files=None, check_for_errors=True, **kwargs):
@@ -217,7 +218,7 @@ class ApiV3(object):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
+        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
 
     def put(self, url, check_for_errors=True, **kwargs):
@@ -226,5 +227,5 @@ class ApiV3(object):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k,v) for k,v in kwargs.items() if not k in referenced])
+        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors)

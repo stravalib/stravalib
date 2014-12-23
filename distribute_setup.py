@@ -140,17 +140,17 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
         except ImportError:
             return _do_download(version, download_base, to_dir, download_delay)
         try:
-            pkg_resources.require("distribute>="+version)
+            pkg_resources.require("distribute>=" + version)
             return
         except pkg_resources.VersionConflict:
             e = sys.exc_info()[1]
             if was_imported:
                 sys.stderr.write(
-                "The required version of distribute (>=%s) is not available,\n"
-                "and can't be installed while this script is running. Please\n"
-                "install a more recent version first, using\n"
-                "'easy_install -U distribute'."
-                "\n\n(Currently using %r)\n" % (version, e.args[0]))
+                    "The required version of distribute (>=%s) is not available,\n"
+                    "and can't be installed while this script is running. Please\n"
+                    "install a more recent version first, using\n"
+                    "'easy_install -U distribute'."
+                    "\n\n(Currently using %r)\n" % (version, e.args[0]))
                 sys.exit(2)
             else:
                 del pkg_resources, sys.modules['pkg_resources']    # reload ok
@@ -162,6 +162,7 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
     finally:
         if not no_fake:
             _create_fake_setuptools_pkg_info(to_dir)
+
 
 def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
                         to_dir=os.curdir, delay=15):
@@ -275,6 +276,7 @@ def _after_install(dist):
     placeholder = dist.get_command_obj('install').install_purelib
     _create_fake_setuptools_pkg_info(placeholder)
 
+
 def _create_fake_setuptools_pkg_info(placeholder):
     if not placeholder or not os.path.exists(placeholder):
         log.warn('Could not find the install location')
@@ -327,7 +329,7 @@ def _before_install():
 def _under_prefix(location):
     if 'install' not in sys.argv:
         return True
-    args = sys.argv[sys.argv.index('install')+1:]
+    args = sys.argv[sys.argv.index('install') + 1:]
     for index, arg in enumerate(args):
         for option in ('--root', '--prefix'):
             if arg.startswith('%s=' % option):
@@ -335,7 +337,7 @@ def _under_prefix(location):
                 return location.startswith(top_dir)
             elif arg == option:
                 if len(args) > index:
-                    top_dir = args[index+1]
+                    top_dir = args[index + 1]
                     return location.startswith(top_dir)
             elif option == '--user' and USER_SITE is not None:
                 return location.startswith(USER_SITE)
@@ -382,7 +384,7 @@ def _fake_setuptools():
         log.warn('Egg installation')
         pkg_info = os.path.join(setuptools_location, 'EGG-INFO', 'PKG-INFO')
         if (os.path.exists(pkg_info) and
-            _same_content(pkg_info, SETUPTOOLS_PKG_INFO)):
+                _same_content(pkg_info, SETUPTOOLS_PKG_INFO)):
             log.warn('Already patched.')
             return
         log.warn('Patching...')
@@ -421,7 +423,7 @@ def _extractall(self, path=".", members=None):
             # Extract directories with a safe mode.
             directories.append(tarinfo)
             tarinfo = copy.copy(tarinfo)
-            tarinfo.mode = 448 # decimal for oct 0700
+            tarinfo.mode = 448  # decimal for oct 0700
         self.extract(tarinfo, path)
 
     # Reverse sort directories.

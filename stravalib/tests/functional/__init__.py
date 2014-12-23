@@ -15,7 +15,7 @@ class FunctionalTestBase(TestBase):
     def setUp(self):
         super(FunctionalTestBase, self).setUp()
         if not os.path.exists(TEST_CFG):
-            raise Exception("Unable to run the write tests without a tests.ini that defines an access_token with write privs.")
+            raise Exception("Unable to run the write tests without a test.ini in that defines an access_token with write privs.")
         
         cfg = ConfigParser.SafeConfigParser()
         with open(TEST_CFG) as fp:
