@@ -15,9 +15,9 @@ RESOURCES_DIR = os.path.join(TESTS_DIR, 'resources')
 
 
 class TestBase(TestCase):
-    
+
     def setUp(self):
         super(TestBase, self).setUp()
-        
+
     def tearDown(self):
         super(TestBase, self).tearDown()
