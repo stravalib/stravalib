@@ -753,10 +753,11 @@ class Client(object):
 
         http://strava.github.io/api/v3/segments/#leaderboard
 
-        Note that by default Strava will return the top 10 results *and then will also include
-        the bottom 5 results*.  The top X results can be configured by setting the top_results_limit
-        parameter; however,the bottom 5 results are always included.  (i.e. if you specify top_results_limit=15,
-        you will get a total of 20 entries back.)
+        Note that by default Strava will return the top 10 results, and if the current user has ridden
+        that segment, the current user's result along with the two results above in rank and the two
+        results below will be included.  The top X results can be configured by setting the top_results_limit
+        parameter; however, the other 5 results will be included if the current user has ridden that segment.
+        (i.e. if you specify top_results_limit=15, you will get a total of 20 entries back.)
 
         :param segment_id: ID of the segment.
         :type segment_id: int
