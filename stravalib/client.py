@@ -788,8 +788,8 @@ class Client(object):
         :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
         :type page: int
 
-        :return: An iterator of :class:`stravalib.model.SegmentLeaderboard`
-        :rtype: :class:`BatchedResultsIterator`
+        :return: The SegmentLeaderboard for the specified page (default: 1)
+        :rtype: :class:`stravalib.model.SegmentLeaderboard`
 
         """
         params = {}
