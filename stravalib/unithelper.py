@@ -39,6 +39,6 @@ def timedelta_to_seconds(td):
     :return: The number of total seconds in the timedelta object.
     :rtype: int
     """
-    if not td:
+    if td is None:
         return None
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
