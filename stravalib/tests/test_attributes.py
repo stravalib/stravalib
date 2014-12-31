@@ -28,5 +28,5 @@ class EntityAttributeTest(TestBase):
             u'id': 874283,
             u'friend': None
         }
-        athlete = EntityAttribute(Athlete, (SUMMARY,DETAILED))
+        athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))
         athlete.unmarshal(NON_ASCII_DATA)

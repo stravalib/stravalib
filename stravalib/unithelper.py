@@ -1,7 +1,7 @@
 """
 Helpers for converting Strava's units to something more practical.
 
-These are really just thin wrappers to the brilliant 'units' python library. 
+These are really just thin wrappers to the brilliant 'units' python library.
 """
 from units import unit
 import units.predefined
@@ -23,16 +23,18 @@ kilometers_per_hour = kph = kilometer / hour
 kilogram = kilograms = kg = kgs = unit('kg')
 pound = pounds = lb = lbs = unit('lb')
 
+
 def c2f(celsius):
     """ Convert Celcius to Farenheit """
-    return 9.0/5.0 * celsius + 32
+    return (9.0 / 5.0) * celsius + 32
+
 
 def timedelta_to_seconds(td):
     """
     Converts a timedelta to total seconds, including support for microseconds.
-    
+
     Return value is (potentially truncated) integer.
-    
+
     (This is built-in in Python >= 2.7, but we are still supporting Python 2.6 here.)
     :param td: The timedelta object
     :type td: :class:`datetime.timedelta`

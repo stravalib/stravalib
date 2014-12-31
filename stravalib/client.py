@@ -5,6 +5,7 @@ import logging
 import functools
 import time
 import collections
+import calendar
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -22,6 +23,7 @@ try:
     unicode
 except:
     unicode = str
+
 
 class Client(object):
     """
@@ -48,6 +50,10 @@ class Client(object):
                              :class:`stravalib.util.limiter.DefaultRateLimiter' will
                              be used.
         :type rate_limiter: callable
+
+        :param requests_session: (Optional) pass request session object.
+        :type requests_session: requests.Session() object
+
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
 
@@ -75,7 +81,8 @@ class Client(object):
         """
         self.protocol.access_token = v
 
-    def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
+    def authorization_url(self, client_id, redirect_uri, approval_prompt='auto',
+                          scope=None, state=None):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
 
@@ -118,12 +125,17 @@ class Client(object):
         :type code: str
 
         :return: The access token.
-        :rtype: str
+        :rtype: :py:class:`str`
         """
         return self.protocol.exchange_code_for_token(client_id=client_id,
                                                      client_secret=client_secret,
                                                      code=code)
 
+    def _utc_datetime_to_epoch(self, activity_datetime):
+        if isinstance(activity_datetime, str):
+            activity_datetime = dateparser.parse(activity_datetime, ignoretz=True)
+
+        return calendar.timegm(activity_datetime.timetuple())
 
     def get_activities(self, before=None, after=None, limit=None):
         """
@@ -142,17 +154,16 @@ class Client(object):
 
         :param limit: How many maximum activities to return.
         :type limit: int
+
+        :return: An iterator of :class:`stravalib.model.Activity` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
 
         if before:
-            if isinstance(before, str):
-                before = dateparser.parse(before, ignoretz=True)
-            before = time.mktime(before.timetuple())
+            before = self._utc_datetime_to_epoch(before)
 
         if after:
-            if isinstance(after, str):
-                after = dateparser.parse(after, ignoretz=True)
-            after = time.mktime(after.timetuple())
+            after = self._utc_datetime_to_epoch(after)
 
         params = dict(before=before, after=after)
         result_fetcher = functools.partial(self.protocol.get,
@@ -163,7 +174,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
-
 
     def get_athlete(self, athlete_id=None):
         """
@@ -177,6 +187,7 @@ class Client(object):
 
         :param: athlete_id: The numeric ID of the athlete to fetch.
         :type: athlete_id: int
+
         :return: The athlete model object.
         :rtype: :class:`stravalib.model.Athlete`
         """
@@ -193,10 +204,12 @@ class Client(object):
 
         http://strava.github.io/api/v3/follow/#friends
 
-        :param athlete_id
-        :type athlete_id: int
+        :param: athlete_id
+        :type: athlete_id: int
+
         :param limit: Maximum number of athletes to return (default unlimited).
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -218,10 +231,12 @@ class Client(object):
 
         http://strava.github.io/api/v3/follow/#followers
 
-        :param athlete_id
+        :param: athlete_id
         :type athlete_id: int
+
         :param limit: Maximum number of athletes to return (default unlimited).
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -236,6 +251,7 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher,
                                       limit=limit)
+
     def get_both_following(self, athlete_id, limit=None):
         """
         Retrieve the athletes who both the authenticated user and the indicated
@@ -245,8 +261,10 @@ class Client(object):
 
         :param athlete_id: The ID of the other athlete (for follower intersection with current athlete)
         :type athlete_id: int
+
         :param limit: Maximum number of athletes to return. (default unlimited)
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -262,15 +280,17 @@ class Client(object):
     def get_athlete_koms(self, athlete_id, limit=None):
         """
         Gets Q/KOMs/CRs for specified athlete.
-        
+
         KOMs are returned as `stravalib.model.SegmentEffort` objects.
 
         http://strava.github.io/api/v3/athlete/#koms
 
-        :param athlete_id
+        :param athlete_id: The ID of the athlete.
         :type athlete_id: int
+
         :param limit: Maximum number of KOM segment efforts to return (default unlimited).
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.SegmentEffort` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -289,7 +309,8 @@ class Client(object):
 
         http://strava.github.io/api/v3/clubs/#get-athletes
 
-        :rtype: list of :class:`stravalib.model.Club`
+        :return: A list of :class:`stravalib.model.Club`
+        :rtype: :py:class:`list`
         """
         club_structs = self.protocol.get('/athlete/clubs')
         return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
@@ -301,6 +322,8 @@ class Client(object):
         http://strava.github.io/api/v3/clubs/#get-details
 
         :param club_id: The ID of the club to fetch.
+        :type club_id: int
+
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
@@ -313,8 +336,11 @@ class Client(object):
         http://strava.github.io/api/v3/clubs/#get-members
 
         :param club_id: The numeric ID for the club.
+        :type club_id: int
+
         :param limit: Maximum number of athletes to return. (default unlimited)
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -332,8 +358,11 @@ class Client(object):
         http://strava.github.io/api/v3/clubs/#get-activities
 
         :param club_id: The numeric ID for the club.
+        :type club_id: int
+
         :param limit: Maximum number of activities to return. (default unlimited)
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -344,7 +373,6 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-
     def get_activity(self, activity_id):
         """
         Gets specified activity.
@@ -354,6 +382,8 @@ class Client(object):
         http://strava.github.io/api/v3/activities/#get-details
 
         :param activity_id: The ID of activity to fetch.
+        :type activity_id: int
+
         :rtype: :class:`stravalib.model.Activity`
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id)
@@ -367,6 +397,7 @@ class Client(object):
 
         :param limit: Maximum number of activities to return. (default unlimited)
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -375,8 +406,8 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-
-    def create_activity(self, name, activity_type, start_date_local, elapsed_time, description=None, distance=None):
+    def create_activity(self, name, activity_type, start_date_local, elapsed_time,
+                        description=None, distance=None):
         """
         Create a new manual activity.
 
@@ -384,16 +415,23 @@ class Client(object):
         :meth:`stravalib.client.Client.upload_activity` method instead.
 
         :param name: The name of the activity.
+        :type name: str
+
         :param activity_type: The activity type (case-insensitive).
                               Possible values: ride, run, swim, workout, hike, walk, nordicski,
                               alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski,
                               windsurf, workout, snowboard, snowshoe
-        :param start_date: Local date/time of activity start. (TZ info will be ignored)
-        :type start_date: :class:`datetime.datetime` or string in ISO8601 format.
+        :type activity_type: str
+
+        :param start_date_local: Local date/time of activity start. (TZ info will be ignored)
+        :type start_date_local: :class:`datetime.datetime` or string in ISO8601 format.
+
         :param elapsed_time: The time in seconds or a :class:`datetime.timedelta` object.
         :type elapsed_time: :class:`datetime.timedelta` or int (seconds)
+
         :param description: The description for the activity.
         :type description: str
+
         :param distance: The distance in meters (float) or a :class:`units.quantity.Quantity` instance.
         :type distance: :class:`units.quantity.Quantity` or float (meters)
         """
@@ -431,6 +469,8 @@ class Client(object):
         http://strava.github.io/api/v3/activities/#put-updates
 
         :param activity_id: The ID of the activity to update.
+        :type activity_id: int
+
         :param name: The name of the activity.
         :param activity_type: The activity type (case-insensitive).
                               Possible values: ride, run, swim, workout, hike,
@@ -442,6 +482,7 @@ class Client(object):
         :param trainer: Whether this is a trainer activity.
         :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
         :param description: Description for the activity.
+
         :return: The updated activity.
         :rtype: :class:`stravalib.model.Activity`
         """
@@ -533,6 +574,12 @@ class Client(object):
         Requires premium account.
 
         http://strava.github.io/api/v3/activities/#zones
+
+        :param activity_id: The activity for which to zones.
+        :type activity_id: int
+
+        :return: An list of :class:`stravalib.model.ActivityComment` objects.
+        :rtype: :py:class:`list`
         """
         zones = self.protocol.get('/activities/{id}/zones', id=activity_id)
         # We use a factory to give us the correct zone based on type.
@@ -545,9 +592,14 @@ class Client(object):
         http://strava.github.io/api/v3/comments/#list
 
         :param activity_id: The activity for which to fetch comments.
+        :type activity_id: int
+
         :param markdown: Whether to include markdown in comments (default is false/filterout).
+        :type markdown: bool
+
         :param limit: Max rows to return (default unlimited).
         :type limit: int
+
         :return: An iterator of :class:`stravalib.model.ActivityComment` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -566,9 +618,12 @@ class Client(object):
         http://strava.github.io/api/v3/kudos/#list
 
         :param activity_id: The activity for which to fetch kudos.
+        :type activity_id: int
+
         :param limit: Max rows to return (default unlimited).
         :type limit: int
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
+
+        :return: An iterator of :class:`stravalib.model.ActivityKudos` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get,
@@ -587,6 +642,8 @@ class Client(object):
         http://strava.github.io/api/v3/photos/
 
         :param activity_id: The activity for which to fetch kudos.
+        :type activity_id: int
+
         :return: An iterator of :class:`stravalib.model.ActivityPhoto` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -598,7 +655,6 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
-
     def get_activity_laps(self, activity_id):
         """
         Gets the laps from an activity.
@@ -606,6 +662,8 @@ class Client(object):
         http://strava.github.io/api/v3/activities/#laps
 
         :param activity_id: The activity for which to fetch laps.
+        :type activity_id: int
+
         :return: An iterator of :class:`stravalib.model.ActivityLaps` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
@@ -625,6 +683,7 @@ class Client(object):
 
         :param gear_id: The gear id.
         :type gear_id: str
+
         :return: The Bike or Shoe subclass object.
         :rtype: :class:`stravalib.model.Gear`
         """
@@ -637,6 +696,9 @@ class Client(object):
         http://strava.github.io/api/v3/efforts/#retrieve
 
         :param effort_id: The id of associated effort to fetch.
+        :type effort_id: int
+
+        :return: The specified effort on a segment.
         :rtype: :class:`stravalib.model.SegmentEffort`
         """
         return model.SegmentEffort.deserialize(self.protocol.get('/segment_efforts/{id}',
@@ -649,11 +711,13 @@ class Client(object):
         http://strava.github.io/api/v3/segments/#retrieve
 
         :param segment_id: The segment to fetch.
+        :type segment_id: int
+
+        :return: A segment object.
         :rtype: :class:`stravalib.model.Segment`
         """
         return model.Segment.deserialize(self.protocol.get('/segments/{id}',
                                          id=segment_id), bind_client=self)
-
 
     def get_starred_segment(self, limit=None):
         """
@@ -665,7 +729,8 @@ class Client(object):
         :param limit: (optional), limit number of starred segments returned.
         :type limit: int
 
-        :rtype: :class:`stravalib.model.Segment`
+        :return: An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+        :rtype: :class:`BatchedResultsIterator`
         """
 
         params = {}
@@ -680,30 +745,52 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
-                                following=None, club_id=None, timeframe=None, top_results_limit=None):
+                                following=None, club_id=None, timeframe=None, top_results_limit=None,
+                                page=None):
         """
         Gets the leaderboard for a segment.
 
         http://strava.github.io/api/v3/segments/#leaderboard
 
-        Note that by default Strava will return the top 10 results *and then will also include
-        the bottom 5 results*.  The top X results can be configured by setting the top_results_limit
-        parameter; however,the bottom 5 results are always included.  (i.e. if you specify top_results_limit=15,
-        you will get a total of 20 entries back.)
+        Note that by default Strava will return the top 10 results, and if the current user has ridden
+        that segment, the current user's result along with the two results above in rank and the two
+        results below will be included.  The top X results can be configured by setting the top_results_limit
+        parameter; however, the other 5 results will be included if the current user has ridden that segment.
+        (i.e. if you specify top_results_limit=15, you will get a total of 20 entries back.)
 
         :param segment_id: ID of the segment.
+        :type segment_id: int
+
         :param gender: (optional) 'M' or 'F'
+        :type gender: str
+
         :param age_group: (optional) '0_24', '25_34', '35_44', '45_54', '55_64', '65_plus'
+        :type age_group: str
+
         :param weight_class: (optional) pounds '0_124', '125_149', '150_164', '165_179', '180_199', '200_plus'
                              or kilograms '0_54', '55_64', '65_74', '75_84', '85_94', '95_plus'
+        :type weight_class: str
+
         :param following: (optional) Limit to athletes current user is following.
+        :type following: bool
+
         :param club_id: (optional) limit to specific club
+        :type club_id: int
+
         :param timeframe: (optional)  'this_year', 'this_month', 'this_week', 'today'
+        :type timeframe: str
+
         :param top_results_limit: (optional, strava default is 10 + 5 from end) How many of leading leaderboard entries to display.
                             See description for why this is a little confusing.
+        :type top_results_limit: int
+
+        :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
+        :type page: int
+
+        :return: The SegmentLeaderboard for the specified page (default: 1)
         :rtype: :class:`stravalib.model.SegmentLeaderboard`
+
         """
         params = {}
         if gender is not None:
@@ -739,6 +826,9 @@ class Client(object):
         if top_results_limit is not None:
             params['per_page'] = top_results_limit
 
+        if page is not None:
+            params['page'] = page
+
         return model.SegmentLeaderboard.deserialize(self.protocol.get('/segments/{id}/leaderboard',
                                                                       id=segment_id,
                                                                       **params),
@@ -746,7 +836,7 @@ class Client(object):
 
     def get_segment_efforts(self, segment_id, athlete_id=None,
                             start_date_local=None, end_date_local=None,
-                            limit=None ):
+                            limit=None):
         """
         Gets all efforts on a particular segment sorted by start_date_local
 
@@ -768,9 +858,9 @@ class Client(object):
         http://strava.github.io/api/v3/segments/#all_efforts
 
         :param segment_id: ID of the segment.
-        :type segment_id: int
+        :type segment_id: param
 
-        :param athlete_id: (optional) ID of athlete.
+        :int athlete_id: (optional) ID of athlete.
         :type athlete_id: int
 
         :param start_date_local: (optional) efforts before this date will be excluded.
@@ -781,10 +871,11 @@ class Client(object):
                                            Either as ISO8601 or datetime object
         :type end_date_local: datetime.datetime or str
 
-        :param top_results_limit: (optional),
+        :param top_results_limit: (optional), limit number of efforts.
         :type results_limit: int
 
-        :rtype: :class:`stravalib.model.SegmentEffort`
+        :return: An iterator of :class:`stravalib.model.SegmentEffort` efforts on a segment.
+        :rtype: :class:`BatchedResultsIterator`
 
         """
         params = {"segment_id": segment_id}
@@ -820,12 +911,19 @@ class Client(object):
 
         :param bounds: list of bounding box corners lat/lon [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
         :type bounds: list of 4 floats or list of 2 (lat,lon) tuples
+
         :param activity_type: (optional, default is riding)  'running' or 'riding'
         :type activity_type: str
+
         :param min_cat: (optional) Minimum climb category filter
         :type min_cat: int
+
         :param max_cat: (optional) Maximum climb category filter
         :type max_cat: int
+
+        :return: An list of :class:`stravalib.model.Segment`.
+        :rtype: :py:class:`list`
+
         """
         if len(bounds) == 2:
             bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][2])
@@ -847,13 +945,14 @@ class Client(object):
 
         raw = self.protocol.get('/segments/explore', **params)
         return [model.SegmentExplorerResult.deserialize(v, bind_client=self)
-                                                    for v in raw['segments']]
-
+                for v in raw['segments']]
 
     def get_activity_streams(self, activity_id, types=None,
                              resolution=None, series_type=None):
         """
         Returns an streams for an activity.
+
+        http://strava.github.io/api/v3/streams/#activity
 
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
@@ -869,24 +968,30 @@ class Client(object):
         http://strava.github.io/api/v3/streams/#activity
 
         :param activity_id: The ID of activity.
-        :type: int
+        :type activity_id: int
+
         :param types: (optional) A list of the the types of streams to fetch.
         :type types: list
+
         :param resolution: (optional, default is 'all') indicates desired number
                             of data points. 'low' (100), 'medium' (1000),
                             'high' (10000) or 'all'.
         :type resolution: str
+
         :param series_type: (optional, default is 'distance'.  Relevant only if
                              using resolution either 'time' or 'distance'.
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the activity.
+        :rtype: :py:class:`dict`
+
         """
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -895,25 +1000,23 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/activities/{id}/streams/{types}'.format(
-                                                                id=activity_id,
-                                                                types=types),
-                                                                **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/streams/{types}'.format(id=activity_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
+        return {i.type: i for i in streams}
 
-
-    def get_effort_streams(self, effort_id, types=None,
-                           resolution=None, series_type=None):
+    def get_effort_streams(self, effort_id, types=None, resolution=None,
+                           series_type=None):
         """
         Returns an streams for an effort.
+
+        http://strava.github.io/api/v3/streams/#effort
 
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
@@ -929,24 +1032,30 @@ class Client(object):
         http://strava.github.io/api/v3/streams/#effort
 
         :param effort_id: The ID of effort.
-        :type: int
+        :type effort_id: int
+
         :param types: (optional) A list of the the types of streams to fetch.
         :type types: list
+
         :param resolution: (optional, default is 'all') indicates desired number
                             of data points. 'low' (100), 'medium' (1000),
                             'high' (10000) or 'all'.
         :type resolution: str
+
         :param series_type: (optional, default is 'distance'.  Relevant only if
                              using resolution either 'time' or 'distance'.
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the effort.
+        :rtype: :py:class:`dict`
+
         """
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -955,23 +1064,23 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/segment_efforts/{id}/streams/{types}'.format(id=effort_id,
-                                                                        types=types),
-                                                           **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segment_efforts/{id}/streams/{types}'.format(id=effort_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
+        return {i.type: i for i in streams}
 
-    def get_segment_streams(self, segment_id, types=None,
-                            resolution=None, series_type=None):
+    def get_segment_streams(self, segment_id, types=None, resolution=None,
+                            series_type=None):
         """
         Returns an streams for a segment.
+
+        http://strava.github.io/api/v3/streams/#segment
 
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
@@ -987,24 +1096,29 @@ class Client(object):
         http://strava.github.io/api/v3/streams/#effort
 
         :param segment_id: The ID of segment.
-        :type: int
+        :type segment_id: int
+
         :param types: (optional) A list of the the types of streams to fetch.
         :type types: list
+
         :param resolution: (optional, default is 'all') indicates desired number
                             of data points. 'low' (100), 'medium' (1000),
                             'high' (10000) or 'all'.
         :type resolution: str
+
         :param series_type: (optional, default is 'distance'.  Relevant only if
                              using resolution either 'time' or 'distance'.
                              Used to index the streams if the stream is being
                              reduced.
         :type series_type: str
-        :rtype: :class:`stravalib.model.Stream`
+
+        :return: An dictionary of :class:`stravalib.model.Stream` from the effort.
+        :rtype: :py:class:`dict`
         """
 
         # stream are comma seperated list
         if types is not None:
-            types= ",".join(types)
+            types = ",".join(types)
 
         params = {}
         if resolution is not None:
@@ -1013,19 +1127,16 @@ class Client(object):
         if series_type is not None:
             params["series_type"] = series_type
 
-        result_fetcher = functools.partial(
-                              self.protocol.get,
-                              '/segments/{id}/streams/{types}'.format(id=segment_id,
-                                                                        types=types),
-                                                            **params)
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/segments/{id}/streams/{types}'.format(id=segment_id, types=types),
+                                           **params)
 
         streams = BatchedResultsIterator(entity=model.Stream,
                                          bind_client=self,
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type : i for i in streams}
-
+        return {i.type: i for i in streams}
 
 
 class BatchedResultsIterator(object):
@@ -1053,7 +1164,7 @@ class BatchedResultsIterator(object):
         :type limit: int
 
         :param per_page: How many rows to fetch per page (default is 200).
-        :type per_page: int
+        :rtype: :py:class:`int`
         """
 
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
@@ -1123,6 +1234,7 @@ class BatchedResultsIterator(object):
             self._counter += 1
             return result
 
+
 class ActivityUploader(object):
     """
     The "future" object that holds information about an activity file upload and can
@@ -1133,8 +1245,10 @@ class ActivityUploader(object):
         """
         :param client: The :class:`stravalib.client.Client` object that is handling the upload.
         :type client: :class:`stravalib.client.Client`
+
         :param response: The initial upload response.
-        :type response: dict
+        :type response: :py:class:`dict`
+
         """
         self.client = client
         self.update_from_repsonse(response)
@@ -1144,7 +1258,7 @@ class ActivityUploader(object):
         Updates internal state of object.
 
         :param response: The response object (dict).
-        :type response: dict
+        :type response: :py:class:`dict`
         :param raise_exc: Whether to raise an exception if the response
                           indicates an error state. (default True)
         :type raise_exc: bool
@@ -1197,11 +1311,14 @@ class ActivityUploader(object):
         :param timeout: The max seconds to wait. Will raise TimeoutExceeded
                         exception if this time passes without success or error response.
         :type timeout: float
+
         :param poll_interval: How long to wait between upload checks.  Strava
                               recommends 1s minimum. (default 1.0s)
         :type poll_interval: float
+
         :return: The uploaded Activity object (fetched from server)
         :rtype: :class:`stravalib.model.Activity`
+
         :raise stravalib.exc.TimeoutExceeded: If a timeout was specified and
                                               activity is still processing after
                                               timeout has elapsed.
