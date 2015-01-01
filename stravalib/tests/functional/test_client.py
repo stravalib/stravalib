@@ -114,6 +114,17 @@ class ClientTest(FunctionalTestBase):
         # latlng stream
         self.assertIsInstance(streams['latlng'].data, list)
         self.assertIsInstance(streams['latlng'].data[0][0], float)
+        
+    def test_related_activities(self):
+        """
+        Test get_related_activities on an activity
+        """
+        activity_id = 152668627
+        activity = self.client.get_activity(activity_id)
+        related_activities = list(self.client.get_related_activities(activity_id))
+        
+        # Check the number of related_activities matches what activity would expect
+        self.assertEqual(len(related_activities), activity.athlete_count-1)
 
     def test_effort_streams(self):
         """
