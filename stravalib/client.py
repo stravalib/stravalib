@@ -674,6 +674,27 @@ class Client(object):
         return BatchedResultsIterator(entity=model.ActivityLap,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
+        
+    def get_related_activities(self, activity_id, limit=None):
+        """
+        Returns the activities that were matched as 'with this activity'.
+
+        http://strava.github.io/api/v3/activities/#get-related
+
+        :param activity_id: The activity for which to fetch related activities.
+        :type activity_id: int
+
+        :return: An iterator of :class:`stravalib.model.Activity` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/activities/{id}/related',
+                                           id=activity_id)
+
+        return BatchedResultsIterator(entity=model.Activity,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
 
     def get_gear(self, gear_id):
         """
