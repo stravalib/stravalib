@@ -345,9 +345,9 @@ class ActivityPhoto(LoadableEntity):
     ref = Attribute(unicode, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
     uid = Attribute(unicode, (META, SUMMARY, DETAILED))  #: unique id
     caption = Attribute(unicode, (META, SUMMARY, DETAILED))  #: caption on photo
-    type = Attribute(unicode, (META, SUMMARY, DETAILED))  #: type of photo #left this off to prevent name clash
-    uploaded_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was phto uploaded
-    created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was phto created
+    type = Attribute(unicode, (META, SUMMARY, DETAILED))  #: type of photo (currently only InstagramPhoto)
+    uploaded_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo uploaded
+    created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo created
     location = LocationAttribute()  #: Start lat/lon of photo
 
 
@@ -641,6 +641,8 @@ class Activity(LoadableEntity):
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
+
+    instagram_primary_photo = Attribute(unicode, (DETAILED,)) #: (undocumented) Appears to be the ref to first associated instagram photo
 
     @property
     def comments(self):
