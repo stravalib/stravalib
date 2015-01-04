@@ -569,6 +569,7 @@ class Activity(LoadableEntity):
     _photos = None
     #_gear = None
     _laps = None
+    _related = None
 
     TYPES = (RIDE, RUN, SWIM, WALK, ALPINESKI, BACKCOUNTRYSKI, CANOEING,
              CROSSCOUNTRYSKIING, CROSSFIT, ELLIPTICAL, HIKE, ICESKATE,
@@ -700,6 +701,20 @@ class Activity(LoadableEntity):
             else:
                 self._photos = []
         return self._photos
+    
+    @property
+    def related(self):
+        """
+        Iterator of :class:`stravalib.model.Activty` objects for activities matched as
+        with this activity.
+        """
+        if self._related is None:
+            if self.athlete_count - 1 > 0:
+                self.assert_bind_client()
+                self._related = self.bind_client.get_related_activities(self.id)
+            else:
+                self._related = []
+        return self._related
 
 
 class SegmentLeaderboardEntry(BoundEntity):

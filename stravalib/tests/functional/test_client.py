@@ -117,7 +117,7 @@ class ClientTest(FunctionalTestBase):
         
     def test_related_activities(self):
         """
-        Test get_related_activities on an activity
+        Test get_related_activities on an activity and related property of Activity
         """
         activity_id = 152668627
         activity = self.client.get_activity(activity_id)
@@ -125,6 +125,10 @@ class ClientTest(FunctionalTestBase):
         
         # Check the number of related_activities matches what activity would expect
         self.assertEqual(len(related_activities), activity.athlete_count-1)
+        
+        # Check the related property gives the same result
+        related_activities_from_property = list(activity.related)
+        self.assertEqual(related_activities, related_activities_from_property)        
 
     def test_effort_streams(self):
         """
