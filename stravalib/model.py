@@ -492,6 +492,15 @@ class Segment(LoadableEntity):
         return self._leaderboard
 
 
+class SegmentEfforAchievement(BaseEntity):
+    """
+    An undocumented structure being returned for segment efforts.
+    """
+    rank = Attribute(int) #: Rank in segment (either overall leaderboard, or pr rank)
+    type = Attribute(unicode) #: The type of achievement -- e.g. 'year_pr' or 'overall'
+    type_id = Attribute(int) #: Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
+
+
 class BaseEffort(LoadableEntity):
     """
     Base class for a best effort or segment effort.
@@ -511,9 +520,10 @@ class BaseEffort(LoadableEntity):
     average_heartrate = Attribute(float, (SUMMARY, DETAILED))   #: Average HR during effort
     max_heartrate = Attribute(float, (SUMMARY, DETAILED))   #: Max HR during effort
     average_cadence = Attribute(float, (SUMMARY, DETAILED))   #: Average cadence during effort
-    start_index = Attribute(int, (SUMMARY, DETAILED))  # the activity stream index of the start of this effort
-    end_index = Attribute(int, (SUMMARY, DETAILED))  # the activity stream index of the end of this effort
+    start_index = Attribute(int, (SUMMARY, DETAILED))  #: The activity stream index of the start of this effort
+    end_index = Attribute(int, (SUMMARY, DETAILED))  #: The activity stream index of the end of this effort
 
+    achievements = EntityCollection(SegmentEfforAchievement, (SUMMARY, DETAILED)) #: Undocumented attribute includes list of achievements for this effort.
 
 class BestEffort(BaseEffort):
     """
