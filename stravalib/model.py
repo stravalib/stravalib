@@ -301,7 +301,7 @@ class Athlete(LoadableEntity):
     @property
     def friends(self):
         """
-        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        :return: Iterator of :class:`stravalib.model.Athlete` friend objects for this athlete.
         """
         if self._friends is None:
             self.assert_bind_client()
@@ -315,7 +315,7 @@ class Athlete(LoadableEntity):
     @property
     def followers(self):
         """
-        Iterator of :class:`stravalib.model.Athlete` objects for this activity.
+        :return: Iterator of :class:`stravalib.model.Athlete` followers objects for this athlete.
         """
         if self._followers is None:
             self.assert_bind_client()

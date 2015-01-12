@@ -315,6 +315,26 @@ class Client(object):
         club_structs = self.protocol.get('/athlete/clubs')
         return [model.Club.deserialize(raw, bind_client=self) for raw in club_structs]
 
+    def join_club(self, club_id):
+        """
+        Joins the club on behalf of authenticated athlete.
+
+        (Access token with write permissions required.)
+
+        :param club_id: The numeric ID of the club to join.
+        """
+        self.protocol.post('clubs/{id}/join', id=club_id)
+
+    def leave_club(self, club_id):
+        """
+        Leave club on behalf of authenticated user.
+
+        (Acces token with write permissions required.)
+
+        :param club_id:
+        """
+        self.protocol.post('clubs/{id}/leave', id=club_id)
+
     def get_club(self, club_id):
         """
         Return a specific club object.
