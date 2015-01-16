@@ -3,6 +3,12 @@ Changes
 
 .. contents::
 
+0.4.0
+-----
+* Supporting new/removed attribs in Strava API (#41, $42)
+* Added support for joining/leaving clubs (#43)
+* Respect time zones in datetime objects being converted to epochs. (#44)
+
 0.3.0
 -----
 * Activity streams data (Ghis)

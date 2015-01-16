@@ -147,7 +147,7 @@ class Client(object):
         assert isinstance(activity_datetime, datetime)
         if activity_datetime.tzinfo:
             activity_datetime = activity_datetime.astimezone(pytz.utc)
-            
+
         return calendar.timegm(activity_datetime.timetuple())
 
     def get_activities(self, before=None, after=None, limit=None):
