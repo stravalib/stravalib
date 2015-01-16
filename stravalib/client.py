@@ -9,6 +9,8 @@ import calendar
 from io import BytesIO
 from datetime import datetime, timedelta
 
+import pytz
+
 from dateutil.parser import parser
 dateparser = parser()
 
@@ -132,9 +134,20 @@ class Client(object):
                                                      code=code)
 
     def _utc_datetime_to_epoch(self, activity_datetime):
-        if isinstance(activity_datetime, str):
-            activity_datetime = dateparser.parse(activity_datetime, ignoretz=True)
+        """
+        Convert the specified datetime value to a unix epoch timestamp (seconds since epoch).
 
+        :param activity_datetime: A string which may contain tzinfo (offset) or a datetime object (naive datetime will
+                                    be considered to be UTC).
+        :return: Epoch timestamp.
+        :rtype: int
+        """
+        if isinstance(activity_datetime, str):
+            activity_datetime = dateparser.parse(activity_datetime)
+        assert isinstance(activity_datetime, datetime)
+        if activity_datetime.tzinfo:
+            activity_datetime = activity_datetime.astimezone(pytz.utc)
+            
         return calendar.timegm(activity_datetime.timetuple())
 
     def get_activities(self, before=None, after=None, limit=None):
