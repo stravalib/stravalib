@@ -38,8 +38,8 @@ class BaseEntity(object):
                 self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
                 try:
                     setattr(self, k, v)
-                except AttributeError:
-                    raise AttributeError("Error setting attribute {0} on entity {1}, value: {2!r}".format(k, self, v))
+                except AttributeError as x:
+                    raise AttributeError("Could not find attribute `{0}` on entity {1}, value: {2!r}.  (Original: {3!r})".format(k, self, v, x))
             else:
                 self.log.warning("No such attribute {0} on entity {1}".format(k, self))
 
