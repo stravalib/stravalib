@@ -659,7 +659,7 @@ class Activity(LoadableEntity):
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
-    photos = EntityCollection(AcitvityPhotoMeta, (DETAILED,)) #: (undocumented) A new photo metadata structure.
+    photos = EntityAttribute(AcitvityPhotoMeta, (DETAILED,)) #: (undocumented) A new photo metadata structure.
     instagram_primary_photo = Attribute(unicode, (DETAILED,)) #: (undocumented) Appears to be the ref to first associated instagram photo
 
     @property
