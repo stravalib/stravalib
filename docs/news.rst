@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.5.0
+-----
+* Renamed `Activity.photos` property to `full_photos` due to new conflict with Strava API (#45)
+
 0.4.0
 -----
 * Supporting new/removed attribs in Strava API (#41, $42)
