@@ -336,7 +336,13 @@ class ActivityComment(LoadableEntity):
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was coment created
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
-
+class AcitvityPhotoMeta(BaseEntity):
+    """
+    The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
+    """
+    count = Attribute(int)
+    primary = Attribute(unicode)
+    
 class ActivityPhoto(LoadableEntity):
     """
     Information about photos attached to an activity.
@@ -653,6 +659,7 @@ class Activity(LoadableEntity):
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
+    photos = EntityCollection(AcitvityPhotoMeta, (DETAILED,)) #: (undocumented) A new photo metadata structure.
     instagram_primary_photo = Attribute(unicode, (DETAILED,)) #: (undocumented) Appears to be the ref to first associated instagram photo
 
     @property
@@ -700,7 +707,7 @@ class Activity(LoadableEntity):
         return self._kudos
 
     @property
-    def photos(self):
+    def full_photos(self):
         """
         :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
         """
