@@ -1323,11 +1323,11 @@ class ActivityUploader(object):
         :type raise_exc: bool
         :raise stravalib.exc.ActivityUploadFailed: If the response indicates an error and raise_exc is True.
         """
-        self.upload_id = response['id']
+        self.upload_id = response.get('id')
         self.external_id = response.get('external_id')
         self.activity_id = response.get('activity_id')
-        self.status = response['status']
-        self.error = response['error']
+        self.status = response.get('status')
+        self.error = response.get('error')
         if raise_exc:
             self.raise_for_error()
 
