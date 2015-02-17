@@ -540,7 +540,7 @@ class Client(object):
         raw_activity = self.protocol.put('/activities/{activity_id}', **params)
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
-    def upload_activity(self, activity_file, data_type, name=None,
+    def upload_activity(self, activity_file, data_type, name=None, description=None,
                         activity_type=None, private=None, external_id=None):
         """
         Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
@@ -554,6 +554,9 @@ class Client(object):
         :type data_type: str
 
         :param name: (optional) if not provided, will be populated using start date and location, if available
+        :type name: str
+
+        :param description: (optional) The description for the activity
         :type name: str
 
         :param activity_type: (optional) case-insensitive type of activity.
@@ -583,7 +586,9 @@ class Client(object):
 
         params = {'data_type': data_type}
         if name is not None:
-            params['activity_name'] = name
+            params['name'] = name
+        if description is not None:
+            params['description'] = description
         if activity_type is not None:
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
                 raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
