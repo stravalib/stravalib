@@ -1310,9 +1310,9 @@ class ActivityUploader(object):
 
         """
         self.client = client
-        self.update_from_repsonse(response)
+        self.update_from_response(response)
 
-    def update_from_repsonse(self, response, raise_exc=True):
+    def update_from_response(self, response, raise_exc=True):
         """
         Updates internal state of object.
 
@@ -1359,7 +1359,7 @@ class ActivityUploader(object):
                                             upload_id=self.upload_id,
                                             check_for_errors=False)
 
-        self.update_from_repsonse(response)
+        self.update_from_response(response)
 
     def wait(self, timeout=None, poll_interval=1.0):
         """
