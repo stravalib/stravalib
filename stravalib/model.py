@@ -405,6 +405,7 @@ class ActivityLap(LoadableEntity):
     average_heartrate = Attribute(float, (SUMMARY, DETAILED,))  #: Average heartrate for lap
     max_heartrate = Attribute(float, (SUMMARY, DETAILED,))  #: Max heartrate for lap
     lap_index = Attribute(int, (SUMMARY, DETAILED))  #: Index of lap
+    device_watts = Attribute(bool, (SUMMARY, DETAILED))  # true if the watts are from a power meter, false if estimated
 
 
 class Map(IdentifiableEntity):
