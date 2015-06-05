@@ -36,6 +36,18 @@ class ClientTest(FunctionalTestBase):
         # Ensure that iw as read in with correct units
         self.assertEquals(22.5308, float(uh.kilometers(activity.distance)))
 
+    def test_get_activity_and_segments(self):
+        """ Test include_all_efforts parameter on activity fetching. """
+        if not self.activity_id:
+            self.fail("Include an activity_id in test.ini to test segment_efforts")
+
+        activity = self.client.get_activity(self.activity_id, include_all_efforts=True)
+        self.assertTrue(isinstance(activity.segment_efforts, list))
+
+        # Check also when we have no parameters segment_efforts is None
+        activity_no_segments = self.client.get_activity(self.activity_id)
+        self.assertTrue(activity.segment_efforts, None)
+
     def test_get_activity_laps(self):
         activity = self.client.get_activity(165094211)
         laps = list(self.client.get_activity_laps(165094211))
@@ -114,7 +126,7 @@ class ClientTest(FunctionalTestBase):
         # latlng stream
         self.assertIsInstance(streams['latlng'].data, list)
         self.assertIsInstance(streams['latlng'].data[0][0], float)
-        
+
     def test_related_activities(self):
         """
         Test get_related_activities on an activity and related property of Activity
@@ -122,13 +134,13 @@ class ClientTest(FunctionalTestBase):
         activity_id = 152668627
         activity = self.client.get_activity(activity_id)
         related_activities = list(self.client.get_related_activities(activity_id))
-        
+
         # Check the number of related_activities matches what activity would expect
         self.assertEqual(len(related_activities), activity.athlete_count-1)
-        
+
         # Check the related property gives the same result
         related_activities_from_property = list(activity.related)
-        self.assertEqual(related_activities, related_activities_from_property)        
+        self.assertEqual(related_activities, related_activities_from_property)
 
     def test_effort_streams(self):
         """
@@ -289,4 +301,3 @@ class ClientTest(FunctionalTestBase):
 
         # For some reason these don't follow the simple math rules one might expect (so we round to int)
         self.assertAlmostEqual(results[0].elev_difference, segment.elevation_high - segment.elevation_low, places=0)
-

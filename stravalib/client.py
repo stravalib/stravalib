@@ -406,7 +406,7 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-    def get_activity(self, activity_id):
+    def get_activity(self, activity_id, include_all_efforts=False):
         """
         Gets specified activity.
 
@@ -417,9 +417,14 @@ class Client(object):
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
 
+        :param inclue_all_efforts: Whether to include segment efforts - only
+                                   available to the owner of the activty.
+        :type include_all_efforts: bool
+
         :rtype: :class:`stravalib.model.Activity`
         """
-        raw = self.protocol.get('/activities/{id}', id=activity_id)
+        raw = self.protocol.get('/activities/{id}', id=activity_id,
+                                include_all_efforts=include_all_efforts)
         return model.Activity.deserialize(raw, bind_client=self)
 
     def get_friend_activities(self, limit=None):
@@ -712,7 +717,7 @@ class Client(object):
         return BatchedResultsIterator(entity=model.ActivityLap,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
-        
+
     def get_related_activities(self, activity_id, limit=None):
         """
         Returns the activities that were matched as 'with this activity'.
