@@ -66,14 +66,12 @@ class ModelTest(TestBase):
         s.distance = 1000
         s.elevation_high = 2000
         s.elevation_low = 1000
-        s.pr_distance = 1000
         self.assertIsInstance(s.distance, Quantity)
         self.assertIsInstance(s.elevation_high, Quantity)
         self.assertIsInstance(s.elevation_low, Quantity)
         self.assertEquals(1.0, float(uh.kilometers(s.distance)))
         self.assertEquals(2.0, float(uh.kilometers(s.elevation_high)))
         self.assertEquals(1.0, float(uh.kilometers(s.elevation_low)))
-        self.assertEquals(1.0, float(uh.kilometers(s.pr_distance)))
 
         # Activity
         a = model.Activity()
