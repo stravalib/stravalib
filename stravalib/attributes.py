@@ -203,7 +203,7 @@ class EntityAttribute(Attribute):
         if val is not None:
             # If the "owning" object has a bind_client set, we want to pass that
             # down into the objects we are deserializing here
-            self.data[obj] = self.unmarshal(val, bind_client=getattr(obj, 'bind_client'))
+            self.data[obj] = self.unmarshal(val, bind_client=getattr(obj, 'bind_client', None))
         else:
             self.data[obj] = None
 

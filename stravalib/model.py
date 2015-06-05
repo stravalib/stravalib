@@ -210,6 +210,20 @@ class ActivityTotals(BaseEntity):
     moving_time = TimeIntervalAttribute()  #: :class:`datetime.timedelta` of total moving time
 
 
+class AthleteStats(BaseEntity):
+    """
+    Represents a combined set of an Athlete's statistics.
+    """
+    biggest_ride_distance = Attribute(float, units=uh.meters)
+    biggest_climb_elevation_gain = Attribute(float, units=uh.meters)
+    recent_ride_totals = EntityAttribute(ActivityTotals)
+    recent_run_totals = EntityAttribute(ActivityTotals)
+    ytd_ride_totals = EntityAttribute(ActivityTotals)
+    ytd_run_totals = EntityAttribute(ActivityTotals)
+    all_ride_totals = EntityAttribute(ActivityTotals)
+    all_run_totals = EntityAttribute(ActivityTotals)
+
+
 class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.

@@ -342,6 +342,10 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def get_athlete_stats(self, athlete_id):
+        raw = self.protocol.get('/athletes/{id}/stats', id=athlete_id)
+        return model.AthleteStats.deserialize(raw)
+
     def get_athlete_clubs(self):
         """
         List the clubs for the currently authenticated athlete.
