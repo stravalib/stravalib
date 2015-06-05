@@ -342,7 +342,21 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-    def get_athlete_stats(self, athlete_id):
+    def get_athlete_stats(self, athlete_id=None):
+        """
+        Returns Statistics for the athlete.
+        athlete_id must be the id of the authenticated athlete or left blank.
+        If it is left blank two requests will be made - first to get the
+        authenticated athlete's id and second to get the Stats.
+
+        http://strava.github.io/api/v3/athlete/#stats
+
+        :return: A model containing the Stats
+        :rtype: :py:class:`stravalib.model.AthleteStats`
+        """
+        if athlete_id is None:
+            athlete_id = self.get_athlete().id
+
         raw = self.protocol.get('/athletes/{id}/stats', id=athlete_id)
         return model.AthleteStats.deserialize(raw)
 
