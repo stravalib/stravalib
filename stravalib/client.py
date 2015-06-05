@@ -238,6 +238,32 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def update_athlete(self, city=None, state=None, country=None, sex=None, weight=None):
+        """
+        Updates the properties of the authorized athlete.
+
+        http://strava.github.io/api/v3/athlete/#update
+
+        :param city: City the athlete lives in
+        :param state: State the athlete lives in
+        :param country: Country the athlete lives in
+        :param sex: Sex of the athlete
+        :param weight: Weight of the athlete in kg (float)
+
+        :return: The updated athlete
+        :rtype: :class:`stravalib.model.Athlete`
+        """
+        params = {'city': city,
+                  'state': state,
+                  'country': country,
+                  'sex': sex}
+        params = {k: v for (k, v) in params.iteritems() if v is not None}
+        if weight is not None:
+            params['weight'] = float(weight)
+
+        raw_athlete = self.protocol.put('/athlete', **params)
+        return model.Athlete.deserialize(raw_athlete, bind_client=self)
+
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
         Gets followers for current (or specified) athlete.
