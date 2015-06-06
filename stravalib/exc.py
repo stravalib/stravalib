@@ -48,3 +48,10 @@ class CreatedActivityDeleted(ActivityUploadFailed):
 
 class TimeoutExceeded(RuntimeError):
     pass
+
+
+class NotAuthenticatedAthlete(AuthError):
+    """
+    Exception when trying to access data which requires an authenticated athlete
+    """
+    pass

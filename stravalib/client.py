@@ -358,6 +358,9 @@ class Client(object):
             athlete_id = self.get_athlete().id
 
         raw = self.protocol.get('/athletes/{id}/stats', id=athlete_id)
+        # TODO: Better error handling - this will return a 401 if this athlete
+        #       is not the authenticated athlete.
+
         return model.AthleteStats.deserialize(raw)
 
     def get_athlete_clubs(self):

@@ -351,6 +351,8 @@ class Athlete(LoadableEntity):
         """
         :return: Associated :class:`stravalib.model.AthleteStats`
         """
+        if not self.is_authenticated_athlete():
+            raise exc.NotAuthenticatedAthlete("Statistics are only available for the authenticated athlete")
         if self._stats is None:
             self.assert_bind_client()
             self._stats = self.bind_client.get_athlete_stats(self.id)
