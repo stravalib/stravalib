@@ -214,14 +214,14 @@ class AthleteStats(BaseEntity):
     """
     Represents a combined set of an Athlete's statistics.
     """
-    biggest_ride_distance = Attribute(float, units=uh.meters)
-    biggest_climb_elevation_gain = Attribute(float, units=uh.meters)
-    recent_ride_totals = EntityAttribute(ActivityTotals)
-    recent_run_totals = EntityAttribute(ActivityTotals)
-    ytd_ride_totals = EntityAttribute(ActivityTotals)
-    ytd_run_totals = EntityAttribute(ActivityTotals)
-    all_ride_totals = EntityAttribute(ActivityTotals)
-    all_run_totals = EntityAttribute(ActivityTotals)
+    biggest_ride_distance = Attribute(float, units=uh.meters)  #: Longest ride for athlete.
+    biggest_climb_elevation_gain = Attribute(float, units=uh.meters)  #: Greatest single elevation gain for athlete.
+    recent_ride_totals = EntityAttribute(ActivityTotals)  #: Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    recent_run_totals = EntityAttribute(ActivityTotals)  #: Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    ytd_ride_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    ytd_run_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    all_ride_totals = EntityAttribute(ActivityTotals)  #: All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    all_run_totals = EntityAttribute(ActivityTotals)  #: All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
 
 
 class Athlete(LoadableEntity):
@@ -258,22 +258,11 @@ class Athlete(LoadableEntity):
     bikes = EntityCollection(Bike, (DETAILED,))  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
     shoes = EntityCollection(Shoe, (DETAILED,))  #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
 
-    # Some undocumented summary & detailed  attributes
-    ytd_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
-    recent_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
-    all_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
-
-    ytd_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
-    recent_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
-    all_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
-
     super_user = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented) Whether athlete is a super user (not
-    biggest_ride_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: (undocumented) Longest ride for athlete.
-    biggest_climb_elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: (undocumented) Greatest single elevation gain for athlete.
 
     email_language = Attribute(unicode, (SUMMARY, DETAILED))  #: The user's preferred lang/locale (e.g. en-US)
 
-    # A bunch more undocumented detailed-resolution attribs
+    # A bunch of undocumented detailed-resolution attribs
     weight = Attribute(float, (DETAILED,), units=uh.kg)  #: (undocumented, detailed-only)  Athlete's configured weight.
     max_heartrate = Attribute(float, (DETAILED,))  #: (undocumented, detailed-only) Athlete's configured max HR
 
