@@ -238,6 +238,32 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    def update_athlete(self, city=None, state=None, country=None, sex=None, weight=None):
+        """
+        Updates the properties of the authorized athlete.
+
+        http://strava.github.io/api/v3/athlete/#update
+
+        :param city: City the athlete lives in
+        :param state: State the athlete lives in
+        :param country: Country the athlete lives in
+        :param sex: Sex of the athlete
+        :param weight: Weight of the athlete in kg (float)
+
+        :return: The updated athlete
+        :rtype: :class:`stravalib.model.Athlete`
+        """
+        params = {'city': city,
+                  'state': state,
+                  'country': country,
+                  'sex': sex}
+        params = {k: v for (k, v) in params.iteritems() if v is not None}
+        if weight is not None:
+            params['weight'] = float(weight)
+
+        raw_athlete = self.protocol.put('/athlete', **params)
+        return model.Athlete.deserialize(raw_athlete, bind_client=self)
+
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
         Gets followers for current (or specified) athlete.
@@ -406,7 +432,7 @@ class Client(object):
         return BatchedResultsIterator(entity=model.Activity, bind_client=self,
                                       result_fetcher=result_fetcher, limit=limit)
 
-    def get_activity(self, activity_id):
+    def get_activity(self, activity_id, include_all_efforts=False):
         """
         Gets specified activity.
 
@@ -417,9 +443,14 @@ class Client(object):
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
 
+        :param inclue_all_efforts: Whether to include segment efforts - only
+                                   available to the owner of the activty.
+        :type include_all_efforts: bool
+
         :rtype: :class:`stravalib.model.Activity`
         """
-        raw = self.protocol.get('/activities/{id}', id=activity_id)
+        raw = self.protocol.get('/activities/{id}', id=activity_id,
+                                include_all_efforts=include_all_efforts)
         return model.Activity.deserialize(raw, bind_client=self)
 
     def get_friend_activities(self, limit=None):
@@ -712,7 +743,7 @@ class Client(object):
         return BatchedResultsIterator(entity=model.ActivityLap,
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
-        
+
     def get_related_activities(self, activity_id, limit=None):
         """
         Returns the activities that were matched as 'with this activity'.

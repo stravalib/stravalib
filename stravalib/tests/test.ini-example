@@ -5,3 +5,11 @@
 # scope=write or scope=private,write.)
 
 access_token = xxxxxxxxxxxxxxxx
+
+
+[activity_tests]
+
+# Some tests require an activity which is owned by the athlete who obtained the
+# access_token above.
+
+activity_id =
