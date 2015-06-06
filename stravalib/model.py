@@ -294,6 +294,7 @@ class Athlete(LoadableEntity):
     _friends = None
     _followers = None
     _stats = None
+    _is_authenticated = None
 
     def __repr__(self):
         fname = self.firstname and self.firstname.encode('utf-8')
@@ -301,6 +302,21 @@ class Athlete(LoadableEntity):
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
                                                                              fname=fname,
                                                                              lname=lname)
+
+    def is_authenticated_athlete(self):
+        """
+        :return: Boolean as to whether the athlete is the authenticated athlete.
+        """
+        if self._is_authenticated is None:
+            if self.resource_state == DETAILED:
+                # If the athlete is in detailed state it must be the authenticated athlete
+                self._is_authenticated = True
+            else:
+                # We need to check this athlete's id matches the authenticated athlete's id
+                self.assert_bind_client()
+                authenticated_athlete = self.bind_client.get_athlete()
+                self._is_authenticated = authenticated_athlete.id == self.id
+        return self._is_authenticated
 
     @property
     def friends(self):
