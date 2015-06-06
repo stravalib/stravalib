@@ -293,6 +293,7 @@ class Athlete(LoadableEntity):
 
     _friends = None
     _followers = None
+    _stats = None
 
     def __repr__(self):
         fname = self.firstname and self.firstname.encode('utf-8')
@@ -328,6 +329,16 @@ class Athlete(LoadableEntity):
                 # Shortcut if we know there aren't any
                 self._followers = []
         return self._followers
+
+    @property
+    def stats(self):
+        """
+        :return: Associated :class:`stravalib.model.AthleteStats`
+        """
+        if self._stats is None:
+            self.assert_bind_client()
+            self._stats = self.bind_client.get_athlete_stats(self.id)
+        return self._stats
 
 
 class ActivityComment(LoadableEntity):
