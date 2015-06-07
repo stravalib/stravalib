@@ -1,9 +1,11 @@
 from __future__ import absolute_import, unicode_literals
 
-from stravalib import model, attributes, unithelper as uh
+from stravalib import model, attributes, exc, unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
 import datetime
+import requests
+
 
 class ClientTest(FunctionalTestBase):
     def test_get_starred_segment(self):
@@ -301,3 +303,75 @@ class ClientTest(FunctionalTestBase):
 
         # For some reason these don't follow the simple math rules one might expect (so we round to int)
         self.assertAlmostEqual(results[0].elev_difference, segment.elevation_high - segment.elevation_low, places=0)
+
+
+class AuthenticatedAthleteTest(FunctionalTestBase):
+    """
+    Tests the function is_authenticated_athlete in model.Athlete
+    """
+    def test_caching(self):
+        a = model.Athlete()
+        a._is_authenticated = "Not None"
+        self.assertEqual(a.is_authenticated_athlete(), "Not None")
+
+    def test_correct_athlete_returns_true(self):
+        a = self.client.get_athlete()
+        self.assertTrue(a.is_authenticated_athlete())
+
+    def test_detailed_resource_state_means_true(self):
+        a = model.Athlete()
+        a.resource_state = attributes.DETAILED
+        self.assertTrue(a.is_authenticated_athlete())
+
+    def test_correct_athlete_not_detailed_returns_true(self):
+        a = self.client.get_athlete()
+        a.resource_state = attributes.SUMMARY
+        # Now will have to do a look up for the authenticated athlete and check the ids match
+        self.assertTrue(a.is_authenticated_athlete())
+
+    def test_not_authenticated_athlete_is_false(self):
+        CAV_ID = 1353775
+        a = self.client.get_athlete(CAV_ID)
+        self.assertEqual(a.resource_state, attributes.SUMMARY)
+        self.assertFalse(a.is_authenticated_athlete())
+
+
+class AthleteStatsTest(FunctionalTestBase):
+    """
+    Tests the functionality for collecting athlete statistics
+    http://strava.github.io/api/v3/athlete/#stats
+    """
+    def test_basic_get_from_client(self):
+        stats = self.client.get_athlete_stats()
+        self.assertIsInstance(stats, model.AthleteStats)
+        self.assertIsInstance(stats.recent_ride_totals, model.ActivityTotals)
+        # Check biggest_climb_elevation_gain has been set
+        self.assertTrue(uh.meters(stats.biggest_climb_elevation_gain) >= uh.meters(0))
+
+    def test_get_from_client_with_authenticated_id(self):
+        athlete_id = self.client.get_athlete().id
+        stats = self.client.get_athlete_stats(athlete_id)
+        self.assertIsInstance(stats, model.AthleteStats)
+        # Check same as before
+        self.assertEqual(stats.biggest_climb_elevation_gain, self.client.get_athlete_stats().biggest_climb_elevation_gain)
+
+    def test_get_from_client_with_wrong_id(self):
+        CAV_ID = 1353775
+        # Currently raises a requests.exceptions.HTTPError, TODO: better error handling
+        self.assertRaises(requests.exceptions.HTTPError, self.client.get_athlete_stats, CAV_ID)
+
+    def test_athlete_stats_property_option(self):
+        a = self.client.get_athlete()
+        stats = a.stats
+        self.assertIsInstance(stats, model.AthleteStats)
+
+    def test_athlete_stats_cached(self):
+        a = self.client.get_athlete()
+        a._stats = "Not None"
+        stats = a.stats
+        self.assertEqual(stats, "Not None")
+
+    def test_athlete_property_not_authenticated(self):
+        cav = self.client.get_athlete(1353775)
+        with self.assertRaises(exc.NotAuthenticatedAthlete):
+            cav.stats
