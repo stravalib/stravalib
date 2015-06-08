@@ -210,6 +210,20 @@ class ActivityTotals(BaseEntity):
     moving_time = TimeIntervalAttribute()  #: :class:`datetime.timedelta` of total moving time
 
 
+class AthleteStats(BaseEntity):
+    """
+    Represents a combined set of an Athlete's statistics.
+    """
+    biggest_ride_distance = Attribute(float, units=uh.meters)  #: Longest ride for athlete.
+    biggest_climb_elevation_gain = Attribute(float, units=uh.meters)  #: Greatest single elevation gain for athlete.
+    recent_ride_totals = EntityAttribute(ActivityTotals)  #: Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    recent_run_totals = EntityAttribute(ActivityTotals)  #: Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    ytd_ride_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    ytd_run_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    all_ride_totals = EntityAttribute(ActivityTotals)  #: All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
+    all_run_totals = EntityAttribute(ActivityTotals)  #: All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
+
+
 class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
@@ -244,22 +258,11 @@ class Athlete(LoadableEntity):
     bikes = EntityCollection(Bike, (DETAILED,))  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
     shoes = EntityCollection(Shoe, (DETAILED,))  #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
 
-    # Some undocumented summary & detailed  attributes
-    ytd_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
-    recent_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
-    all_run_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
-
-    ytd_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
-    recent_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
-    all_ride_totals = EntityAttribute(ActivityTotals, (SUMMARY, DETAILED))  #: (undocumented) All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
-
     super_user = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented) Whether athlete is a super user (not
-    biggest_ride_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: (undocumented) Longest ride for athlete.
-    biggest_climb_elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: (undocumented) Greatest single elevation gain for athlete.
 
     email_language = Attribute(unicode, (SUMMARY, DETAILED))  #: The user's preferred lang/locale (e.g. en-US)
 
-    # A bunch more undocumented detailed-resolution attribs
+    # A bunch of undocumented detailed-resolution attribs
     weight = Attribute(float, (DETAILED,), units=uh.kg)  #: (undocumented, detailed-only)  Athlete's configured weight.
     max_heartrate = Attribute(float, (DETAILED,))  #: (undocumented, detailed-only) Athlete's configured max HR
 
@@ -290,6 +293,8 @@ class Athlete(LoadableEntity):
 
     _friends = None
     _followers = None
+    _stats = None
+    _is_authenticated = None
 
     def __repr__(self):
         fname = self.firstname and self.firstname.encode('utf-8')
@@ -297,6 +302,21 @@ class Athlete(LoadableEntity):
         return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
                                                                              fname=fname,
                                                                              lname=lname)
+
+    def is_authenticated_athlete(self):
+        """
+        :return: Boolean as to whether the athlete is the authenticated athlete.
+        """
+        if self._is_authenticated is None:
+            if self.resource_state == DETAILED:
+                # If the athlete is in detailed state it must be the authenticated athlete
+                self._is_authenticated = True
+            else:
+                # We need to check this athlete's id matches the authenticated athlete's id
+                self.assert_bind_client()
+                authenticated_athlete = self.bind_client.get_athlete()
+                self._is_authenticated = authenticated_athlete.id == self.id
+        return self._is_authenticated
 
     @property
     def friends(self):
@@ -325,6 +345,18 @@ class Athlete(LoadableEntity):
                 # Shortcut if we know there aren't any
                 self._followers = []
         return self._followers
+
+    @property
+    def stats(self):
+        """
+        :return: Associated :class:`stravalib.model.AthleteStats`
+        """
+        if not self.is_authenticated_athlete():
+            raise exc.NotAuthenticatedAthlete("Statistics are only available for the authenticated athlete")
+        if self._stats is None:
+            self.assert_bind_client()
+            self._stats = self.bind_client.get_athlete_stats(self.id)
+        return self._stats
 
 
 class ActivityComment(LoadableEntity):
