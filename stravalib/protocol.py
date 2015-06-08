@@ -61,7 +61,8 @@ class ApiV3(object):
                                 Choices are 'auto' or 'force'.  (Default is 'auto')
         :type approval_prompt: str
 
-        :param scope: The access scope required.  Omit to imply "public".  Valid values are 'public', 'write', 'view_private', 'view_private,write'
+        :param scope: The access scope required.  Omit to imply "public".
+                      Valid values are 'write', 'view_private', 'view_private,write', 'write,view_private'.
         :type scope: str
 
         :param state: An arbitrary variable that will be returned to your application in the redirect URI.
@@ -73,6 +74,8 @@ class ApiV3(object):
         assert approval_prompt in ('auto', 'force')
         if isinstance(scope, (list, tuple)):
             scope = ','.join(scope)
+        assert scope in (None, 'write', 'view_private', 'write,view_private', 'view_private,write')
+
         params = {'client_id': client_id,
                   'redirect_uri': redirect_uri,
                   'approval_prompt': approval_prompt,
