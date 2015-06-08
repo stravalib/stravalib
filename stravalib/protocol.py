@@ -73,6 +73,9 @@ class ApiV3(object):
         assert approval_prompt in ('auto', 'force')
         if isinstance(scope, (list, tuple)):
             scope = ','.join(scope)
+
+        assert scope in (None, 'write', 'view_private', 'write,view_private', 'view_private,write')
+
         params = {'client_id': client_id,
                   'redirect_uri': redirect_uri,
                   'approval_prompt': approval_prompt,
