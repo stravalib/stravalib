@@ -658,7 +658,8 @@ class Activity(LoadableEntity):
     kudos_count = Attribute(int, (SUMMARY, DETAILED))  #: How many kudos received for activity
     comment_count = Attribute(int, (SUMMARY, DETAILED))  #: How many comments  for activity.
     athlete_count = Attribute(int, (SUMMARY, DETAILED))  #: How many other athlete's participated in activity
-    photo_count = Attribute(int, (SUMMARY, DETAILED))  #: How many photos linked to activity
+    photo_count = Attribute(int, (SUMMARY, DETAILED))  #: Number of Instagram photos
+    total_photo_count = Attribute(int, (SUMMARY, DETAILED))  #: Total number of photos (Instagram and Strava)
     map = EntityAttribute(Map, (SUMMARY, DETAILED))  #: :class:`stravavlib.model.Map` of activity.
 
     trainer = Attribute(bool, (SUMMARY, DETAILED))  #: Whether activity was performed on a stationary trainer.
@@ -749,7 +750,7 @@ class Activity(LoadableEntity):
         :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
         """
         if self._photos is None:
-            if self.photo_count > 0:
+            if self.total_photo_count > 0:
                 self.assert_bind_client()
                 self._photos = self.bind_client.get_activity_photos(self.id)
             else:
