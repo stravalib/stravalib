@@ -14,6 +14,7 @@
         "moving_time": 15976
     },
     "approve_followers": true,
+    "athlete_type": 0,
     "biggest_climb_elevation_gain": 3016.7999999999997,
     "biggest_ride_distance": 123285.0,
     "city": "San Francisco",
