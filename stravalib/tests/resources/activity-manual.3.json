@@ -32,6 +32,7 @@
     "moving_time": 38700,
     "name": "Mt. Tallac Summit Sunday",
     "photo_count": 0,
+    "total_photo_count": 0,
     "private": false,
     "resource_state": 3,
     "segment_efforts": [],
@@ -46,7 +47,6 @@
     "timezone": "(GMT-08:00) America/Los_Angeles",
     "total_elevation_gain": 0,
     "trainer": false,
-    "truncated": null,
     "type": "Hike",
     "upload_id": null
 }

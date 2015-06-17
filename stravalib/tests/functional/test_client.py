@@ -88,10 +88,10 @@ class ClientTest(FunctionalTestBase):
         Test photos on activity
         """
         activity = self.client.get_activity(152668627)
-        self.assertTrue(activity.photo_count > 0)
+        self.assertTrue(activity.total_photo_count > 0)
         photos = list(activity.photos)
         self.assertEqual(len(photos), 1)
-        self.assertEqual(len(photos), activity.photo_count)
+        self.assertEqual(len(photos), activity.total_photo_count)
         self.assertIsInstance(photos[0], model.ActivityPhoto)
 
     def test_activity_kudos(self):
@@ -163,32 +163,13 @@ class ClientTest(FunctionalTestBase):
         self.assertEqual(len(streams['distance'].data),
                          min(1000, streams['distance'].original_size))
 
-
     def test_get_curr_athlete(self):
         athlete = self.client.get_athlete()
 
-        print athlete
-        self.fail("break")
         # Just some basic sanity checks here
-        self.assertEquals('Jeff', athlete.firstname)
-        self.assertEquals('Remer', athlete.lastname)
-        self.assertEquals(3, len(athlete.clubs))
-        self.assertEquals('Team Roaring Mouse', athlete.clubs[0].name)
-        self.assertEquals(1, len(athlete.shoes))
-        print athlete.shoes
+        self.assertTrue(len(athlete.firstname) > 0)
 
-        self.assertIsInstance(athlete.shoes[0], model.Shoe)
-        self.assertIsInstance(athlete.clubs[0], model.Club)
-
-        self.assertIsInstance(athlete.bikes[0], model.Bike)
-
-        friends = list(athlete.friends)
-        self.assertGreater(len(friends), 1)
-        self.assertIsInstance(friends[0], model.Athlete)
-
-        followers = list(athlete.followers)
-        self.assertGreater(len(followers), 1)
-        self.assertIsInstance(followers[0], model.Athlete)
+        self.assertTrue(athlete.athlete_type in ["runner", "cyclist"])
 
     def test_get_athlete_clubs(self):
         clubs = self.client.get_athlete_clubs()

@@ -12,7 +12,7 @@ from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute,
                                   TimestampAttribute, LocationAttribute,
                                   EntityCollection, EntityAttribute,
                                   TimeIntervalAttribute, TimezoneAttribute,
-                                  DateAttribute)
+                                  DateAttribute, ChoicesAttribute)
 
 
 class BaseEntity(object):
@@ -250,6 +250,7 @@ class Athlete(LoadableEntity):
     follower_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are following this athlete
     friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people is this athlete following
     mutual_friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are both following and being followed by this athlete
+    athlete_type = ChoicesAttribute(unicode, (DETAILED,), choices={0: "cyclist", 1: "runner"})  #: athlete's default sport: 0 is cyclist, 1 is runner
     date_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
     measurement_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
     email = Attribute(unicode, (DETAILED,))  #: (detailed-only)  Athlete's email address
@@ -658,7 +659,8 @@ class Activity(LoadableEntity):
     kudos_count = Attribute(int, (SUMMARY, DETAILED))  #: How many kudos received for activity
     comment_count = Attribute(int, (SUMMARY, DETAILED))  #: How many comments  for activity.
     athlete_count = Attribute(int, (SUMMARY, DETAILED))  #: How many other athlete's participated in activity
-    photo_count = Attribute(int, (SUMMARY, DETAILED))  #: How many photos linked to activity
+    photo_count = Attribute(int, (SUMMARY, DETAILED))  #: Number of Instagram photos
+    total_photo_count = Attribute(int, (SUMMARY, DETAILED))  #: Total number of photos (Instagram and Strava)
     map = EntityAttribute(Map, (SUMMARY, DETAILED))  #: :class:`stravavlib.model.Map` of activity.
 
     trainer = Attribute(bool, (SUMMARY, DETAILED))  #: Whether activity was performed on a stationary trainer.
@@ -675,7 +677,6 @@ class Activity(LoadableEntity):
 
     device_watts = Attribute(bool, (SUMMARY, DETAILED))  #: True if the watts are from a power meter, false if estimated
 
-    truncated = Attribute(int, (SUMMARY, DETAILED))  #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones
     has_kudoed = Attribute(bool, (SUMMARY, DETAILED))  #: If authenticated user has kudoed this activity
 
     best_efforts = EntityCollection(BestEffort, (DETAILED,))  #: :class:`list` of metric :class:`stravalib.model.BestEffort` summaries
@@ -750,7 +751,7 @@ class Activity(LoadableEntity):
         :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
         """
         if self._photos is None:
-            if self.photo_count > 0:
+            if self.total_photo_count > 0:
                 self.assert_bind_client()
                 self._photos = self.bind_client.get_activity_photos(self.id)
             else:

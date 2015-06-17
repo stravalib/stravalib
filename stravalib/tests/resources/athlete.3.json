@@ -15,6 +15,7 @@
         "moving_time": 15295
     },
     "approve_followers": true,
+    "athlete_type": 1,
     "biggest_climb_elevation_gain": 474.6,
     "biggest_ride_distance": 152127.0,
     "bikes": [
