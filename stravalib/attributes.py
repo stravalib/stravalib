@@ -188,20 +188,19 @@ class ChoicesAttribute(Attribute):
         Turn this value into API format.
 
         Do a reverse dictionary lookup on choices to find the original value. If
-        there are no keys or too many keys fail gracefully by logging and returning
-        the value given.
+        there are no keys or too many keys for now we raise a NotImplementedError
+        as marshal is not used anywhere currently. In the future we will want to
+        fail gracefully.
         """
         orig = [i for i in self.choices if self.choices[i] == v]
         if len(orig) == 1:
             return orig[0]
         elif len(orig) == 0:
             # No such choice
-            self.log.warning("No such reverse choice {0} for field {1}.".format(v, self))
-            return v
+            raise NotImplementedError("No such reverse choice {0} for field {1}.".format(v, self))
         else:
-            # Too many choices
-            self.log.warning("Too many choices {0} for value {1} for field {2}".format(orig, v, self))
-            return v
+            # Too many choices. We could return one possible choice (e.g. orig[0]).
+            raise NotImplementedError("Too many reverse choices {0} for value {1} for field {2}".format(orig, v, self))
 
     def unmarshal(self, v):
         """

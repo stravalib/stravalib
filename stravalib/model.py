@@ -250,7 +250,7 @@ class Athlete(LoadableEntity):
     follower_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are following this athlete
     friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people is this athlete following
     mutual_friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are both following and being followed by this athlete
-    athlete_type = ChoicesAttribute(int, (DETAILED,), choices={0: "cyclist", 1: "runner"})  #: athlete's default sport: 0 is cyclist, 1 is runner
+    athlete_type = ChoicesAttribute(unicode, (DETAILED,), choices={0: "cyclist", 1: "runner"})  #: athlete's default sport: 0 is cyclist, 1 is runner
     date_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
     measurement_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
     email = Attribute(unicode, (DETAILED,))  #: (detailed-only)  Athlete's email address
