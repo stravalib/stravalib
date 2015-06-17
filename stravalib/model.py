@@ -675,7 +675,6 @@ class Activity(LoadableEntity):
 
     device_watts = Attribute(bool, (SUMMARY, DETAILED))  #: True if the watts are from a power meter, false if estimated
 
-    truncated = Attribute(int, (SUMMARY, DETAILED))  #: Only present if activity is owned by authenticated athlete, set to 0 if not truncated by privacy zones
     has_kudoed = Attribute(bool, (SUMMARY, DETAILED))  #: If authenticated user has kudoed this activity
 
     best_efforts = EntityCollection(BestEffort, (DETAILED,))  #: :class:`list` of metric :class:`stravalib.model.BestEffort` summaries
