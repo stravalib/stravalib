@@ -173,6 +173,52 @@ class TimeIntervalAttribute(Attribute):
         return v
 
 
+class ChoicesAttribute(Attribute):
+    """
+    Attribute where there are several choices the attribute may take.
+
+    Allows conversion from the API value to a more helpful python value.
+    """
+    def __init__(self, *args, **kwargs):
+        self.choices = kwargs.pop("choices", {})
+        super(ChoicesAttribute, self).__init__(*args, **kwargs)
+
+    def marshal(self, v):
+        """
+        Turn this value into API format.
+
+        Do a reverse dictionary lookup on choices to find the original value. If
+        there are no keys or too many keys fail gracefully by logging and returning
+        the value given.
+        """
+        orig = [i for i in self.choices if self.choices[i] == v]
+        if len(orig) == 1:
+            return orig[0]
+        elif len(orig) == 0:
+            # No such choice
+            self.log.warning("No such reverse choice {0} for field {1}.".format(v, self))
+            return v
+        else:
+            # Too many choices
+            self.log.warning("Too many choices {0} for value {1} for field {2}".format(orig, v, self))
+            return v
+
+    def unmarshal(self, v):
+        """
+        Convert the value from Strava API format to useful python representation.
+
+        If the value does not appear in the choices attribute we log an error rather
+        than raising an exception as this may be caused by a change to the API upstream
+        so we want to fail gracefully.
+        """
+        try:
+            return self.choices[v]
+        except KeyError:
+            self.log.warning("No such choice {0} for field {1}.".format(v, self))
+            # Just return the value from the API
+            return v
+
+
 class EntityAttribute(Attribute):
     """
     Attribute for another entity.
