@@ -625,16 +625,16 @@ class Client(object):
         :type external_id: str
         """
         if not hasattr(activity_file, 'read'):
-            if isinstance(file, unicode):
-                activity_file = BytesIO(file.encode('utf-8'))
-            elif isinstance(file, str):
-                activity_file = BytesIO(file)
+            if isinstance(activity_file, unicode):
+                activity_file = BytesIO(activity_file.encode('utf-8'))
+            elif isinstance(activity_file, str):
+                activity_file = BytesIO(activity_file)
             else:
-                raise TypeError("Invalid type specified for actvitity_file: {0}".type(file))
+                raise TypeError("Invalid type specified for activity_file: {0}".format(type(file)))
 
         valid_data_types = ('fit', 'fit.gz', 'tcx', 'tcx.gz', 'gpx', 'gpx.gz')
         if not data_type in valid_data_types:
-            raise ValueError("Invalid data type {0}. Possible vavlues {1!r}".format(data_type, valid_data_types))
+            raise ValueError("Invalid data type {0}. Possible values {1!r}".format(data_type, valid_data_types))
 
         params = {'data_type': data_type}
         if name is not None:
