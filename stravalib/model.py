@@ -137,6 +137,14 @@ class Club(LoadableEntity):
     name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of the club.
     profile_medium = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel club picture
     profile = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel club picture
+    description = Attribute(unicode, (DETAILED, ))  #: Description of the club
+    club_type = Attribute(unicode, (DETAILED, ))  #: Type of club (casual_club, racing_team, shop, company, other)
+    sport_type = Attribute(unicode, (DETAILED, ))  #: Sport of the club (cycling, running, triathlon, other)
+    city = Attribute(unicode, (DETAILED, ))  #: City the club is based in
+    state = Attribute(unicode, (DETAILED, ))  #: State the club is based in
+    country = Attribute(unicode, (DETAILED, ))  #: Country the club is based in
+    private = Attribute(bool, (DETAILED, ))  #: Whether the club is private
+    member_count = Attribute(int, (DETAILED, ))  #: Number of members in the club
 
     @property
     def members(self):
@@ -541,9 +549,9 @@ class SegmentEfforAchievement(BaseEntity):
     """
     An undocumented structure being returned for segment efforts.
     """
-    rank = Attribute(int) #: Rank in segment (either overall leaderboard, or pr rank)
-    type = Attribute(unicode) #: The type of achievement -- e.g. 'year_pr' or 'overall'
-    type_id = Attribute(int) #: Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
+    rank = Attribute(int)  #: Rank in segment (either overall leaderboard, or pr rank)
+    type = Attribute(unicode)  #: The type of achievement -- e.g. 'year_pr' or 'overall'
+    type_id = Attribute(int)  #: Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
 
 
 class BaseEffort(LoadableEntity):
@@ -568,7 +576,8 @@ class BaseEffort(LoadableEntity):
     start_index = Attribute(int, (SUMMARY, DETAILED))  #: The activity stream index of the start of this effort
     end_index = Attribute(int, (SUMMARY, DETAILED))  #: The activity stream index of the end of this effort
 
-    achievements = EntityCollection(SegmentEfforAchievement, (SUMMARY, DETAILED)) #: Undocumented attribute includes list of achievements for this effort.
+    achievements = EntityCollection(SegmentEfforAchievement, (SUMMARY, DETAILED))  #: Undocumented attribute includes list of achievements for this effort.
+
 
 class BestEffort(BaseEffort):
     """
@@ -622,7 +631,7 @@ class Activity(LoadableEntity):
     _zones = None
     _kudos = None
     _photos = None
-    #_gear = None
+    # _gear = None
     _laps = None
     _related = None
 
@@ -698,8 +707,8 @@ class Activity(LoadableEntity):
     description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
-    photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,)) #: (undocumented) A new photo metadata structure.
-    instagram_primary_photo = Attribute(unicode, (DETAILED,)) #: (undocumented) Appears to be the ref to first associated instagram photo
+    photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,))  #: (undocumented) A new photo metadata structure.
+    instagram_primary_photo = Attribute(unicode, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
 
     @property
     def comments(self):
