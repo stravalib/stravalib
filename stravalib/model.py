@@ -570,6 +570,7 @@ class BaseEffort(LoadableEntity):
     start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when effort was started in activity timezone for this effort
     distance = Attribute(int, (SUMMARY, DETAILED), units=uh.meters)  #: The distance for this effort.
     average_watts = Attribute(float, (SUMMARY, DETAILED))  #: Average power during effort
+    device_watts = Attribute(bool, (SUMMARY, DETAILED))  #: True if the watts are from a power meter, false if estimated
     average_heartrate = Attribute(float, (SUMMARY, DETAILED))   #: Average HR during effort
     max_heartrate = Attribute(float, (SUMMARY, DETAILED))   #: Max HR during effort
     average_cadence = Attribute(float, (SUMMARY, DETAILED))   #: Average cadence during effort
@@ -700,7 +701,6 @@ class Activity(LoadableEntity):
     max_heartrate = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Max HR during activity
     average_cadence = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Average cadence during activity
     kilojoules = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Kilojoules of energy used during activity
-    device_watts = Attribute(bool, (SUMMARY, DETAILED))  # true if the watts are from a power meter, false if estimated
     average_temp = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Average temperature (when available from device) during activity.
 
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
