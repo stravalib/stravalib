@@ -3,6 +3,8 @@
 # Add a Strava access token for the write/upload functional tests
 # (This token must have been created with the ability to write data -- i.e.
 # scope=write or scope=private,write.)
+#
+# You can use the stravalib.tests.auth_responder server to help fetch this (see that module's documentation).
 
 access_token = xxxxxxxxxxxxxxxx
 

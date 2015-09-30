@@ -89,7 +89,7 @@ class ClientTest(FunctionalTestBase):
         """
         activity = self.client.get_activity(152668627)
         self.assertTrue(activity.total_photo_count > 0)
-        photos = list(activity.photos)
+        photos = list(activity.full_photos)
         self.assertEqual(len(photos), 1)
         self.assertEqual(len(photos), activity.total_photo_count)
         self.assertIsInstance(photos[0], model.ActivityPhoto)
