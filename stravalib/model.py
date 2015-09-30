@@ -497,6 +497,15 @@ class SegmentExplorerResult(LoadableEntity):
         return self._segment
 
 
+class AthleteSegmentStats(BaseEntity):
+    """
+    An undocumented structure being returned for segment stats for current athlete.
+    """
+    effort_count = Attribute(int)  #: (UNDOCUMENTED) Presumably how many efforts current athlete has on segment.
+    pr_elapsed_time = TimeIntervalAttribute() #: (UNDOCUMENTED) Presumably PR elapsed time for segment.
+    pr_date = TimestampAttribute()  #: (UNDOCUMENTED) Presumably date of PR :)
+
+
 class Segment(LoadableEntity):
     """
     Represents a single Strava segment.
@@ -515,6 +524,7 @@ class Segment(LoadableEntity):
     start_latitude = Attribute(float, (SUMMARY, DETAILED))  #: The start latitude (:class:`float`)
     end_latitude = Attribute(float, (SUMMARY, DETAILED))  #: The end latitude (:class:`float`)
     start_longitude = Attribute(float, (SUMMARY, DETAILED))  #: The start longitude (:class:`float`)
+
     end_longitude = Attribute(float, (SUMMARY, DETAILED))  #: The end longitude (:class:`float`)
     climb_category = Attribute(int, (SUMMARY, DETAILED))  # 0-5, lower is harder
     city = Attribute(unicode, (SUMMARY, DETAILED))  #: The city this segment is in.
@@ -522,6 +532,8 @@ class Segment(LoadableEntity):
     country = Attribute(unicode, (SUMMARY, DETAILED))  #: The country this segment is in.
     private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether this is a private segment.
     starred = Attribute(bool, (SUMMARY, DETAILED))  #: Whether this segment is starred by authenticated athlete
+
+    athlete_segment_stats = EntityAttribute(AthleteSegmentStats, (DETAILED,)) #: Undocumented attrib holding stats for current athlete.
 
     # detailed attribs
     created_at = TimestampAttribute((DETAILED,))  #: :class:`datetime.datetime` when was segment created.
