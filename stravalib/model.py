@@ -503,7 +503,7 @@ class AthleteSegmentStats(BaseEntity):
     """
     effort_count = Attribute(int)  #: (UNDOCUMENTED) Presumably how many efforts current athlete has on segment.
     pr_elapsed_time = TimeIntervalAttribute() #: (UNDOCUMENTED) Presumably PR elapsed time for segment.
-    pr_date = TimestampAttribute()  #: (UNDOCUMENTED) Presumably date of PR :)
+    pr_date = DateAttribute()  #: (UNDOCUMENTED) Presumably date of PR :)
 
 
 class Segment(LoadableEntity):
