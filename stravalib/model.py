@@ -378,12 +378,23 @@ class ActivityComment(LoadableEntity):
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
 
+class ActivityPhotoPrimary(LoadableEntity):
+    """
+    A primary photo attached to an activity (different structure from full photo record)
+    """
+    id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of photo, if external.
+    unique_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of photo, if internal.
+    urls = Attribute(dict, (META, SUMMARY, DETAILED))
+    source = Attribute(int, (META, SUMMARY, DETAILED))  #: 1=internal, 2=instagram
+    use_primary_photo = Attribute(bool,(META, SUMMARY, DETAILED))  #: (undocumented)
+
+
 class ActivityPhotoMeta(BaseEntity):
     """
     The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
     """
     count = Attribute(int)
-    primary = Attribute(unicode)
+    primary = EntityAttribute(ActivityPhotoPrimary, (META, SUMMARY, DETAILED))
 
     def __repr__(self):
         return '<{0} count={1}>'.format(self.__class__.__name__, self.count)
@@ -391,7 +402,7 @@ class ActivityPhotoMeta(BaseEntity):
 
 class ActivityPhoto(LoadableEntity):
     """
-    Information about photos attached to an activity.
+    A full photo record attached to an activity.
     """
     activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
     ref = Attribute(unicode, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
