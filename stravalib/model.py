@@ -664,6 +664,8 @@ class Activity(LoadableEntity):
     moving_time = TimeIntervalAttribute((SUMMARY, DETAILED))  #: The moving time duration for this activity.
     elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED))  #: The total elapsed time (including stopped time) for this activity.
     total_elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Total elevation gain for activity.
+    elev_high = Attribute(float, (SUMMARY, DETAILED))
+    elev_low = Attribute(float, (SUMMARY, DETAILED))
     type = Attribute(unicode, (SUMMARY, DETAILED))  #: The activity type.
     start_date = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when activity was started in GMT
     start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when activity was started in activity timezone
@@ -706,21 +708,26 @@ class Activity(LoadableEntity):
     splits_metric = EntityCollection(Split, (DETAILED,))  #: :class:`list` of metric :class:`stravalib.model.Split` summaries (running activities only)
     splits_standard = EntityCollection(Split, (DETAILED,))  #: :class:`list` of standard/imperial :class:`stravalib.model.Split` summaries (running activities only)
 
-    # Undocumented attributes
     average_watts = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Average power during activity
     weighted_average_watts = Attribute(int, (SUMMARY, DETAILED))  # rides with power meter data only similar to xPower or Normalized Power
-    average_heartrate = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Average HR during activity
+    max_watts = Attribute(int, (SUMMARY, DETAILED))  #: rides with power meter data only
+
+    suffer_score = Attribute(int, (SUMMARY, DETAILED))  #: a measure of heartrate intensity, available on premium users' activities only
+    average_heartrate = Attribute(float, (SUMMARY, DETAILED))  #: only if recorded with heartrate average over moving portion
     max_heartrate = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Max HR during activity
     average_cadence = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Average cadence during activity
     kilojoules = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Kilojoules of energy used during activity
     average_temp = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Average temperature (when available from device) during activity.
 
+    embed_token = Attribute(unicode, (DETAILED,))  #: the token used to embed a Strava activity in the form www.strava.com/activities/[activity_id]/embed/[embed_token]. Only included if requesting athlete is activity owner.
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
-    description = Attribute(unicode, (DETAILED,))  #: (undocumented) Description of activity.
+    description = Attribute(unicode, (DETAILED,))  #: Description of activity.
     workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
-    photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,))  #: (undocumented) A new photo metadata structure.
+    photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,))  #: A new photo metadata structure.
     instagram_primary_photo = Attribute(unicode, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
+
+    partner_logo_url = Attribute(unicode, (DETAILED,))  #: (undocumented)
 
     @property
     def comments(self):

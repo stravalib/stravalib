@@ -168,14 +168,14 @@ class Client(object):
 
         :param before: Result will start with activities whose start date is
                        before specified date. (UTC)
-        :type before: datetime.datetime or str
+        :type before: datetime.datetime or str or None
 
         :param after: Result will start with activities whose start date is after
                       specified value. (UTC)
-        :type after: datetime.datetime or str
+        :type after: datetime.datetime or str or None
 
         :param limit: How many maximum activities to return.
-        :type limit: int
+        :type limit: int or None
 
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
