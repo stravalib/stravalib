@@ -383,7 +383,7 @@ class ActivityPhotoPrimary(LoadableEntity):
     A primary photo attached to an activity (different structure from full photo record)
     """
     id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of photo, if external.
-    unique_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of photo, if internal.
+    unique_id = Attribute(unicode, (META, SUMMARY, DETAILED))  #: ID of photo, if internal.
     urls = Attribute(dict, (META, SUMMARY, DETAILED))
     source = Attribute(int, (META, SUMMARY, DETAILED))  #: 1=internal, 2=instagram
     use_primary_photo = Attribute(bool,(META, SUMMARY, DETAILED))  #: (undocumented)
