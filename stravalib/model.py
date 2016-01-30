@@ -393,8 +393,9 @@ class ActivityPhotoMeta(BaseEntity):
     """
     The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
     """
-    count = Attribute(int)
+    count = Attribute(int, (META, SUMMARY, DETAILED))
     primary = EntityAttribute(ActivityPhotoPrimary, (META, SUMMARY, DETAILED))
+    use_primary_photo = Attribute(bool, (META, SUMMARY, DETAILED))
 
     def __repr__(self):
         return '<{0} count={1}>'.format(self.__class__.__name__, self.count)
@@ -412,7 +413,7 @@ class ActivityPhoto(LoadableEntity):
     uploaded_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo uploaded
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo created
     location = LocationAttribute()  #: Start lat/lon of photo
-
+    urls = Attribute(dict, (META, SUMMARY, DETAILED))
 
 class ActivityKudos(LoadableEntity):
     """
@@ -965,10 +966,10 @@ class Stream(LoadableEntity):
     Stream of readings from the activity, effort or segment.
     """
     type = Attribute(unicode)
-    data = Attribute(list,)  #: array of values
-    series_type = Attribute(unicode, )  #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
-    original_size = Attribute(int, )  #: the size of the complete stream (when not reduced with resolution)
-    resolution = Attribute(unicode, )  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
+    data = Attribute(list)  #: array of values
+    series_type = Attribute(unicode)  #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
+    original_size = Attribute(int)  #: the size of the complete stream (when not reduced with resolution)
+    resolution = Attribute(unicode)  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
 
     def __repr__(self):
         return '<Stream type={} resolution={} original_size={}>'.format(self.type,
