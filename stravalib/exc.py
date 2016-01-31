@@ -26,11 +26,17 @@ class Fault(RuntimeError):
     """
 
 
-class RateLimitExceeded(RuntimeError):
+class RateLimitExceeded(Fault):
     """
     Exception raised when the client rate limit has been exceeded.
 
     http://strava.github.io/api/#access
+    """
+
+
+class InvalidToken(Fault):
+    """
+    If the presented token is unauthorized.
     """
 
 

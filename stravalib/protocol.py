@@ -165,16 +165,22 @@ class ApiV3(object):
         :raises Fault: If the response contains an error.
         """
         error_str = None
+        errors = []
         try:
             json_response = response.json()
         except ValueError:
             pass
         else:
             if 'message' in json_response or 'errors' in json_response:
-                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), json_response.get('errors'))
+                errors = json_response.get('errors')
+                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), errors)
 
         x = None
-        if 400 <= response.status_code < 500:
+        # Special handling of invalid app token
+        if response.status_code == 401 and errors \
+                and any([e.get('code') == 'invalid' and e.get('response') == 'Application' for e in errors]):
+            x = exc.InvalidToken("Invalid authentication token")
+        elif 400 <= response.status_code < 500:
             x = requests.exceptions.HTTPError('%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str))
         elif 500 <= response.status_code < 600:
             x = requests.exceptions.HTTPError('%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str))
