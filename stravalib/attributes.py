@@ -148,7 +148,7 @@ class TimezoneAttribute(Attribute):
         """
         if not isinstance(v, tzinfo):
             # (GMT-08:00) America/Los_Angeles
-            tzname = v.split(' ')[-1]
+            tzname = v.split(' ', 1)[1]
             v = pytz.timezone(tzname)
         return v
 

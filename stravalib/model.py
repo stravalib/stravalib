@@ -615,6 +615,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
     hidden = Attribute(bool, (SUMMARY, DETAILED,))  # indicates a hidden/non-important effort when returned as part of an activity, value may change over time.
+    device_watts = Attribute(bool, (SUMMARY, DETAILED))  #: True if the watts are from a power meter, false if estimated
 
 
 class Activity(LoadableEntity):
