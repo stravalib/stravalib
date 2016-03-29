@@ -728,6 +728,7 @@ class Activity(LoadableEntity):
     max_watts = Attribute(int, (SUMMARY, DETAILED))  #: rides with power meter data only
 
     suffer_score = Attribute(int, (SUMMARY, DETAILED))  #: a measure of heartrate intensity, available on premium users' activities only
+    has_heartrate = Attribute(bool, (SUMMARY, DETAILED))  #: true if recorded with heartrate
     average_heartrate = Attribute(float, (SUMMARY, DETAILED))  #: only if recorded with heartrate average over moving portion
     max_heartrate = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Max HR during activity
     average_cadence = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Average cadence during activity
