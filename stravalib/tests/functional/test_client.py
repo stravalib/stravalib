@@ -50,6 +50,12 @@ class ClientTest(FunctionalTestBase):
         activity_no_segments = self.client.get_activity(self.activity_id)
         self.assertTrue(activity.segment_efforts, None)
 
+    def test_get_route(self):
+        route = self.client.get_route(3445913)
+
+        self.assertEquals('Baveno - Mottarone', route.name)
+        self.assertAlmostEquals(1265.20, float(uh.meters(route.elevation_gain)), 2)
+
     def test_get_activity_laps(self):
         activity = self.client.get_activity(165094211)
         laps = list(self.client.get_activity_laps(165094211))

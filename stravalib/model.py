@@ -979,3 +979,21 @@ class Stream(LoadableEntity):
         return '<Stream type={} resolution={} original_size={}>'.format(self.type,
                                                                         self.resolution,
                                                                         self.original_size,)
+
+class Route(LoadableEntity):
+    """
+    Represents a Route.
+    """
+    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of the route.
+    description = Attribute(unicode, (SUMMARY, DETAILED,))  #: Description of the route.
+    athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete` that performed this activity.
+    distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: The distance for the route.
+    elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Total elevation gain for the route.
+    map = EntityAttribute(Map, (SUMMARY, DETAILED)) #: :class:`stravalib.model.Map` object for route.
+    type = Attribute(unicode, (SUMMARY, DETAILED))  #: Activity type of route (1 for ride, 2 for run).
+    sub_type = Attribute(unicode, (SUMMARY, DETAILED))  #: Activity sub-type of route (1 for road (ride and run), 2 for mtb, 3 for cx, 4 for trail, 5 for mixed).
+    private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is private.
+    starred = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is starred.
+    # timestamp = NOT IMPLEMENTED
+    # segments = NOT IMPLEMENTED
+

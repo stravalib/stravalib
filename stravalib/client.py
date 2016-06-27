@@ -132,7 +132,7 @@ class Client(object):
         return self.protocol.exchange_code_for_token(client_id=client_id,
                                                      client_secret=client_secret,
                                                      code=code)
-                                                     
+
     def deauthorize(self):
         """
         Deauthorize the application. This causes the application to be removed
@@ -1258,6 +1258,46 @@ class Client(object):
         # Pack streams into dictionary
         return {i.type: i for i in streams}
 
+    def get_routes(self, athlete_id=None, limit=None):
+        """
+        Gets the routes list for an authenticated user.
+
+        http://strava.github.io/api/v3/routes/#list
+
+        :param athlete_id: id for the
+
+        :param limit: Max rows to return (default unlimited).
+        :type limit: int
+
+        :return: An iterator of :class:`stravalib.model.Route` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        if athlete_id is None:
+            athlete_id = self.get_athlete().id
+
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/athletes/{id}/routes'.format(id=athlete_id))
+
+        return BatchedResultsIterator(entity=model.Route,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
+    def get_route(self, route_id):
+        """
+        Gets specified route.
+
+        Will be detail-level if owned by authenticated user; otherwise summary-level.
+
+        https://strava.github.io/api/v3/routes/#retreive
+
+        :param route_id: The ID of route to fetch.
+        :type activity_id: int
+
+        :rtype: :class:`stravalib.model.Route`
+        """
+        raw = self.protocol.get('/routes/{id}', id=route_id)
+        return model.Route.deserialize(raw, bind_client=self)
 
 class BatchedResultsIterator(object):
     """
