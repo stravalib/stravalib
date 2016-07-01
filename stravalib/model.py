@@ -1057,7 +1057,7 @@ class Route(LoadableEntity):
     sub_type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Activity sub-type of route (1 for road (ride and run), 2 for mtb, 3 for cx, 4 for trail, 5 for mixed).
     private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is private.
     starred = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is starred.
-    # timestamp = NOT IMPLEMENTED
+    timestamp = Attribute(int, (SUMMARY, DETAILED))  #: Unix timestamp when route was last updated.
     # segments = NOT IMPLEMENTED
 
 
