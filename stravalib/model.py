@@ -980,6 +980,7 @@ class Stream(LoadableEntity):
                                                                         self.resolution,
                                                                         self.original_size,)
 
+
 class Route(LoadableEntity):
     """
     Represents a Route.
@@ -997,3 +998,51 @@ class Route(LoadableEntity):
     # timestamp = NOT IMPLEMENTED
     # segments = NOT IMPLEMENTED
 
+
+class Subscription(LoadableEntity):
+    """
+    Represents a Webhook Event Subscription.
+
+    http://strava.github.io/api/partner/v3/events/
+    """
+    OBJECT_TYPE_ACTIVITY = 'activity'
+    ASPECT_TYPE_CREATE = 'create'
+
+    VERIFY_TOKEN_DEFAULT = 'STRAVA'
+
+    application_id = Attribute(unicode, (SUMMARY, DETAILED))
+    object_type = Attribute(unicode, (SUMMARY, DETAILED))
+    aspect_type = Attribute(unicode, (SUMMARY, DETAILED))
+    callback_url = Attribute(unicode, (SUMMARY, DETAILED))
+    created_at = TimestampAttribute((SUMMARY, DETAILED))
+    updated_at = TimestampAttribute((SUMMARY, DETAILED))
+
+
+class SubscriptionCallback(LoadableEntity):
+    """
+    Represents a Webhook Event Subscription Callback.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Special/complicated __init__ because of tricky variable names
+        """
+        setattr(self, 'hub.mode', Attribute(unicode, (SUMMARY, DETAILED)))
+        setattr(self, 'hub.verify_token', Attribute(unicode, (SUMMARY, DETAILED)))
+        setattr(self, 'hub.challenge', Attribute(unicode, (SUMMARY, DETAILED)))
+        super(SubscriptionCallback, self).__init__(*args, **kwargs)
+
+    def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
+        verify_token_callback = getattr(self, 'hub.verify_token')
+        assert verify_token_callback == verify_token
+
+
+class SubscriptionUpdate(LoadableEntity):
+    """
+    Represents a Webhook Event Subscription Update.
+    """
+    subscription_id = Attribute(unicode, (SUMMARY, DETAILED))
+    owner_id = Attribute(unicode, (SUMMARY, DETAILED))
+    object_id = Attribute(unicode, (SUMMARY, DETAILED))
+    object_type = Attribute(unicode, (SUMMARY, DETAILED))
+    aspect_type = Attribute(unicode, (SUMMARY, DETAILED))
+    event_time = Attribute(unicode, (SUMMARY, DETAILED))  # Seems to be an integer, ex: 1297286541 - TODO: Make an Attribute for this that automatically casts to datetime.datetime

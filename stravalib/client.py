@@ -1299,6 +1299,68 @@ class Client(object):
         raw = self.protocol.get('/routes/{id}', id=route_id)
         return model.Route.deserialize(raw, bind_client=self)
 
+    def create_subscription(self, client_id, client_secret, callback_url,
+                            object_type=model.Subscription.OBJECT_TYPE_ACTIVITY,
+                            aspect_type=model.Subscription.ASPECT_TYPE_CREATE,
+                            verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT):
+        """
+        Creates a webhook event subscription.
+
+        http://strava.github.io/api/partner/v3/events/#create-a-subscription
+
+        `object_type` and `aspect_type` are given defaults because there is currently only one valid value for each.
+
+        `verify_token` is set to a default in the event that the author doesn't want to specify one.
+
+        Note: The appliction must have permission to make use of the webhook API. Access can be requested by contacting developers -at- strava.com.
+        """
+        params = dict(client_id=client_id, client_secret=client_secret,
+                      object_type=object_type, aspect_type=aspect_type,
+                      callback_url=callback_url, verify_token=verify_token)
+        raw = self.protocol.post('/push_subscriptions', use_webhook_server=True,
+                                 **params)
+        return model.Subscription.deserialize(raw, bind_client=self)
+
+    def handle_subscription_callback(self, raw,
+                                     verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT):
+        """
+        Validate callback request and return valid response with challenge
+        """
+        callback = model.SubscriptionCallback.deserialize(raw)
+        callback.validate(verify_token)
+        challenge = getattr(callback, 'hub.challenge')
+        response_raw = {'hub.challenge': challenge}
+        return response_raw
+
+    def handle_subscription_update(self, raw):
+        """
+        Converts a raw subscription update into a model.
+
+        TODO: Have the response actually return a reference to the underlying model (the activity itself)
+        """
+        return model.SubscriptionUpdate.deserialize(raw, bind_client=self)
+
+    def list_subscriptions(self, client_id, client_secret):
+        """
+        List current webhook event subscriptions in place for the current application.
+
+        http://strava.github.io/api/partner/v3/events/#list-push-subscriptions
+
+        TODO: Implement this
+        """
+        raise NotImplementedError
+
+    def delete_subscription(self, subscription_id, client_id, client_secret):
+        """
+        Unsubscribe from webhook events for an existing subscription.
+
+        http://strava.github.io/api/partner/v3/events/#delete-a-subscription
+
+        TODO: Implement this
+        """
+        raise NotImplementedError
+
+
 class BatchedResultsIterator(object):
     """
     An iterator that enables iterating over requests that return paged results.
