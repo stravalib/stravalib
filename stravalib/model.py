@@ -1,9 +1,12 @@
 """
 Entity classes for representing the various Strava datatypes.
 """
+from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
 import logging
 from collections import Sequence
+
+import six
 
 from stravalib import exc
 from stravalib import unithelper as uh
@@ -134,15 +137,15 @@ class Club(LoadableEntity):
 
     Currently summary and detail resource states have the same attributes.
     """
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of the club.
-    profile_medium = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel club picture
-    profile = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel club picture
-    description = Attribute(unicode, (DETAILED, ))  #: Description of the club
-    club_type = Attribute(unicode, (DETAILED, ))  #: Type of club (casual_club, racing_team, shop, company, other)
-    sport_type = Attribute(unicode, (DETAILED, ))  #: Sport of the club (cycling, running, triathlon, other)
-    city = Attribute(unicode, (DETAILED, ))  #: City the club is based in
-    state = Attribute(unicode, (DETAILED, ))  #: State the club is based in
-    country = Attribute(unicode, (DETAILED, ))  #: Country the club is based in
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of the club.
+    profile_medium = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel club picture
+    profile = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel club picture
+    description = Attribute(six.text_type, (DETAILED, ))  #: Description of the club
+    club_type = Attribute(six.text_type, (DETAILED, ))  #: Type of club (casual_club, racing_team, shop, company, other)
+    sport_type = Attribute(six.text_type, (DETAILED, ))  #: Sport of the club (cycling, running, triathlon, other)
+    city = Attribute(six.text_type, (DETAILED, ))  #: City the club is based in
+    state = Attribute(six.text_type, (DETAILED, ))  #: State the club is based in
+    country = Attribute(six.text_type, (DETAILED, ))  #: Country the club is based in
     private = Attribute(bool, (DETAILED, ))  #: Whether the club is private
     member_count = Attribute(int, (DETAILED, ))  #: Number of members in the club
 
@@ -167,13 +170,13 @@ class Gear(IdentifiableEntity):
     """
     Information about Gear (bike or shoes) used during activity.
     """
-    id = Attribute(unicode, (META, SUMMARY, DETAILED))  #: Alpha-numeric gear ID.
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name athlete entered for bike (does not apply to shoes)
+    id = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: Alpha-numeric gear ID.
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name athlete entered for bike (does not apply to shoes)
     distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Distance for this bike/shoes.
     primary = Attribute(bool, (SUMMARY, DETAILED))  #: athlete's default bike/shoes
-    brand_name = Attribute(unicode, (DETAILED,))  #: Brand name of bike/shoes.
-    model_name = Attribute(unicode, (DETAILED,))  #: Modelname of bike/shoes.
-    description = Attribute(unicode, (DETAILED,))  #: Description of bike/shoe item.
+    brand_name = Attribute(six.text_type, (DETAILED,))  #: Brand name of bike/shoes.
+    model_name = Attribute(six.text_type, (DETAILED,))  #: Modelname of bike/shoes.
+    description = Attribute(six.text_type, (DETAILED,))  #: Description of bike/shoe item.
 
     @classmethod
     def deserialize(cls, v):
@@ -236,16 +239,16 @@ class Athlete(LoadableEntity):
     """
     Represents a Strava athlete.
     """
-    firstname = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's first name.
-    lastname = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's last name.
-    profile_medium = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel profile picture
-    profile = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel profile picture
-    city = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home city
-    state = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home state
-    country = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home country
-    sex = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's sex ('M', 'F' or null)
-    friend = Attribute(unicode, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(unicode, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    firstname = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's first name.
+    lastname = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's last name.
+    profile_medium = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel profile picture
+    profile = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel profile picture
+    city = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home city
+    state = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home state
+    country = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home country
+    sex = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's sex ('M', 'F' or null)
+    friend = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
     premium = Attribute(bool, (SUMMARY, DETAILED))  #: Whether athlete is a premium member (true/false)
 
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when athlete record was created.
@@ -258,10 +261,10 @@ class Athlete(LoadableEntity):
     follower_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are following this athlete
     friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people is this athlete following
     mutual_friend_count = Attribute(int, (DETAILED,))  #: (detailed-only) How many people are both following and being followed by this athlete
-    athlete_type = ChoicesAttribute(unicode, (DETAILED,), choices={0: "cyclist", 1: "runner"})  #: athlete's default sport: 0 is cyclist, 1 is runner
-    date_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
-    measurement_preference = Attribute(unicode, (DETAILED,))  #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
-    email = Attribute(unicode, (DETAILED,))  #: (detailed-only)  Athlete's email address
+    athlete_type = ChoicesAttribute(six.text_type, (DETAILED,), choices={0: "cyclist", 1: "runner"})  #: athlete's default sport: 0 is cyclist, 1 is runner
+    date_preference = Attribute(six.text_type, (DETAILED,))  #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
+    measurement_preference = Attribute(six.text_type, (DETAILED,))  #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
+    email = Attribute(six.text_type, (DETAILED,))  #: (detailed-only)  Athlete's email address
 
     clubs = EntityCollection(Club, (DETAILED,))  #: (detailed-only) Which clubs athlete belongs to. (:class:`list` of :class:`stravalib.model.Club`)
     bikes = EntityCollection(Bike, (DETAILED,))  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
@@ -269,15 +272,15 @@ class Athlete(LoadableEntity):
 
     super_user = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented) Whether athlete is a super user (not
 
-    email_language = Attribute(unicode, (SUMMARY, DETAILED))  #: The user's preferred lang/locale (e.g. en-US)
+    email_language = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The user's preferred lang/locale (e.g. en-US)
 
     # A bunch of undocumented detailed-resolution attribs
     weight = Attribute(float, (DETAILED,), units=uh.kg)  #: (undocumented, detailed-only)  Athlete's configured weight.
     max_heartrate = Attribute(float, (DETAILED,))  #: (undocumented, detailed-only) Athlete's configured max HR
 
-    username = Attribute(unicode, (DETAILED))  #: (undocumented, detailed-only) Athlete's username.
-    description = Attribute(unicode, (DETAILED,))  #: (undocumented, detailed-only) Athlete's personal description
-    instagram_username = Attribute(unicode, (DETAILED,))  #: (undocumented, detailed-only) Associated instagram username
+    username = Attribute(six.text_type, (DETAILED))  #: (undocumented, detailed-only) Athlete's username.
+    description = Attribute(six.text_type, (DETAILED,))  #: (undocumented, detailed-only) Athlete's personal description
+    instagram_username = Attribute(six.text_type, (DETAILED,))  #: (undocumented, detailed-only) Associated instagram username
 
     offer_in_app_payment = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only)
     global_privacy = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has global privacy enabled.
@@ -285,12 +288,12 @@ class Athlete(LoadableEntity):
     email_kom_lost = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has elected to receive emails when KOMs are lost.
     dateofbirth = DateAttribute((DETAILED,))  #: (undocumented, detailed-only) Athlete's date of birth
     facebook_sharing_enabled = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only) Whether Athlete has enabled sharing on Facebook
-    ftp = Attribute(unicode, (DETAILED,))   #: (undocumented, detailed-only)
-    profile_original = Attribute(unicode, (DETAILED,))  #: (undocumented, detailed-only)
+    ftp = Attribute(six.text_type, (DETAILED,))   #: (undocumented, detailed-only)
+    profile_original = Attribute(six.text_type, (DETAILED,))  #: (undocumented, detailed-only)
     premium_expiration_date = Attribute(int, (DETAILED,))  #: (undocumented, detailed-only) When does premium membership expire (:class:`int` unix epoch)
     email_send_follower_notices = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only)
-    plan = Attribute(unicode, (DETAILED,))  #: (undocumented, detailed-only)
-    agreed_to_terms = Attribute(unicode, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has agreed to terms
+    plan = Attribute(six.text_type, (DETAILED,))  #: (undocumented, detailed-only)
+    agreed_to_terms = Attribute(six.text_type, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has agreed to terms
     follower_request_count = Attribute(int, (DETAILED,))  #: (undocumented, detailed-only) How many people have requested to follow this athlete
     email_facebook_twitter_friend_joins = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has elected to receve emails when a twitter or facebook friend joins Strava
     receive_kudos_emails = Attribute(bool, (DETAILED,))  #: (undocumented, detailed-only) Whether athlete has elected to receive emails on kudos
@@ -373,7 +376,7 @@ class ActivityComment(LoadableEntity):
     Comments attached to an activity.
     """
     activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
-    text = Attribute(unicode, (META, SUMMARY, DETAILED))  #: Text of comment
+    text = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: Text of comment
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was coment created
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
 
@@ -383,7 +386,7 @@ class ActivityPhotoPrimary(LoadableEntity):
     A primary photo attached to an activity (different structure from full photo record)
     """
     id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of photo, if external.
-    unique_id = Attribute(unicode, (META, SUMMARY, DETAILED))  #: ID of photo, if internal.
+    unique_id = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: ID of photo, if internal.
     urls = Attribute(dict, (META, SUMMARY, DETAILED))
     source = Attribute(int, (META, SUMMARY, DETAILED))  #: 1=internal, 2=instagram
     use_primary_photo = Attribute(bool,(META, SUMMARY, DETAILED))  #: (undocumented)
@@ -406,10 +409,10 @@ class ActivityPhoto(LoadableEntity):
     A full photo record attached to an activity.
     """
     activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
-    ref = Attribute(unicode, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
-    uid = Attribute(unicode, (META, SUMMARY, DETAILED))  #: unique id
-    caption = Attribute(unicode, (META, SUMMARY, DETAILED))  #: caption on photo
-    type = Attribute(unicode, (META, SUMMARY, DETAILED))  #: type of photo (currently only InstagramPhoto)
+    ref = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
+    uid = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id
+    caption = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: caption on photo
+    type = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: type of photo (currently only InstagramPhoto)
     uploaded_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo uploaded
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo created
     location = LocationAttribute()  #: Start lat/lon of photo
@@ -419,16 +422,16 @@ class ActivityKudos(LoadableEntity):
     """
     Activity kudos are a subset of athlete properties.
     """
-    firstname = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's first name.
-    lastname = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's last name.
-    profile_medium = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel profile picture
-    profile = Attribute(unicode, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel profile picture
-    city = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home city
-    state = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home state
-    country = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's home country
-    sex = Attribute(unicode, (SUMMARY, DETAILED))  #: Athlete's sex ('M', 'F' or null)
-    friend = Attribute(unicode, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(unicode, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
+    firstname = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's first name.
+    lastname = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's last name.
+    profile_medium = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel profile picture
+    profile = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel profile picture
+    city = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home city
+    state = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home state
+    country = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's home country
+    sex = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's sex ('M', 'F' or null)
+    friend = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
+    follower = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
     premium = Attribute(bool, (SUMMARY, DETAILED))  #: Whether athlete is a premium member (true/false)
 
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when athlete record was created.
@@ -439,7 +442,7 @@ class ActivityKudos(LoadableEntity):
 
 class ActivityLap(LoadableEntity):
 
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of lap
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of lap
     activity = EntityAttribute("Activity", (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Activity`
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete`
 
@@ -462,7 +465,7 @@ class ActivityLap(LoadableEntity):
 
 
 class Map(IdentifiableEntity):
-    id = Attribute(unicode, (SUMMARY, DETAILED))  #: Alpha-numeric identifier
+    id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Alpha-numeric identifier
     polyline = Attribute(str, (SUMMARY, DETAILED))  #: Google polyline encoding
     summary_polyline = Attribute(str, (SUMMARY, DETAILED))  #: Google polyline encoding for summary shape
 
@@ -489,9 +492,9 @@ class SegmentExplorerResult(LoadableEntity):
     """
     _segment = None
     id = Attribute(int)  #: ID of the segment.
-    name = Attribute(unicode)  #: Name of the segment
+    name = Attribute(six.text_type)  #: Name of the segment
     climb_category = Attribute(int)  #: Climb category for the segment (0 is higher)
-    climb_category_desc = Attribute(unicode)  #: Climb category text
+    climb_category_desc = Attribute(six.text_type)  #: Climb category text
     avg_grade = Attribute(float)  #: Average grade for segment.
     start_latlng = LocationAttribute()  #: Start lat/lon for segment
     end_latlng = LocationAttribute()  #: End lat/lon for segment
@@ -524,8 +527,8 @@ class Segment(LoadableEntity):
     """
     _leaderboard = None
 
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of the segment.
-    activity_type = Attribute(unicode, (SUMMARY, DETAILED))  #: Activity type of segment ('Ride' or 'Run')
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of the segment.
+    activity_type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Activity type of segment ('Ride' or 'Run')
     distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Distance of segment
     average_grade = Attribute(float, (SUMMARY, DETAILED))  #: Average grade (%) for segment
     maximum_grade = Attribute(float, (SUMMARY, DETAILED))  #: Maximum grade (%) for segment
@@ -539,9 +542,9 @@ class Segment(LoadableEntity):
 
     end_longitude = Attribute(float, (SUMMARY, DETAILED))  #: The end longitude (:class:`float`)
     climb_category = Attribute(int, (SUMMARY, DETAILED))  # 0-5, lower is harder
-    city = Attribute(unicode, (SUMMARY, DETAILED))  #: The city this segment is in.
-    state = Attribute(unicode, (SUMMARY, DETAILED))  #: The state this segment is in.
-    country = Attribute(unicode, (SUMMARY, DETAILED))  #: The country this segment is in.
+    city = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The city this segment is in.
+    state = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The state this segment is in.
+    country = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The country this segment is in.
     private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether this is a private segment.
     starred = Attribute(bool, (SUMMARY, DETAILED))  #: Whether this segment is starred by authenticated athlete
 
@@ -574,7 +577,7 @@ class SegmentEfforAchievement(BaseEntity):
     An undocumented structure being returned for segment efforts.
     """
     rank = Attribute(int)  #: Rank in segment (either overall leaderboard, or pr rank)
-    type = Attribute(unicode)  #: The type of achievement -- e.g. 'year_pr' or 'overall'
+    type = Attribute(six.text_type)  #: The type of achievement -- e.g. 'year_pr' or 'overall'
     type_id = Attribute(int)  #: Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
 
 
@@ -582,7 +585,7 @@ class BaseEffort(LoadableEntity):
     """
     Base class for a best effort or segment effort.
     """
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: The name of the segment
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The name of the segment
     segment = EntityAttribute(Segment, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Segment` for this effort
     activity = EntityAttribute("Activity", (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Activity`
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete`
@@ -669,28 +672,28 @@ class Activity(LoadableEntity):
              ROLLERSKI, ROWING, SNOWBOARD, SNOWSHOE, STAIRSTEPPER,
              STANDUPPADDLING, SURFING, WEIGHTTRAINING, WINDSURF, WORKOUT, YOGA)
 
-    guid = Attribute(unicode, (SUMMARY, DETAILED))  #: (undocumented)
+    guid = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented)
 
-    external_id = Attribute(unicode, (SUMMARY, DETAILED))  #: An external ID for the activity (relevant when specified during upload).
-    upload_id = Attribute(unicode, (SUMMARY, DETAILED))  #: The upload ID for an activit.
+    external_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: An external ID for the activity (relevant when specified during upload).
+    upload_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The upload ID for an activit.
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete` that performed this activity.
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: The name of the activity.
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The name of the activity.
     distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: The distance for the activity.
     moving_time = TimeIntervalAttribute((SUMMARY, DETAILED))  #: The moving time duration for this activity.
     elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED))  #: The total elapsed time (including stopped time) for this activity.
     total_elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Total elevation gain for activity.
     elev_high = Attribute(float, (SUMMARY, DETAILED))
     elev_low = Attribute(float, (SUMMARY, DETAILED))
-    type = Attribute(unicode, (SUMMARY, DETAILED))  #: The activity type.
+    type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The activity type.
     start_date = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when activity was started in GMT
     start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when activity was started in activity timezone
     timezone = TimezoneAttribute((SUMMARY, DETAILED))  #: The timezone for activity.
     start_latlng = LocationAttribute((SUMMARY, DETAILED))  #: The start location (lat/lon :class:`tuple`)
     end_latlng = LocationAttribute((SUMMARY, DETAILED))  #: The end location (lat/lon :class:`tuple`)
 
-    location_city = Attribute(unicode, (SUMMARY, DETAILED))  #: The activity location city
-    location_state = Attribute(unicode, (SUMMARY, DETAILED))  #: The activity location state
-    location_country = Attribute(unicode, (SUMMARY, DETAILED))  #: The activity location state
+    location_city = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The activity location city
+    location_state = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The activity location state
+    location_country = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The activity location state
     start_latitude = Attribute(float, (SUMMARY, DETAILED))  #: The start latitude
     start_longitude = Attribute(float, (SUMMARY, DETAILED))  #: The start longitude
 
@@ -708,7 +711,7 @@ class Activity(LoadableEntity):
     private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether activity is private
     flagged = Attribute(bool, (SUMMARY, DETAILED))   #: Whether activity was flagged.
 
-    gear_id = Attribute(unicode, (SUMMARY, DETAILED))  #: Which bike/shoes were used on activity.
+    gear_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Which bike/shoes were used on activity.
     gear = EntityAttribute(Gear, (DETAILED,))
 
     average_speed = Attribute(float, (SUMMARY, DETAILED), units=uh.meters_per_second)  #: Average speed for activity.
@@ -735,15 +738,15 @@ class Activity(LoadableEntity):
     kilojoules = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Kilojoules of energy used during activity
     average_temp = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Average temperature (when available from device) during activity.
 
-    embed_token = Attribute(unicode, (DETAILED,))  #: the token used to embed a Strava activity in the form www.strava.com/activities/[activity_id]/embed/[embed_token]. Only included if requesting athlete is activity owner.
+    embed_token = Attribute(six.text_type, (DETAILED,))  #: the token used to embed a Strava activity in the form www.strava.com/activities/[activity_id]/embed/[embed_token]. Only included if requesting athlete is activity owner.
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
-    description = Attribute(unicode, (DETAILED,))  #: Description of activity.
-    workout_type = Attribute(unicode, (DETAILED,))  #: (undocumented)
+    description = Attribute(six.text_type, (DETAILED,))  #: Description of activity.
+    workout_type = Attribute(six.text_type, (DETAILED,))  #: (undocumented)
 
     photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,))  #: A new photo metadata structure.
-    instagram_primary_photo = Attribute(unicode, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
+    instagram_primary_photo = Attribute(six.text_type, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
 
-    partner_logo_url = Attribute(unicode, (DETAILED,))  #: (undocumented)
+    partner_logo_url = Attribute(six.text_type, (DETAILED,))  #: (undocumented)
 
     @property
     def comments(self):
@@ -830,9 +833,9 @@ class SegmentLeaderboardEntry(BoundEntity):
 
     effort_id = Attribute(int)  #: The numeric ID for the segment effort.
     athlete_id = Attribute(int)  #: The numeric ID for the athlete.
-    athlete_name = Attribute(unicode)  #: The athlete's name.
-    athlete_gender = Attribute(unicode)  #: The athlete's sex (M/F)
-    athlete_profile = Attribute(unicode)  #: Link to athlete profile photo
+    athlete_name = Attribute(six.text_type)  #: The athlete's name.
+    athlete_gender = Attribute(six.text_type)  #: The athlete's sex (M/F)
+    athlete_profile = Attribute(six.text_type)  #: Link to athlete profile photo
     average_hr = Attribute(float)  #: The athlete's average HR for this effort
     average_watts = Attribute(float)  #: The athlete's average power for this effort
     distance = Attribute(float, units=uh.meters)  #: The distance for this effort.
@@ -913,7 +916,7 @@ class BaseActivityZone(LoadableEntity):
     A collection of :class:`stravalib.model.DistributionBucket` objects.
     """
     distribution_buckets = EntityCollection(DistributionBucket, (SUMMARY, DETAILED))  #: The collection of :class:`stravalib.model.DistributionBucket` objects
-    type = Attribute(unicode, (SUMMARY, DETAILED))  #: Type of activity zone (heartrate, power, pace).
+    type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Type of activity zone (heartrate, power, pace).
     sensor_based = Attribute(bool, (SUMMARY, DETAILED))  #: Whether zone data is sensor-based (as opposed to calculated)
 
     @classmethod
@@ -969,11 +972,11 @@ class Stream(LoadableEntity):
     """
     Stream of readings from the activity, effort or segment.
     """
-    type = Attribute(unicode)
+    type = Attribute(six.text_type)
     data = Attribute(list)  #: array of values
-    series_type = Attribute(unicode)  #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
+    series_type = Attribute(six.text_type)  #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
     original_size = Attribute(int)  #: the size of the complete stream (when not reduced with resolution)
-    resolution = Attribute(unicode)  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
+    resolution = Attribute(six.text_type)  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
 
     def __repr__(self):
         return '<Stream type={} resolution={} original_size={}>'.format(self.type,
@@ -984,14 +987,14 @@ class Route(LoadableEntity):
     """
     Represents a Route.
     """
-    name = Attribute(unicode, (SUMMARY, DETAILED))  #: Name of the route.
-    description = Attribute(unicode, (SUMMARY, DETAILED,))  #: Description of the route.
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of the route.
+    description = Attribute(six.text_type, (SUMMARY, DETAILED,))  #: Description of the route.
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete` that performed this activity.
     distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: The distance for the route.
     elevation_gain = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Total elevation gain for the route.
     map = EntityAttribute(Map, (SUMMARY, DETAILED)) #: :class:`stravalib.model.Map` object for route.
-    type = Attribute(unicode, (SUMMARY, DETAILED))  #: Activity type of route (1 for ride, 2 for run).
-    sub_type = Attribute(unicode, (SUMMARY, DETAILED))  #: Activity sub-type of route (1 for road (ride and run), 2 for mtb, 3 for cx, 4 for trail, 5 for mixed).
+    type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Activity type of route (1 for ride, 2 for run).
+    sub_type = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Activity sub-type of route (1 for road (ride and run), 2 for mtb, 3 for cx, 4 for trail, 5 for mixed).
     private = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is private.
     starred = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the route is starred.
     # timestamp = NOT IMPLEMENTED

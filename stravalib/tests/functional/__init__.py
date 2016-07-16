@@ -1,6 +1,6 @@
 import warnings
 import os
-import ConfigParser
+from six.moves.configparser import SafeConfigParser, NoOptionError
 
 from stravalib import model
 from stravalib.client import Client
@@ -17,13 +17,13 @@ class FunctionalTestBase(TestBase):
         if not os.path.exists(TEST_CFG):
             raise Exception("Unable to run the write tests without a test.ini in that defines an access_token with write privs.")
 
-        cfg = ConfigParser.SafeConfigParser()
+        cfg = SafeConfigParser()
         with open(TEST_CFG) as fp:
             cfg.readfp(fp, 'test.ini')
             access_token = cfg.get('write_tests', 'access_token')
             try:
                 activity_id = cfg.get('activity_tests', 'activity_id')
-            except ConfigParser.NoOptionError:
+            except NoOptionError:
                 activity_id = None
 
         self.client = Client(access_token=access_token)

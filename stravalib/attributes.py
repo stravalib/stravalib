@@ -4,6 +4,7 @@ Attribute types used for the model.
 The types system provides a mechanism for serializing/un the data to/from JSON
 structures and for capturing additional information about the model attributes.
 """
+from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
 from datetime import datetime, timedelta, tzinfo, date
 from collections import namedtuple
@@ -11,6 +12,7 @@ from weakref import WeakKeyDictionary, WeakValueDictionary
 
 import pytz
 from units.quantity import Quantity
+import six
 
 import stravalib.model
 

@@ -3,6 +3,7 @@ Helpers for converting Strava's units to something more practical.
 
 These are really just thin wrappers to the brilliant 'units' python library.
 """
+from __future__ import division, absolute_import, print_function, unicode_literals
 from units import unit
 import units.predefined
 
@@ -25,7 +26,14 @@ pound = pounds = lb = lbs = unit('lb')
 
 
 def c2f(celsius):
-    """ Convert Celcius to Farenheit """
+    """
+    Convert Celsius to Fahrenheit.
+
+    :param celsius: Temperature in Celsius.
+    :type celcius: float
+    :return: Temperature in Fahrenheit.
+    :rtype: float
+    """
     return (9.0 / 5.0) * celsius + 32
 
 
@@ -37,7 +45,7 @@ def timedelta_to_seconds(td):
 
     (This is built-in in Python >= 2.7, but we are still supporting Python 2.6 here.)
     :param td: The timedelta object
-    :type td: :class:`datetime.timedelta`
+    :type td: datetime.timedelta
     :return: The number of total seconds in the timedelta object.
     :rtype: int
     """

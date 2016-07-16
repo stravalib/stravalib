@@ -18,7 +18,7 @@ class ClientWriteTest(FunctionalTestBase):
                                         start_date_local=now,
                                         elapsed_time=timedelta(hours=3, minutes=4, seconds=5),
                                         distance=uh.miles(15.2))
-        print a
+        print(a)
         
         self.assertIsInstance(a, model.Activity)
         self.assertEquals("test_create_activity#simple", a.name)

@@ -3,11 +3,11 @@ Low-level classes for interacting directly with the Strava API webservers.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
-import os.path
 import logging
-import urlparse
+from six.moves.urllib.parse import urlunsplit, urljoin, urlencode
 import functools
-from urllib import urlencode
+
+import six
 
 import requests
 
@@ -29,7 +29,10 @@ class ApiV3(object):
         object.
 
         :param access_token: The token that provides access to a specific Strava account.
+        :type access_token: str
+
         :param requests_session: An existing :class:`requests.Session` object to use.
+        :type requests_session::class:`requests.Session`
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.access_token = access_token
@@ -85,7 +88,7 @@ class ApiV3(object):
         if state is not None:
             params['state'] = state
 
-        return urlparse.urlunsplit(('https', self.server, '/oauth/authorize', urlencode(params), ''))
+        return urlunsplit(('https', self.server, '/oauth/authorize', urlencode(params), ''))
 
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
@@ -113,11 +116,31 @@ class ApiV3(object):
 
     def _resolve_url(self, url):
         if not url.startswith('http'):
-            url = urlparse.urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
+            url = urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
         return url
 
     def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
+        """
+        Perform the underlying request, returning the parsed JSON results.
 
+        :param url: The request URL.
+        :type url: str
+
+        :param params: Request parameters
+        :type params: Dict[str,Any]
+
+        :param files: Dictionary of file name to file-like objects.
+        :type files: Dict[str,file]
+
+        :param method: The request method (GET/POST/etc.)
+        :type method: str
+
+        :param check_for_errors: Whether to raise
+        :type check_for_errors: bool
+
+        :return: The parsed JSON response.
+        :rtype: Dict[str,Any]
+        """
         url = self._resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
@@ -141,7 +164,7 @@ class ApiV3(object):
 
         # 204 = No content
         if raw.status_code in [204]:
-            resp = []
+            resp = {}
         else:
             resp = raw.json()
 

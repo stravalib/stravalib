@@ -1,6 +1,7 @@
 """
 Provides the main interface classes for the Strava version 3 REST API.
 """
+from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
 import functools
 import time
@@ -10,6 +11,7 @@ from io import BytesIO
 from datetime import datetime, timedelta
 
 import pytz
+import six
 
 from dateutil.parser import parser
 dateparser = parser()
@@ -20,11 +22,6 @@ from stravalib import model, exc
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
-
-try:
-    unicode
-except:
-    unicode = str
 
 
 class Client(object):
@@ -634,7 +631,7 @@ class Client(object):
         :type external_id: str
         """
         if not hasattr(activity_file, 'read'):
-            if isinstance(activity_file, unicode):
+            if isinstance(activity_file, six.string_types):
                 activity_file = BytesIO(activity_file.encode('utf-8'))
             elif isinstance(activity_file, str):
                 activity_file = BytesIO(activity_file)
@@ -1004,12 +1001,12 @@ class Client(object):
             params['athlete_id'] = athlete_id
 
         if start_date_local:
-            if isinstance(start_date_local, (str, unicode)):
+            if isinstance(start_date_local, six.string_types):
                 start_date_local = dateparser.parse(start_date_local, ignoretz=True)
             params["start_date_local"] = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if end_date_local:
-            if isinstance(end_date_local, (str, unicode)):
+            if isinstance(end_date_local, six.string_types):
                 end_date_local = dateparser.parse(end_date_local, ignoretz=True)
             params["end_date_local"] = end_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -1299,6 +1296,7 @@ class Client(object):
         raw = self.protocol.get('/routes/{id}', id=route_id)
         return model.Route.deserialize(raw, bind_client=self)
 
+
 class BatchedResultsIterator(object):
     """
     An iterator that enables iterating over requests that return paged results.
@@ -1381,6 +1379,9 @@ class BatchedResultsIterator(object):
         self.reset()
         raise StopIteration
 
+    def __next__(self):
+        return self.next()
+
     def next(self):
         if self.limit and self._counter >= self.limit:
             self._eof()
@@ -1407,7 +1408,7 @@ class ActivityUploader(object):
         :type client: :class:`stravalib.client.Client`
 
         :param response: The initial upload response.
-        :type response: :py:class:`dict`
+        :type response: Dict[str,Any]
 
         """
         self.client = client
