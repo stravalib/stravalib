@@ -10,13 +10,13 @@ Documentation
 `Strava <http://www.strava.com>`_  API.
 
 This library is designed provide a simple and easy-to-use object model paradigm for interacting
-with the API, support modern versions of Python (2.x and 3.x), and expose the full functionality of the REST API.
+with the API, support modern versions of Python (2.7,3.2+), and expose the full functionality of the REST API.
 
 **Why use stravalib?**  The Strava REST API is fairly straightforward.  The main reasons to use something like
 stravalib would be:
 
 - Result structs (dicts) are returned as more "strongly typed" model objects.
-- Relationships can be traversedon model objects to pull in related content "seamlessly".
+- Relationships can be traversed on model objects to pull in related content "seamlessly".
 - Units and date/time/durations types are converted to python objects to facilite converting and displaying these values.
 - Built-in support for rate limiting and more intelligent error handling.
 
