@@ -21,6 +21,9 @@ class ApiV3(object):
     __metaclass__ = abc.ABCMeta
 
     server = 'www.strava.com'
+    # Note: The hostname for webhook events is different than normal API requests
+    # (via http://strava.github.io/api/partner/v3/events/)
+    server_webhook_events = 'api.strava.com'
     api_base = '/api/v3'
 
     def __init__(self, access_token=None, requests_session=None, rate_limiter=None):
@@ -111,14 +114,15 @@ class ApiV3(object):
         self.access_token = token
         return token
 
-    def _resolve_url(self, url):
+    def _resolve_url(self, url, use_webhook_server):
+        server = use_webhook_server and self.server_webhook_events or self.server
         if not url.startswith('http'):
-            url = urlparse.urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
+            url = urlparse.urljoin('https://{0}'.format(server), self.api_base + '/' + url.strip('/'))
         return url
 
-    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
+    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True, use_webhook_server=False):
 
-        url = self._resolve_url(url)
+        url = self._resolve_url(url, use_webhook_server)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
             params = {}
@@ -206,29 +210,29 @@ class ApiV3(object):
                 break
         return d.keys()
 
-    def get(self, url, check_for_errors=True, **kwargs):
+    def get(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
         """
         Performs a generic GET request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, check_for_errors=check_for_errors)
+        return self._request(url, params=params, check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
 
-    def post(self, url, files=None, check_for_errors=True, **kwargs):
+    def post(self, url, files=None, check_for_errors=True, use_webhook_server=False, **kwargs):
         """
         Performs a generic POST request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
+        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
 
-    def put(self, url, check_for_errors=True, **kwargs):
+    def put(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
         """
         Performs a generic PUT request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors)
+        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
