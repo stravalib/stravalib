@@ -1046,7 +1046,7 @@ class Client(object):
 
         """
         if len(bounds) == 2:
-            bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][2])
+            bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1])
         elif len(bounds) != 4:
             raise ValueError("Invalid bounds specified: {0!r}. Must be list of 4 float values or list of 2 (lat,lon) tuples.")
 
