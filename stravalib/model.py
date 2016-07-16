@@ -33,6 +33,9 @@ class BaseEntity(object):
         Only defined attributes will be set; warnings will be logged for invalid attributes.
         """
         for (k, v) in d.items():
+            # Handle special keys such as `hub.challenge` in `SubscriptionCallback`
+            if '.' in k:
+                k.replace('.', '_')
             # Only set defined attributes.
             if hasattr(self.__class__, k):
                 self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
@@ -1022,18 +1025,12 @@ class SubscriptionCallback(LoadableEntity):
     """
     Represents a Webhook Event Subscription Callback.
     """
-    def __init__(self, *args, **kwargs):
-        """
-        Special/complicated __init__ because of tricky variable names
-        """
-        setattr(self, 'hub.mode', Attribute(unicode, (SUMMARY, DETAILED)))
-        setattr(self, 'hub.verify_token', Attribute(unicode, (SUMMARY, DETAILED)))
-        setattr(self, 'hub.challenge', Attribute(unicode, (SUMMARY, DETAILED)))
-        super(SubscriptionCallback, self).__init__(*args, **kwargs)
+    hub_mode = Attribute(unicode, (SUMMARY, DETAILED))
+    hub_verify_token = Attribute(unicode, (SUMMARY, DETAILED))
+    hub_challenge = Attribute(unicode, (SUMMARY, DETAILED))
 
     def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
-        verify_token_callback = getattr(self, 'hub.verify_token')
-        assert verify_token_callback == verify_token
+        assert self.hub_verify_token == verify_token
 
 
 class SubscriptionUpdate(LoadableEntity):

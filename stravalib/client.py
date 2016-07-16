@@ -1328,8 +1328,7 @@ class Client(object):
         """
         callback = model.SubscriptionCallback.deserialize(raw)
         callback.validate(verify_token)
-        challenge = getattr(callback, 'hub.challenge')
-        response_raw = {'hub.challenge': challenge}
+        response_raw = {'hub.challenge': callback.hub_challenge}
         return response_raw
 
     def handle_subscription_update(self, raw):
