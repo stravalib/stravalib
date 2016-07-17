@@ -636,7 +636,7 @@ class Client(object):
             elif isinstance(activity_file, str):
                 activity_file = BytesIO(activity_file)
             else:
-                raise TypeError("Invalid type specified for activity_file: {0}".format(type(file)))
+                raise TypeError("Invalid type specified for activity_file: {0}".format(type(activity_file)))
 
         valid_data_types = ('fit', 'fit.gz', 'tcx', 'tcx.gz', 'gpx', 'gpx.gz')
         if not data_type in valid_data_types:
@@ -988,8 +988,8 @@ class Client(object):
                                            Either as ISO8601 or datetime object
         :type end_date_local: datetime.datetime or str
 
-        :param top_results_limit: (optional), limit number of efforts.
-        :type results_limit: int
+        :param limit: (optional), limit number of efforts.
+        :type limit: int
 
         :return: An iterator of :class:`stravalib.model.SegmentEffort` efforts on a segment.
         :rtype: :class:`BatchedResultsIterator`
@@ -1289,7 +1289,7 @@ class Client(object):
         https://strava.github.io/api/v3/routes/#retreive
 
         :param route_id: The ID of route to fetch.
-        :type activity_id: int
+        :type route_id: int
 
         :rtype: :class:`stravalib.model.Route`
         """
@@ -1382,9 +1382,8 @@ class BatchedResultsIterator(object):
         :type limit: int
 
         :param per_page: How many rows to fetch per page (default is 200).
-        :rtype: :py:class:`int`
+        :type per_page: int
         """
-
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.entity = entity
         self.bind_client = bind_client
@@ -1393,8 +1392,6 @@ class BatchedResultsIterator(object):
 
         if per_page is not None:
             self.per_page = per_page
-        #elif limit is not None:
-        #    self.per_page = limit
         else:
             self.per_page = self.default_per_page
 
