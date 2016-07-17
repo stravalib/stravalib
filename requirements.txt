@@ -2,3 +2,4 @@ arrow
 requests>=2.0,<3.0dev
 units
 pytz
+six

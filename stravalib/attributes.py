@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, tzinfo, date
 from collections import namedtuple
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
+import arrow
 import pytz
 from units.quantity import Quantity
 import six
@@ -119,8 +120,18 @@ class TimestampAttribute(Attribute):
         Convert a timestamp in "2012-12-13T03:43:19Z" format to a `datetime.datetime` object.
         """
         if not isinstance(v, datetime):
-            # 2012-12-13T03:43:19Z
-            v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=self.tzinfo)
+            if isinstance(v, six.integer_types):
+                v = arrow.get(v)
+            else:
+                try:
+                    # Most dates are in this format 2012-12-13T03:43:19Z
+                    v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ")
+                except ValueError:
+                    # ... but not all.
+                    v = arrow.get(v).datetime
+            # Translate to specified TZ
+            v = v.replace(tzinfo=self.tzinfo)
+
         return v
 
 

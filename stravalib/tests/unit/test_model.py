@@ -1,9 +1,10 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 
+from units.quantity import Quantity
+
 from stravalib import model
 from stravalib import unithelper as uh
 from stravalib.tests import TestBase
-from units.quantity import Quantity
 
 
 class ModelTest(TestBase):
@@ -90,8 +91,20 @@ class ModelTest(TestBase):
             "object_type": "activity",
             "aspect_type": "create",
             "callback_url": "http://you.com/callback/",
-            #"created_at": "2015-04-29T18:11:09.400558047-07:00",
-            #"updated_at": "2015-04-29T18:11:09.400558047-07:00"
+            "created_at": "2015-04-29T18:11:09.400558047-07:00",
+            "updated_at": "2015-04-29T18:11:09.400558047-07:00"
         }
         sub = model.Subscription.deserialize(d)
         self.assertEqual(d['id'], sub.id)
+
+    def test_subscription_update_deser(self):
+        d = {
+            "subscription_id": "1",
+            "owner_id": 13408,
+            "object_id": 12312312312,
+            "object_type": "activity",
+            "aspect_type": "create",
+            "event_time": 1297286541
+        }
+        subupd = model.SubscriptionUpdate.deserialize(d)
+        self.assertEqual('2011-02-09 21:22:21', subupd.event_time.strftime('%Y-%m-%d %H:%M:%S'))

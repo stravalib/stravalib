@@ -15,9 +15,9 @@ See the [online documentation](http://pythonhosted.org/stravalib/) for more comp
 
 ## Dependencies
 
-* Python 2.6+.  (This is intended to work with Python 3 using 2to3, but is being developed on Python 2.7)
-* Setuptools/distribute for installing dependencies
-* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, python-dateutil
+* Python 2.7+.  (Uses six for 2/3 compatibility.)
+* Setuptools for installing dependencies
+* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow, six
 
 ## Installation
 

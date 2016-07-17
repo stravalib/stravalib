@@ -10,11 +10,9 @@ import calendar
 from io import BytesIO
 from datetime import datetime, timedelta
 
+import arrow
 import pytz
 import six
-
-from dateutil.parser import parser
-dateparser = parser()
 
 from units.quantity import Quantity
 
@@ -149,7 +147,7 @@ class Client(object):
         :rtype: int
         """
         if isinstance(activity_datetime, str):
-            activity_datetime = dateparser.parse(activity_datetime)
+            activity_datetime = arrow.get(activity_datetime).datetime
         assert isinstance(activity_datetime, datetime)
         if activity_datetime.tzinfo:
             activity_datetime = activity_datetime.astimezone(pytz.utc)
@@ -1002,19 +1000,19 @@ class Client(object):
 
         if start_date_local:
             if isinstance(start_date_local, six.string_types):
-                start_date_local = dateparser.parse(start_date_local, ignoretz=True)
+                start_date_local = arrow.get(start_date_local).naive
             params["start_date_local"] = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if end_date_local:
             if isinstance(end_date_local, six.string_types):
-                end_date_local = dateparser.parse(end_date_local, ignoretz=True)
+                end_date_local = arrow.get(end_date_local).naive
             params["end_date_local"] = end_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if limit is not None:
             params["limit"] = limit
 
         result_fetcher = functools.partial(self.protocol.get,
-                                           '/segments/{}/all_efforts'.format(segment_id),
+                                           '/segments/{segment_id}/all_efforts',
                                            **params)
 
         return BatchedResultsIterator(entity=model.BaseEffort, bind_client=self,

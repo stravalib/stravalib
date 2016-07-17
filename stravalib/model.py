@@ -1045,4 +1045,4 @@ class SubscriptionUpdate(LoadableEntity):
     object_id = Attribute(six.text_type, (SUMMARY, DETAILED))
     object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
     aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
-    event_time = Attribute(six.text_type, (SUMMARY, DETAILED))  # Seems to be an integer, ex: 1297286541 - TODO: Make an Attribute for this that automatically casts to datetime.datetime
+    event_time = TimestampAttribute((SUMMARY, DETAILED))
