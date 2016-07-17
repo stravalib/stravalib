@@ -38,7 +38,7 @@ class BaseEntity(object):
         for (k, v) in d.items():
             # Handle special keys such as `hub.challenge` in `SubscriptionCallback`
             if '.' in k:
-                k.replace('.', '_')
+                k = k.replace('.', '_')
             # Only set defined attributes.
             if hasattr(self.__class__, k):
                 self.log.debug("Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(k, getattr(self.__class__, k).__class__.__name__, self, v))
@@ -1016,10 +1016,10 @@ class Subscription(LoadableEntity):
 
     VERIFY_TOKEN_DEFAULT = 'STRAVA'
 
-    application_id = Attribute(unicode, (SUMMARY, DETAILED))
-    object_type = Attribute(unicode, (SUMMARY, DETAILED))
-    aspect_type = Attribute(unicode, (SUMMARY, DETAILED))
-    callback_url = Attribute(unicode, (SUMMARY, DETAILED))
+    application_id = Attribute(six.text_type, (SUMMARY, DETAILED))
+    object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
+    aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
+    callback_url = Attribute(six.text_type, (SUMMARY, DETAILED))
     created_at = TimestampAttribute((SUMMARY, DETAILED))
     updated_at = TimestampAttribute((SUMMARY, DETAILED))
 
@@ -1028,9 +1028,9 @@ class SubscriptionCallback(LoadableEntity):
     """
     Represents a Webhook Event Subscription Callback.
     """
-    hub_mode = Attribute(unicode, (SUMMARY, DETAILED))
-    hub_verify_token = Attribute(unicode, (SUMMARY, DETAILED))
-    hub_challenge = Attribute(unicode, (SUMMARY, DETAILED))
+    hub_mode = Attribute(six.text_type, (SUMMARY, DETAILED))
+    hub_verify_token = Attribute(six.text_type, (SUMMARY, DETAILED))
+    hub_challenge = Attribute(six.text_type, (SUMMARY, DETAILED))
 
     def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
         assert self.hub_verify_token == verify_token
@@ -1040,9 +1040,9 @@ class SubscriptionUpdate(LoadableEntity):
     """
     Represents a Webhook Event Subscription Update.
     """
-    subscription_id = Attribute(unicode, (SUMMARY, DETAILED))
-    owner_id = Attribute(unicode, (SUMMARY, DETAILED))
-    object_id = Attribute(unicode, (SUMMARY, DETAILED))
-    object_type = Attribute(unicode, (SUMMARY, DETAILED))
-    aspect_type = Attribute(unicode, (SUMMARY, DETAILED))
-    event_time = Attribute(unicode, (SUMMARY, DETAILED))  # Seems to be an integer, ex: 1297286541 - TODO: Make an Attribute for this that automatically casts to datetime.datetime
+    subscription_id = Attribute(six.text_type, (SUMMARY, DETAILED))
+    owner_id = Attribute(six.text_type, (SUMMARY, DETAILED))
+    object_id = Attribute(six.text_type, (SUMMARY, DETAILED))
+    object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
+    aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
+    event_time = Attribute(six.text_type, (SUMMARY, DETAILED))  # Seems to be an integer, ex: 1297286541 - TODO: Make an Attribute for this that automatically casts to datetime.datetime

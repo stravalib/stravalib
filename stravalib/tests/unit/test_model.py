@@ -86,3 +86,4 @@ class ModelTest(TestBase):
         """
         """
         # PowerActivityZone
+

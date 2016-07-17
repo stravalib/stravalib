@@ -3,7 +3,7 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 import six
 
 from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute
-from stravalib.model import Athlete
+from stravalib.model import Athlete, SubscriptionCallback
 from stravalib.tests import TestBase
 
 
@@ -32,6 +32,18 @@ class EntityAttributeTest(TestBase):
         }
         athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))
         athlete.unmarshal(NON_ASCII_DATA)
+
+    def test_identifier_char_transform(self):
+        d = {
+            "hub.mode": "subscribe",
+            "hub.verify_token": "STRAVA",
+            "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3"
+        }
+        scb = SubscriptionCallback.deserialize(d)
+        print(scb)
+        print(dir(scb))
+        self.assertEqual(d['hub.mode'], scb.hub_mode)
+        self.assertEqual(d['hub.verify_token'], scb.hub_verify_token)
 
 
 class ChoicesAttributeTest(TestBase):
