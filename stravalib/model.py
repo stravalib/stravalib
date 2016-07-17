@@ -1016,21 +1016,21 @@ class Subscription(LoadableEntity):
 
     VERIFY_TOKEN_DEFAULT = 'STRAVA'
 
-    application_id = Attribute(int, (SUMMARY, DETAILED))
-    object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
-    aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
-    callback_url = Attribute(six.text_type, (SUMMARY, DETAILED))
-    created_at = TimestampAttribute((SUMMARY, DETAILED))
-    updated_at = TimestampAttribute((SUMMARY, DETAILED))
+    application_id = Attribute(int)
+    object_type = Attribute(six.text_type)
+    aspect_type = Attribute(six.text_type)
+    callback_url = Attribute(six.text_type)
+    created_at = TimestampAttribute()
+    updated_at = TimestampAttribute()
 
 
 class SubscriptionCallback(LoadableEntity):
     """
     Represents a Webhook Event Subscription Callback.
     """
-    hub_mode = Attribute(six.text_type, (SUMMARY, DETAILED))
-    hub_verify_token = Attribute(six.text_type, (SUMMARY, DETAILED))
-    hub_challenge = Attribute(six.text_type, (SUMMARY, DETAILED))
+    hub_mode = Attribute(six.text_type)
+    hub_verify_token = Attribute(six.text_type)
+    hub_challenge = Attribute(six.text_type)
 
     def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
         assert self.hub_verify_token == verify_token
@@ -1040,9 +1040,9 @@ class SubscriptionUpdate(LoadableEntity):
     """
     Represents a Webhook Event Subscription Update.
     """
-    subscription_id = Attribute(six.text_type, (SUMMARY, DETAILED))
-    owner_id = Attribute(six.text_type, (SUMMARY, DETAILED))
-    object_id = Attribute(six.text_type, (SUMMARY, DETAILED))
-    object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
-    aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
-    event_time = TimestampAttribute((SUMMARY, DETAILED))
+    subscription_id = Attribute(six.text_type)
+    owner_id = Attribute(six.text_type)
+    object_id = Attribute(six.text_type)
+    object_type = Attribute(six.text_type)
+    aspect_type = Attribute(six.text_type)
+    event_time = TimestampAttribute()
