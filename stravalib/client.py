@@ -1342,9 +1342,21 @@ class Client(object):
 
         http://strava.github.io/api/partner/v3/events/#list-push-subscriptions
 
-        TODO: Implement this
+        :param client_id: application’s ID, obtained during registration
+        :type client_id: int
+
+        :param client_secret: application’s secret, obtained during registration
+        :type client_secret: str
+
+        :return: An iterator of :class:`stravalib.model.Subscription` objects.
+        :rtype: :class:`BatchedResultsIterator`
         """
-        raise NotImplementedError
+        result_fetcher = functools.partial(self.protocol.get, '/push_subscriptions', client_id=client_id,
+                                           client_secret=client_secret, use_webhook_server=True)
+
+        return BatchedResultsIterator(entity=model.Subscription,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher)
 
     def delete_subscription(self, subscription_id, client_id, client_secret):
         """
@@ -1352,9 +1364,18 @@ class Client(object):
 
         http://strava.github.io/api/partner/v3/events/#delete-a-subscription
 
-        TODO: Implement this
+        :param subscription_id: ID of subscription to remove.
+        :type subscription_id: int
+
+        :param client_id: application’s ID, obtained during registration
+        :type client_id: int
+
+        :param client_secret: application’s secret, obtained during registration
+        :type client_secret: str
         """
-        raise NotImplementedError
+        self.protocol.delete('/push_subscriptions/{id}', id=subscription_id,
+                             client_id=client_id, client_secret=client_secret, use_webhook_server=True)
+        # Expects a 204 response if all goes well.
 
 
 class BatchedResultsIterator(object):

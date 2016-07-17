@@ -1016,7 +1016,7 @@ class Subscription(LoadableEntity):
 
     VERIFY_TOKEN_DEFAULT = 'STRAVA'
 
-    application_id = Attribute(six.text_type, (SUMMARY, DETAILED))
+    application_id = Attribute(int, (SUMMARY, DETAILED))
     object_type = Attribute(six.text_type, (SUMMARY, DETAILED))
     aspect_type = Attribute(six.text_type, (SUMMARY, DETAILED))
     callback_url = Attribute(six.text_type, (SUMMARY, DETAILED))

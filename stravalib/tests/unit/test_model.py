@@ -7,12 +7,10 @@ from units.quantity import Quantity
 
 
 class ModelTest(TestBase):
-
     def setUp(self):
         super(ModelTest, self).setUp()
 
     def test_entity_collections(self):
-
         a = model.Athlete()
         d = {'clubs': [{'resource_state': 2, 'id': 7, 'name': 'Team Roaring Mouse'},
                        {'resource_state': 2, 'id': 1, 'name': 'Team Strava Cycling'},
@@ -32,7 +30,7 @@ class ModelTest(TestBase):
         self.assertEquals(3600.0, float(uh.kph(a.average_speed)))
 
         a.max_speed = uh.mph(1.0)
-        #print repr(a.max_speed)
+        # print repr(a.max_speed)
 
         self.assertAlmostEqual(1.61, float(uh.kph(a.max_speed)), places=2)
 
@@ -45,7 +43,6 @@ class ModelTest(TestBase):
         split.elapsed_time = 5.73
 
     def test_distance_units(self):
-
         # Gear
         g = model.Gear()
         g.distance = 1000
@@ -87,3 +84,14 @@ class ModelTest(TestBase):
         """
         # PowerActivityZone
 
+    def test_subscription_deser(self):
+        d = {
+            "id": 1,
+            "object_type": "activity",
+            "aspect_type": "create",
+            "callback_url": "http://you.com/callback/",
+            #"created_at": "2015-04-29T18:11:09.400558047-07:00",
+            #"updated_at": "2015-04-29T18:11:09.400558047-07:00"
+        }
+        sub = model.Subscription.deserialize(d)
+        self.assertEqual(d['id'], sub.id)

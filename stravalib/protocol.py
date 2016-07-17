@@ -262,3 +262,12 @@ class ApiV3(object):
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
         return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
+
+    def delete(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
+        """
+        Performs a generic POST request for specified params, returning the response.
+        """
+        referenced = self._extract_referenced_vars(url)
+        url = url.format(**kwargs)
+        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
+        return self._request(url, params=params, method='DELETE', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
