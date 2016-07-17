@@ -1,2 +1,3 @@
 recursive-include docs *
 recursive-include stravalib/tests/resources *
+include requirements.txt

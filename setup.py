@@ -2,14 +2,9 @@
 import os.path
 import re
 import warnings
-import sys
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from distribute_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
+from pip.req import parse_requirements
+from setuptools import setup, find_packages
 
 version = '0.6.0'
 
@@ -25,7 +20,7 @@ if not found_news:
     warnings.warn('No news for this version found.')
 
 long_description = """
-stravalib is a Python 2.x and 3.x library that provides a simple API for interacting
+stravalib is a Python 2.7 and 3.x library that provides a simple API for interacting
 with the Strava activity tracking website.
 """
 
@@ -33,6 +28,13 @@ if found_news:
     title = 'Changes in %s' % version
     long_description += '\n%s\n%s\n' % (title, '-' * len(title))
     long_description += found_news
+
+# parse_requirements() returns generator of pip.req.InstallRequirement objects
+install_reqs = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'), session=False)
+
+# reqs is a list of requirement
+# e.g. ['django==1.5.1', 'mezzanine==1.4.6']
+reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
     name='stravalib',
@@ -46,14 +48,11 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data={'stravalib': ['tests/resources/*']},
-    install_requires=['python-dateutil{0}'.format('>=2.0,<3.0dev' if sys.version_info[0] == 3 else '>=1.5,<2.0dev'),  # version 1.x is for python 2 and version 2.x is for python 3.
-                      'pytz',
-                      'requests>=2.0,<3.0dev',
-                      'units'],
+    install_requires=reqs,
     tests_require=['nose>=1.0.3'],
     test_suite='stravalib.tests',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
@@ -61,5 +60,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    zip_safe=False  # Technically it should be fine, but there are issues w/ 2to3
+    zip_safe=True
 )
