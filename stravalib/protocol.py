@@ -265,7 +265,7 @@ class ApiV3(object):
 
     def delete(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
         """
-        Performs a generic POST request for specified params, returning the response.
+        Performs a generic DELETE request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
