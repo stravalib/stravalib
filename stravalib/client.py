@@ -1303,11 +1303,34 @@ class Client(object):
 
         http://strava.github.io/api/partner/v3/events/#create-a-subscription
 
+        :param client_id: application’s ID, obtained during registration
+        :type client_id: int
+
+        :param client_secret: application’s secret, obtained during registration
+        :type client_secret: str
+
+        :param callback_url: callback URL where Strava will first send a GET request to validate, then subsequently send POST requests with updates
+        :type callback_url: str
+
+        :param object_type: object_type (currently only `activity` is supported)
+        :type object_type: str
+
+        :param aspect_type: object_type (currently only `create` is supported)
+        :type aspect_type: str
+
+        :param verify_token: a token you can use to verify Strava's GET callback request
+        :type verify_token: str
+
+        :return: An instance of :class:`stravalib.model.Subscription`.
+        :rtype: :class:`stravalib.model.Subscription`
+
+        Notes:
+
         `object_type` and `aspect_type` are given defaults because there is currently only one valid value for each.
 
         `verify_token` is set to a default in the event that the author doesn't want to specify one.
 
-        Note: The appliction must have permission to make use of the webhook API. Access can be requested by contacting developers -at- strava.com.
+        The appliction must have permission to make use of the webhook API. Access can be requested by contacting developers -at- strava.com.
         """
         params = dict(client_id=client_id, client_secret=client_secret,
                       object_type=object_type, aspect_type=aspect_type,
