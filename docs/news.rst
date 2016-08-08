@@ -3,6 +3,14 @@ Changes
 
 .. contents::
 
+0.6.0
+-----
+* Use (reuqire) more modern pip/setuptools.
+* Full Python 3 support (using Six). (#69)
+* Webhooks support (thanks to loisaidasam) (#77)
+* explore_segments bugfix (#71)
+* General updates to model/attribs (#64, #73, etc.)
+
 0.5.0
 -----
 * Renamed `Activity.photos` property to `full_photos` due to new conflict with Strava API (#45)
