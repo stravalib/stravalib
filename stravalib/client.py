@@ -862,7 +862,7 @@ class Client(object):
 
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
                                 following=None, club_id=None, timeframe=None, top_results_limit=None,
-                                page=None):
+                                page=None, context_entries = None):
         """
         Gets the leaderboard for a segment.
 
@@ -902,6 +902,9 @@ class Client(object):
 
         :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
         :type page: int
+      
+        :param context_entries: (optional, strava default is 2, max is 15) number of entries surrounding requesting athlete to return
+        :type context_entries: int
 
         :return: The SegmentLeaderboard for the specified page (default: 1)
         :rtype: :class:`stravalib.model.SegmentLeaderboard`
@@ -943,6 +946,9 @@ class Client(object):
 
         if page is not None:
             params['page'] = page
+
+        if context_entries is not None:
+            params['context_entries'] = context_entries
 
         return model.SegmentLeaderboard.deserialize(self.protocol.get('/segments/{id}/leaderboard',
                                                                       id=segment_id,
