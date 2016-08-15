@@ -1320,10 +1320,10 @@ class Client(object):
 
         http://strava.github.io/api/partner/v3/events/#create-a-subscription
 
-        :param client_id: application’s ID, obtained during registration
+        :param client_id: application's ID, obtained during registration
         :type client_id: int
 
-        :param client_secret: application’s secret, obtained during registration
+        :param client_secret: application's secret, obtained during registration
         :type client_secret: str
 
         :param callback_url: callback URL where Strava will first send a GET request to validate, then subsequently send POST requests with updates
@@ -1380,10 +1380,10 @@ class Client(object):
 
         http://strava.github.io/api/partner/v3/events/#list-push-subscriptions
 
-        :param client_id: application’s ID, obtained during registration
+        :param client_id: application's ID, obtained during registration
         :type client_id: int
 
-        :param client_secret: application’s secret, obtained during registration
+        :param client_secret: application's secret, obtained during registration
         :type client_secret: str
 
         :return: An iterator of :class:`stravalib.model.Subscription` objects.
@@ -1405,10 +1405,10 @@ class Client(object):
         :param subscription_id: ID of subscription to remove.
         :type subscription_id: int
 
-        :param client_id: application’s ID, obtained during registration
+        :param client_id: application's ID, obtained during registration
         :type client_id: int
 
-        :param client_secret: application’s secret, obtained during registration
+        :param client_secret: application's secret, obtained during registration
         :type client_secret: str
         """
         self.protocol.delete('/push_subscriptions/{id}', id=subscription_id,
