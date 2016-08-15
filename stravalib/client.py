@@ -261,7 +261,7 @@ class Client(object):
                   'state': state,
                   'country': country,
                   'sex': sex}
-        params = {k: v for (k, v) in params.iteritems() if v is not None}
+        params = {k: v for (k, v) in params.items() if v is not None}
         if weight is not None:
             params['weight'] = float(weight)
 
