@@ -661,6 +661,17 @@ class Client(object):
 
         return ActivityUploader(self, response=initial_response)
 
+    def delete_activity(activity_id):
+        """
+        Deletes the specified activity.
+
+        https://strava.github.io/api/v3/activities/#delete
+
+        :param activity_id: The activity to delete.
+        :type activity_id: int
+        """
+        self.protocol.delete('/activities/{id}', id=activity_id)
+
     def get_activity_zones(self, activity_id):
         """
         Gets zones for activity.
@@ -902,7 +913,7 @@ class Client(object):
 
         :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
         :type page: int
-      
+
         :param context_entries: (optional, strava default is 2, max is 15) number of entries surrounding requesting athlete to return
         :type context_entries: int
 
