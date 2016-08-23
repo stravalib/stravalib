@@ -3,6 +3,12 @@ Changes
 
 .. contents::
 
+0.6.1
+-----
+* Python3 bugfixes (Tafkas, martinogden)
+* Added delete_activity
+* added context_entries parameter to get_segment_leaderboard method (jedman)
+
 0.6.0
 -----
 * Use (reuqire) more modern pip/setuptools.
