@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.6.2
+-----
+* More Python3 bugfixes
+
 0.6.1
 -----
 * Python3 bugfixes (Tafkas, martinogden)

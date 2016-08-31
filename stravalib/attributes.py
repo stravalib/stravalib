@@ -255,7 +255,7 @@ class EntityAttribute(Attribute):
 
     @type.setter
     def type(self, v):
-        if isinstance(v, (str, bytes, unicode)):
+        if isinstance(v, (six.text_type, six.binary_type)):
             # Supporting lazy class referencing
             self._lazytype = v
         else:

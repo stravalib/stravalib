@@ -311,10 +311,15 @@ class Athlete(LoadableEntity):
     _stats = None
     _is_authenticated = None
 
-    def __unicode__(self):
-        return u'<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
+    def __str__(self):
+        return '<Athlete id={id} firstname={fname} lastname={lname}>'.format(id=self.id,
                                                                              fname=self.firstname,
                                                                              lname=self.lastname)
+
+    def __repr__(self):
+        return '<Athlete id={id} firstname={fname!r} lastname={lname!r}>'.format(id=self.id,
+                                                                                 fname=self.firstname,
+                                                                                 lname=self.lastname)
 
     def is_authenticated_athlete(self):
         """
