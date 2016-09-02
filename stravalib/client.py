@@ -577,23 +577,33 @@ class Client(object):
         """
 
         # Convert the kwargs into a params dict
-        params = dict(activity_id=activity_id)
+        params = {}
+
         if name is not None:
             params['name'] = name
+
         if activity_type is not None:
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
                 raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
             params['type'] = activity_type
+
         if private is not None:
             params['private'] = int(private)
+
         if commute is not None:
             params['commute'] = int(commute)
+
         if trainer is not None:
             params['trainer'] = int(trainer)
+
         if gear_id is not None:
             params['gear_id'] = gear_id
 
-        raw_activity = self.protocol.put('/activities/{activity_id}', **params)
+        if description is not None:
+            params['description'] = description
+
+        raw_activity = self.protocol.put('/activities/{activity_id}', activity_id=activity_id, **params)
+
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
     def upload_activity(self, activity_file, data_type, name=None, description=None,

@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.6.3
+-----
+* Fixed update_activity to include description (#91)
+
 0.6.2
 -----
 * More Python3 bugfixes

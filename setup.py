@@ -6,7 +6,7 @@ import warnings
 from pip.req import parse_requirements
 from setuptools import setup, find_packages
 
-version = '0.6.2'
+version = '0.6.3'
 
 news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
 news = open(news).read()
