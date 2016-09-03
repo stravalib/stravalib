@@ -507,6 +507,7 @@ class SegmentExplorerResult(LoadableEntity):
     elev_difference = Attribute(float, units=uh.meters)  #: Total elevation difference over segment.
     distance = Attribute(float, units=uh.meters)  #: Distance of segment.
     points = Attribute(str)  #: Encoded Google polyline of points in segment
+    starred = Attribute(bool)  #: Whether this segment is starred by authenticated athlete
 
     @property
     def segment(self):
