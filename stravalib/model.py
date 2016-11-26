@@ -705,6 +705,7 @@ class Activity(LoadableEntity):
     start_longitude = Attribute(float, (SUMMARY, DETAILED))  #: The start longitude
 
     achievement_count = Attribute(int, (SUMMARY, DETAILED))  #: How many achievements earned for the activity
+    pr_count = Attribute(int, (SUMMARY, DETAILED))  #: How many new personal records earned for the activity
     kudos_count = Attribute(int, (SUMMARY, DETAILED))  #: How many kudos received for activity
     comment_count = Attribute(int, (SUMMARY, DETAILED))  #: How many comments  for activity.
     athlete_count = Attribute(int, (SUMMARY, DETAILED))  #: How many other athlete's participated in activity
