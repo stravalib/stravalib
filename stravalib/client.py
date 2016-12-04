@@ -764,7 +764,7 @@ class Client(object):
         """
         result_fetcher = functools.partial(self.protocol.get,
                                            '/activities/{id}/photos',
-                                           id=activity_id)
+                                           id=activity_id, photo_sources="true")
 
         return BatchedResultsIterator(entity=model.ActivityPhoto,
                                       bind_client=self,
