@@ -424,6 +424,7 @@ class ActivityPhoto(LoadableEntity):
     location = LocationAttribute()  #: Start lat/lon of photo
     urls = Attribute(dict, (META, SUMMARY, DETAILED))
 
+
 class ActivityKudos(LoadableEntity):
     """
     Activity kudos are a subset of athlete properties.
@@ -468,6 +469,7 @@ class ActivityLap(LoadableEntity):
     max_heartrate = Attribute(float, (SUMMARY, DETAILED,))  #: Max heartrate for lap
     lap_index = Attribute(int, (SUMMARY, DETAILED))  #: Index of lap
     device_watts = Attribute(bool, (SUMMARY, DETAILED))  # true if the watts are from a power meter, false if estimated
+    pace_zone = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented)
 
 
 class Map(IdentifiableEntity):
@@ -487,6 +489,8 @@ class Split(BaseEntity):
     moving_time = TimeIntervalAttribute()  #: :class:`datetime.timedelta` of moving time for split
     average_heartrate = Attribute(float)   #: Average HR for split
     split = Attribute(int)  #: Which split number
+    pace_zone = Attribute(int)  #: (undocumented)
+    average_speed = Attribute(float, units=uh.meters_per_second)
 
 
 class SegmentExplorerResult(LoadableEntity):
@@ -746,6 +750,7 @@ class Activity(LoadableEntity):
     kilojoules = Attribute(float, (SUMMARY, DETAILED))  #: (undocumented) Kilojoules of energy used during activity
     average_temp = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented) Average temperature (when available from device) during activity.
 
+    device_name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: the name of the device used to record the activity.
     embed_token = Attribute(six.text_type, (DETAILED,))  #: the token used to embed a Strava activity in the form www.strava.com/activities/[activity_id]/embed/[embed_token]. Only included if requesting athlete is activity owner.
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
     description = Attribute(six.text_type, (DETAILED,))  #: Description of activity.
@@ -755,7 +760,7 @@ class Activity(LoadableEntity):
     instagram_primary_photo = Attribute(six.text_type, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
 
     partner_logo_url = Attribute(six.text_type, (DETAILED,))  #: (undocumented)
-
+    partner_brand_tag = Attribute(six.text_type, (DETAILED,)) #: (undocumented)
     @property
     def comments(self):
         """
@@ -779,6 +784,13 @@ class Activity(LoadableEntity):
             self.assert_bind_client()
             self._laps = self.bind_client.get_activity_laps(self.id)
         return self._laps
+
+    @laps.setter
+    def laps(self, v):
+        # Note: Strava began returning laps as a list, not requiring a subsequent call to fetch it,
+        # so we're allowing this property to also be set.
+        # see https://github.com/hozn/stravalib/issues/96
+        self._laps = v
 
     @property
     def zones(self):
