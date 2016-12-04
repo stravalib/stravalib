@@ -7,7 +7,8 @@ Changes
 -----
 * Added support for undocumented inclusion of laps in activity details. (#96)
 * Added missing parameter for get_activity_photos (#94)
-*
+* Added missing activyt pr_count attribute (Wilm0r) (#95)
+* add "starred" property on SegmentExplorerResult (mdarmetko) (#92)
 
 0.6.3
 -----
