@@ -151,6 +151,11 @@ class Club(LoadableEntity):
     country = Attribute(six.text_type, (DETAILED, ))  #: Country the club is based in
     private = Attribute(bool, (DETAILED, ))  #: Whether the club is private
     member_count = Attribute(int, (DETAILED, ))  #: Number of members in the club
+    verified = Attribute(bool, (SUMMARY, DETAILED))
+    url = Attribute(six.text_type, (SUMMARY, DETAILED))  #: vanity club URL slug
+    featured = Attribute(bool, (SUMMARY, DETAILED))
+    cover_photo = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a ~1185x580 pixel cover photo
+    cover_photo_small = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a ~360x176 pixel cover photo
 
     @property
     def members(self):
