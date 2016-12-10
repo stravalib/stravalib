@@ -7,6 +7,7 @@ Changes
 -----
 * Updated ActivityPhoto model to support native photos and reverted get_activity_photos behavior for backwards
   compatibility (#98)
+* Added missing Club attributes (MMI) (#97)
 
 0.6.4
 -----
