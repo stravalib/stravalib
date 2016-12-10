@@ -414,15 +414,44 @@ class ActivityPhoto(LoadableEntity):
     """
     A full photo record attached to an activity.
     """
+    athlete_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of athlete
     activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
+    activity_name = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: Name of activity.
     ref = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
-    uid = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id
+
+    uid = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id for instagram photo
+    unique_id = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id for strava photos
+
     caption = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: caption on photo
     type = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: type of photo (currently only InstagramPhoto)
     uploaded_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo uploaded
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo created
+    created_at_local = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when was photo created
     location = LocationAttribute()  #: Start lat/lon of photo
     urls = Attribute(dict, (META, SUMMARY, DETAILED))
+    sizes = Attribute(dict, (SUMMARY, DETAILED))
+    post_id = Attribute(int, (SUMMARY, DETAILED))
+    default_photo = Attribute(bool, (SUMMARY, DETAILED))
+    source = Attribute(int, (META, SUMMARY, DETAILED))
+
+    def __repr__(self):
+        if self.source == 1:
+            photo_type = 'native'
+            idfield = 'unique_id'
+            idval = self.unique_id
+        elif self.source == 2:
+            photo_type = 'instagram'
+            idfield = 'uid'
+            idval = self.uid
+        else:
+            photo_type = '(no type)'
+            idfield='id'
+            idval = self.id
+
+        return '<{clz} {type} {idfield}={id}>'.format(clz=self.__class__.__name__,
+                                                      type=photo_type,
+                                                      idfield=idfield,
+                                                      id=idval)
 
 
 class ActivityKudos(LoadableEntity):
@@ -818,6 +847,8 @@ class Activity(LoadableEntity):
     @property
     def full_photos(self):
         """
+        Gets a list of photos using default options.
+        
         :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
         """
         if self._photos is None:

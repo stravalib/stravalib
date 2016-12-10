@@ -3,6 +3,7 @@ Provides the main interface classes for the Strava version 3 REST API.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
+import warnings
 import functools
 import time
 import collections
@@ -750,7 +751,7 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-    def get_activity_photos(self, activity_id):
+    def get_activity_photos(self, activity_id, size=None, only_instagram=None):
         """
         Gets the photos from an activity.
 
@@ -759,12 +760,32 @@ class Client(object):
         :param activity_id: The activity for which to fetch kudos.
         :type activity_id: int
 
+        :param size: the requested size of the activity's photos. URLs for the photos will be returned that best match
+                    the requested size. If not included, the smallest size is returned
+        :type size: int
+
+        :param only_instagram: Parameter to preserve legacy behavior of only returning Instagram photos.
+        :type only_instagram: bool
+
         :return: An iterator of :class:`stravalib.model.ActivityPhoto` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
+        params = {}
+        if only_instagram is None:
+            self.log.warning("To preserve legacy behavior, only fetching Instagram photos. "
+                             "Pass only_instagram=False to include native photos (or only_instagram=True to keep this "
+                             "behavior but suppress this warning). This behavior will change in next minor release.")
+            only_instagram = True
+
+        if not only_instagram:
+            params['photo_sources'] = 'true'
+
+        if size is not None:
+            params['size'] = size
+
         result_fetcher = functools.partial(self.protocol.get,
                                            '/activities/{id}/photos',
-                                           id=activity_id, photo_sources="true")
+                                           id=activity_id, **params)
 
         return BatchedResultsIterator(entity=model.ActivityPhoto,
                                       bind_client=self,
