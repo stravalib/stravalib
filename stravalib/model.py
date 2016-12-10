@@ -848,7 +848,7 @@ class Activity(LoadableEntity):
     def full_photos(self):
         """
         Gets a list of photos using default options.
-        
+
         :class:`list` of :class:`stravalib.model.ActivityPhoto` objects for this activity.
         """
         if self._photos is None:
