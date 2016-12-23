@@ -672,7 +672,7 @@ class Client(object):
 
         return ActivityUploader(self, response=initial_response)
 
-    def delete_activity(activity_id):
+    def delete_activity(self, activity_id):
         """
         Deletes the specified activity.
 
