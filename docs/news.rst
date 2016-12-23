@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.6.6
+-----
+* Fix for delete_activity (jonderwaater) (#99)
+
 0.6.5
 -----
 * Updated ActivityPhoto model to support native photos and reverted get_activity_photos behavior for backwards
