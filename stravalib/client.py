@@ -1342,6 +1342,39 @@ class Client(object):
         raw = self.protocol.get('/routes/{id}', id=route_id)
         return model.Route.deserialize(raw, bind_client=self)
 
+    def get_route_streams(self, route_id):
+        """
+        Returns streams for a route.
+
+        http://strava.github.io/api/v3/streams/#routes
+
+        Streams represent the raw data of the saved route. External
+        applications may access this information for all public routes and for
+        the private routes of the authenticated athlete.
+
+        The 3 available route stream types `distance`, `altitude` and `latlng`
+        are always returned.
+
+        http://strava.github.io/api/v3/streams/#routes
+
+        :param activity_id: The ID of activity.
+        :type activity_id: int
+
+        :return: A dictionary of :class:`stravalib.model.Stream`from the route.
+        :rtype: :py:class:`dict`
+
+        """
+
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/routes/{id}/streams/'.format(id=route_id))
+
+        streams = BatchedResultsIterator(entity=model.Stream,
+                                         bind_client=self,
+                                         result_fetcher=result_fetcher)
+
+        # Pack streams into dictionary
+        return {i.type: i for i in streams}
+
     def create_subscription(self, client_id, client_secret, callback_url,
                             object_type=model.Subscription.OBJECT_TYPE_ACTIVITY,
                             aspect_type=model.Subscription.ASPECT_TYPE_CREATE,
