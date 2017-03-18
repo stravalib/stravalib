@@ -135,6 +135,18 @@ class ClientTest(FunctionalTestBase):
         self.assertIsInstance(streams['latlng'].data, list)
         self.assertIsInstance(streams['latlng'].data[0][0], float)
 
+    def test_route_streams(self):
+        """
+        Test toute streams
+        """
+        stypes = ['latlng', 'distance', 'altitude']
+
+        streams = self.client.get_route_streams(3445913)
+        self.assertEqual(len(streams.keys()), 3)
+
+        for t in stypes:
+            self.assertIn(t, streams.keys())
+
     def test_related_activities(self):
         """
         Test get_related_activities on an activity and related property of Activity
