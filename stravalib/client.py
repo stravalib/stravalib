@@ -552,7 +552,7 @@ class Client(object):
 
     def update_activity(self, activity_id, name=None, activity_type=None,
                         private=None, commute=None, trainer=None, gear_id=None,
-                        description=None):
+                        description=None,device_name=None):
         """
         Updates the properties of a specific activity.
 
@@ -572,6 +572,7 @@ class Client(object):
         :param trainer: Whether this is a trainer activity.
         :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
         :param description: Description for the activity.
+        :param device_name: Device name for the activity
 
         :return: The updated activity.
         :rtype: :class:`stravalib.model.Activity`
@@ -602,6 +603,9 @@ class Client(object):
 
         if description is not None:
             params['description'] = description
+            
+        if device_name is not None:
+            params['device_name'] = device_name
 
         raw_activity = self.protocol.put('/activities/{activity_id}', activity_id=activity_id, **params)
 
