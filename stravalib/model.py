@@ -736,6 +736,7 @@ class Activity(LoadableEntity):
     start_date = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when activity was started in GMT
     start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when activity was started in activity timezone
     timezone = TimezoneAttribute((SUMMARY, DETAILED))  #: The timezone for activity.
+    utc_offset = Attribute(float, (SUMMARY, DETAILED)) #: The UTC offset for activity.
     start_latlng = LocationAttribute((SUMMARY, DETAILED))  #: The start location (lat/lon :class:`tuple`)
     end_latlng = LocationAttribute((SUMMARY, DETAILED))  #: The end location (lat/lon :class:`tuple`)
 
