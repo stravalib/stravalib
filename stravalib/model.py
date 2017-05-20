@@ -156,6 +156,9 @@ class Club(LoadableEntity):
     featured = Attribute(bool, (SUMMARY, DETAILED))
     cover_photo = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a ~1185x580 pixel cover photo
     cover_photo_small = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a ~360x176 pixel cover photo
+    membership = Attribute(six.text_type, (DETAILED, ))
+    admin = Attribute(bool, (DETAILED, ))
+    owner = Attribute(bool, (DETAILED, ))
 
     @property
     def members(self):
@@ -568,6 +571,15 @@ class AthleteSegmentStats(BaseEntity):
     pr_elapsed_time = TimeIntervalAttribute() #: (UNDOCUMENTED) Presumably PR elapsed time for segment.
     pr_date = DateAttribute()  #: (UNDOCUMENTED) Presumably date of PR :)
 
+class AthletePrEffort(IdentifiableEntity):
+    """
+    An undocumented structure being returned for segment Athlete Pr Effort.
+    """
+    distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)
+    elapsed_time = TimeIntervalAttribute((SUMMARY, DETAILED))
+    start_date = TimestampAttribute((SUMMARY, DETAILED))
+    start_date_local = TimestampAttribute((SUMMARY, DETAILED))
+    is_kom = Attribute(bool, (SUMMARY, DETAILED))
 
 class Segment(LoadableEntity):
     """
@@ -607,6 +619,9 @@ class Segment(LoadableEntity):
     athlete_count = Attribute(int, (DETAILED,))  #: How many athletes have ridden this segment
     hazardous = Attribute(bool, (DETAILED,))  #: Whether this segment has been flagged as hazardous
     star_count = Attribute(int, (DETAILED,))  #: number of stars on this segment.
+    pr_time = Attribute(int, (DETAILED,)) #: pr time for athlete
+    starred_date = TimestampAttribute((DETAILED, )) #: datetime when be starred
+    athlete_pr_effort = EntityAttribute(AthletePrEffort, (DETAILED,)) 
 
     @property
     def leaderboard(self):
