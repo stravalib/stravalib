@@ -140,6 +140,9 @@ class Club(LoadableEntity):
 
     Currently summary and detail resource states have the same attributes.
     """
+    _members = None
+    _activities = None
+
     name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of the club.
     profile_medium = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 62x62 pixel club picture
     profile = Attribute(six.text_type, (SUMMARY, DETAILED))  #: URL to a 124x124 pixel club picture
@@ -621,7 +624,7 @@ class Segment(LoadableEntity):
     star_count = Attribute(int, (DETAILED,))  #: number of stars on this segment.
     pr_time = Attribute(int, (DETAILED,)) #: pr time for athlete
     starred_date = TimestampAttribute((DETAILED, )) #: datetime when be starred
-    athlete_pr_effort = EntityAttribute(AthletePrEffort, (DETAILED,)) 
+    athlete_pr_effort = EntityAttribute(AthletePrEffort, (DETAILED,))
 
     @property
     def leaderboard(self):
