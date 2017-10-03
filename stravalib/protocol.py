@@ -175,6 +175,8 @@ class ApiV3(object):
         else:
             resp = raw.json()
 
+        resp.update(status_code=raw.status_code, headers=raw.headers)
+
         # TODO: We should parse the response to get the rate limit details and
         # update our rate limiter.
         # see: http://strava.github.io/api/#access

@@ -1596,6 +1596,7 @@ class ActivityUploader(object):
 
         """
         self.client = client
+        self.response = response
         self.update_from_response(response)
 
     def update_from_response(self, response, raise_exc=True):
