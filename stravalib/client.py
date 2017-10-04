@@ -1613,7 +1613,7 @@ class ActivityUploader(object):
         self.upload_id = response.get('id')
         self.external_id = response.get('external_id')
         self.activity_id = response.get('activity_id')
-        self.status = response.get('status')
+        self.status = response.get('status') or response.get('message')
         self.error = response.get('error') or response.get('errors')
         if raise_exc:
             self.raise_for_error()
