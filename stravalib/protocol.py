@@ -175,6 +175,7 @@ class ApiV3(object):
         else:
             resp = raw.json()
 
+        # see: http://strava.github.io/api/#access for rate limit info
         headers = raw.headers
         rate_limit = headers.get('x-ratelimit-limit')
         if rate_limit:
