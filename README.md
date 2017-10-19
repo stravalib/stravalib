@@ -33,6 +33,31 @@ Of course, by itself this package doesn't do much; it's a library.  So it is mor
 list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can
 download it and explore Strava content in your favorite python REPL.
 
+## Building from sources
+
+To build the project from sources access the project root directory and run
+```
+shell$ python setup.py build
+```
+Running
+```
+shell$ python setup.py install
+```
+will build and install *stravalib* in your *pip* package repository.
+
+To execute **unit tests** you will need to run
+```
+shell$ nosetests
+```
+or
+```
+shell$ nosetests-3
+```
+if you use Python3.
+
+To run **integration** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
+In *test.ini* provide your *access_token* and *activity_id*
+
 ## Basic Usage
 
 Please take a look at the source (in particular the stravalib.client.Client class, if you'd like to play around with the
