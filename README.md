@@ -45,7 +45,7 @@ shell$ python setup.py install
 ```
 will build and install *stravalib* in your *pip* package repository.
 
-To execute unit tests you will need to run
+To execute **unit tests** you will need to run
 ```
 shell$ nosetests
 ```
@@ -55,7 +55,8 @@ shell$ nosetests-3
 ```
 if you use Python3.
 
-To run integration tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
+To run **integration** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
+In *test.ini* provide your *access_token* and *activity_id*
 
 ## Basic Usage
 
