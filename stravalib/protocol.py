@@ -175,14 +175,11 @@ class ApiV3(object):
         else:
             resp = raw.json()
 
-        # TODO: We should parse the response to get the rate limit details and
-        # update our rate limiter.
-        # see: http://strava.github.io/api/#access
-
         # At this stage we should assume that request was successful and we should invoke
-        # our rate limiter.  (Note that this may need to be reviewed; some failures may
-        # also count toward the limit?)
-        self.rate_limiter()
+        # our rate limiter.
+        # The limits are taken from HTTP response headers
+        # https://strava.github.io/api/#rate-limiting
+        self.rate_limiter(raw.headers)
 
         return resp
 

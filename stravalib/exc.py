@@ -35,6 +35,15 @@ class RateLimitExceeded(RuntimeError):
     """
 
 
+class RateLimitTimeout(RateLimitExceeded):
+    """
+    Exception raised when the client rate limit has been exceeded
+    and the time to clear the limit (timeout) has not yet been reached
+
+    http://strava.github.io/api/#access
+    """
+
+
 class ActivityUploadFailed(RuntimeError):
     pass
 
