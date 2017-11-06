@@ -24,7 +24,6 @@ from datetime import datetime, timedelta
 
 from stravalib import exc
 
-
 def total_seconds(td):
     """Alternative to datetime.timedelta.total_seconds
     total_seconds() only available since Python 2.7
@@ -39,14 +38,66 @@ class RateLimiter(object):
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.rules = []
 
-    def __call__(self):
+    def __call__(self, args):
         """
         Register another request is being issued.
         """
         for r in self.rules:
-            r()
+            r(args)
 
 
+class XRateLimitRule(object):
+    
+    def __init__(self, limits):
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.rate_limits = limits
+        self.limit_time_invalid = 0
+        # should limit args be validated?
+
+    @property
+    def limit_timeout(self):
+        return self.limit_time_invalid
+
+    def __call__(self, kwargs):
+        self._updateUsage(self.rate_limits, kwargs)
+        
+        for limitName, limit in self.rate_limits.items():
+            self._checkLimitTimeInvalid(limitName, limit)
+            self._checkLimitRates(limitName, limit)
+            
+    def _updateUsage(self, limits, kwargs):
+        usageRates = kwargs.get('X-RateLimit-Usage').split(',')
+
+        # for the standard rules this will map like this
+        #  limits['short']['usage'] = int(usageRates[0])
+        #  limits['long']['usage'] = int(usageRates[1])
+        for limit in limits.values():
+            limit['usage'] = int(usageRates[limit['usageFieldIndex']])
+
+    def _checkLimitRates(self, limitName, limit):
+        if (limit['usage'] >= limit['limit']):
+            self.log.debug("Rate limit of {0} reached.".format(limit['limit']))
+            limit['lastExceeded'] = datetime.now()
+            self._raiseRateLimitException(limit['limit'], limit['time'])
+
+    def _checkLimitTimeInvalid(self, limitName, limit):
+        self.limit_time_invalid = 0
+        if (limit['lastExceeded'] is not None):
+            delta = (datetime.now() - limit['lastExceeded']).total_seconds()
+            if (delta < limit['time']):
+                self.limit_time_invalid = limit['time'] - delta
+                self.log.debug("Rate limit invalid duration {0} seconds."
+                               .format(self.limit_time_invalid))
+                self._raiseRateLimitTimeout(self.limit_timeout, limit['limit'])
+                
+    def _raiseRateLimitException(self, timeout, limitRate):
+        raise exc.RateLimitExceeded("Rate limit of {0} exceeded. Try again in {1} seconds."
+                                    .format(limitRate, timeout))
+    
+    def _raiseRateLimitTimeout(self, timeout, limitRate):
+        raise exc.RateLimitTimeout("Rate limit of {0} exceeded. Try again in {1} seconds."
+                                    .format(limitRate, timeout))        
+        
 class RateLimitRule(object):
 
     def __init__(self, requests, seconds, raise_exc=False):
@@ -61,7 +112,7 @@ class RateLimitRule(object):
         self.tab = collections.deque(maxlen=self.requests)
         self.raise_exc = raise_exc
 
-    def __call__(self):
+    def __call__(self, args):
         """
         Register another request is being issued.
 
@@ -98,6 +149,25 @@ class DefaultRateLimiter(RateLimiter):
     """
 
     def __init__(self):
+        """
+        Strava API usage is limited on a per-application basis using a short term, 
+        15 minute, limit and a long term, daily, limit. The default rate limit
+        allows 600 requests every 15 minutes, with up to 30,000 requests per day. 
+        This limit allows applications to make 40 requests per minute for about half the day.
+        """
+
         super(DefaultRateLimiter, self).__init__()
-        self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
-        self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
+        
+        self.rules.append(XRateLimitRule(
+            {'short': {'usageFieldIndex': 0, 'usage': 0,
+                         # 60s * 15 = 15 min
+                         'limit': 600, 'time': (60*15),
+                         'lastExceeded': None},
+             'long': {'usageFieldIndex': 1, 'usage': 0,
+                        # 60s * 60m * 24 = 1 day
+                        'limit': 30000, 'time': (60*60*24),
+                        'lastExceeded': None}}))
+        
+        # XRateLimitRule used instead of timer based RateLimitRule        
+        # self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
+        # self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
