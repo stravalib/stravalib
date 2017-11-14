@@ -77,16 +77,16 @@ class XRateLimitRule(object):
         return self.limit_time_invalid
 
     def __call__(self, response_headers):
-        self._updateUsage(self.rate_limits, response_headers)
+        self._updateUsage(response_headers)
         
         for limitName, limit in self.rate_limits.items():
             self._checkLimitTimeInvalid(limitName, limit)
             self._checkLimitRates(limitName, limit)
             
-    def _updateUsage(self, limits, response_headers):
+    def _updateUsage(self, response_headers):
         rates = get_rates_from_response_headers(response_headers)
-        limits['short']['usage'] = rates.short_usage or limits['short']['usage']
-        limits['long']['usage'] = rates.long_usage or limits['long']['usage']
+        self.rate_limits['short']['usage'] = rates.short_usage or self.rate_limits['short']['usage']
+        self.rate_limits['long']['usage'] = rates.long_usage or self.rate_limits['long']['usage']
 
     def _checkLimitRates(self, limitName, limit):
         if (limit['usage'] >= limit['limit']):
