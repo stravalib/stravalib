@@ -79,22 +79,22 @@ class XRateLimitRule(object):
     def __call__(self, response_headers):
         self._updateUsage(response_headers)
         
-        for limitName, limit in self.rate_limits.items():
-            self._checkLimitTimeInvalid(limitName, limit)
-            self._checkLimitRates(limitName, limit)
+        for limit in self.rate_limits.values():
+            self._checkLimitTimeInvalid(limit)
+            self._checkLimitRates(limit)
             
     def _updateUsage(self, response_headers):
         rates = get_rates_from_response_headers(response_headers)
         self.rate_limits['short']['usage'] = rates.short_usage or self.rate_limits['short']['usage']
         self.rate_limits['long']['usage'] = rates.long_usage or self.rate_limits['long']['usage']
 
-    def _checkLimitRates(self, limitName, limit):
+    def _checkLimitRates(self, limit):
         if (limit['usage'] >= limit['limit']):
             self.log.debug("Rate limit of {0} reached.".format(limit['limit']))
             limit['lastExceeded'] = datetime.now()
             self._raiseRateLimitException(limit['limit'], limit['time'])
 
-    def _checkLimitTimeInvalid(self, limitName, limit):
+    def _checkLimitTimeInvalid(self, limit):
         self.limit_time_invalid = 0
         if (limit['lastExceeded'] is not None):
             delta = (datetime.now() - limit['lastExceeded']).total_seconds()
