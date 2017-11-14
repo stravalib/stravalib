@@ -32,6 +32,24 @@ def total_seconds(td):
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
 
+RequestRate = collections.namedtuple('RequestRate', ['short_usage', 'long_usage', 'short_limit', 'long_limit'])
+
+
+def get_rates_from_response_headers(headers):
+    try:
+        usage_rates = map(int, headers['X-RateLimit-Usage'].split(','))
+    except KeyError:
+        usage_rates = (None, None)
+
+    try:
+        limit_rates = map(int, headers['X-RateLimit-Limit'].split(','))
+    except KeyError:
+        limit_rates = (None, None)
+
+    return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
+                       short_limit=limit_rates[0], long_limit=limit_rates[1])
+
+
 class RateLimiter(object):
 
     def __init__(self):
