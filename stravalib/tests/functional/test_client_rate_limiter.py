@@ -18,8 +18,8 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
         # setup 'short' limit for testing
         self.client.protocol.rate_limiter.rules = []
         self.client.protocol.rate_limiter.rules.append(XRateLimitRule(
-            {'short': {'usageFieldIndex': 0, 'usage': 0, 'limit': 600,
-                       'time': 5, 'lastExceeded': None}}))
+            {'short': {'usage': 0, 'limit': 600, 'time': 5, 'lastExceeded': None},
+             'long': {'usage': 0, 'limit': 30000, 'time': 5, 'lastExceeded': None}}))
 
         # interact with api to get the limits
         self.client.get_athlete()
