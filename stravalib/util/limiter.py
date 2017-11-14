@@ -17,10 +17,13 @@ From the Strava docs:
   half the day.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
-import time
-import logging
+
 import collections
+import logging
+import time
 from datetime import datetime, timedelta
+
+import arrow
 
 from stravalib import exc
 
@@ -49,6 +52,14 @@ def get_rates_from_response_headers(headers):
 
     return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
                        short_limit=limit_rates[0], long_limit=limit_rates[1])
+
+
+def get_seconds_until_next_quarter(now=arrow.utcnow()):
+    return 900 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
+
+
+class SleepingRateLimitRule(object):
+    pass
 
 
 class XRateLimitRule(object):
