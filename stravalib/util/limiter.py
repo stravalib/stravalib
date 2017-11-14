@@ -83,14 +83,10 @@ class XRateLimitRule(object):
             self._checkLimitTimeInvalid(limitName, limit)
             self._checkLimitRates(limitName, limit)
             
-    def _updateUsage(self, limits, kwargs):
-        usageRates = kwargs.get('X-RateLimit-Usage').split(',')
-
-        # for the standard rules this will map like this
-        #  limits['short']['usage'] = int(usageRates[0])
-        #  limits['long']['usage'] = int(usageRates[1])
-        for limit in limits.values():
-            limit['usage'] = int(usageRates[limit['usageFieldIndex']])
+    def _updateUsage(self, limits, response_headers):
+        rates = get_rates_from_response_headers(response_headers)
+        limits['short']['usage'] = rates.short_usage or limits['short']['usage']
+        limits['long']['usage'] = rates.long_usage or limits['long']['usage']
 
     def _checkLimitRates(self, limitName, limit):
         if (limit['usage'] >= limit['limit']):

@@ -1,5 +1,5 @@
 from stravalib.tests import TestBase
-from stravalib.util.limiter import get_rates_from_response_headers
+from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule
 
 test_response = {'Status': '404 Not Found', 'X-Request-Id': 'a1a4a4973962ffa7e0f18d7c485fe741',
                  'Content-Encoding': 'gzip', 'Content-Length': '104', 'Connection': 'keep-alive',
@@ -31,3 +31,19 @@ class LimiterTest(TestBase):
         self.assertIsNone(request_rates.long_limit)
         self.assertIsNone(request_rates.short_usage)
         self.assertIsNone(request_rates.long_usage)
+
+
+class XRateLimitRuleTest(TestBase):
+    def test_rule_normal_response(self):
+        rule = XRateLimitRule({'short': {'usage': 0, 'limit': 600, 'time': (60*15), 'lastExceeded': None},
+                               'long': {'usage': 0, 'limit': 30000, 'time': (60*60*24), 'lastExceeded': None}})
+        rule(test_response)
+        self.assertEqual(4, rule.rate_limits['short']['usage'])
+        self.assertEqual(67, rule.rate_limits['long']['usage'])
+
+    def test_rule_missing_rates_response(self):
+        rule = XRateLimitRule({'short': {'usage': 0, 'limit': 600, 'time': (60*15), 'lastExceeded': None},
+                               'long': {'usage': 0, 'limit': 30000, 'time': (60*60*24), 'lastExceeded': None}})
+        rule(test_response_no_rates)
+        self.assertEqual(0, rule.rate_limits['short']['usage'])
+        self.assertEqual(0, rule.rate_limits['long']['usage'])
