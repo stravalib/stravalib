@@ -166,6 +166,10 @@ class ApiV3(object):
             raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
 
         raw = requester(url, params=params)
+        # Rate limits are taken from HTTP response headers
+        # https://strava.github.io/api/#rate-limiting
+        self.rate_limiter(raw.headers)
+
         if check_for_errors:
             self._handle_protocol_error(raw)
 
@@ -174,12 +178,6 @@ class ApiV3(object):
             resp = {}
         else:
             resp = raw.json()
-
-        # At this stage we should assume that request was successful and we should invoke
-        # our rate limiter.
-        # The limits are taken from HTTP response headers
-        # https://strava.github.io/api/#rate-limiting
-        self.rate_limiter(raw.headers)
 
         return resp
 
