@@ -1,13 +1,11 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
-from stravalib import model, attributes, exc, unithelper as uh
-from stravalib.client import Client
-from stravalib.util.limiter import DefaultRateLimiter
-from stravalib.util.limiter import XRateLimitRule
-from stravalib.tests.functional import FunctionalTestBase
 
 import time
-import datetime
-import requests
+
+from stravalib import exc
+from stravalib.tests.functional import FunctionalTestBase
+from stravalib.util.limiter import DefaultRateLimiter
+from stravalib.util.limiter import XRateLimitRule
 
 
 class ClientDefaultRateLimiterTest(FunctionalTestBase):
