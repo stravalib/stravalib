@@ -76,8 +76,8 @@ class XRateLimitRule(object):
     def limit_timeout(self):
         return self.limit_time_invalid
 
-    def __call__(self, kwargs):
-        self._updateUsage(self.rate_limits, kwargs)
+    def __call__(self, response_headers):
+        self._updateUsage(self.rate_limits, response_headers)
         
         for limitName, limit in self.rate_limits.items():
             self._checkLimitTimeInvalid(limitName, limit)
