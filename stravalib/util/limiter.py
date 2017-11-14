@@ -51,20 +51,6 @@ def get_rates_from_response_headers(headers):
                        short_limit=limit_rates[0], long_limit=limit_rates[1])
 
 
-class RateLimiter(object):
-
-    def __init__(self):
-        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.rules = []
-
-    def __call__(self, args):
-        """
-        Register another request is being issued.
-        """
-        for r in self.rules:
-            r(args)
-
-
 class XRateLimitRule(object):
     
     def __init__(self, limits):
@@ -150,6 +136,20 @@ class RateLimitRule(object):
                     self.log.debug("Rate limit triggered; sleeping for {0}".format(sleeptime))
                     time.sleep(sleeptime)
         self.tab.append(datetime.now())
+
+
+class RateLimiter(object):
+
+    def __init__(self):
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.rules = []
+
+    def __call__(self, args):
+        """
+        Register another request is being issued.
+        """
+        for r in self.rules:
+            r(args)
 
 
 class DefaultRateLimiter(RateLimiter):
