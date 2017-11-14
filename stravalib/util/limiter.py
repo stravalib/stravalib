@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 
 from stravalib import exc
 
+
 def total_seconds(td):
     """Alternative to datetime.timedelta.total_seconds
     total_seconds() only available since Python 2.7
@@ -77,41 +78,42 @@ class XRateLimitRule(object):
         return self.limit_time_invalid
 
     def __call__(self, response_headers):
-        self._updateUsage(response_headers)
+        self._update_usage(response_headers)
         
         for limit in self.rate_limits.values():
-            self._checkLimitTimeInvalid(limit)
-            self._checkLimitRates(limit)
+            self._check_limit_time_invalid(limit)
+            self._check_limit_rates(limit)
             
-    def _updateUsage(self, response_headers):
+    def _update_usage(self, response_headers):
         rates = get_rates_from_response_headers(response_headers)
         self.rate_limits['short']['usage'] = rates.short_usage or self.rate_limits['short']['usage']
         self.rate_limits['long']['usage'] = rates.long_usage or self.rate_limits['long']['usage']
 
-    def _checkLimitRates(self, limit):
-        if (limit['usage'] >= limit['limit']):
+    def _check_limit_rates(self, limit):
+        if limit['usage'] >= limit['limit']:
             self.log.debug("Rate limit of {0} reached.".format(limit['limit']))
             limit['lastExceeded'] = datetime.now()
-            self._raiseRateLimitException(limit['limit'], limit['time'])
+            self._raise_rate_limit_exception(limit['limit'], limit['time'])
 
-    def _checkLimitTimeInvalid(self, limit):
+    def _check_limit_time_invalid(self, limit):
         self.limit_time_invalid = 0
-        if (limit['lastExceeded'] is not None):
+        if limit['lastExceeded'] is not None:
             delta = (datetime.now() - limit['lastExceeded']).total_seconds()
-            if (delta < limit['time']):
+            if delta < limit['time']:
                 self.limit_time_invalid = limit['time'] - delta
                 self.log.debug("Rate limit invalid duration {0} seconds."
                                .format(self.limit_time_invalid))
-                self._raiseRateLimitTimeout(self.limit_timeout, limit['limit'])
+                self._raise_rate_limit_timeout(self.limit_timeout, limit['limit'])
                 
-    def _raiseRateLimitException(self, timeout, limitRate):
+    def _raise_rate_limit_exception(self, timeout, limit_rate):
         raise exc.RateLimitExceeded("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                    .format(limitRate, timeout))
-    
-    def _raiseRateLimitTimeout(self, timeout, limitRate):
+                                    .format(limit_rate, timeout))
+
+    def _raise_rate_limit_timeout(self, timeout, limit_rate):
         raise exc.RateLimitTimeout("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                    .format(limitRate, timeout))        
-        
+                                   .format(limit_rate, timeout))
+
+
 class RateLimitRule(object):
 
     def __init__(self, requests, seconds, raise_exc=False):
