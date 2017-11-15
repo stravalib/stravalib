@@ -62,10 +62,6 @@ def get_seconds_until_next_day(now=arrow.utcnow()):
     return (now.ceil('day') - now).seconds
 
 
-class SleepingRateLimitRule(object):
-    pass
-
-
 class XRateLimitRule(object):
     
     def __init__(self, limits):
@@ -113,6 +109,15 @@ class XRateLimitRule(object):
     def _raise_rate_limit_timeout(self, timeout, limit_rate):
         raise exc.RateLimitTimeout("Rate limit of {0} exceeded. Try again in {1} seconds."
                                    .format(limit_rate, timeout))
+
+
+class SleepingRateLimitRule(object):
+    def __init__(self, priority='high'):
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.priority = priority
+
+    def _get_wait_time(self, short_usage, long_usage, seconds_until_short_limit, seconds_until_long_limit):
+        return 0
 
 
 class RateLimitRule(object):

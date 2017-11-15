@@ -2,7 +2,7 @@ import arrow
 
 from stravalib.tests import TestBase
 from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule, get_seconds_until_next_quarter, \
-    get_seconds_until_next_day
+    get_seconds_until_next_day, SleepingRateLimitRule
 
 test_response = {'Status': '404 Not Found', 'X-Request-Id': 'a1a4a4973962ffa7e0f18d7c485fe741',
                  'Content-Encoding': 'gzip', 'Content-Length': '104', 'Connection': 'keep-alive',
@@ -62,3 +62,12 @@ class XRateLimitRuleTest(TestBase):
         rule(test_response_no_rates)
         self.assertEqual(0, rule.rate_limits['short']['usage'])
         self.assertEqual(0, rule.rate_limits['long']['usage'])
+
+
+class SleepingRateLimitRuleTest(TestBase):
+    def setUp(self):
+        self.test_response = test_response.copy()
+
+    def test_get_wait_time_high_priority(self):
+        """Should never sleep/wait for high priority requests"""
+        self.assertEqual(0, SleepingRateLimitRule()._get_wait_time(42, 42, 60, 3600))
