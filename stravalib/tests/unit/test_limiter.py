@@ -85,3 +85,9 @@ class SleepingRateLimitRuleTest(TestBase):
         rule = SleepingRateLimitRule(priority='low', long_limit=11)
         self.assertEqual(1, rule._get_wait_time(1, 1, 1, 10))
         self.assertEqual(0.5, rule._get_wait_time(1, 1, 1, 5))
+
+    def test_get_wait_time_limit_reached(self):
+        """Should wait until end of period when limit is reached, regardless priority"""
+        rule = SleepingRateLimitRule(short_limit=10, long_limit=100)
+        self.assertEqual(42, rule._get_wait_time(10, 10, 42, 1000))
+        self.assertEqual(21, rule._get_wait_time(10, 100, 42, 21))

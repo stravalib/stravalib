@@ -120,6 +120,11 @@ class SleepingRateLimitRule(object):
         self.force_limits = force_limits
 
     def _get_wait_time(self, short_usage, long_usage, seconds_until_short_limit, seconds_until_long_limit):
+        if long_usage >= self.long_limit:
+            return seconds_until_long_limit
+        elif short_usage >= self.short_limit:
+            return seconds_until_short_limit
+
         if self.priority == 'high':
             return 0
         elif self.priority == 'medium':
