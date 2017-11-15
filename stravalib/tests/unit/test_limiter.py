@@ -69,5 +69,11 @@ class SleepingRateLimitRuleTest(TestBase):
         self.test_response = test_response.copy()
 
     def test_get_wait_time_high_priority(self):
-        """Should never sleep/wait for high priority requests"""
+        """Should never sleep/wait after high priority requests"""
         self.assertEqual(0, SleepingRateLimitRule()._get_wait_time(42, 42, 60, 3600))
+
+    def test_get_wait_time_medium_priority(self):
+        """Should return number of seconds to next short limit divided by number of remaining requests
+        for that period"""
+        rule = SleepingRateLimitRule(priority='medium', short_limit=10)
+        self.assertEqual(1, rule._get_wait_time(1, 1, 9, 1000))

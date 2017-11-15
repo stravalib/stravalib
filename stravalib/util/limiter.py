@@ -112,11 +112,17 @@ class XRateLimitRule(object):
 
 
 class SleepingRateLimitRule(object):
-    def __init__(self, priority='high'):
+    def __init__(self, priority='high', short_limit=10000, long_limit=1000000, force_limits=False):
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.priority = priority
+        self.short_limit = short_limit
+        self.long_limit = long_limit
+        self.force_limits = force_limits
 
     def _get_wait_time(self, short_usage, long_usage, seconds_until_short_limit, seconds_until_long_limit):
+        if self.priority == 'medium':
+            return (self.short_limit - short_usage) / seconds_until_short_limit
+
         return 0
 
 
