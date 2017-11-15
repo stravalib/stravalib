@@ -58,6 +58,10 @@ def get_seconds_until_next_quarter(now=arrow.utcnow()):
     return 900 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
 
 
+def get_seconds_until_next_day(now=arrow.utcnow()):
+    return (now.ceil('day') - now).seconds
+
+
 class SleepingRateLimitRule(object):
     pass
 

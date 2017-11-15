@@ -1,7 +1,8 @@
 import arrow
 
 from stravalib.tests import TestBase
-from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule, get_seconds_until_next_quarter
+from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule, get_seconds_until_next_quarter, \
+    get_seconds_until_next_day
 
 test_response = {'Status': '404 Not Found', 'X-Request-Id': 'a1a4a4973962ffa7e0f18d7c485fe741',
                  'Content-Encoding': 'gzip', 'Content-Length': '104', 'Connection': 'keep-alive',
@@ -40,6 +41,11 @@ class LimiterTest(TestBase):
         self.assertEqual(60, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 0, 0)))
         self.assertEqual(1, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 59, 999999)))
         self.assertEqual(900, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 0, 0, 1)))
+
+    def test_get_seconds_until_next_day(self):
+        """Should return the number of seconds until next day"""
+        self.assertEqual(59, get_seconds_until_next_day(arrow.get(2017, 11, 1, 23, 59, 0, 0)))
+        self.assertEqual(86399, get_seconds_until_next_day(arrow.get(2017, 11, 1, 0, 0, 0, 0)))
 
 
 class XRateLimitRuleTest(TestBase):
