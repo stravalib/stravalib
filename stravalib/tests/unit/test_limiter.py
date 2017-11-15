@@ -75,5 +75,13 @@ class SleepingRateLimitRuleTest(TestBase):
     def test_get_wait_time_medium_priority(self):
         """Should return number of seconds to next short limit divided by number of remaining requests
         for that period"""
-        rule = SleepingRateLimitRule(priority='medium', short_limit=10)
-        self.assertEqual(1, rule._get_wait_time(1, 1, 9, 1000))
+        rule = SleepingRateLimitRule(priority='medium', short_limit=11)
+        self.assertEqual(1, rule._get_wait_time(1, 1, 10, 1000))
+        self.assertEqual(0.5, rule._get_wait_time(1, 1, 5, 1000))
+
+    def test_get_wait_time_low_priority(self):
+        """Should return number of seconds to next long limit divided by number of remaining requests
+        for that period"""
+        rule = SleepingRateLimitRule(priority='low', long_limit=11)
+        self.assertEqual(1, rule._get_wait_time(1, 1, 1, 10))
+        self.assertEqual(0.5, rule._get_wait_time(1, 1, 1, 5))
