@@ -29,11 +29,7 @@ class LimiterTest(TestBase):
 
     def test_get_rates_from_response_headers_missing_rates(self):
         """Should return namedtuple with None values for rates in case of missing rates in headers"""
-        request_rates = get_rates_from_response_headers(test_response_no_rates)
-        self.assertIsNone(request_rates.short_limit)
-        self.assertIsNone(request_rates.long_limit)
-        self.assertIsNone(request_rates.short_usage)
-        self.assertIsNone(request_rates.long_usage)
+        self.assertIsNone(get_rates_from_response_headers(test_response_no_rates))
 
     def test_get_seconds_until_next_quarter(self):
         """Should return number of seconds to next quarter of an hour"""

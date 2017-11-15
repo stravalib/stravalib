@@ -42,16 +42,12 @@ RequestRate = collections.namedtuple('RequestRate', ['short_usage', 'long_usage'
 def get_rates_from_response_headers(headers):
     try:
         usage_rates = map(int, headers['X-RateLimit-Usage'].split(','))
-    except KeyError:
-        usage_rates = (None, None)
-
-    try:
         limit_rates = map(int, headers['X-RateLimit-Limit'].split(','))
-    except KeyError:
-        limit_rates = (None, None)
 
-    return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
-                       short_limit=limit_rates[0], long_limit=limit_rates[1])
+        return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
+                           short_limit=limit_rates[0], long_limit=limit_rates[1])
+    except KeyError:
+        return None
 
 
 def get_seconds_until_next_quarter(now=arrow.utcnow()):
@@ -83,8 +79,10 @@ class XRateLimitRule(object):
             
     def _update_usage(self, response_headers):
         rates = get_rates_from_response_headers(response_headers)
-        self.rate_limits['short']['usage'] = rates.short_usage or self.rate_limits['short']['usage']
-        self.rate_limits['long']['usage'] = rates.long_usage or self.rate_limits['long']['usage']
+
+        if rates:
+            self.rate_limits['short']['usage'] = rates.short_usage
+            self.rate_limits['long']['usage'] = rates.long_usage
 
     def _check_limit_rates(self, limit):
         if limit['usage'] >= limit['limit']:
