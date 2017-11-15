@@ -133,6 +133,13 @@ class SleepingRateLimitRule(object):
         elif self.priority == 'low':
             return seconds_until_long_limit / (self.long_limit - long_usage)
 
+    def __call__(self, response_headers):
+        rates = get_rates_from_response_headers(response_headers)
+
+        if rates:
+            time.sleep(self._get_wait_time(rates.short_usage, rates.long_usage,
+                                           get_seconds_until_next_quarter(), get_seconds_until_next_day()))
+
 
 class RateLimitRule(object):
 

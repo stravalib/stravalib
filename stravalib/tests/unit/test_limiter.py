@@ -94,3 +94,14 @@ class SleepingRateLimitRuleTest(TestBase):
         self.assertEqual(42, rule._get_wait_time(1234, 10, 42, 1000))
         self.assertEqual(21, rule._get_wait_time(10, 100, 42, 21))
         self.assertEqual(21, rule._get_wait_time(10, 1234, 42, 21))
+
+    def test_invocation_unchanged_limits(self):
+        """Should not update limits if these don't change"""
+        self.test_response['X-RateLimit-Usage'] = '0, 0'
+        self.test_response['X-RateLimit-Limit'] = '10000, 1000000'
+        rule = SleepingRateLimitRule()
+        self.assertEqual(10000, rule.short_limit)
+        self.assertEqual(1000000, rule.long_limit)
+        rule(self.test_response)
+        self.assertEqual(10000, rule.short_limit)
+        self.assertEqual(1000000, rule.long_limit)
