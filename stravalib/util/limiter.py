@@ -139,6 +139,9 @@ class SleepingRateLimitRule(object):
         if rates:
             time.sleep(self._get_wait_time(rates.short_usage, rates.long_usage,
                                            get_seconds_until_next_quarter(), get_seconds_until_next_day()))
+            if not self.force_limits:
+                self.short_limit = rates.short_limit
+                self.long_limit = rates.long_limit
 
 
 class RateLimitRule(object):

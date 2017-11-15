@@ -105,3 +105,20 @@ class SleepingRateLimitRuleTest(TestBase):
         rule(self.test_response)
         self.assertEqual(10000, rule.short_limit)
         self.assertEqual(1000000, rule.long_limit)
+
+    def test_invocation_changed_limits(self):
+        """Should update limits in case of changes, depending on limit enforcement"""
+        self.test_response['X-RateLimit-Usage'] = '0, 0'
+        self.test_response['X-RateLimit-Limit'] = '600, 30000'
+
+        # without limit enforcement (default)
+        rule = SleepingRateLimitRule()
+        rule(self.test_response)
+        self.assertEqual(600, rule.short_limit)
+        self.assertEqual(30000, rule.long_limit)
+
+        # with limit enforcement
+        rule = SleepingRateLimitRule(force_limits=True)
+        rule(self.test_response)
+        self.assertEqual(10000, rule.short_limit)
+        self.assertEqual(1000000, rule.long_limit)
