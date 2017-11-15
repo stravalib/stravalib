@@ -17,12 +17,16 @@ From the Strava docs:
   half the day.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
-import time
-import logging
+
 import collections
+import logging
+import time
 from datetime import datetime, timedelta
 
+import arrow
+
 from stravalib import exc
+
 
 def total_seconds(td):
     """Alternative to datetime.timedelta.total_seconds
@@ -32,18 +36,44 @@ def total_seconds(td):
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
 
-class RateLimiter(object):
+RequestRate = collections.namedtuple('RequestRate', ['short_usage', 'long_usage', 'short_limit', 'long_limit'])
 
-    def __init__(self):
-        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
-        self.rules = []
 
-    def __call__(self, args):
-        """
-        Register another request is being issued.
-        """
-        for r in self.rules:
-            r(args)
+def get_rates_from_response_headers(headers):
+    """
+    Returns a namedtuple with values for short - and long usage and limit rates found in provided HTTP response headers
+    :param headers: HTTP response headers
+    :type headers: dict
+    :return: namedtuple with request rates
+    """
+    try:
+        usage_rates = map(int, headers['X-RateLimit-Usage'].split(','))
+        limit_rates = map(int, headers['X-RateLimit-Limit'].split(','))
+
+        return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
+                           short_limit=limit_rates[0], long_limit=limit_rates[1])
+    except KeyError:
+        return None
+
+
+def get_seconds_until_next_quarter(now=arrow.utcnow()):
+    """
+    Returns the number of seconds until the next quarter of an hour. This is the short-term rate limit used by Strava.
+    :param now: A (utc) timestamp
+    :type now: arrow.arrow.Arrow
+    :return: the number of seconds until the next quarter, as int
+    """
+    return 899 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
+
+
+def get_seconds_until_next_day(now=arrow.utcnow()):
+    """
+    Returns the number of seconds until the next day (utc midnight). This is the long-term rate limit used by Strava.
+    :param now: A (utc) timestamp
+    :type now: arrow.arrow.Arrow
+    :return: the number of seconds until next day, as int
+    """
+    return (now.ceil('day') - now).seconds
 
 
 class XRateLimitRule(object):
@@ -58,46 +88,101 @@ class XRateLimitRule(object):
     def limit_timeout(self):
         return self.limit_time_invalid
 
-    def __call__(self, kwargs):
-        self._updateUsage(self.rate_limits, kwargs)
+    def __call__(self, response_headers):
+        self._update_usage(response_headers)
         
-        for limitName, limit in self.rate_limits.items():
-            self._checkLimitTimeInvalid(limitName, limit)
-            self._checkLimitRates(limitName, limit)
+        for limit in self.rate_limits.values():
+            self._check_limit_time_invalid(limit)
+            self._check_limit_rates(limit)
             
-    def _updateUsage(self, limits, kwargs):
-        usageRates = kwargs.get('X-RateLimit-Usage').split(',')
+    def _update_usage(self, response_headers):
+        rates = get_rates_from_response_headers(response_headers)
 
-        # for the standard rules this will map like this
-        #  limits['short']['usage'] = int(usageRates[0])
-        #  limits['long']['usage'] = int(usageRates[1])
-        for limit in limits.values():
-            limit['usage'] = int(usageRates[limit['usageFieldIndex']])
+        if rates:
+            self.rate_limits['short']['usage'] = rates.short_usage
+            self.rate_limits['long']['usage'] = rates.long_usage
 
-    def _checkLimitRates(self, limitName, limit):
-        if (limit['usage'] >= limit['limit']):
+    def _check_limit_rates(self, limit):
+        if limit['usage'] >= limit['limit']:
             self.log.debug("Rate limit of {0} reached.".format(limit['limit']))
             limit['lastExceeded'] = datetime.now()
-            self._raiseRateLimitException(limit['limit'], limit['time'])
+            self._raise_rate_limit_exception(limit['limit'], limit['time'])
 
-    def _checkLimitTimeInvalid(self, limitName, limit):
+    def _check_limit_time_invalid(self, limit):
         self.limit_time_invalid = 0
-        if (limit['lastExceeded'] is not None):
+        if limit['lastExceeded'] is not None:
             delta = (datetime.now() - limit['lastExceeded']).total_seconds()
-            if (delta < limit['time']):
+            if delta < limit['time']:
                 self.limit_time_invalid = limit['time'] - delta
                 self.log.debug("Rate limit invalid duration {0} seconds."
                                .format(self.limit_time_invalid))
-                self._raiseRateLimitTimeout(self.limit_timeout, limit['limit'])
+                self._raise_rate_limit_timeout(self.limit_timeout, limit['limit'])
                 
-    def _raiseRateLimitException(self, timeout, limitRate):
+    def _raise_rate_limit_exception(self, timeout, limit_rate):
         raise exc.RateLimitExceeded("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                    .format(limitRate, timeout))
-    
-    def _raiseRateLimitTimeout(self, timeout, limitRate):
+                                    .format(limit_rate, timeout))
+
+    def _raise_rate_limit_timeout(self, timeout, limit_rate):
         raise exc.RateLimitTimeout("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                    .format(limitRate, timeout))        
-        
+                                   .format(limit_rate, timeout))
+
+
+class SleepingRateLimitRule(object):
+    """
+    A rate limit rule that can be prioritized and can dynamically adapt its limits based on API responses.
+    Given its priority, it will enforce a variable "cool-down" period after each response. When rate limits
+    are reached within their period, this limiter will wait until the end of that period. It will NOT raise
+    any kind of exception in this case.
+    """
+    def __init__(self, priority='high', short_limit=10000, long_limit=1000000, force_limits=False):
+        """
+        Constructs a new SleepingRateLimitRule.
+        :param priority: The priority for this rule. When 'low', the cool-down period after each request will be such
+        that the long-term limits will not be exceeded. When 'medium', the cool-down period will be such that the
+        short-term limits will not be exceeded. When 'high', there will be no cool-down period.
+        :type priority: str
+        :param short_limit: (Optional) explicit short-term limit
+        :type short_limit: int
+        :param long_limit: (Optional) explicit long-term limit
+        :type long_limit: int
+        :param force_limits: If False (default), this rule will set/update its limits based on what the Strava API
+        tells it. If True, the provided limits will be enforced, i.e. ignoring the limits given by the API.
+        """
+        if priority not in ['low', 'medium', 'high']:
+            raise ValueError('Invalid priority "{0}", expecting one of "low", "medium" or "high"'.format(priority))
+
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.priority = priority
+        self.short_limit = short_limit
+        self.long_limit = long_limit
+        self.force_limits = force_limits
+
+    def _get_wait_time(self, short_usage, long_usage, seconds_until_short_limit, seconds_until_long_limit):
+        if long_usage >= self.long_limit:
+            self.log.warning('Long term API rate limit exceeded')
+            return seconds_until_long_limit
+        elif short_usage >= self.short_limit:
+            self.log.warning('Short term API rate limit exceeded')
+            return seconds_until_short_limit
+
+        if self.priority == 'high':
+            return 0
+        elif self.priority == 'medium':
+            return seconds_until_short_limit / (self.short_limit - short_usage)
+        elif self.priority == 'low':
+            return seconds_until_long_limit / (self.long_limit - long_usage)
+
+    def __call__(self, response_headers):
+        rates = get_rates_from_response_headers(response_headers)
+
+        if rates:
+            time.sleep(self._get_wait_time(rates.short_usage, rates.long_usage,
+                                           get_seconds_until_next_quarter(), get_seconds_until_next_day()))
+            if not self.force_limits:
+                self.short_limit = rates.short_limit
+                self.long_limit = rates.long_limit
+
+
 class RateLimitRule(object):
 
     def __init__(self, requests, seconds, raise_exc=False):
@@ -134,6 +219,20 @@ class RateLimitRule(object):
                     self.log.debug("Rate limit triggered; sleeping for {0}".format(sleeptime))
                     time.sleep(sleeptime)
         self.tab.append(datetime.now())
+
+
+class RateLimiter(object):
+
+    def __init__(self):
+        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.rules = []
+
+    def __call__(self, args):
+        """
+        Register another request is being issued.
+        """
+        for r in self.rules:
+            r(args)
 
 
 class DefaultRateLimiter(RateLimiter):
