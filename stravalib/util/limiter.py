@@ -40,6 +40,12 @@ RequestRate = collections.namedtuple('RequestRate', ['short_usage', 'long_usage'
 
 
 def get_rates_from_response_headers(headers):
+    """
+    Returns a namedtuple with values for short - and long usage and limit rates found in provided HTTP response headers
+    :param headers: HTTP response headers
+    :type headers: dict
+    :return: namedtuple with request rates
+    """
     try:
         usage_rates = map(int, headers['X-RateLimit-Usage'].split(','))
         limit_rates = map(int, headers['X-RateLimit-Limit'].split(','))
@@ -51,10 +57,22 @@ def get_rates_from_response_headers(headers):
 
 
 def get_seconds_until_next_quarter(now=arrow.utcnow()):
+    """
+    Returns the number of seconds until the next quarter of an hour. This is the short-term rate limit used by Strava.
+    :param now: A (utc) timestamp
+    :type now: arrow.arrow.Arrow
+    :return: the number of seconds until the next quarter, as int
+    """
     return 899 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
 
 
 def get_seconds_until_next_day(now=arrow.utcnow()):
+    """
+    Returns the number of seconds until the next day (utc midnight). This is the long-term rate limit used by Strava.
+    :param now: A (utc) timestamp
+    :type now: arrow.arrow.Arrow
+    :return: the number of seconds until next day, as int
+    """
     return (now.ceil('day') - now).seconds
 
 
@@ -110,7 +128,26 @@ class XRateLimitRule(object):
 
 
 class SleepingRateLimitRule(object):
+    """
+    A rate limit rule that can be prioritized and can dynamically adapt its limits based on API responses.
+    Given its priority, it will enforce a variable "cool-down" period after each response. When rate limits
+    are reached within their period, this limiter will wait until the end of that period. It will NOT raise
+    any kind of exception in this case.
+    """
     def __init__(self, priority='high', short_limit=10000, long_limit=1000000, force_limits=False):
+        """
+        Constructs a new SleepingRateLimitRule.
+        :param priority: The priority for this rule. When 'low', the cool-down period after each request will be such
+        that the long-term limits will not be exceeded. When 'medium', the cool-down period will be such that the
+        short-term limits will not be exceeded. When 'high', there will be no cool-down period.
+        :type priority: str
+        :param short_limit: (Optional) explicit short-term limit
+        :type short_limit: int
+        :param long_limit: (Optional) explicit long-term limit
+        :type long_limit: int
+        :param force_limits: If False (default), this rule will set/update its limits based on what the Strava API
+        tells it. If True, the provided limits will be enforced, i.e. ignoring the limits given by the API.
+        """
         if priority not in ['low', 'medium', 'high']:
             raise ValueError('Invalid priority "{0}", expecting one of "low", "medium" or "high"'.format(priority))
 
