@@ -159,8 +159,10 @@ class SleepingRateLimitRule(object):
 
     def _get_wait_time(self, short_usage, long_usage, seconds_until_short_limit, seconds_until_long_limit):
         if long_usage >= self.long_limit:
+            self.log.warning('Long term API rate limit exceeded')
             return seconds_until_long_limit
         elif short_usage >= self.short_limit:
+            self.log.warning('Short term API rate limit exceeded')
             return seconds_until_short_limit
 
         if self.priority == 'high':
