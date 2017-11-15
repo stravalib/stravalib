@@ -68,6 +68,11 @@ class SleepingRateLimitRuleTest(TestBase):
     def setUp(self):
         self.test_response = test_response.copy()
 
+    def test_invalid_priority(self):
+        """Should raise ValueError in case of invalid priority"""
+        with self.assertRaises(ValueError):
+            SleepingRateLimitRule(priority='foobar')
+
     def test_get_wait_time_high_priority(self):
         """Should never sleep/wait after high priority requests"""
         self.assertEqual(0, SleepingRateLimitRule()._get_wait_time(42, 42, 60, 3600))

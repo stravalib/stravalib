@@ -113,6 +113,9 @@ class XRateLimitRule(object):
 
 class SleepingRateLimitRule(object):
     def __init__(self, priority='high', short_limit=10000, long_limit=1000000, force_limits=False):
+        if priority not in ['low', 'medium', 'high']:
+            raise ValueError('Invalid priority "{0}", expecting one of "low", "medium" or "high"'.format(priority))
+
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.priority = priority
         self.short_limit = short_limit
