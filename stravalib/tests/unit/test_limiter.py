@@ -37,10 +37,10 @@ class LimiterTest(TestBase):
 
     def test_get_seconds_until_next_quarter(self):
         """Should return number of seconds to next quarter of an hour"""
-        self.assertEqual(60, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 14, 0, 0)))
-        self.assertEqual(60, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 0, 0)))
-        self.assertEqual(1, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 59, 999999)))
-        self.assertEqual(900, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 0, 0, 1)))
+        self.assertEqual(59, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 14, 0, 0)))
+        self.assertEqual(59, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 0, 0)))
+        self.assertEqual(0, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 59, 59, 999999)))
+        self.assertEqual(899, get_seconds_until_next_quarter(arrow.get(2017, 11, 1, 17, 0, 0, 1)))
 
     def test_get_seconds_until_next_day(self):
         """Should return the number of seconds until next day"""

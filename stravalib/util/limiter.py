@@ -55,7 +55,7 @@ def get_rates_from_response_headers(headers):
 
 
 def get_seconds_until_next_quarter(now=arrow.utcnow()):
-    return 900 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
+    return 899 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
 
 
 def get_seconds_until_next_day(now=arrow.utcnow()):
