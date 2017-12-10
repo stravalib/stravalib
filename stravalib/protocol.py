@@ -14,11 +14,11 @@ import requests
 from stravalib import exc
 
 
+@six.add_metaclass(abc.ABCMeta)
 class ApiV3(object):
     """
     This class is responsible for performing the HTTP requests, rate limiting, and error handling.
     """
-    __metaclass__ = abc.ABCMeta
 
     server = 'www.strava.com'
     # Note: The hostname for webhook events is different than normal API requests

@@ -18,16 +18,33 @@ from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute,
                                   DateAttribute, ChoicesAttribute)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class BaseEntity(object):
     """
     A base class for all entities in the system, including objects that may not
     be first-class entities in Strava.
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, **kwargs):
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.from_dict(kwargs)
+
+    def to_dict(self):
+        """
+        Create a dictionary based on the loaded attributes in this object (will not lazy load).
+
+        Note that the dictionary created by this method will most likely not match the dictionaries
+        that are passed to the `from_dict()` method.  This intended for serializing for local storage
+        debug/etc.
+
+        :rtype: Dict[str, Any]
+        """
+        d = {}
+        for attrname, attr in self.__class__.__dict__.items():
+            if isinstance(attr, Attribute):
+                value = getattr(self, attrname)
+                d[attrname] = attr.marshal(value)
+        return d
 
     def from_dict(self, d):
         """

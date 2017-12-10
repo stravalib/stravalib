@@ -73,7 +73,10 @@ class Attribute(object):
         (By default this will just return the underlying object; subclasses
         can override for specific behaviors -- e.g. date formatting.)
         """
-        return v
+        if isinstance(v, Quantity):
+            return v.num
+        else:
+            return v
 
     def unmarshal(self, v):
         """
@@ -98,6 +101,15 @@ class DateAttribute(Attribute):
     def __init__(self, resource_states=None):
         super(DateAttribute, self).__init__(date, resource_states=resource_states)
 
+    def marshal(self, v):
+        """
+
+        :param v: The date object to convert.
+        :type v: date
+        :return:
+        """
+        return v.isoformat() if v else None
+
     def unmarshal(self, v):
         """
         Convert a date in "2012-12-13" format to a :class:`datetime.date` object.
@@ -114,6 +126,16 @@ class TimestampAttribute(Attribute):
     def __init__(self, resource_states=None, tzinfo=pytz.utc):
         super(TimestampAttribute, self).__init__(datetime, resource_states=resource_states)
         self.tzinfo = tzinfo
+
+    def marshal(self, v):
+        """
+        Serialize the timestamp to string.
+
+        :param v: The timestamp.
+        :type v: datetime
+        :return: The serialized date time.
+        """
+        return v.isoformat() if v else None
 
     def unmarshal(self, v):
         """
@@ -144,6 +166,17 @@ class LocationAttribute(Attribute):
     def __init__(self, resource_states=None):
         super(LocationAttribute, self).__init__(LatLon, resource_states=resource_states)
 
+    def marshal(self, v):
+        """
+        Turn this value into format for wire (JSON).
+
+        :param v: The lat/lon.
+        :type v: LatLon
+        :return: Serialized format.
+        :rtype: str
+        """
+        return "{lat},{lon}".format(lat=v.lat, lon=v.lon) if v else None
+
     def unmarshal(self, v):
         """
         """
@@ -169,6 +202,16 @@ class TimezoneAttribute(Attribute):
             v = pytz.timezone(tzname)
         return v
 
+    def marshal(self, v):
+        """
+        Serialize time zone name.
+
+        :param v: The timezone.
+        :type v: tzdata
+        :return: The name of the time zone.
+        """
+        return str(v) if v else None
+
 
 class TimeIntervalAttribute(Attribute):
     """
@@ -188,6 +231,16 @@ class TimeIntervalAttribute(Attribute):
         if not isinstance(v, timedelta):
             v = timedelta(seconds=v)
         return v
+
+    def marshal(self, v):
+        """
+        Serialize time zone name.
+
+        :param v: The timezone.
+        :type v: tzdata
+        :return: The name of the time zone.
+        """
+        return str(v) if v else None
 
 
 class ChoicesAttribute(Attribute):
@@ -209,15 +262,16 @@ class ChoicesAttribute(Attribute):
         as marshal is not used anywhere currently. In the future we will want to
         fail gracefully.
         """
-        orig = [i for i in self.choices if self.choices[i] == v]
-        if len(orig) == 1:
-            return orig[0]
-        elif len(orig) == 0:
-            # No such choice
-            raise NotImplementedError("No such reverse choice {0} for field {1}.".format(v, self))
-        else:
-            # Too many choices. We could return one possible choice (e.g. orig[0]).
-            raise NotImplementedError("Too many reverse choices {0} for value {1} for field {2}".format(orig, v, self))
+        if v:
+            orig = [i for i in self.choices if self.choices[i] == v]
+            if len(orig) == 1:
+                return orig[0]
+            elif len(orig) == 0:
+                # No such choice
+                raise NotImplementedError("No such reverse choice {0} for field {1}.".format(v, self))
+            else:
+                # Too many choices. We could return one possible choice (e.g. orig[0]).
+                raise NotImplementedError("Too many reverse choices {0} for value {1} for field {2}".format(orig, v, self))
 
     def unmarshal(self, v):
         """
@@ -269,6 +323,17 @@ class EntityAttribute(Attribute):
         else:
             self.data[obj] = None
 
+    def marshal(self, v):
+        """
+        Turn an entity into a dictionary.
+
+        :param v: The entity to serialize.
+        :type v: stravalib.model.BaseEntity
+        :return: Dictionary of attributes
+        :rtype: Dict[str, Any]
+        """
+        return v.to_dict() if v else None
+
     def unmarshal(self, value, bind_client=None):
         """
         Cast the specified value to the entity type.
@@ -294,14 +359,21 @@ class EntityAttribute(Attribute):
 
 class EntityCollection(EntityAttribute):
 
+    def marshal(self, values):
+        """
+        Turn a list of entities into a dictionary.
+
+        :param values: The entities to serialize.
+        :type values: List[stravalib.model.BaseEntity]
+        :return: List of dictionaries of attributes
+        :rtype: List[Dict[str, Any]]
+        """
+        if values:
+            return [super(EntityCollection, self).marshal(v) for v in values]
+
     def unmarshal(self, values, bind_client=None):
         """
         Cast the list.
         """
-        results = []
-        for v in values:
-            #print "-------- Processing value: %r" % (v,)
-            entity = super(EntityCollection, self).unmarshal(v, bind_client=bind_client)
-            #print "-------- Got entity: %r" % (entity,)
-            results.append(entity)
-        return results
+        if values:
+            return [super(EntityCollection, self).unmarshal(v, bind_client=bind_client) for v in values]
