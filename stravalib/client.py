@@ -880,7 +880,7 @@ class Client(object):
         return model.Segment.deserialize(self.protocol.get('/segments/{id}',
                                          id=segment_id), bind_client=self)
 
-    def get_starred_segment(self, limit=None):
+    def get_starred_segments(self, limit=None):
         """
         Returns a summary representation of the segments starred by the
          authenticated user. Pagination is supported.
@@ -900,6 +900,31 @@ class Client(object):
 
         result_fetcher = functools.partial(self.protocol.get,
                                            '/segments/starred')
+
+        return BatchedResultsIterator(entity=model.Segment,
+                                      bind_client=self,
+                                      result_fetcher=result_fetcher,
+                                      limit=limit)
+
+    def get_athlete_starred_segments(self, athlete_id, limit=None):
+        """
+        Returns a summary representation of the segments starred by the
+         specified athlete. Pagination is supported.
+
+        http://strava.github.io/api/v3/segments/#starred
+
+        :param athlete_id: The ID of the athlete.
+        :type athlete_id: int
+
+        :param limit: (optional), limit number of starred segments returned.
+        :type limit: int
+
+        :return: An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/athletes/{id}/segments/starred',
+                                           id=athlete_id)
 
         return BatchedResultsIterator(entity=model.Segment,
                                       bind_client=self,
