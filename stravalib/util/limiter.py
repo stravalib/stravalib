@@ -47,8 +47,8 @@ def get_rates_from_response_headers(headers):
     :return: namedtuple with request rates
     """
     try:
-        usage_rates = map(int, headers['X-RateLimit-Usage'].split(','))
-        limit_rates = map(int, headers['X-RateLimit-Limit'].split(','))
+        usage_rates = [int(v) for v in headers['X-RateLimit-Usage'].split(',')]
+        limit_rates = [int(v) for v in headers['X-RateLimit-Limit'].split(',')]
 
         return RequestRate(short_usage=usage_rates[0], long_usage=usage_rates[1],
                            short_limit=limit_rates[0], long_limit=limit_rates[1])
