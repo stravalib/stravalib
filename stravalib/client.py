@@ -1586,7 +1586,7 @@ class ActivityUploader(object):
     wait for upload to finish, etc.
     """
 
-    def __init__(self, client, response):
+    def __init__(self, client, response, raise_exc=True):
         """
         :param client: The :class:`stravalib.client.Client` object that is handling the upload.
         :type client: :class:`stravalib.client.Client`
@@ -1594,10 +1594,13 @@ class ActivityUploader(object):
         :param response: The initial upload response.
         :type response: Dict[str,Any]
 
+        :param raise_exc: Whether to raise an exception if the response
+                  indicates an error state. (default True)
+        :type raise_exc: bool
         """
         self.client = client
         self.response = response
-        self.update_from_response(response)
+        self.update_from_response(response, raise_exc=raise_exc)
 
     def update_from_response(self, response, raise_exc=True):
         """
@@ -1614,7 +1617,13 @@ class ActivityUploader(object):
         self.external_id = response.get('external_id')
         self.activity_id = response.get('activity_id')
         self.status = response.get('status') or response.get('message')
-        self.error = response.get('error') or response.get('errors')
+
+        if response.get('error'):
+            self.error = response.get('error')
+        elif response.get('errors'):
+            # This appears to be an undocumented API; ths is a bit of a hack for now.
+            self.error = str(response.get('errors'))
+
         if raise_exc:
             self.raise_for_error()
 
@@ -1631,6 +1640,7 @@ class ActivityUploader(object):
         return (self.activity_id is not None)
 
     def raise_for_error(self):
+        # FIXME: We need better handling of the actual responses, once those are more accurately documented.
         if self.error:
             raise exc.ActivityUploadFailed(self.error)
         elif self.status == "The created activity has been deleted.":
