@@ -527,6 +527,7 @@ class ActivityLap(LoadableEntity):
     lap_index = Attribute(int, (SUMMARY, DETAILED))  #: Index of lap
     device_watts = Attribute(bool, (SUMMARY, DETAILED))  # true if the watts are from a power meter, false if estimated
     pace_zone = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented)
+    split = Attribute(int, (SUMMARY, DETAILED))  #: Split number
 
 
 class Map(IdentifiableEntity):
@@ -836,6 +837,10 @@ class Activity(LoadableEntity):
     partner_brand_tag = Attribute(six.text_type, (DETAILED,)) #: (undocumented)
 
     from_accepted_tag = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented)
+    segment_leaderboard_opt_out = Attribute(bool, (DETAILED,))  #: (undocumented)
+    highlighted_kudosers = Attribute(bool, (DETAILED,))  #: (undocumented)
+
+    laps = EntityCollection(ActivityLap, (SUMMARY, DETAILED))  #: :class:`list` of :class:`stravalib.model.ActivityLap` objects.
 
     @property
     def comments(self):
@@ -851,22 +856,24 @@ class Activity(LoadableEntity):
                 self._comments = []
         return self._comments
 
-    @property
-    def laps(self):
-        """
-        Iterator of :class:`stravalib.model.ActivityLap` objects for this activity.
-        """
-        if self._laps is None:
-            self.assert_bind_client()
-            self._laps = self.bind_client.get_activity_laps(self.id)
-        return self._laps
-
-    @laps.setter
-    def laps(self, v):
-        # Note: Strava began returning laps as a list, not requiring a subsequent call to fetch it,
-        # so we're allowing this property to also be set.
-        # see https://github.com/hozn/stravalib/issues/96
-        self._laps = v
+    # @property
+    # def laps(self):
+    #     """
+    #     Iterator of :class:`stravalib.model.ActivityLap` objects for this activity.
+    #     """
+    #     if self._laps is None:
+    #         self.assert_bind_client()
+    #         self._laps = self.bind_client.get_activity_laps(self.id)
+    #     return self._laps
+    #
+    # @laps.setter
+    # def laps(self, v):
+    #     # Note: Strava began returning laps as a list, not requiring a subsequent call to fetch it,
+    #     # so we're allowing this property to also be set.
+    #     # see https://github.com/hozn/stravalib/issues/96
+    #     if v:
+    #         v =
+    #     self._laps = v
 
     @property
     def zones(self):
@@ -898,7 +905,7 @@ class Activity(LoadableEntity):
         if self._photos is None:
             if self.total_photo_count > 0:
                 self.assert_bind_client()
-                self._photos = self.bind_client.get_activity_photos(self.id)
+                self._photos = self.bind_client.get_activity_photos(self.id, only_instagram=False)
             else:
                 self._photos = []
         return self._photos

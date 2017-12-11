@@ -755,7 +755,7 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-    def get_activity_photos(self, activity_id, size=None, only_instagram=None):
+    def get_activity_photos(self, activity_id, size=None, only_instagram=False):
         """
         Gets the photos from an activity.
 
@@ -775,11 +775,6 @@ class Client(object):
         :rtype: :class:`BatchedResultsIterator`
         """
         params = {}
-        if only_instagram is None:
-            self.log.warning("To preserve legacy behavior, only fetching Instagram photos. "
-                             "Pass only_instagram=False to include native photos (or only_instagram=True to keep this "
-                             "behavior but suppress this warning). This behavior will change in next minor release.")
-            only_instagram = True
 
         if not only_instagram:
             params['photo_sources'] = 'true'
