@@ -361,19 +361,19 @@ class EntityCollection(EntityAttribute):
 
     def marshal(self, values):
         """
-        Turn a list of entities into a dictionary.
+        Turn a list of entities into a list of dictionaries.
 
         :param values: The entities to serialize.
         :type values: List[stravalib.model.BaseEntity]
         :return: List of dictionaries of attributes
         :rtype: List[Dict[str, Any]]
         """
-        if values:
+        if values is not None:
             return [super(EntityCollection, self).marshal(v) for v in values]
 
     def unmarshal(self, values, bind_client=None):
         """
         Cast the list.
         """
-        if values:
+        if values is not None:
             return [super(EntityCollection, self).unmarshal(v, bind_client=bind_client) for v in values]
