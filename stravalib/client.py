@@ -1643,6 +1643,8 @@ class ActivityUploader(object):
         elif response.get('errors'):
             # This appears to be an undocumented API; ths is a bit of a hack for now.
             self.error = str(response.get('errors'))
+        else:
+            self.error = None
 
         if raise_exc:
             self.raise_for_error()
