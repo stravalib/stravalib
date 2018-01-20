@@ -3,6 +3,14 @@ Changes
 
 .. contents::
 
+0.8.0
+-----
+* Fixes to segment leaderboard models for Strava's API BREAKING CHANGE (#137)
+  (See https://groups.google.com/forum/#!topic/strava-api/SsL2ytxtZng)
+* Return ObjectNotFound and AccessUnauthorized HTTPError subclasses for 404 and 401
+  errors respectively (#134)
+* Return None when there are no activity streams (#118)
+
 0.7.0
 -----
 * Updated Activity for new attributes (#115, #122)

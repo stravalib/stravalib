@@ -1,5 +1,7 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 
+import requests.exceptions
+
 
 class AuthError(RuntimeError):
     pass
@@ -21,9 +23,21 @@ class UnboundEntity(RuntimeError):
     """
 
 
-class Fault(RuntimeError):
+class Fault(requests.exceptions.HTTPError):
     """
     Container for exceptions raised by the remote server.
+    """
+
+
+class ObjectNotFound(Fault):
+    """
+    When we get a 404 back from an API call.
+    """
+
+
+class AccessUnauthorized(Fault):
+    """
+    When we get a 401 back from an API call.
     """
 
 
