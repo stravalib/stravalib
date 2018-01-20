@@ -1171,9 +1171,8 @@ class Client(object):
                              reduced.
         :type series_type: str
 
-        :return: An dictionary of :class:`stravalib.model.Stream` from the activity.
+        :return: An dictionary of :class:`stravalib.model.Stream` from the activity or None if there are no streams.
         :rtype: :py:class:`dict`
-
         """
 
         # stream are comma seperated list
@@ -1196,7 +1195,10 @@ class Client(object):
                                          result_fetcher=result_fetcher)
 
         # Pack streams into dictionary
-        return {i.type: i for i in streams}
+        try:
+            return {i.type: i for i in streams}
+        except exc.ObjectNotFound:
+            return None  # just to be explicit.
 
     def get_effort_streams(self, effort_id, types=None, resolution=None,
                            series_type=None):
@@ -1447,7 +1449,10 @@ class Client(object):
     def handle_subscription_callback(self, raw,
                                      verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT):
         """
-        Validate callback request and return valid response with challenge
+        Validate callback request and return valid response with challenge.
+
+        :return: The JSON response expected by Strava to the challenge request.
+        :rtype: Dict[str, str]
         """
         callback = model.SubscriptionCallback.deserialize(raw)
         callback.validate(verify_token)
@@ -1458,7 +1463,8 @@ class Client(object):
         """
         Converts a raw subscription update into a model.
 
-        TODO: Have the response actually return a reference to the underlying model (the activity itself)
+        :return: The subscription update model object.
+        :rtype: :class:`stravalib.model.SubscriptionUpdate`
         """
         return model.SubscriptionUpdate.deserialize(raw, bind_client=self)
 
