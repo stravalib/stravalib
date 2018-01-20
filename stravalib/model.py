@@ -931,55 +931,18 @@ class SegmentLeaderboardEntry(BoundEntity):
 
     The :class:`stravalib.model.SegmentLeaderboard` object is essentially a collection
     of instances of this class.
-    """
-    _athlete = None
-    _activity = None
-    _effort = None
 
-    effort_id = Attribute(int)  #: The numeric ID for the segment effort.
-    athlete_id = Attribute(int)  #: The numeric ID for the athlete.
-    athlete_name = Attribute(six.text_type)  #: The athlete's name.
-    athlete_gender = Attribute(six.text_type)  #: The athlete's sex (M/F)
-    athlete_profile = Attribute(six.text_type)  #: Link to athlete profile photo
-    average_hr = Attribute(float)  #: The athlete's average HR for this effort
-    average_watts = Attribute(float)  #: The athlete's average power for this effort
-    distance = Attribute(float, units=uh.meters)  #: The distance for this effort.
+    NOTE: This changed Jan 2018 to provide far less detail than before
+    """
+    athlete_name = Attribute(six.text_type)  #: The public name of the athlete.
     elapsed_time = TimeIntervalAttribute()  #: The elapsed time for this effort
     moving_time = TimeIntervalAttribute()  #: The moving time for this effort
     start_date = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when this effot was started in GMT
     start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when this effort was started in activity timezone
-    activity_id = Attribute(int)  #: The numeric ID of the associated activity for this effort.
     rank = Attribute(int)  #: The rank on the leaderboard.
 
     def __repr__(self):
         return '<SegmentLeaderboardEntry rank={0} athlete_name={1!r}>'.format(self.rank, self.athlete_name)
-
-    @property
-    def athlete(self):
-        """ The related :class:`stravalib.model.Athlete` (performs additional server fetch). """
-        if self._athlete is None:
-            self.assert_bind_client()
-            if self.athlete_id is not None:
-                self._athlete = self.bind_client.get_athlete(self.athlete_id)
-        return self._athlete
-
-    @property
-    def activity(self):
-        """ The related :class:`stravalib.model.Activity` (performs additional server fetch). """
-        if self._activity is None:
-            self.assert_bind_client()
-            if self.activity_id is not None:
-                self._activity = self.bind_client.get_activity(self.activity_id)
-        return self._activity
-
-    @property
-    def effort(self):
-        """ The related :class:`stravalib.model.SegmentEffort` (performs additional server fetch). """
-        if self._effort is None:
-            self.assert_bind_client()
-            if self.effort_id is not None:
-                self._effort = self.bind_client.get_segment_effort(self.effort_id)
-        return self._effort
 
 
 class SegmentLeaderboard(Sequence, BoundEntity):
@@ -988,8 +951,10 @@ class SegmentLeaderboard(Sequence, BoundEntity):
 
     This class is effectively a collection of :class:`stravalib.model.SegmentLeaderboardEntry` objects.
     """
-    effort_count = Attribute(int)
     entry_count = Attribute(int)
+    effort_count = Attribute(int)
+    kom_type = ChoicesAttribute(choices=['kom', 'cr'])
+
     entries = EntityCollection(SegmentLeaderboardEntry)
 
     def __iter__(self):
@@ -1142,9 +1107,11 @@ class SubscriptionUpdate(LoadableEntity):
     """
     Represents a Webhook Event Subscription Update.
     """
-    subscription_id = Attribute(six.text_type)
-    owner_id = Attribute(six.text_type)
-    object_id = Attribute(six.text_type)
+    subscription_id = Attribute(int)
+    owner_id = Attribute(int)
+    object_id = Attribute(int)
     object_type = Attribute(six.text_type)
     aspect_type = Attribute(six.text_type)
     event_time = TimestampAttribute()
+    updates = Attribute(dict)
+
