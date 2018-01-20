@@ -198,16 +198,27 @@ class ApiV3(object):
             if 'message' in json_response or 'errors' in json_response:
                 error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), json_response.get('errors'))
 
-        x = None
-        if 400 <= response.status_code < 500:
-            x = requests.exceptions.HTTPError('%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str))
+        # Special subclasses for some errors
+        msg = None
+        exc_class = None
+        if response.status_code == 404:
+            msg = '%s: %s' % (response.reason, error_str)
+            exc_class = exc.ObjectNotFound
+        elif response.status_code == 401:
+            msg = '%s: %s' % (response.reason, error_str)
+            exc_class = exc.AccessUnauthorized
+        elif 400 <= response.status_code < 500:
+            msg = '%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str)
+            exc_class = exc.Fault
         elif 500 <= response.status_code < 600:
-            x = requests.exceptions.HTTPError('%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str))
+            msg = '%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str)
+            exc_class = exc.Fault
         elif error_str:
-            x = exc.Fault(error_str)
+            msg = error_str
+            exc_class = exc.Fault
 
-        if x is not None:
-            raise x
+        if exc_class is not None:
+            raise exc_class(msg, response=response)
 
         return response
 
