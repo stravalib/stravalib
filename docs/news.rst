@@ -3,6 +3,11 @@ Changes
 
 .. contents::
 
+0.9.0
+-----
+* More API changes to reflect the big privacy changes from Strava. (#139, #140)
+* Fix to kom_type attribute (#138)
+
 0.8.0
 -----
 * Fixes to segment leaderboard models for Strava's API BREAKING CHANGE (#137)

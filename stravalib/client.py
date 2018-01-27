@@ -203,16 +203,16 @@ class Client(object):
 
         http://strava.github.io/api/v3/athlete/#get-another-details
 
-        :param: athlete_id: The numeric ID of the athlete to fetch.
-        :type: athlete_id: int
-
         :return: The athlete model object.
         :rtype: :class:`stravalib.model.Athlete`
         """
         if athlete_id is None:
             raw = self.protocol.get('/athlete')
         else:
-            raw = self.protocol.get('/athletes/{athlete_id}', athlete_id=athlete_id)
+            raise NotImplementedError("The /athletes/{id} endpoint was removed by Strava.  "
+                                      "See https://developers.strava.com/docs/january-2018-update/")
+
+            # raw = self.protocol.get('/athletes/{athlete_id}', athlete_id=athlete_id)
 
         return model.Athlete.deserialize(raw, bind_client=self)
 
@@ -234,9 +234,11 @@ class Client(object):
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/friends')
         else:
-            result_fetcher = functools.partial(self.protocol.get,
-                                               '/athletes/{id}/friends',
-                                               id=athlete_id)
+            raise NotImplementedError("The /athletes/{id}/friends endpoint was removed by Strava.  "
+                                      "See https://developers.strava.com/docs/january-2018-update/")
+            # result_fetcher = functools.partial(self.protocol.get,
+            #                                    '/athletes/{id}/friends',
+            #                                    id=athlete_id)
 
         return BatchedResultsIterator(entity=model.Athlete,
                                       bind_client=self,
@@ -287,9 +289,11 @@ class Client(object):
         if athlete_id is None:
             result_fetcher = functools.partial(self.protocol.get, '/athlete/followers')
         else:
-            result_fetcher = functools.partial(self.protocol.get,
-                                               '/athletes/{id}/followers',
-                                               id=athlete_id)
+            raise NotImplementedError("The /athletes/{id}/followers endpoint was removed by Strava.  "
+                                      "See https://developers.strava.com/docs/january-2018-update/")
+            # result_fetcher = functools.partial(self.protocol.get,
+            #                                    '/athletes/{id}/followers',
+            #                                    id=athlete_id)
 
         return BatchedResultsIterator(entity=model.Athlete,
                                       bind_client=self,
@@ -312,14 +316,16 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Athlete` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get,
-                                           '/athletes/{id}/both-following',
-                                           id=athlete_id)
-
-        return BatchedResultsIterator(entity=model.Athlete,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher,
-                                      limit=limit)
+        raise NotImplementedError("The /athletes/{id}/both-following endpoint was removed by Strava.  "
+                                  "See https://developers.strava.com/docs/january-2018-update/")
+        # result_fetcher = functools.partial(self.protocol.get,
+        #                                    '/athletes/{id}/both-following',
+        #                                    id=athlete_id)
+        #
+        # return BatchedResultsIterator(entity=model.Athlete,
+        #                               bind_client=self,
+        #                               result_fetcher=result_fetcher,
+        #                               limit=limit)
 
     def get_athlete_koms(self, athlete_id, limit=None):
         """
@@ -491,10 +497,13 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get, '/activities/following')
+        raise NotImplementedError("The /activities/following endpoint was removed by Strava.  "
+                                  "See https://developers.strava.com/docs/january-2018-update/")
 
-        return BatchedResultsIterator(entity=model.Activity, bind_client=self,
-                                      result_fetcher=result_fetcher, limit=limit)
+        # result_fetcher = functools.partial(self.protocol.get, '/activities/following')
+        #
+        # return BatchedResultsIterator(entity=model.Activity, bind_client=self,
+        #                               result_fetcher=result_fetcher, limit=limit)
 
     def create_activity(self, name, activity_type, start_date_local, elapsed_time,
                         description=None, distance=None):
@@ -822,14 +831,17 @@ class Client(object):
         :return: An iterator of :class:`stravalib.model.Activity` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
-        result_fetcher = functools.partial(self.protocol.get,
-                                           '/activities/{id}/related',
-                                           id=activity_id)
+        raise NotImplementedError("The /activities/{id}/related endpoint was removed by Strava.  "
+                                  "See https://developers.strava.com/docs/january-2018-update/")
 
-        return BatchedResultsIterator(entity=model.Activity,
-                                      bind_client=self,
-                                      result_fetcher=result_fetcher,
-                                      limit=limit)
+        # result_fetcher = functools.partial(self.protocol.get,
+        #                                    '/activities/{id}/related',
+        #                                    id=activity_id)
+        #
+        # return BatchedResultsIterator(entity=model.Activity,
+        #                               bind_client=self,
+        #                               result_fetcher=result_fetcher,
+        #                               limit=limit)
 
     def get_gear(self, gear_id):
         """
