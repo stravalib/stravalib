@@ -953,7 +953,7 @@ class SegmentLeaderboard(Sequence, BoundEntity):
     """
     entry_count = Attribute(int)
     effort_count = Attribute(int)
-    kom_type = ChoicesAttribute(six.text_type, (SUMMARY,), choices=['kom', 'cr'])
+    kom_type = Attribute(six.text_type)
 
     entries = EntityCollection(SegmentLeaderboardEntry)
 
