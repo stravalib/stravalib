@@ -47,6 +47,10 @@ class RateLimitExceeded(RuntimeError):
 
     http://strava.github.io/api/#access
     """
+    def __init__(self, msg, timeout=None, limit=None):
+        super(RateLimitExceeded, self).__init__()
+        self.limit = limit
+        self.timeout = timeout
 
 
 class RateLimitTimeout(RateLimitExceeded):

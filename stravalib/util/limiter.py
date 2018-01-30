@@ -44,7 +44,8 @@ def get_rates_from_response_headers(headers):
     Returns a namedtuple with values for short - and long usage and limit rates found in provided HTTP response headers
     :param headers: HTTP response headers
     :type headers: dict
-    :return: namedtuple with request rates
+    :return: namedtuple with request rates or None if no rate-limit headers present in response.
+    :rtype: Optional[RequestRate]
     """
     try:
         usage_rates = [int(v) for v in headers['X-RateLimit-Usage'].split(',')]
@@ -78,11 +79,18 @@ def get_seconds_until_next_day(now=arrow.utcnow()):
 
 class XRateLimitRule(object):
     
-    def __init__(self, limits):
+    def __init__(self, limits, force_limits=False):
+        """
+
+        :param limits: THe limits structure.
+        :param force_limits: If False (default), this rule will set/update its limits based on what the Strava API
+        tells it. If True, the provided limits will be enforced, i.e. ignoring the limits given by the API.
+        """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
         self.rate_limits = limits
-        self.limit_time_invalid = 0
         # should limit args be validated?
+        self.limit_time_invalid = 0
+        self.force_limits = force_limits
 
     @property
     def limit_timeout(self):
@@ -99,8 +107,13 @@ class XRateLimitRule(object):
         rates = get_rates_from_response_headers(response_headers)
 
         if rates:
+            self.log.debug("Updating rate-limit limits and usage from headers: {}".format(rates))
             self.rate_limits['short']['usage'] = rates.short_usage
             self.rate_limits['long']['usage'] = rates.long_usage
+            
+            if not self.force_limits:
+                self.rate_limits['short']['limit'] = rates.short_limit
+                self.rate_limits['long']['limit'] = rates.long_limit
 
     def _check_limit_rates(self, limit):
         if limit['usage'] >= limit['limit']:
@@ -119,12 +132,14 @@ class XRateLimitRule(object):
                 self._raise_rate_limit_timeout(self.limit_timeout, limit['limit'])
                 
     def _raise_rate_limit_exception(self, timeout, limit_rate):
-        raise exc.RateLimitExceeded("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                    .format(limit_rate, timeout))
+        raise exc.RateLimitExceeded("Rate limit of {0} exceeded. "
+                                    "Try again in {1} seconds.".format(limit_rate, timeout),
+                                    limit=limit_rate, timeout=timeout)
 
     def _raise_rate_limit_timeout(self, timeout, limit_rate):
-        raise exc.RateLimitTimeout("Rate limit of {0} exceeded. Try again in {1} seconds."
-                                   .format(limit_rate, timeout))
+        raise exc.RateLimitTimeout("Rate limit of {0} exceeded. "
+                                   "Try again in {1} seconds.".format(limit_rate, timeout),
+                                   limit=limit_rate, timeout=timeout)
 
 
 class SleepingRateLimitRule(object):

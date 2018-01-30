@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.9.1
+-----
+* Auto-configure the rate limits (not just usage) from response headers. (#142)
+
 0.9.0
 -----
 * More API changes to reflect the big privacy changes from Strava. (#139, #140)
