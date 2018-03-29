@@ -1338,6 +1338,44 @@ class Client(object):
 
         # Pack streams into dictionary
         return {i.type: i for i in streams}
+    
+    def get_running_race(self, race_id):
+        """
+        Gets a running race for a given identifier.t
+
+        http://strava.github.io/api/v3/running_races/#list
+
+        :param race_id: id for the race
+
+        :rtype: :class:`stravalib.model.RunningRace`
+        """        
+        raw = self.protocol.get('/running_races/{id}', id=race_id)
+        return model.RunningRace.deserialize(raw, bind_client=self)
+    
+    
+    def get_running_races(self, year=None):
+        """
+        Gets a running races for a given year.
+
+        http://strava.github.io/api/v3/running_races/#list
+
+        :param year: year for the races (default current)
+        
+        :return: An iterator of :class:`stravalib.model.RunningRace` objects.
+        :rtype: :class:`BatchedResultsIterator`
+        """
+        if year is None:
+            year = datetime.datetime.now().year
+    
+        params = {"year": year}
+
+        result_fetcher = functools.partial(self.protocol.get,
+                                           '/running_races',
+                                           **params)
+
+        return BatchedResultsIterator(entity=model.RunningRace, bind_client=self,
+                                      result_fetcher=result_fetcher)
+        
 
     def get_routes(self, athlete_id=None, limit=None):
         """

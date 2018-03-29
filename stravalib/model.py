@@ -333,6 +333,10 @@ class Athlete(LoadableEntity):
 
     sample_race_distance = Attribute(int, (DETAILED,))  # (undocumented, detailed-only)
     sample_race_time = Attribute(int, (DETAILED,))  # (undocumented, detailed-only)
+    
+    membership = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented, club members only) String indicating the membership type of club
+    admin = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented, club members only) Flag indicating whether member is an admin of club
+    owner = Attribute(bool, (SUMMARY, DETAILED))  #: (undocumented, club members only) Flag indicating whether member is owner of club
 
     _friends = None
     _followers = None
@@ -1052,6 +1056,24 @@ class Stream(LoadableEntity):
         return '<Stream type={} resolution={} original_size={}>'.format(self.type,
                                                                         self.resolution,
                                                                         self.original_size,)
+class RunningRace(LoadableEntity):
+    """
+    Represents a RunningRace.
+    """
+    name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Name of the race.
+    id = Attribute(int) #: The unique identifier of this race. 
+    running_race_type = Attribute(int) #: Type of race
+    distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters) #: Distance for race in meters.
+    start_date_local = TimestampAttribute((SUMMARY, DETAILED), tzinfo=None)  #: :class:`datetime.datetime` when race was started local
+    city = Attribute(six.text_type, (DETAILED, ))  #: City the race is taking place in    
+    state = Attribute(six.text_type, (DETAILED, ))  #: State the race is taking place in    
+    country = Attribute(six.text_type, (DETAILED, ))  #: Country the race is taking place in
+    description = Attribute(six.text_type, (SUMMARY, DETAILED,))  #: Description of the route.
+    route_ids = Attribute(list) #: Set of routes that cover this race's course
+    measurement_preference = Attribute(six.text_type, (DETAILED,))  #: (detailed-only) How race prefers to see measurements (i.e. "feet" (or what "meters"?))
+    url = Attribute(six.text_type, (SUMMARY, DETAILED))  #: vanity race URL slug
+    website_url = Attribute(six.text_type, (SUMMARY, DETAILED))  #: race's website
+    status = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented attribute)
 
 
 class Route(LoadableEntity):
