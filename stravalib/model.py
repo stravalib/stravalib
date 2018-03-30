@@ -260,10 +260,13 @@ class AthleteStats(BaseEntity):
     biggest_climb_elevation_gain = Attribute(float, units=uh.meters)  #: Greatest single elevation gain for athlete.
     recent_ride_totals = EntityAttribute(ActivityTotals)  #: Recent totals for rides. (:class:`stravalib.model.ActivityTotals`)
     recent_run_totals = EntityAttribute(ActivityTotals)  #: Recent totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    recent_swim_totals = EntityAttribute(ActivityTotals)  #: Recent totals for swims. (:class:`stravalib.model.ActivityTotals`)
     ytd_ride_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for rides. (:class:`stravalib.model.ActivityTotals`)
     ytd_run_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    ytd_swim_totals = EntityAttribute(ActivityTotals)  #: Year-to-date totals for swims. (:class:`stravalib.model.ActivityTotals`)
     all_ride_totals = EntityAttribute(ActivityTotals)  #: All-time totals for rides. (:class:`stravalib.model.ActivityTotals`)
     all_run_totals = EntityAttribute(ActivityTotals)  #: All-time totals for runs. (:class:`stravalib.model.ActivityTotals`)
+    all_swim_totals = EntityAttribute(ActivityTotals)  #: All-time totals for swims. (:class:`stravalib.model.ActivityTotals`)
 
 
 class Athlete(LoadableEntity):
