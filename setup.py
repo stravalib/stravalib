@@ -3,10 +3,15 @@ import os.path
 import re
 import warnings
 
-from pip.req import parse_requirements
 from setuptools import setup, find_packages
 
 version = '0.9.1'
+
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
 
 news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
 news = open(news).read()
@@ -29,12 +34,7 @@ if found_news:
     long_description += '\n%s\n%s\n' % (title, '-' * len(title))
     long_description += found_news
 
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'), session=False)
-
-# reqs is a list of requirement
-# e.g. ['django==1.5.1', 'mezzanine==1.4.6']
-reqs = [str(ir.req) for ir in install_reqs]
+reqs = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'))
 
 setup(
     name='stravalib',
