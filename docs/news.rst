@@ -3,10 +3,15 @@ Changes
 
 .. contents::
 
+0.9.3
+-----
+* Fix mutable parma defaults in rate-limiter util functions (#155)
+* Add the missing subscription_permissions attr to Athlete (#156)
+ 
 0.9.2
 -----
 * Fix for pip 0.10.0 (paulte) (#149, #150)
-  
+
 0.9.1
 -----
 * Auto-configure the rate limits (not just usage) from response headers. (#142)
