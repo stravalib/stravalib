@@ -57,28 +57,32 @@ def get_rates_from_response_headers(headers):
         return None
 
 
-def get_seconds_until_next_quarter(now=arrow.utcnow()):
+def get_seconds_until_next_quarter(now=None):
     """
     Returns the number of seconds until the next quarter of an hour. This is the short-term rate limit used by Strava.
     :param now: A (utc) timestamp
     :type now: arrow.arrow.Arrow
     :return: the number of seconds until the next quarter, as int
     """
+    if now is None:
+        now = arrow.utcnow()
     return 899 - (now - now.replace(minute=(now.minute // 15) * 15, second=0, microsecond=0)).seconds
 
 
-def get_seconds_until_next_day(now=arrow.utcnow()):
+def get_seconds_until_next_day(now=None):
     """
     Returns the number of seconds until the next day (utc midnight). This is the long-term rate limit used by Strava.
     :param now: A (utc) timestamp
     :type now: arrow.arrow.Arrow
     :return: the number of seconds until next day, as int
     """
+    if now is None:
+        now = arrow.utcnow()
     return (now.ceil('day') - now).seconds
 
 
 class XRateLimitRule(object):
-    
+
     def __init__(self, limits, force_limits=False):
         """
 
@@ -98,11 +102,11 @@ class XRateLimitRule(object):
 
     def __call__(self, response_headers):
         self._update_usage(response_headers)
-        
+
         for limit in self.rate_limits.values():
             self._check_limit_time_invalid(limit)
             self._check_limit_rates(limit)
-            
+
     def _update_usage(self, response_headers):
         rates = get_rates_from_response_headers(response_headers)
 
@@ -110,7 +114,7 @@ class XRateLimitRule(object):
             self.log.debug("Updating rate-limit limits and usage from headers: {}".format(rates))
             self.rate_limits['short']['usage'] = rates.short_usage
             self.rate_limits['long']['usage'] = rates.long_usage
-            
+
             if not self.force_limits:
                 self.rate_limits['short']['limit'] = rates.short_limit
                 self.rate_limits['long']['limit'] = rates.long_limit
@@ -130,7 +134,7 @@ class XRateLimitRule(object):
                 self.log.debug("Rate limit invalid duration {0} seconds."
                                .format(self.limit_time_invalid))
                 self._raise_rate_limit_timeout(self.limit_timeout, limit['limit'])
-                
+
     def _raise_rate_limit_exception(self, timeout, limit_rate):
         raise exc.RateLimitExceeded("Rate limit of {0} exceeded. "
                                     "Try again in {1} seconds.".format(limit_rate, timeout),
@@ -264,14 +268,14 @@ class DefaultRateLimiter(RateLimiter):
 
     def __init__(self):
         """
-        Strava API usage is limited on a per-application basis using a short term, 
+        Strava API usage is limited on a per-application basis using a short term,
         15 minute, limit and a long term, daily, limit. The default rate limit
-        allows 600 requests every 15 minutes, with up to 30,000 requests per day. 
+        allows 600 requests every 15 minutes, with up to 30,000 requests per day.
         This limit allows applications to make 40 requests per minute for about half the day.
         """
 
         super(DefaultRateLimiter, self).__init__()
-        
+
         self.rules.append(XRateLimitRule(
             {'short': {'usageFieldIndex': 0, 'usage': 0,
                          # 60s * 15 = 15 min
@@ -281,7 +285,7 @@ class DefaultRateLimiter(RateLimiter):
                         # 60s * 60m * 24 = 1 day
                         'limit': 30000, 'time': (60*60*24),
                         'lastExceeded': None}}))
-        
-        # XRateLimitRule used instead of timer based RateLimitRule        
+
+        # XRateLimitRule used instead of timer based RateLimitRule
         # self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
         # self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
