@@ -2,6 +2,9 @@ Changes
 =======
 
 .. contents::
+0.9.4
+-----
+* Version bump for dup file upload to pypi. :-[
 
 0.9.3
 -----
