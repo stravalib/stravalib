@@ -47,7 +47,7 @@ class ApiV3(object):
         if rate_limiter is None:
             # Make it a dummy function, so we don't have to check if it's defined before
             # calling it later
-            rate_limiter = lambda: None
+            rate_limiter = lambda x=None: None
 
         self.rate_limiter = rate_limiter
 
