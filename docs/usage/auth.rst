@@ -30,14 +30,15 @@ Note that for development, you can use localhost or 127.0.0.1 as the redirect ho
 
 Now you can display the resulting URL in your webapp to allow athletes to authorize your
 application to read their data.  In the /authorization handler, you will need to exchange
-a temporary code for a permanent token. ::
+a temporary code for a temporary access token. ::
 
     from stravalib import Client		
     code = request.args.get('code') # e.g.
     client = Client()
-    access_token = client.exchange_code_for_token(client_id=MY_STRAVA_CLIENT_ID,
+    token_response = client.exchange_code_for_token(client_id=MY_STRAVA_CLIENT_ID,
                                                   client_secret=MY_STRAVA_CLIENT_SECRET,
                                                   code=code)
+    access_token = token_response['access_token']
 
 The resulting access_token is valid (until/unless access for your app is revoked by the user) and should be stored 
 so that you can access the account data the future without re-authorizing.

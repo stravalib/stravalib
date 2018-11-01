@@ -61,9 +61,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             code = urlparse.parse_qs(parsed_path.query).get('code')
             if code:
                 code = code[0]
-                access_token = client.exchange_code_for_token(client_id=self.server.client_id,
+                token_response = client.exchange_code_for_token(client_id=self.server.client_id,
                                                               client_secret=self.server.client_secret,
                                                               code=code)
+                access_token = token_response['access_token']
                 self.server.logger.info("Exchanged code {} for access token {}".format(code, access_token))
                 self.wfile.write(six.b("Access Token: {}\n".format(access_token)))
             else:

@@ -111,7 +111,7 @@ class Client(object):
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a permanent access token.
+        for a temporary access token and a refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -122,12 +122,35 @@ class Client(object):
         :param code: The temporary authorization code
         :type code: str
 
-        :return: The access token.
-        :rtype: :py:class:`str`
+        :return: Dictionary containing the access_token, refresh_token
+                 and expires_at (number of seconds since Epoch when the provided access token will expire)
+        :rtype: dict
         """
         return self.protocol.exchange_code_for_token(client_id=client_id,
                                                      client_secret=client_secret,
                                                      code=code)
+
+    def refresh_access_token(self, client_id, client_secret, refresh_token):
+        """
+        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
+        for a temporary access token and a refresh token (used to obtain the next access token later on).
+
+        :param client_id: The numeric developer client id.
+        :type client_id: int
+
+        :param client_secret: The developer client secret
+        :type client_secret: str
+
+        :param refresh_token: The refresh token obtain from a previous authorization request
+        :type refresh_token: str
+
+        :return: Dictionary containing the access_token, refresh_token
+                 and expires_at (number of seconds since Epoch when the provided access token will expire)
+        :rtype: dict
+        """
+        return self.protocol.refresh_access_token(client_id=client_id,
+                                                  client_secret=client_secret,
+                                                  refresh_token=refresh_token)
 
     def deauthorize(self):
         """

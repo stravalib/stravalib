@@ -96,7 +96,7 @@ class ApiV3(object):
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a permanent access token.
+        for a short-lived access token and a refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -107,15 +107,51 @@ class ApiV3(object):
         :param code: The temporary authorization code
         :type code: str
 
-        :return: The access token.
-        :rtype: str
+        :return: Dictionary containing the access_token, refresh_token
+                 and expires_at (number of seconds since Epoch when the provided access token will expire)
+        :rtype: dict
         """
         response = self._request('https://{0}/oauth/token'.format(self.server),
-                                 params={'client_id': client_id, 'client_secret': client_secret, 'code': code},
+                                 params={'client_id': client_id, 'client_secret': client_secret, 'code': code,
+                                 'grant_type': 'authorization_code'},
                                  method='POST')
-        token = response['access_token']
-        self.access_token = token
-        return token
+        access_info = dict()
+        access_info['access_token'] = response['access_token']
+        access_info['refresh_token'] = response['refresh_token']
+        access_info['expires_at'] = response['expires_at']
+        self.access_token = response['access_token']
+
+        return access_info
+
+    def refresh_access_token(self, client_id, client_secret, refresh_token):
+        """
+        Exchanges the previous refresh token for a short-lived access token and a new
+        refresh token (used to obtain the next access token later on).
+
+        :param client_id: The numeric developer client id.
+        :type client_id: int
+
+        :param client_secret: The developer client secret
+        :type client_secret: str
+
+        :param refresh_token: The refresh token obtain from a previous authorization request
+        :type refresh_token: str
+
+        :return: Dictionary containing the access_token, refresh_token
+                 and expires_at (number of seconds since Epoch when the provided access token will expire)
+        :rtype: dict
+        """
+        response = self._request('https://{0}/oauth/token'.format(self.server),
+                                 params={'client_id': client_id, 'client_secret': client_secret,
+                                 'refresh_token': refresh_token, 'grant_type': 'refresh_token'},
+                                 method='POST')
+        access_info = dict()
+        access_info['access_token'] = response['access_token']
+        access_info['refresh_token'] = response['refresh_token']
+        access_info['expires_at'] = response['expires_at']
+        self.access_token = response['access_token']
+
+        return access_info
 
     def _resolve_url(self, url, use_webhook_server):
         server = use_webhook_server and self.server_webhook_events or self.server
