@@ -72,10 +72,19 @@ authorize_url = client.authorization_url(client_id=1234, redirect_uri='http://lo
 
 # Extract the code from your webapp response
 code = request.get('code') # or whatever your framework does
-access_token = client.exchange_code_for_token(client_id=1234, client_secret='asdf1234', code=code)
+token_response = client.exchange_code_for_token(client_id=1234, client_secret='asdf1234', code=code)
+access_token = token_response['access_token']
+refresh_token = token_response['refresh_token']
+expires_at = token_response['expires_at']
 
-# Now store that access token somewhere (a database?)
+# Now store that short-lived access token somewhere (a database?)
 client.access_token = access_token
+# You must also store the refresh token and the expiration time (an access token is 
+# only valid for 6 hours) to be used later on to obtain another valid access token 
+# in case the current is already expired
+client.refresh_token = refresh_token
+client.token_expires_at = expires_at
+ 
 athlete = client.get_athlete()
 print("For {id}, I now have an access token {token}".format(id=athlete.id, token=access_token))
 ```
