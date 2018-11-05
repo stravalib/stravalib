@@ -68,7 +68,8 @@ class ApiV3(object):
         :type approval_prompt: str
 
         :param scope: The access scope required.  Omit to imply "public".
-                      Valid values are 'write', 'view_private', 'view_private,write', 'write,view_private'.
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      'activity:read_all', 'activity:write'.
         :type scope: str
 
         :param state: An arbitrary variable that will be returned to your application in the redirect URI.
@@ -80,7 +81,7 @@ class ApiV3(object):
         assert approval_prompt in ('auto', 'force')
         if isinstance(scope, (list, tuple)):
             scope = ','.join(scope)
-        assert scope in (None, 'write', 'view_private', 'write,view_private', 'view_private,write')
+        assert scope in (None, 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all', 'activity:read_all', 'activity:write')
 
         params = {'client_id': client_id,
                   'redirect_uri': redirect_uri,
