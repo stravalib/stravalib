@@ -29,15 +29,15 @@ class ClientAuthorizationUrlTest(TestBase):
         self.assertRaises(Exception, self.client.authorization_url, 1, "www.example.com", scope=["wrong"])
 
     def test_correct_scope(self):
-        url = self.client.authorization_url(1, "www.example.com", scope="write")
-        self.assertEqual(self.get_url_param(url, "scope"), "write")
+        url = self.client.authorization_url(1, "www.example.com", scope="activity:write")
+        self.assertEqual(self.get_url_param(url, "scope"), "activity:write")
         # Check also with two params
-        url = self.client.authorization_url(1, "www.example.com", scope="write,view_private")
+        url = self.client.authorization_url(1, "www.example.com", scope="activity:write,activity:read_all")
         self.assertEqual(self.get_url_param(url, "scope"), "write,view_private")
 
     def test_scope_may_be_list(self):
-        url = self.client.authorization_url(1, "www.example.com", scope=["write", "view_private"])
-        self.assertEqual(self.get_url_param(url, "scope"), "write,view_private")
+        url = self.client.authorization_url(1, "www.example.com", scope=["activity:write", "activity:read_all"])
+        self.assertEqual(self.get_url_param(url, "scope"), "activity:write,activity:read_all")
 
     def test_incorrect_approval_prompt_raises(self):
         self.assertRaises(Exception, self.client.authorization_url, 1, "www.example.com", approval_prompt="wrong")

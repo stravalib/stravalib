@@ -94,7 +94,9 @@ class Client(object):
                                 Choices are 'auto' or 'force'.  (Default is 'auto')
         :type approval_prompt: str
 
-        :param scope: The access scope required.  Omit to imply "public".  Valid values are 'public', 'write', 'view_private', 'view_private,write'
+        :param scope: The access scope required.  Omit to imply "public".
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      'activity:read_all', 'activity:write'
         :type scope: str
 
         :param state: An arbitrary variable that will be returned to your application in the redirect URI.
