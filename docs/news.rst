@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.10.1
+------
+* Fixes of authorization_url / new scopes for new oauth (#163, #165)
+
 0.10.0
 ------
 * Implementation of Strava's new auth.  (#162, #163)
