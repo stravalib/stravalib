@@ -5,7 +5,7 @@ import warnings
 
 from setuptools import setup, find_packages
 
-version = '0.9.4'
+version = '0.10.2'
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
@@ -37,11 +37,11 @@ if found_news:
 reqs = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'))
 
 setup(
-    name='stravalib',
+    name='dpac-stravalib',
     version=version,
-    author='Hans Lellelid',
-    author_email='hans@xmpl.org',
-    url='http://github.com/hozn/stravalib',
+    author='David Pacheco',
+    author_email='davidpch@gmail.com',
+    url='http://github.com/david-pacheco/stravalib',
     license='Apache',
     description='Python library for interacting with Strava v3 REST API',
     long_description=long_description,
