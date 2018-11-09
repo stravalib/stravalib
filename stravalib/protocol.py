@@ -79,9 +79,17 @@ class ApiV3(object):
         :rtype: str
         """
         assert approval_prompt in ('auto', 'force')
-        if isinstance(scope, (list, tuple)):
-            scope = ','.join(scope)
-        assert scope in (None, 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all', 'activity:read_all', 'activity:write')
+
+        if isinstance(scope, str):
+            scope_items = scope.split(',')
+        else:
+            scope_items = scope
+
+        # validates scope items
+        for scope_item in scope_items:
+            assert scope_item.strip() in (None, 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all', 'activity:read_all', 'activity:write')
+
+        scope = ','.join(scope_items)
 
         params = {'client_id': client_id,
                   'redirect_uri': redirect_uri,
