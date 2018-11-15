@@ -39,6 +39,7 @@ a temporary code for a temporary access token. ::
                                                   client_secret=MY_STRAVA_CLIENT_SECRET,
                                                   code=code)
     access_token = token_response['access_token']
+    refresh_token = token_response['refresh_token']  # You'll need this in 6 hours
 
 The resulting access_token is valid until the specified expiration time (6 hours,
 specified as unix epoch seconds `expires_at` field of returned token) or the user
@@ -57,7 +58,7 @@ To refresh the token you would call the :meth:`stravalib.client.Client.refresh_t
     client = Client()
     token_response = client.refresh_token(client_id=MY_STRAVA_CLIENT_ID,
                                           client_secret=MY_STRAVA_CLIENT_SECRET,
-                                          refresh_token=previous_token)
+                                          refresh_token=last_refresh_token)
     new_access_token = token_response['access_token']
 
 See the https://github.com/hozn/stravalib/tree/master/examples/strava-oauth directory for an example
