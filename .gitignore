@@ -8,3 +8,4 @@ dist/
 docs/_build/
 test.ini
 *~
+examples/strava-oauth/settings.cfg
