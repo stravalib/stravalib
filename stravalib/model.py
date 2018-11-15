@@ -64,7 +64,7 @@ class BaseEntity(object):
                 except AttributeError as x:
                     raise AttributeError("Could not find attribute `{0}` on entity {1}, value: {2!r}.  (Original: {3!r})".format(k, self, v, x))
             else:
-                self.log.warning("No such attribute {0} on entity {1}".format(k, self))
+                self.log.debug("No such attribute {0} on entity {1}".format(k, self))
 
     @classmethod
     def deserialize(cls, v):
