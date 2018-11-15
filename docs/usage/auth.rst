@@ -6,17 +6,17 @@ Authentication and Authorization
 In order to use this library to retrieve information about athletes and actitivies,
 you will need authorization to do so.
 
-See the `official documentation <http://strava.github.io/api/v3/oauth/>`_ for a description of the OAuth2 protocol
-that Strava uses to authenticate users.
+See the `official documentation <https://developers.strava.com/docs/authentication/>`_
+for a description of the OAuth2 protocol that Strava uses to authenticate users.
 
 Requesting Authorization
 ========================
 
-The :class:`stravalib.client.Client` class provides the :meth:`stravalib.client.Client.authorization_url` method 
+The :class:`stravalib.client.Client` class provides the :meth:`stravalib.client.Client.authorization_url` method
 to build an authorization URL which can be clicked on by a user in order to grant your application access to
 their account data.
 
-In its simplest form:: 
+In its simplest form::
 
     from stravalib import Client
     client = Client()
@@ -32,7 +32,7 @@ Now you can display the resulting URL in your webapp to allow athletes to author
 application to read their data.  In the /authorization handler, you will need to exchange
 a temporary code for a temporary access token. ::
 
-    from stravalib import Client		
+    from stravalib import Client
     code = request.args.get('code') # e.g.
     client = Client()
     token_response = client.exchange_code_for_token(client_id=MY_STRAVA_CLIENT_ID,
@@ -40,12 +40,25 @@ a temporary code for a temporary access token. ::
                                                   code=code)
     access_token = token_response['access_token']
 
-The resulting access_token is valid (until/unless access for your app is revoked by the user) and should be stored 
-so that you can access the account data the future without re-authorizing.
+The resulting access_token is valid until the specified expiration time (6 hours,
+specified as unix epoch seconds `expires_at` field of returned token) or the user
+explicitly revokes application access.  This token can  be stored so that you can access the account data the future without requiring re-authorization.
 
 Once you have an access token you can begin to perform operations from the perspective of that  user. ::
 
     from stravalib import Client
     client = Client(access_token=STORED_ACCESS_TOKEN)
     client.get_athlete() # Get current athlete details
- 
+
+To refresh the token you would call the :meth:`stravalib.client.Client.refresh_token` method. ::
+
+    from stravalib import Client
+    code = request.args.get('code') # e.g.
+    client = Client()
+    token_response = client.refresh_token(client_id=MY_STRAVA_CLIENT_ID,
+                                          client_secret=MY_STRAVA_CLIENT_SECRET,
+                                          refresh_token=previous_token)
+    new_access_token = token_response['access_token']
+
+See the https://github.com/hozn/stravalib/tree/master/examples/strava-oauth directory for an example
+Flask application for fetching a Strava auth token.

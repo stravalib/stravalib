@@ -3,6 +3,12 @@ Changes
 
 .. contents::
 
+0.10.2
+------
+* More fixes to new new authorization scopes (#168)
+* Added an example oauth app and some small docs updates.
+* Changed missing-attribute warnings to be debug-level logs.
+
 0.10.1
 ------
 * Fixes of authorization_url / new scopes for new oauth (#163, #165)
