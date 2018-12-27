@@ -283,7 +283,8 @@ class Athlete(LoadableEntity):
     sex = Attribute(six.text_type, (SUMMARY, DETAILED))  #: Athlete's sex ('M', 'F' or null)
     friend = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
     follower = Attribute(six.text_type, (SUMMARY, DETAILED))  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    premium = Attribute(bool, (SUMMARY, DETAILED))  #: Whether athlete is a premium member (true/false)
+    premium = Attribute(bool, (SUMMARY, DETAILED))  #: Whether athlete is a premium member (true/false). Deprecated use summit.
+    summit = Attribute(bool, (SUMMARY, DETAILED))  #: Whether the athlete has any Summit subscription.
 
     created_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when athlete record was created.
     updated_at = TimestampAttribute((SUMMARY, DETAILED))  #: :class:`datetime.datetime` when athlete record was last updated.
