@@ -92,8 +92,11 @@ print("For {id}, I now have an access token {token}".format(id=athlete.id, token
 
 # ... time passes ...
 if time.time() > client.token_expires_at:
-    new_token = client.refresh_access_token(client_id=1234, client_secret='asdf1234',
+    refresh_response = client.refresh_access_token(client_id=1234, client_secret='asdf1234',
         refresh_token=client.refresh_token)
+    access_token = refresh_response['access_token']
+    refresh_token = refresh_response['refresh_token']
+    expires_at = refresh_response['expires_at']
 ```
 
 ### Athletes and Activities
