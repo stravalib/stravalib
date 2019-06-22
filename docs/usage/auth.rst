@@ -51,12 +51,12 @@ Once you have an access token you can begin to perform operations from the persp
     client = Client(access_token=STORED_ACCESS_TOKEN)
     client.get_athlete() # Get current athlete details
 
-To refresh the token you would call the :meth:`stravalib.client.Client.refresh_token` method. ::
+To refresh the token you would call the :meth:`stravalib.client.Client.refresh_access_token` method. ::
 
     from stravalib import Client
     code = request.args.get('code') # e.g.
     client = Client()
-    token_response = client.refresh_token(client_id=MY_STRAVA_CLIENT_ID,
+    token_response = client.refresh_access_token(client_id=MY_STRAVA_CLIENT_ID,
                                           client_secret=MY_STRAVA_CLIENT_SECRET,
                                           refresh_token=last_refresh_token)
     new_access_token = token_response['access_token']
