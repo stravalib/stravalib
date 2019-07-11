@@ -128,8 +128,8 @@ class ApiV3(object):
                                  method='POST')
         access_info = dict()
         access_info['access_token'] = response['access_token']
-        access_info['refresh_token'] = response['refresh_token']
-        access_info['expires_at'] = response['expires_at']
+        access_info['refresh_token'] = response.get('refresh_token', None)
+        access_info['expires_at'] = response.get('expires_at', None)
         self.access_token = response['access_token']
 
         return access_info
