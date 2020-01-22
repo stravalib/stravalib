@@ -559,6 +559,7 @@ class Split(BaseEntity):
     split = Attribute(int)  #: Which split number
     pace_zone = Attribute(int)  #: (undocumented)
     average_speed = Attribute(float, units=uh.meters_per_second)
+    average_grade_adjusted_speed = Attribute(float, units=uh.meters_per_second)
 
     def __repr__(self):
         return '<Split split={} distance={} elapsed_time={}>'.format(self.split, self.distance, self.elapsed_time)
