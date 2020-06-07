@@ -4,9 +4,13 @@ Entity classes for representing the various Strava datatypes.
 from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
 import logging
-from collections import Sequence
 
 import six
+
+if six.PY2:
+    from collections import Sequence
+else:
+    from collections.abc import Sequence
 
 from stravalib import exc
 from stravalib import unithelper as uh
