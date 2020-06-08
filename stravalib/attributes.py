@@ -243,6 +243,17 @@ class TimeIntervalAttribute(Attribute):
 
     def marshal(self, v):
         """
+        Serialize native python timedelta object to seconds as int.
+
+        :param v: time interval.
+        :type v: timedelta
+        :return: time interval in seconds as int.
+        """
+        if isinstance(v, timedelta):
+            return v.seconds
+        else:
+            return str(v) if v else None
+        """
         Serialize time zone name.
 
         :param v: The timezone.
