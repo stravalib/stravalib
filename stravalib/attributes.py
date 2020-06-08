@@ -253,15 +253,6 @@ class TimeIntervalAttribute(Attribute):
             return v.seconds
         else:
             return str(v) if v else None
-        """
-        Serialize time zone name.
-
-        :param v: The timezone.
-        :type v: tzdata
-        :return: The name of the time zone.
-        """
-        return str(v) if v else None
-
 
 class ChoicesAttribute(Attribute):
     """
