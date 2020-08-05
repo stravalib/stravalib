@@ -752,6 +752,7 @@ class Activity(LoadableEntity):
     STANDUPPADDLING = "StandUpPaddling"
     SURFING = "Surfing"
     VIRTUALRIDE = "VirtualRide"
+    VIRTUALRUN = "VirtualRun"
     WEIGHTTRAINING = "WeightTraining"
     WINDSURF = "Windsurf"
     WORKOUT = "Workout"
@@ -769,7 +770,8 @@ class Activity(LoadableEntity):
              CROSSCOUNTRYSKIING, CROSSFIT, EBIKERIDE, ELLIPTICAL, HIKE, ICESKATE,
              INLINESKATE, KAYAKING, KITESURF, NORDICSKI, ROCKCLIMBING,
              ROLLERSKI, ROWING, SNOWBOARD, SNOWSHOE, STAIRSTEPPER,
-             STANDUPPADDLING, SURFING, VIRTUALRIDE, WEIGHTTRAINING, WINDSURF, WORKOUT, YOGA)
+             STANDUPPADDLING, SURFING, VIRTUALRIDE, VIRTUALRUN, WEIGHTTRAINING, WINDSURF,
+             WORKOUT, YOGA)
 
     guid = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented)
 
