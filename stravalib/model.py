@@ -771,10 +771,10 @@ class Activity(LoadableEntity):
              ROLLERSKI, ROWING, SNOWBOARD, SNOWSHOE, STAIRSTEPPER,
              STANDUPPADDLING, SURFING, VIRTUALRIDE, WEIGHTTRAINING, WINDSURF, WORKOUT, YOGA)
 
-    guid = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented)
+    id = Attribute(int, (SUMMARY, DETAILED))  #: The unique identifier of the activity
 
     external_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: An external ID for the activity (relevant when specified during upload).
-    upload_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The upload ID for an activit.
+    upload_id = Attribute(int, (SUMMARY, DETAILED))  #: The upload ID for an activit.
     athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))  #: The associated :class:`stravalib.model.Athlete` that performed this activity.
     name = Attribute(six.text_type, (SUMMARY, DETAILED))  #: The name of the activity.
     distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: The distance for the activity.
@@ -843,7 +843,7 @@ class Activity(LoadableEntity):
     embed_token = Attribute(six.text_type, (DETAILED,))  #: the token used to embed a Strava activity in the form www.strava.com/activities/[activity_id]/embed/[embed_token]. Only included if requesting athlete is activity owner.
     calories = Attribute(float, (DETAILED,))  #: Calculation of how many calories burned on activity
     description = Attribute(six.text_type, (DETAILED,))  #: Description of activity.
-    workout_type = Attribute(six.text_type, (DETAILED,))  #: (undocumented)
+    workout_type = Attribute(int, (SUMMARY, DETAILED))  #: The activity's workout type
 
     photos = EntityAttribute(ActivityPhotoMeta, (DETAILED,))  #: A new photo metadata structure.
     instagram_primary_photo = Attribute(six.text_type, (DETAILED,))  #: (undocumented) Appears to be the ref to first associated instagram photo
