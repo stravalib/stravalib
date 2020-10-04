@@ -795,7 +795,7 @@ class Client(object):
 
         http://strava.github.io/api/v3/photos/
 
-        :param activity_id: The activity for which to fetch kudos.
+        :param activity_id: The activity for which to fetch photos.
         :type activity_id: int
 
         :param size: the requested size of the activity's photos. URLs for the photos will be returned that best match
