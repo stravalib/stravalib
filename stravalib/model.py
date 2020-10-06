@@ -44,10 +44,11 @@ class BaseEntity(object):
         :rtype: Dict[str, Any]
         """
         d = {}
-        for attrname, attr in self.__class__.__dict__.items():
-            if isinstance(attr, Attribute):
-                value = getattr(self, attrname)
-                d[attrname] = attr.marshal(value)
+        for cls in self.__class__.__mro__:
+            for attrname, attr in cls.__dict__.items():
+                if attrname not in d and isinstance(attr, Attribute):
+                    value = getattr(self, attrname)
+                    d[attrname] = attr.marshal(value)
         return d
 
     def from_dict(self, d):
