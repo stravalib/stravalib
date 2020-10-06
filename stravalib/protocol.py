@@ -20,9 +20,6 @@ class ApiV3(object):
     """
 
     server = 'www.strava.com'
-    # Note: The hostname for webhook events is different than normal API requests
-    # (via http://strava.github.io/api/partner/v3/events/)
-    server_webhook_events = 'api.strava.com'
     api_base = '/api/v3'
 
     def __init__(self, access_token=None, requests_session=None, rate_limiter=None):
@@ -164,13 +161,12 @@ class ApiV3(object):
 
         return access_info
 
-    def _resolve_url(self, url, use_webhook_server):
-        server = use_webhook_server and self.server_webhook_events or self.server
+    def _resolve_url(self, url):
         if not url.startswith('http'):
-            url = urljoin('https://{0}'.format(server), self.api_base + '/' + url.strip('/'))
+            url = urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
         return url
 
-    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True, use_webhook_server=False):
+    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
         """
         Perform the underlying request, returning the parsed JSON results.
 
@@ -189,13 +185,10 @@ class ApiV3(object):
         :param check_for_errors: Whether to raise
         :type check_for_errors: bool
 
-        :param use_webhook_server: Whether to use the webhook server for this request.
-        :type use_webhook_server: bool
-
         :return: The parsed JSON response.
         :rtype: Dict[str,Any]
         """
-        url = self._resolve_url(url, use_webhook_server)
+        url = self._resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
             params = {}
@@ -289,38 +282,38 @@ class ApiV3(object):
                 break
         return d.keys()
 
-    def get(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
+    def get(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic GET request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
+        return self._request(url, params=params, check_for_errors=check_for_errors)
 
-    def post(self, url, files=None, check_for_errors=True, use_webhook_server=False, **kwargs):
+    def post(self, url, files=None, check_for_errors=True, **kwargs):
         """
         Performs a generic POST request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
+        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
 
-    def put(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
+    def put(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic PUT request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
+        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors)
 
-    def delete(self, url, check_for_errors=True, use_webhook_server=False, **kwargs):
+    def delete(self, url, check_for_errors=True, **kwargs):
         """
         Performs a generic DELETE request for specified params, returning the response.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='DELETE', check_for_errors=check_for_errors, use_webhook_server=use_webhook_server)
+        return self._request(url, params=params, method='DELETE', check_for_errors=check_for_errors)
