@@ -86,10 +86,10 @@ class BaseEntity(object):
             attrs.append('id={0}'.format(self.id))
         if hasattr(self.__class__, 'name'):
             attrs.append('name={0!r}'.format(self.name))
-        if hasattr(self.__class__, 'resource_state'):
+        if hasattr(self.__class__, 'resource_state') and self.resource_state is not None:
             attrs.append('resource_state={0}'.format(self.resource_state))
 
-        return '<{0} {1}>'.format(self.__class__.__name__, ' '.join(attrs))
+        return '<{0}{1}>'.format(self.__class__.__name__, ' ' + ' '.join(attrs) if attrs else '')
 
 
 class ResourceStateEntity(BaseEntity):
