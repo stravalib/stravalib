@@ -95,7 +95,7 @@ class Client(object):
         :type approval_prompt: str
 
         :param scope: The access scope required.  Omit to imply "public".
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
                       'activity:read_all', 'activity:write'
         :type scope: str
 
@@ -113,7 +113,7 @@ class Client(object):
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a temporary access token and a refresh token (used to obtain the next access token later on).
+        for a short-lived access token and a refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -134,8 +134,8 @@ class Client(object):
 
     def refresh_access_token(self, client_id, client_secret, refresh_token):
         """
-        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a temporary access token and a refresh token (used to obtain the next access token later on).
+        Exchanges the previous refresh token for a short-lived access token and a new
+        refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -143,7 +143,7 @@ class Client(object):
         :param client_secret: The developer client secret
         :type client_secret: str
 
-        :param refresh_token: The refresh token obtain from a previous authorization request
+        :param refresh_token: The refresh token obtained from a previous authorization request
         :type refresh_token: str
 
         :return: Dictionary containing the access_token, refresh_token
@@ -500,8 +500,8 @@ class Client(object):
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
 
-        :param inclue_all_efforts: Whether to include segment efforts - only
-                                   available to the owner of the activty.
+        :param include_all_efforts: Whether to include segment efforts - only
+                                    available to the owner of the activty.
         :type include_all_efforts: bool
 
         :rtype: :class:`stravalib.model.Activity`
