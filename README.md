@@ -1,5 +1,7 @@
 # stravalib
 
+**NOTE: This library could really use someone to help with (or take over) maintenance. Please reach out to hans@xmpl.org if you are interested in taking project over.**
+
 The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
 abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
 and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
