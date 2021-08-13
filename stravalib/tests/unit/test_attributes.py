@@ -2,7 +2,7 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 
 import six
 
-from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute
+from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute, LocationAttribute, LatLon
 from stravalib.model import Athlete, SubscriptionCallback
 from stravalib.tests import TestBase
 
@@ -44,6 +44,16 @@ class EntityAttributeTest(TestBase):
         print(dir(scb))
         self.assertEqual(d['hub.mode'], scb.hub_mode)
         self.assertEqual(d['hub.verify_token'], scb.hub_verify_token)
+
+
+class LocationAttributeTest(TestBase):
+    def test_with_location(self):
+        location = LocationAttribute((SUMMARY, DETAILED))
+        self.assertEqual(LatLon(1., 2.), location.unmarshal([1., 2.]))
+
+    def test_without_location(self):
+        location = LocationAttribute((SUMMARY, DETAILED))
+        self.assertIsNone(location.unmarshal([]))
 
 
 class ChoicesAttributeTest(TestBase):
