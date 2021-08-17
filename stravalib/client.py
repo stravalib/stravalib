@@ -84,6 +84,8 @@ class Client(object):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
 
+        See https://developers.strava.com/docs/authentication/
+
         :param client_id: The numeric developer client id.
         :type client_id: int
 
@@ -94,10 +96,10 @@ class Client(object):
                                 Choices are 'auto' or 'force'.  (Default is 'auto')
         :type approval_prompt: str
 
-        :param scope: The access scope required.  Omit to imply "public".
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
-                      'activity:read_all', 'activity:write'
-        :type scope: str
+        :param scope: The access scope required.  Omit to imply "read" and "activity:read"
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      'activity:read_all', 'activity:write'.
+        :type scope: list[str]
 
         :param state: An arbitrary variable that will be returned to your application in the redirect URI.
         :type state: str
