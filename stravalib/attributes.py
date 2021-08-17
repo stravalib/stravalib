@@ -181,7 +181,7 @@ class LocationAttribute(Attribute):
         """
         """
         if not isinstance(v, LatLon):
-            v = LatLon(lat=v[0], lon=v[1])
+            v = LatLon(lat=v[0], lon=v[1]) if v else None
         return v
 
 

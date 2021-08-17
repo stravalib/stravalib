@@ -44,10 +44,11 @@ class BaseEntity(object):
         :rtype: Dict[str, Any]
         """
         d = {}
-        for attrname, attr in self.__class__.__dict__.items():
-            if isinstance(attr, Attribute):
-                value = getattr(self, attrname)
-                d[attrname] = attr.marshal(value)
+        for cls in self.__class__.__mro__:
+            for attrname, attr in cls.__dict__.items():
+                if attrname not in d and isinstance(attr, Attribute):
+                    value = getattr(self, attrname)
+                    d[attrname] = attr.marshal(value)
         return d
 
     def from_dict(self, d):
@@ -85,10 +86,10 @@ class BaseEntity(object):
             attrs.append('id={0}'.format(self.id))
         if hasattr(self.__class__, 'name'):
             attrs.append('name={0!r}'.format(self.name))
-        if hasattr(self.__class__, 'resource_state'):
+        if hasattr(self.__class__, 'resource_state') and self.resource_state is not None:
             attrs.append('resource_state={0}'.format(self.resource_state))
 
-        return '<{0} {1}>'.format(self.__class__.__name__, ' '.join(attrs))
+        return '<{0}{1}>'.format(self.__class__.__name__, ' ' + ' '.join(attrs) if attrs else '')
 
 
 class ResourceStateEntity(BaseEntity):
@@ -725,12 +726,6 @@ class Activity(LoadableEntity):
     Represents an activity (ride, run, etc.).
     """
     # "Constants" for types of activities
-    RIDE = "Ride"
-    RUN = "Run"
-    SWIM = "Swim"
-    HIKE = "Hike"
-    WALK = "Walk"
-
     ALPINESKI = "AlpineSki"
     BACKCOUNTRYSKI = "BackcountrySki"
     CANOEING = "Canoeing"
@@ -738,21 +733,34 @@ class Activity(LoadableEntity):
     CROSSFIT = "Crossfit"
     EBIKERIDE = "EBikeRide"
     ELLIPTICAL = "Elliptical"
+    GOLF = "Golf"
+    HANDCLYCLE = "Handcycle"
+    HIKE = "Hike"
     ICESKATE = "IceSkate"
     INLINESKATE = "InlineSkate"
     KAYAKING = "Kayaking"
     KITESURF = "Kitesurf"
     NORDICSKI = "NordicSki"
+    RIDE = "Ride"
     ROCKCLIMBING = "RockClimbing"
     ROLLERSKI = "RollerSki"
     ROWING = "Rowing"
+    RUN = "Run"
+    SAIL = "Sail"
+    SKATEBOARD = "Skateboard"
     SNOWBOARD = "Snowboard"
     SNOWSHOE = "Snowshoe"
+    SOCCER = "Soccer"
     STAIRSTEPPER = "StairStepper"
     STANDUPPADDLING = "StandUpPaddling"
     SURFING = "Surfing"
+    SWIM = "Swim"
+    VELOMOBILE = "Velomobile"
     VIRTUALRIDE = "VirtualRide"
+    VIRTUALRUN = "VirtualRun"
+    WALK = "Walk"
     WEIGHTTRAINING = "WeightTraining"
+    WHEELCHAIR = "Wheelchair"
     WINDSURF = "Windsurf"
     WORKOUT = "Workout"
     YOGA = "Yoga"
@@ -765,13 +773,13 @@ class Activity(LoadableEntity):
     _laps = None
     _related = None
 
-    TYPES = (RIDE, RUN, SWIM, WALK, ALPINESKI, BACKCOUNTRYSKI, CANOEING,
-             CROSSCOUNTRYSKIING, CROSSFIT, EBIKERIDE, ELLIPTICAL, HIKE, ICESKATE,
-             INLINESKATE, KAYAKING, KITESURF, NORDICSKI, ROCKCLIMBING,
-             ROLLERSKI, ROWING, SNOWBOARD, SNOWSHOE, STAIRSTEPPER,
-             STANDUPPADDLING, SURFING, VIRTUALRIDE, WEIGHTTRAINING, WINDSURF, WORKOUT, YOGA)
-
     id = Attribute(int, (SUMMARY, DETAILED))  #: The unique identifier of the activity
+    TYPES = (ALPINESKI, BACKCOUNTRYSKI, CANOEING, CROSSCOUNTRYSKIING, CROSSFIT, EBIKERIDE,
+             ELLIPTICAL, GOLF, HANDCLYCLE, HIKE, ICESKATE, INLINESKATE, KAYAKING, KITESURF,
+             NORDICSKI, RIDE, ROCKCLIMBING, ROLLERSKI, ROWING, RUN, SAIL, SKATEBOARD, SNOWBOARD,
+             SNOWSHOE, SOCCER, STAIRSTEPPER, STANDUPPADDLING, SURFING, SWIM, VELOMOBILE,
+             VIRTUALRIDE, VIRTUALRUN, WALK, WEIGHTTRAINING, WHEELCHAIR, WINDSURF, WORKOUT, YOGA)
+    guid = Attribute(six.text_type, (SUMMARY, DETAILED))  #: (undocumented)
 
     external_id = Attribute(six.text_type, (SUMMARY, DETAILED))  #: An external ID for the activity (relevant when specified during upload).
     upload_id = Attribute(int, (SUMMARY, DETAILED))  #: The upload ID for an activit.
