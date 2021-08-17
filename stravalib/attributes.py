@@ -193,12 +193,17 @@ class TimezoneAttribute(Attribute):
 
     def unmarshal(self, v):
         """
-        Convert a timestamp in format "(GMT-08:00) America/Los_Angeles" to
+        Convert a timestamp in format "America/Los_Angeles" or
+        "(GMT-08:00) America/Los_Angeles" to
         a `pytz.timestamp` object.
         """
         if not isinstance(v, tzinfo):
-            # (GMT-08:00) America/Los_Angeles
-            tzname = v.split(' ', 1)[1]
+            if ' ' in v:
+                # (GMT-08:00) America/Los_Angeles
+                tzname = v.split(' ', 1)[1]
+            else:
+                # America/Los_Angeles
+                tzname = v
             v = pytz.timezone(tzname)
         return v
 
@@ -229,19 +234,25 @@ class TimeIntervalAttribute(Attribute):
         more complex types, where subclasses will override this behavior.
         """
         if not isinstance(v, timedelta):
-            v = timedelta(seconds=v)
+            if isinstance(v, str) or isinstance(v, unicode):
+                h,m,s = v.split(':')
+                v = timedelta(seconds = int(h)*3600 + int(m)*60 + int(s))
+            else:
+                v = timedelta(seconds=v)
         return v
 
     def marshal(self, v):
         """
-        Serialize time zone name.
+        Serialize native python timedelta object to seconds as int.
 
-        :param v: The timezone.
-        :type v: tzdata
-        :return: The name of the time zone.
+        :param v: time interval.
+        :type v: timedelta
+        :return: time interval in seconds as int.
         """
-        return str(v) if v else None
-
+        if isinstance(v, timedelta):
+            return v.seconds
+        else:
+            return str(v) if v else None
 
 class ChoicesAttribute(Attribute):
     """
