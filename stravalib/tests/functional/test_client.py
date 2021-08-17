@@ -373,6 +373,5 @@ class AthleteStatsTest(FunctionalTestBase):
         self.assertEqual(stats, "Not None")
 
     def test_athlete_property_not_authenticated(self):
-        cav = self.client.get_athlete(1353775)
-        with self.assertRaises(exc.NotAuthenticatedAthlete):
-            cav.stats
+        with self.assertRaises(NotImplementedError):
+            cav = self.client.get_athlete(1353775)

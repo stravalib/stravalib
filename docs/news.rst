@@ -3,6 +3,15 @@ Changes
 
 .. contents::
 
+0.10.3
+------
+* Fixes IndexErrors when deserializing empty lists as GPS locations (#216)
+* Fix a few fields in Activity model (#201, #214, #207)
+* deal with tzname without offset and timedelta in string format (#195)
+* Update to docs and repr (#200, #205, #206)
+* Now webhooks use the same domain as the rest of API. (#204)
+* Setting rate_limit_requests=False in Client causes error (#157)
+
 0.10.2
 ------
 * More fixes to new new authorization scopes (#168)
