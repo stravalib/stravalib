@@ -659,6 +659,7 @@ class Segment(LoadableEntity):
     pr_time = Attribute(int, (DETAILED,)) #: pr time for athlete
     starred_date = TimestampAttribute((DETAILED, )) #: datetime when be starred
     athlete_pr_effort = EntityAttribute(AthletePrEffort, (DETAILED,))
+    elevation_profile = Attribute(six.text_type, (SUMMARY, DETAILED))
 
     @property
     def leaderboard(self):
