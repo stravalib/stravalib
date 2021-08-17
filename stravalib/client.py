@@ -115,7 +115,7 @@ class Client(object):
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a temporary access token and a refresh token (used to obtain the next access token later on).
+        for a short-lived access token and a refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -136,8 +136,8 @@ class Client(object):
 
     def refresh_access_token(self, client_id, client_secret, refresh_token):
         """
-        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a temporary access token and a refresh token (used to obtain the next access token later on).
+        Exchanges the previous refresh token for a short-lived access token and a new
+        refresh token (used to obtain the next access token later on).
 
         :param client_id: The numeric developer client id.
         :type client_id: int
@@ -145,7 +145,7 @@ class Client(object):
         :param client_secret: The developer client secret
         :type client_secret: str
 
-        :param refresh_token: The refresh token obtain from a previous authorization request
+        :param refresh_token: The refresh token obtained from a previous authorization request
         :type refresh_token: str
 
         :return: Dictionary containing the access_token, refresh_token
@@ -502,8 +502,8 @@ class Client(object):
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
 
-        :param inclue_all_efforts: Whether to include segment efforts - only
-                                   available to the owner of the activty.
+        :param include_all_efforts: Whether to include segment efforts - only
+                                    available to the owner of the activty.
         :type include_all_efforts: bool
 
         :rtype: :class:`stravalib.model.Activity`
@@ -797,7 +797,7 @@ class Client(object):
 
         http://strava.github.io/api/v3/photos/
 
-        :param activity_id: The activity for which to fetch kudos.
+        :param activity_id: The activity for which to fetch photos.
         :type activity_id: int
 
         :param size: the requested size of the activity's photos. URLs for the photos will be returned that best match
@@ -1479,8 +1479,6 @@ class Client(object):
         return {i.type: i for i in streams}
 
     def create_subscription(self, client_id, client_secret, callback_url,
-                            object_type=model.Subscription.OBJECT_TYPE_ACTIVITY,
-                            aspect_type=model.Subscription.ASPECT_TYPE_CREATE,
                             verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT):
         """
         Creates a webhook event subscription.
@@ -1496,12 +1494,6 @@ class Client(object):
         :param callback_url: callback URL where Strava will first send a GET request to validate, then subsequently send POST requests with updates
         :type callback_url: str
 
-        :param object_type: object_type (currently only `activity` is supported)
-        :type object_type: str
-
-        :param aspect_type: object_type (currently only `create` is supported)
-        :type aspect_type: str
-
         :param verify_token: a token you can use to verify Strava's GET callback request
         :type verify_token: str
 
@@ -1510,17 +1502,13 @@ class Client(object):
 
         Notes:
 
-        `object_type` and `aspect_type` are given defaults because there is currently only one valid value for each.
-
         `verify_token` is set to a default in the event that the author doesn't want to specify one.
 
         The appliction must have permission to make use of the webhook API. Access can be requested by contacting developers -at- strava.com.
         """
         params = dict(client_id=client_id, client_secret=client_secret,
-                      object_type=object_type, aspect_type=aspect_type,
                       callback_url=callback_url, verify_token=verify_token)
-        raw = self.protocol.post('/push_subscriptions', use_webhook_server=True,
-                                 **params)
+        raw = self.protocol.post('/push_subscriptions', **params)
         return model.Subscription.deserialize(raw, bind_client=self)
 
     def handle_subscription_callback(self, raw,
@@ -1561,7 +1549,7 @@ class Client(object):
         :rtype: :class:`BatchedResultsIterator`
         """
         result_fetcher = functools.partial(self.protocol.get, '/push_subscriptions', client_id=client_id,
-                                           client_secret=client_secret, use_webhook_server=True)
+                                           client_secret=client_secret)
 
         return BatchedResultsIterator(entity=model.Subscription,
                                       bind_client=self,
@@ -1583,7 +1571,7 @@ class Client(object):
         :type client_secret: str
         """
         self.protocol.delete('/push_subscriptions/{id}', id=subscription_id,
-                             client_id=client_id, client_secret=client_secret, use_webhook_server=True)
+                             client_id=client_id, client_secret=client_secret)
         # Expects a 204 response if all goes well.
 
 
