@@ -5,7 +5,7 @@ import warnings
 
 from setuptools import setup, find_packages
 
-version = '0.10.3'
+version = '0.10.4'
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """

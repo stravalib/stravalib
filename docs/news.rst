@@ -3,6 +3,10 @@ Changes
 
 .. contents::
 
+0.10.4
+------
+* Fix to unicode regression (#217)
+
 0.10.3
 ------
 * Fixes IndexErrors when deserializing empty lists as GPS locations (#216)

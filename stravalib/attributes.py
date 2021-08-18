@@ -234,7 +234,7 @@ class TimeIntervalAttribute(Attribute):
         more complex types, where subclasses will override this behavior.
         """
         if not isinstance(v, timedelta):
-            if isinstance(v, str) or isinstance(v, six.binary_type):
+            if isinstance(v, six.text_type) or isinstance(v, six.binary_type):
                 h,m,s = v.split(':')
                 v = timedelta(seconds = int(h)*3600 + int(m)*60 + int(s))
             else:
