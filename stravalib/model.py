@@ -241,8 +241,11 @@ class Bike(Gear):
 
 class Shoe(Gear):
     """
-    Represent's an athlete's pair of shoes.
+    Represents an athlete's pair of shoes.
     """
+    nickname = Attribute(six.text_type, (DETAILED,))  #: Nickname for the shoe.
+    converted_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters) # Distance on the shoe (meters)
+    retired = Attribute(bool, (SUMMARY, DETAILED))
 
 
 class ActivityTotals(BaseEntity):
