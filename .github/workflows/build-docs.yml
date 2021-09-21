@@ -46,4 +46,4 @@ jobs:
         if: ${{ github.ref == 'refs/heads/docs-build' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          publish_dir: ./docs/_build
