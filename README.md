@@ -1,4 +1,4 @@
-# stravalib
+# Welcome to stravalib
 
 **NOTE: This library could really use someone to help with (or take over) maintenance. Please reach out to hans@xmpl.org if you are interested in taking project over.**
 
@@ -28,6 +28,36 @@ Of course, by itself this package doesn't do much; it's a library.  So it is mor
 list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can
 download it and explore Strava content in your favorite python REPL.
 
+## How to Contribute to Stravalib 
+
+Get Started!
+============
+
+Ready to contribute? Here's how to set up Stravalib for local development.
+
+1. Fork the repository on GitHub
+--------------------------------
+
+To create your own copy of the repository on GitHub, navigate to the
+`earthlab/earthpy <https://github.com/hozn/stravalib>`_ repository
+and click the **Fork** button in the top-right corner of the page.
+
+2. Clone your fork locally
+--------------------------
+
+Use ``git clone`` to get a local copy of your EarthPy repository on your
+local filesystem::
+
+    $ git clone git@github.com:your_name_here/stravalib.git
+    $ cd stravalib/
+
+3. Set up your fork for local development
+-----------------------------------------
+The docs for this library are created using `sphinx`. 
+To build the documentation, use the command::
+
+    $ make html
+
 ## Building from sources
 
 To build the project from sources access the project root directory and run
@@ -52,6 +82,8 @@ if you use Python3.
 
 To run **integration** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
 In *test.ini* provide your *access_token* and *activity_id*
+
+
 
 ## Basic Usage
 

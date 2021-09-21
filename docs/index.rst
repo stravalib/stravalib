@@ -1,8 +1,3 @@
-.. stravalib documentation master file, created by
-   sphinx-quickstart on Wed Dec 25 15:30:40 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Documentation
 =============
 
@@ -26,14 +21,16 @@ Changelog
 High-level changes in library by version.
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
 
-   news
+   Home <self>
+   change-log
 
 Getting Started
 ---------------
 
-The package is avialable on PyPI to be installed using easy_install or pip:
+The package is available on PyPI to be installed using ``easy_install`` or pip:
 
 .. code-block:: none
 

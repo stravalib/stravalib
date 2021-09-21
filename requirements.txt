@@ -3,3 +3,5 @@ requests>=2.0,<3.0dev
 units
 pytz
 six
+sphinx
+pydata_sphinx_theme

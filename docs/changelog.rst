@@ -1,5 +1,5 @@
-Changes
-=======
+Change Log
+==========
 
 .. contents::
 

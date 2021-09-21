@@ -1,0 +1,7 @@
+name: stravalib-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - sphinx
+  - pydata_sphinx_theme
