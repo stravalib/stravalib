@@ -31,8 +31,11 @@ class Client(object):
     however, most methods will require a valid access token.
     """
 
-    def __init__(self, access_token=None, rate_limit_requests=True,
-                 rate_limiter=None, requests_session=None):
+    def __init__(self,
+                 access_token=None,
+                 rate_limit_requests=True,
+                 rate_limiter=None,
+                 requests_session=None):
         """
         Initialize a new client object.
 
@@ -79,8 +82,12 @@ class Client(object):
         """
         self.protocol.access_token = v
 
-    def authorization_url(self, client_id, redirect_uri, approval_prompt='auto',
-                          scope=None, state=None):
+    def authorization_url(self,
+                          client_id,
+                          redirect_uri,
+                          approval_prompt='auto',
+                          scope=None,
+                          state=None):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
 
@@ -639,7 +646,7 @@ class Client(object):
 
         if description is not None:
             params['description'] = description
-            
+
         if device_name is not None:
             params['device_name'] = device_name
 
@@ -1365,7 +1372,7 @@ class Client(object):
 
         # Pack streams into dictionary
         return {i.type: i for i in streams}
-    
+
     def get_running_race(self, race_id):
         """
         Gets a running race for a given identifier.t
@@ -1375,11 +1382,11 @@ class Client(object):
         :param race_id: id for the race
 
         :rtype: :class:`stravalib.model.RunningRace`
-        """        
+        """
         raw = self.protocol.get('/running_races/{id}', id=race_id)
         return model.RunningRace.deserialize(raw, bind_client=self)
-    
-    
+
+
     def get_running_races(self, year=None):
         """
         Gets a running races for a given year.
@@ -1387,13 +1394,13 @@ class Client(object):
         http://strava.github.io/api/v3/running_races/#list
 
         :param year: year for the races (default current)
-        
+
         :return: An iterator of :class:`stravalib.model.RunningRace` objects.
         :rtype: :class:`BatchedResultsIterator`
         """
         if year is None:
             year = datetime.datetime.now().year
-    
+
         params = {"year": year}
 
         result_fetcher = functools.partial(self.protocol.get,
@@ -1402,7 +1409,7 @@ class Client(object):
 
         return BatchedResultsIterator(entity=model.RunningRace, bind_client=self,
                                       result_fetcher=result_fetcher)
-        
+
 
     def get_routes(self, athlete_id=None, limit=None):
         """
@@ -1449,21 +1456,17 @@ class Client(object):
         """
         Returns streams for a route.
 
-        http://strava.github.io/api/v3/streams/#routes
-
         Streams represent the raw data of the saved route. External
         applications may access this information for all public routes and for
-        the private routes of the authenticated athlete.
+        the private routes of the authenticated athlete. The 3 available route
+        stream types `distance`, `altitude` and `latlng` are always returned.
 
-        The 3 available route stream types `distance`, `altitude` and `latlng`
-        are always returned.
+        See: https://developers.strava.com/docs/reference/#api-Streams-getRouteStreams
 
-        http://strava.github.io/api/v3/streams/#routes
+        :param route_id: The ID of activity.
+        :type route_id: int
 
-        :param activity_id: The ID of activity.
-        :type activity_id: int
-
-        :return: A dictionary of :class:`stravalib.model.Stream`from the route.
+        :return: A dictionary of :class:`stravalib.model.Stream` from the route.
         :rtype: :py:class:`dict`
 
         """

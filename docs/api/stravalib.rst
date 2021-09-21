@@ -12,7 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   stravalib.tests
    stravalib.util
 
 Submodules
