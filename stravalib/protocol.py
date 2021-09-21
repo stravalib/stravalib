@@ -1,4 +1,6 @@
 """
+Protocol
+==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals

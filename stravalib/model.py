@@ -1,4 +1,6 @@
 """
+Client
+==============
 Entity classes for representing the various Strava datatypes.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals

@@ -1,4 +1,6 @@
 """
+Client
+==============
 Provides the main interface classes for the Strava version 3 REST API.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
