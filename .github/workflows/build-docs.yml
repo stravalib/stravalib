@@ -43,7 +43,7 @@ jobs:
 # Only deploy from gh-pages
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/docs-build' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
