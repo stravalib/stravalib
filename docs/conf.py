@@ -79,7 +79,7 @@ release = '0.6.0'
 # directories to ignore when looking for source files.
 exclude_patterns = [
     '_build',
-    "stravalib/tests"
+    'stravalib/tests'
 ]
 
 # The reST default role (used for this markup: `text`) to use for all
