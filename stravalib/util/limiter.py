@@ -1,4 +1,6 @@
 """
+Utilities
+==============
 Rate limiter classes.
 
 These are basically callables that when called register that a request was
