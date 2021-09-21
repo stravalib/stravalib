@@ -2,10 +2,13 @@ env*/
 build/
 dist/
 *.pyc
-.*
+# This will remove our ability to add CI in the .github dir
+#.*
+.DS_Store
+.idea/
 *.egg-info/
 *.egg/
 docs/_build/
 test.ini
-*~
+#*~
 examples/strava-oauth/settings.cfg
