@@ -1,9 +1,12 @@
 name: Build Push github pages
-
+# Build on all branches
 on:
   push:
     branches:
-      - master
+      - '*'
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
   deploy:
@@ -37,9 +40,10 @@ jobs:
         run: python3 -m pip install -r ./requirements.txt
 
       - run: make docs -B
-
+# Only deploy from gh-pages
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
