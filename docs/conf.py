@@ -14,9 +14,10 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../stravalib'))
 
-sys.path.insert(0, os.path.abspath('../../stravalib'))
+#sys.path.insert(0, os.path.abspath('../../stravalib'))
 # sys.path.insert(0, os.path.abspath('../../stravalib/util'))
 
 
@@ -43,6 +44,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx_copybutton',
+    'sphinx.ext.autosummary',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,7 +84,11 @@ release = '0.6.0'
 # directories to ignore when looking for source files.
 exclude_patterns = [
     '_build',
-    'stravalib/tests'
+    'stravalib/tests',
+    'stravalib/tests/functional',
+    'stravalib/tests/unit',
+    'stravalib/tests/resources'
+
 ]
 
 # The reST default role (used for this markup: `text`) to use for all

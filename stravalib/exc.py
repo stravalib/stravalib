@@ -51,7 +51,7 @@ class RateLimitExceeded(RuntimeError):
     """
     Exception raised when the client rate limit has been exceeded.
 
-    http://strava.github.io/api/#access
+    https://developers.strava.com/docs/rate-limits/
     """
     def __init__(self, msg, timeout=None, limit=None):
         super(RateLimitExceeded, self).__init__()
@@ -64,7 +64,7 @@ class RateLimitTimeout(RateLimitExceeded):
     Exception raised when the client rate limit has been exceeded
     and the time to clear the limit (timeout) has not yet been reached
 
-    http://strava.github.io/api/#access
+    https://developers.strava.com/docs/rate-limits/
     """
 
 

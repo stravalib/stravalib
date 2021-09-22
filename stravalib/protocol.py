@@ -209,7 +209,7 @@ class ApiV3(object):
 
         raw = requester(url, params=params)
         # Rate limits are taken from HTTP response headers
-        # https://strava.github.io/api/#rate-limiting
+        # https://developers.strava.com/docs/rate-limits/
         self.rate_limiter(raw.headers)
 
         if check_for_errors:

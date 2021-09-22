@@ -9,10 +9,13 @@ Welcome to Stravalib!
    Get Started <get-started/index>
    Contributing <contributing>
    Change Log <changelog>
+   Reference <reference>
    API Reference <api/stravalib>
+   API 2  <api>
 
-**stravalib** is a python library for interacting with `version 3 <http://http://strava.github.io/api/>`_ of the
-`Strava <http://www.strava.com>`_  API.
+**stravalib** is a python library for interacting with
+`version 3 <https://developers.strava.com/docs/reference/>`_ of the
+`Strava <https://www.strava.com>`_  API.
 
 This library is designed provide a simple and easy-to-use object model paradigm for interacting
 with the API, support modern versions of Python (2.7, 3.2+), and expose the full functionality of the REST API.

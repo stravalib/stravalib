@@ -3,9 +3,10 @@ Client
 ==============
 Provides the main interface classes for the Strava version 3 REST API.
 """
+
 from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
-import warnings
+# import warnings # unused import
 import functools
 import time
 import collections
@@ -31,6 +32,12 @@ class Client(object):
 
     This class can be instantiated without an access_token when performing authentication;
     however, most methods will require a valid access token.
+
+    Parameters
+    ----------
+    access_token : str
+        The token that provides access to a specific Strava account.  If empty, assume that this
+        account is not yet authenticated.
     """
 
     def __init__(self,
@@ -41,21 +48,19 @@ class Client(object):
         """
         Initialize a new client object.
 
-        :param access_token: The token that provides access to a specific Strava account.  If empty, assume that this
-                             account is not yet authenticated.
-        :type access_token: str
-
-        :param rate_limit_requests: Whether to apply a rate limiter to the requests. (default True)
-        :type rate_limit_requests: bool
-
-        :param rate_limiter: A :class:`stravalib.util.limiter.RateLimiter' object to use.
-                             If not specified (and rate_limit_requests is True), then
-                             :class:`stravalib.util.limiter.DefaultRateLimiter' will
-                             be used.
-        :type rate_limiter: callable
-
-        :param requests_session: (Optional) pass request session object.
-        :type requests_session: requests.Session() object
+        Parameters
+        ----------
+        access_token : str
+            The token that provides access to a specific Strava account.  If empty, assume that this
+            account is not yet authenticated.
+        rate_limit_requests : bool
+            Whether to apply a rate limiter to the requests. (default True)
+        rate_limiter : callable
+            A :class:`stravalib.util.limiter.RateLimiter' object to use.
+            If not specified (and rate_limit_requests is True), then
+            :class:`stravalib.util.limiter.DefaultRateLimiter' will be used.
+        requests_session : requests.Session() object
+            (Optional) pass request session object.
 
         """
         self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
@@ -170,7 +175,7 @@ class Client(object):
         Deauthorize the application. This causes the application to be removed
         from the athlete's "My Apps" settings page.
 
-        See http://strava.github.io/api/v3/oauth/#deauthorization
+        https://developers.strava.com/docs/authentication/#deauthorization
         """
         self.protocol.post("oauth/deauthorize")
 
@@ -195,7 +200,7 @@ class Client(object):
         """
         Get activities for authenticated user sorted by newest first.
 
-        http://strava.github.io/api/v3/activities/
+        https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
 
 
         :param before: Result will start with activities whose start date is
@@ -229,15 +234,17 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+
+    # TODO: Doble check these endpoint doc URLs are correct
     def get_athlete(self, athlete_id=None):
         """
         Gets the specified athlete; if athlete_id is None then retrieves a
         detail-level representation of currently authenticated athlete;
         otherwise summary-level representation returned of athlete.
 
-        http://strava.github.io/api/v3/athlete/#get-details
+        https://developers.strava.com/docs/reference/#api-Athletes
 
-        http://strava.github.io/api/v3/athlete/#get-another-details
+        https://developers.strava.com/docs/reference/#api-Athletes-getLoggedInAthlete
 
         :return: The athlete model object.
         :rtype: :class:`stravalib.model.Athlete`
@@ -252,11 +259,12 @@ class Client(object):
 
         return model.Athlete.deserialize(raw, bind_client=self)
 
+    # TODO: this endpoint was removed so do we want to remove the URL altogether?
     def get_athlete_friends(self, athlete_id=None, limit=None):
         """
         Gets friends for current (or specified) athlete.
 
-        http://strava.github.io/api/v3/follow/#friends
+        https://developers.strava.com/docs/reference/#api-models-DetailedAthlete
 
         :param: athlete_id
         :type: athlete_id: int
@@ -285,7 +293,7 @@ class Client(object):
         """
         Updates the properties of the authorized athlete.
 
-        http://strava.github.io/api/v3/athlete/#update
+        https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
 
         :param city: City the athlete lives in
         :param state: State the athlete lives in
@@ -310,8 +318,6 @@ class Client(object):
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
         Gets followers for current (or specified) athlete.
-
-        http://strava.github.io/api/v3/follow/#followers
 
         :param: athlete_id
         :type athlete_id: int
@@ -341,7 +347,7 @@ class Client(object):
         Retrieve the athletes who both the authenticated user and the indicated
          athlete are following.
 
-        http://strava.github.io/api/v3/follow/#both
+        This endpoint was removed by Strava in Jan 2018.
 
         :param athlete_id: The ID of the other athlete (for follower intersection with current athlete)
         :type athlete_id: int
@@ -363,13 +369,12 @@ class Client(object):
         #                               result_fetcher=result_fetcher,
         #                               limit=limit)
 
+    # TODO: Can't find this in the api documentation either. Does it still work?
     def get_athlete_koms(self, athlete_id, limit=None):
         """
         Gets Q/KOMs/CRs for specified athlete.
 
         KOMs are returned as `stravalib.model.SegmentEffort` objects.
-
-        http://strava.github.io/api/v3/athlete/#koms
 
         :param athlete_id: The ID of the athlete.
         :type athlete_id: int
@@ -396,7 +401,7 @@ class Client(object):
         If it is left blank two requests will be made - first to get the
         authenticated athlete's id and second to get the Stats.
 
-        http://strava.github.io/api/v3/athlete/#stats
+        https://developers.strava.com/docs/reference/#api-Athletes-getStats
 
         :return: A model containing the Stats
         :rtype: :py:class:`stravalib.model.AthleteStats`
@@ -414,7 +419,7 @@ class Client(object):
         """
         List the clubs for the currently authenticated athlete.
 
-        http://strava.github.io/api/v3/clubs/#get-athletes
+        https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
 
         :return: A list of :class:`stravalib.model.Club`
         :rtype: :py:class:`list`
@@ -446,7 +451,7 @@ class Client(object):
         """
         Return a specific club object.
 
-        http://strava.github.io/api/v3/clubs/#get-details
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubById
 
         :param club_id: The ID of the club to fetch.
         :type club_id: int
@@ -460,7 +465,7 @@ class Client(object):
         """
         Gets the member objects for specified club ID.
 
-        http://strava.github.io/api/v3/clubs/#get-members
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubMembersById
 
         :param club_id: The numeric ID for the club.
         :type club_id: int
@@ -482,7 +487,7 @@ class Client(object):
         """
         Gets the activities associated with specified club.
 
-        http://strava.github.io/api/v3/clubs/#get-activities
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
 
         :param club_id: The numeric ID for the club.
         :type club_id: int
@@ -506,7 +511,7 @@ class Client(object):
 
         Will be detail-level if owned by authenticated user; otherwise summary-level.
 
-        http://strava.github.io/api/v3/activities/#get-details
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
 
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
@@ -523,9 +528,7 @@ class Client(object):
 
     def get_friend_activities(self, limit=None):
         """
-        Gets activities for friends (of currently authenticated athlete).
-
-        http://strava.github.io/api/v3/activities/#get-feed
+        DEPRECATED This endpoint was removed by Strava in Jan 2018.
 
         :param limit: Maximum number of activities to return. (default unlimited)
         :type limit: int
@@ -601,7 +604,7 @@ class Client(object):
         """
         Updates the properties of a specific activity.
 
-        http://strava.github.io/api/v3/activities/#put-updates
+        https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
 
         :param activity_id: The ID of the activity to update.
         :type activity_id: int
@@ -661,7 +664,7 @@ class Client(object):
         """
         Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
 
-        http://strava.github.io/api/v3/athlete/#get-details
+        https://developers.strava.com/docs/reference/#api-Uploads-createUpload
 
         :param activity_file: The file object to upload or file contents.
         :type activity_file: file or str
@@ -721,11 +724,12 @@ class Client(object):
 
         return ActivityUploader(self, response=initial_response)
 
+    # TODO: I don't think this is the correct link but can't find it in the docs
     def delete_activity(self, activity_id):
         """
         Deletes the specified activity.
 
-        https://strava.github.io/api/v3/activities/#delete
+        https://developers.strava.com/docs/reference/#api-Activities
 
         :param activity_id: The activity to delete.
         :type activity_id: int
@@ -738,7 +742,7 @@ class Client(object):
 
         Requires premium account.
 
-        http://strava.github.io/api/v3/activities/#zones
+        https://developers.strava.com/docs/reference/#api-Activities-getZonesByActivityId
 
         :param activity_id: The activity for which to zones.
         :type activity_id: int
@@ -754,7 +758,7 @@ class Client(object):
         """
         Gets the comments for an activity.
 
-        http://strava.github.io/api/v3/comments/#list
+        https://developers.strava.com/docs/reference/#api-Activities-getCommentsByActivityId
 
         :param activity_id: The activity for which to fetch comments.
         :type activity_id: int
@@ -780,7 +784,7 @@ class Client(object):
         """
         Gets the kudos for an activity.
 
-        http://strava.github.io/api/v3/kudos/#list
+        https://developers.strava.com/docs/reference/#api-Activities-getKudoersByActivityId
 
         :param activity_id: The activity for which to fetch kudos.
         :type activity_id: int
@@ -800,11 +804,12 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    # TODO not sure this is the correct api doc link - couldn't find "photos"
     def get_activity_photos(self, activity_id, size=None, only_instagram=False):
         """
         Gets the photos from an activity.
 
-        http://strava.github.io/api/v3/photos/
+        https://developers.strava.com/docs/reference/#api-Activities
 
         :param activity_id: The activity for which to fetch photos.
         :type activity_id: int
@@ -839,7 +844,7 @@ class Client(object):
         """
         Gets the laps from an activity.
 
-        http://strava.github.io/api/v3/activities/#laps
+        https://developers.strava.com/docs/reference/#api-Activities-getLapsByActivityId
 
         :param activity_id: The activity for which to fetch laps.
         :type activity_id: int
@@ -857,9 +862,7 @@ class Client(object):
 
     def get_related_activities(self, activity_id, limit=None):
         """
-        Returns the activities that were matched as 'with this activity'.
-
-        http://strava.github.io/api/v3/activities/#get-related
+        Deprecated. This endpoint was removed by strava in Jan 2018.
 
         :param activity_id: The activity for which to fetch related activities.
         :type activity_id: int
@@ -883,7 +886,7 @@ class Client(object):
         """
         Get details for an item of gear.
 
-        http://strava.github.io/api/v3/gear/#show
+        https://developers.strava.com/docs/reference/#api-Gears
 
         :param gear_id: The gear id.
         :type gear_id: str
@@ -897,7 +900,7 @@ class Client(object):
         """
         Return a specific segment effort by ID.
 
-        http://strava.github.io/api/v3/efforts/#retrieve
+        https://developers.strava.com/docs/reference/#api-SegmentEfforts
 
         :param effort_id: The id of associated effort to fetch.
         :type effort_id: int
@@ -912,7 +915,7 @@ class Client(object):
         """
         Gets a specific segment by ID.
 
-        http://strava.github.io/api/v3/segments/#retrieve
+        https://developers.strava.com/docs/reference/#api-SegmentEfforts-getSegmentEffortById
 
         :param segment_id: The segment to fetch.
         :type segment_id: int
@@ -928,7 +931,7 @@ class Client(object):
         Returns a summary representation of the segments starred by the
          authenticated user. Pagination is supported.
 
-        http://strava.github.io/api/v3/segments/#starred
+        https://developers.strava.com/docs/reference/#api-Segments-getLoggedInAthleteStarredSegments
 
         :param limit: (optional), limit number of starred segments returned.
         :type limit: int
@@ -949,12 +952,14 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    # TODO: i'm not sure what the diff is between this method and the one above
+    # So i used the SAME API doc link for both. may need to revisit
     def get_athlete_starred_segments(self, athlete_id, limit=None):
         """
         Returns a summary representation of the segments starred by the
          specified athlete. Pagination is supported.
 
-        http://strava.github.io/api/v3/segments/#starred
+        https://developers.strava.com/docs/reference/#api-Segments-getLoggedInAthleteStarredSegments
 
         :param athlete_id: The ID of the athlete.
         :type athlete_id: int
@@ -974,13 +979,12 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
+    # TODO find the new equavilent link in the strava docs
     def get_segment_leaderboard(self, segment_id, gender=None, age_group=None, weight_class=None,
                                 following=None, club_id=None, timeframe=None, top_results_limit=None,
                                 page=None, context_entries = None):
         """
         Gets the leaderboard for a segment.
-
-        http://strava.github.io/api/v3/segments/#leaderboard
 
         Note that by default Strava will return the top 10 results, and if the current user has ridden
         that segment, the current user's result along with the two results above in rank and the two
@@ -1090,7 +1094,7 @@ class Client(object):
         for a segment in San Francisco, CA can be fetched using
         2014-01-01T00:00:00Z and 2014-01-01T23:59:59Z.
 
-        http://strava.github.io/api/v3/segments/#all_efforts
+        https://developers.strava.com/docs/reference/#api-SegmentEfforts-getEffortsBySegmentId
 
         :param segment_id: ID of the segment.
         :type segment_id: param
@@ -1142,7 +1146,7 @@ class Client(object):
         """
         Returns an array of up to 10 segments.
 
-        http://strava.github.io/api/v3/segments/#explore
+        https://developers.strava.com/docs/reference/#api-Segments-exploreSegments
 
         :param bounds: list of bounding box corners lat/lon [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
         :type bounds: list of 4 floats or list of 2 (lat,lon) tuples
@@ -1185,11 +1189,11 @@ class Client(object):
     def get_activity_streams(self, activity_id, types=None,
                              resolution=None, series_type=None):
         """
-        Returns an streams for an activity.
+        Returns a stream for an activity.
 
-        http://strava.github.io/api/v3/streams/#activity
+        https://developers.strava.com/docs/reference/#api-Streams-getActivityStreams
 
-        Streams represent the raw data of the uploaded file. External
+        Streams represent the raw spatial data for the uploaded file. External
         applications may only access this information for activities owned
         by the authenticated athlete.
 
@@ -1199,8 +1203,6 @@ class Client(object):
 
         Streams types are: time, latlng, distance, altitude, velocity_smooth,
                            heartrate, cadence, watts, temp, moving, grade_smooth
-
-        http://strava.github.io/api/v3/streams/#activity
 
         :param activity_id: The ID of activity.
         :type activity_id: int
@@ -1253,7 +1255,7 @@ class Client(object):
         """
         Returns an streams for an effort.
 
-        http://strava.github.io/api/v3/streams/#effort
+        https://developers.strava.com/docs/reference/#api-Streams-getSegmentEffortStreams
 
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
@@ -1265,8 +1267,6 @@ class Client(object):
 
         Streams types are: time, latlng, distance, altitude, velocity_smooth,
                            heartrate, cadence, watts, temp, moving, grade_smooth
-
-        http://strava.github.io/api/v3/streams/#effort
 
         :param effort_id: The ID of effort.
         :type effort_id: int
@@ -1317,7 +1317,7 @@ class Client(object):
         """
         Returns an streams for a segment.
 
-        http://strava.github.io/api/v3/streams/#segment
+        https://developers.strava.com/docs/reference/#api-Streams-getSegmentStreams
 
         Streams represent the raw data of the uploaded file. External
         applications may only access this information for activities owned
@@ -1329,8 +1329,6 @@ class Client(object):
 
         Streams types are: time, latlng, distance, altitude, velocity_smooth,
                            heartrate, cadence, watts, temp, moving, grade_smooth
-
-        http://strava.github.io/api/v3/streams/#effort
 
         :param segment_id: The ID of segment.
         :type segment_id: int
@@ -1377,9 +1375,9 @@ class Client(object):
 
     def get_running_race(self, race_id):
         """
-        Gets a running race for a given identifier.t
+        Gets a running race for a given identifier.
 
-        http://strava.github.io/api/v3/running_races/#list
+        https://developers.strava.com/docs/reference/#api-models-RunningRace
 
         :param race_id: id for the race
 
@@ -1393,7 +1391,7 @@ class Client(object):
         """
         Gets a running races for a given year.
 
-        http://strava.github.io/api/v3/running_races/#list
+        https://developers.strava.com/docs/reference/#api-RunningRaces-getRunningRaces
 
         :param year: year for the races (default current)
 
@@ -1417,7 +1415,7 @@ class Client(object):
         """
         Gets the routes list for an authenticated user.
 
-        http://strava.github.io/api/v3/routes/#list
+        https://developers.strava.com/docs/reference/#api-Routes-getRoutesByAthleteId
 
         :param athlete_id: id for the
 
@@ -1444,7 +1442,7 @@ class Client(object):
 
         Will be detail-level if owned by authenticated user; otherwise summary-level.
 
-        https://strava.github.io/api/v3/routes/#retreive
+        https://developers.strava.com/docs/reference/#api-Routes-getRouteById
 
         :param route_id: The ID of route to fetch.
         :type route_id: int
@@ -1483,12 +1481,12 @@ class Client(object):
         # Pack streams into dictionary
         return {i.type: i for i in streams}
 
+    # TODO: removed old link to create a subscription but can't find new equiv
+    # in current strava docs
     def create_subscription(self, client_id, client_secret, callback_url,
                             verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT):
         """
         Creates a webhook event subscription.
-
-        http://strava.github.io/api/partner/v3/events/#create-a-subscription
 
         :param client_id: application's ID, obtained during registration
         :type client_id: int
@@ -1538,11 +1536,10 @@ class Client(object):
         """
         return model.SubscriptionUpdate.deserialize(raw, bind_client=self)
 
+    # TODO can't find a api doc link here so just removed old link.
     def list_subscriptions(self, client_id, client_secret):
         """
         List current webhook event subscriptions in place for the current application.
-
-        http://strava.github.io/api/partner/v3/events/#list-push-subscriptions
 
         :param client_id: application's ID, obtained during registration
         :type client_id: int
@@ -1560,11 +1557,10 @@ class Client(object):
                                       bind_client=self,
                                       result_fetcher=result_fetcher)
 
+    # TODO can't find a api doc link here so just removed old link.
     def delete_subscription(self, subscription_id, client_id, client_secret):
         """
         Unsubscribe from webhook events for an existing subscription.
-
-        http://strava.github.io/api/partner/v3/events/#delete-a-subscription
 
         :param subscription_id: ID of subscription to remove.
         :type subscription_id: int

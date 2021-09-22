@@ -21,7 +21,7 @@ import stravalib.model
 
 # Depending on the type of request, objects will be returned in meta,  summary or detailed representations. The
 # representation of the returned object is indicated by the resource_state attribute.
-# (For more info, see https://strava.github.io/api/)
+# (For more info, see https://developers.strava.com/docs/reference/)
 
 META = 1
 SUMMARY = 2
