@@ -3,8 +3,10 @@ GeoDataFrame
 ============
 .. currentmodule:: stravalib
 
-A ``GeoDataFrame`` is a tabular data structure that contains a column
-which contains a ``GeoSeries`` storing geometry.
+The ``Client`` object class for interacting with the Strava v3 API. While
+you can create this object without an access token, you will likely want
+to create an access token to authenticate and access most of the Strava data
+accessible via the API.
 
 Constructor
 -----------
