@@ -9,9 +9,9 @@ Welcome to Stravalib!
    Get Started <get-started/index>
    Contributing <contributing>
    Change Log <changelog>
-   Reference <reference>
-   API Reference <api/stravalib>
-   API 2  <api>
+   API Reference Summary <reference>
+   API Reference V2  <api>
+   DELETE ME API Reference <api/stravalib>
 
 **stravalib** is a python library for interacting with
 `version 3 <https://developers.strava.com/docs/reference/>`_ of the
