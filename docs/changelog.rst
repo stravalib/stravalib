@@ -3,6 +3,10 @@ Change Log
 
 .. contents::
 
+Unreleased
+----------
+* Overhaul of documentation, fix links and CI build (@lwasser, #222)
+
 0.10.4
 ------
 * Fix to unicode regression (#217)
