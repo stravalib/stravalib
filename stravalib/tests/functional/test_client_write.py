@@ -21,10 +21,10 @@ class ClientWriteTest(FunctionalTestBase):
         print(a)
         
         self.assertIsInstance(a, model.Activity)
-        self.assertEquals("test_create_activity#simple", a.name)
-        self.assertEquals(now, a.start_date_local)
-        self.assertEquals(round(float(uh.miles(15.2)), 2), round(float(uh.miles(a.distance)), 2))
-        self.assertEquals(timedelta(hours=3, minutes=4, seconds=5), a.elapsed_time)
+        self.assertEqual("test_create_activity#simple", a.name)
+        self.assertEqual(now, a.start_date_local)
+        self.assertEqual(round(float(uh.miles(15.2)), 2), round(float(uh.miles(a.distance)), 2))
+        self.assertEqual(timedelta(hours=3, minutes=4, seconds=5), a.elapsed_time)
     
     
     def test_update_activity(self):
@@ -39,10 +39,10 @@ class ClientWriteTest(FunctionalTestBase):
                                         distance=uh.miles(15.2))
         
         self.assertIsInstance(a, model.Activity)
-        self.assertEquals("test_update_activity#create", a.name)
+        self.assertEqual("test_update_activity#create", a.name)
         
         update1 = self.client.update_activity(a.id, name="test_update_activivty#update")
-        self.assertEquals("test_update_activivty#update", update1.name)
+        self.assertEqual("test_update_activivty#update", update1.name)
         self.assertFalse(update1.private)
         self.assertFalse(update1.trainer)
         self.assertFalse(update1.commute)
@@ -69,7 +69,7 @@ class ClientWriteTest(FunctionalTestBase):
             a = uploader.wait()
             self.assertTrue(uploader.is_complete)
             self.assertIsInstance(a, model.Activity)
-            self.assertEquals("02/21/2009 Leiden, ZH, The Netherlands", a.name)
+            self.assertEqual("02/21/2009 Leiden, ZH, The Netherlands", a.name)
             
             # And we'll get an error if we try the same file again
             with self.assertRaises(exc.ActivityUploadFailed):
