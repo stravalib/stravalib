@@ -41,6 +41,7 @@ Athlete methods
    Client.get_athlete_koms
    Client.get_athlete_stats
    Client.get_athlete_clubs
+   Client.get_gear
 
 Club related methods
 --------------------
@@ -70,9 +71,6 @@ Activity related methods
    Client.get_activity_photos
    Client.get_activity_laps
    Client.get_related_activities
-
-
-   Client.get_gear
 
 Segment related methods
 -------------------------
@@ -104,6 +102,7 @@ Route related methods
 
 .. autosummary::
    :toctree: api/
+
    Client.get_routes
    Client.get_route
    Client.get_route_streams

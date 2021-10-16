@@ -33,11 +33,6 @@ class Client(object):
     This class can be instantiated without an access_token when performing authentication;
     however, most methods will require a valid access token.
 
-    Parameters
-    ----------
-    access_token : str
-        The token that provides access to a specific Strava account.  If empty, assume that this
-        account is not yet authenticated.
     """
 
     def __init__(self,
@@ -51,14 +46,14 @@ class Client(object):
         Parameters
         ----------
         access_token : str
-            The token that provides access to a specific Strava account.  If empty, assume that this
+            The token that provides access to a specific Strava account. If empty, assume that this
             account is not yet authenticated.
         rate_limit_requests : bool
             Whether to apply a rate limiter to the requests. (default True)
         rate_limiter : callable
-            A :class:`stravalib.util.limiter.RateLimiter' object to use.
+            A :class:`stravalib.util.limiter.RateLimiter` object to use.
             If not specified (and rate_limit_requests is True), then
-            :class:`stravalib.util.limiter.DefaultRateLimiter' will be used.
+            :class:`stravalib.util.limiter.DefaultRateLimiter` will be used.
         requests_session : requests.Session() object
             (Optional) pass request session object.
 
@@ -100,26 +95,25 @@ class Client(object):
 
         See https://developers.strava.com/docs/authentication/
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        redirect_uri : str
+            The URL that Strava will redirect to after successful (or failed) authorization.
+        approval_prompt : str
+            Whether to prompt for approval even if approval already granted to app.
+            Choices are 'auto' or 'force'.  (Default is 'auto')
+        scope : list[str]
+            The access scope required.  Omit to imply "read" and "activity:read"
+            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+            'activity:read_all', 'activity:write'.
+        state : str
+            An arbitrary variable that will be returned to your application in the redirect URI.
 
-        :param redirect_uri: The URL that Strava will redirect to after successful (or failed) authorization.
-        :type redirect_uri: str
-
-        :param approval_prompt: Whether to prompt for approval even if approval already granted to app.
-                                Choices are 'auto' or 'force'.  (Default is 'auto')
-        :type approval_prompt: str
-
-        :param scope: The access scope required.  Omit to imply "read" and "activity:read"
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
-                      'activity:read_all', 'activity:write'.
-        :type scope: list[str]
-
-        :param state: An arbitrary variable that will be returned to your application in the redirect URI.
-        :type state: str
-
-        :return: The URL to use for authorization link.
-        :rtype: str
+        Returns
+        -------
+        string : The URL string to use for authorization link.
         """
         return self.protocol.authorization_url(client_id=client_id,
                                                redirect_uri=redirect_uri,
@@ -131,18 +125,19 @@ class Client(object):
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
         for a short-lived access token and a refresh token (used to obtain the next access token later on).
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        client_secret : str
+            The developer client secret
+        code : str
+            The temporary authorization code
 
-        :param client_secret: The developer client secret
-        :type client_secret: str
-
-        :param code: The temporary authorization code
-        :type code: str
-
-        :return: Dictionary containing the access_token, refresh_token
-                 and expires_at (number of seconds since Epoch when the provided access token will expire)
-        :rtype: dict
+        Returns
+        -------
+        Dictionary containing the access_token, refresh_token
+        and expires_at (number of seconds since Epoch when the provided access token will expire)
         """
         return self.protocol.exchange_code_for_token(client_id=client_id,
                                                      client_secret=client_secret,
@@ -153,18 +148,19 @@ class Client(object):
         Exchanges the previous refresh token for a short-lived access token and a new
         refresh token (used to obtain the next access token later on).
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        client_secret : str
+            The developer client secret
+        refresh_token : str
+            The refresh token obtained from a previous authorization request
 
-        :param client_secret: The developer client secret
-        :type client_secret: str
-
-        :param refresh_token: The refresh token obtained from a previous authorization request
-        :type refresh_token: str
-
-        :return: Dictionary containing the access_token, refresh_token
-                 and expires_at (number of seconds since Epoch when the provided access token will expire)
-        :rtype: dict
+        Returns
+        -------
+        Dictionary containing the access_token, refresh_token
+        and expires_at (number of seconds since Epoch when the provided access token will expire)
         """
         return self.protocol.refresh_access_token(client_id=client_id,
                                                   client_secret=client_secret,
@@ -183,10 +179,15 @@ class Client(object):
         """
         Convert the specified datetime value to a unix epoch timestamp (seconds since epoch).
 
-        :param activity_datetime: A string which may contain tzinfo (offset) or a datetime object (naive datetime will
-                                    be considered to be UTC).
-        :return: Epoch timestamp.
-        :rtype: int
+        Parameters
+        ----------
+        activity_datetime : str
+            A string which may contain tzinfo (offset) or a datetime object (naive datetime will
+            be considered to be UTC).
+
+        Returns
+        -------
+        Epoch timestamp in int format.
         """
         if isinstance(activity_datetime, str):
             activity_datetime = arrow.get(activity_datetime).datetime

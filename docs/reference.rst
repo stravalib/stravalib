@@ -12,3 +12,4 @@ Welcome to the API documentation for the stravalib package.
 
   Client <reference/client>
   Activity Uploader <reference/activityUploader>
+  Attributes <reference/attributes>
