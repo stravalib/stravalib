@@ -40,10 +40,10 @@ jobs:
         run: python3 -m pip install -r ./requirements.txt
 
       - run: make docs -B
-# Only deploy from gh-pages
+# Only deploy when commit is on master
       - name: Deploy documentation to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/docs-build' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
