@@ -1,7 +1,7 @@
 ============
 Client
 ============
-.. currentmodule:: stravalib
+.. currentmodule:: stravalib.client
 
 The ``Client`` object class for interacting with the Strava v3 API. While
 you can create this object without an access token, you will likely want
@@ -118,4 +118,20 @@ Subscription related methods
    Client.handle_subscription_update
    Client.list_subscriptions
    Client.delete_subscription
+
+
+Activity Uploader Constructor
+-----------------------------
+.. autosummary::
+   :toctree: api/
+
+   ActivityUploader
+
+ActivityUploader methods
+---------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   ActivityUploader.update_from_response
 
