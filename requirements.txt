@@ -3,3 +3,10 @@ requests>=2.0,<3.0dev
 units
 pytz
 six
+
+# testing
+nose
+
+# For docs build
+sphinx_copybutton
+pydata_sphinx_theme

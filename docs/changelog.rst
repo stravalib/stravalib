@@ -1,7 +1,11 @@
-Changes
-=======
+Change Log
+==========
 
 .. contents::
+
+Unreleased
+----------
+* Overhaul of documentation, fix links and CI build (@lwasser, #222)
 
 0.10.4
 ------
@@ -129,7 +133,7 @@ Changes
 
 0.2.2
 -----
-* Fixed the _resolve_url to not assume running on **nix system.
+* Fixed the _resolve_url to not assume running on **nix** system.
 
 0.2.1
 -----

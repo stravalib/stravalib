@@ -1,4 +1,6 @@
 """
+Model
+==============
 Entity classes for representing the various Strava datatypes.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
@@ -244,8 +246,8 @@ class Shoe(Gear):
     Represents an athlete's pair of shoes.
     """
     nickname = Attribute(six.text_type, (DETAILED,))  #: Nickname for the shoe.
-    converted_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters) # Distance on the shoe (meters)
-    retired = Attribute(bool, (SUMMARY, DETAILED))
+    converted_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Distance on the shoe (meters)
+    retired = Attribute(bool, (SUMMARY, DETAILED))  #: Is the shoe retired?
 
 
 class ActivityTotals(BaseEntity):
@@ -463,7 +465,7 @@ class ActivityPhoto(LoadableEntity):
     athlete_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of athlete
     activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
     activity_name = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: Name of activity.
-    ref = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: ref eg. "http://instagram.com/p/eAvA-tir85/"
+    ref = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: ref eg. "https://www.instagram.com/accounts/login/"
 
     uid = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id for instagram photo
     unique_id = Attribute(six.text_type, (META, SUMMARY, DETAILED))  #: unique id for strava photos
@@ -1060,7 +1062,7 @@ class PowerActivityZone(BaseActivityZone):
     Activity zone for power.
     """
     # these 2 below were removed according to June 3, 2014 update @
-    #    http://strava.github.io/api/v3/changelog/
+    # https://developers.strava.com/docs/changelog/
     bike_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)  #: Weight of bike being used (factored into power calculations)
     athlete_weight = Attribute(float, (SUMMARY, DETAILED), units=uh.kgs)  #: Weight of athlete (factored into power calculations)
 
@@ -1116,12 +1118,12 @@ class Route(LoadableEntity):
     timestamp = Attribute(int, (SUMMARY, DETAILED))  #: Unix timestamp when route was last updated.
     # segments = NOT IMPLEMENTED
 
-
+# OLD URL - http://strava.github.io/api/partner/v3/events/
 class Subscription(LoadableEntity):
     """
     Represents a Webhook Event Subscription.
 
-    http://strava.github.io/api/partner/v3/events/
+    https://developers.strava.com/docs/reference/#api-models-SummaryAthlete
     """
     OBJECT_TYPE_ACTIVITY = 'activity'
     ASPECT_TYPE_CREATE = 'create'
