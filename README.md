@@ -1,8 +1,8 @@
-# stravalib
+# Welcome to stravalib
 
 **NOTE: This library could really use someone to help with (or take over) maintenance. Please reach out to hans@xmpl.org if you are interested in taking project over.**
 
-The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
+The **stravalib** project aims to provide a simple API for interacting with Strava v3 web services, in particular
 abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
 and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
 
@@ -18,7 +18,7 @@ See the [online documentation](http://pythonhosted.org/stravalib/) for more comp
 
 The package is available on PyPI to be installed using easy_install or pip:
 
-``` none
+```bash
 shell$ pip install stravalib
 ```
 
@@ -27,6 +27,36 @@ shell$ pip install stravalib
 Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will
 list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can
 download it and explore Strava content in your favorite python REPL.
+
+## How to Contribute to Stravalib
+
+Get Started!
+============
+
+Ready to contribute? Here's how to set up Stravalib for local development.
+
+1. Fork the repository on GitHub
+--------------------------------
+
+To create your own copy of the repository on GitHub, navigate to the
+`hozn/stravalib <https://github.com/hozn/stravalib>`_ repository
+and click the **Fork** button in the top-right corner of the page.
+
+2. Clone your fork locally
+--------------------------
+
+Use ``git clone`` to get a local copy of your stravalib repository on your
+local filesystem::
+
+    $ git clone git@github.com:your_name_here/stravalib.git
+    $ cd stravalib/
+
+3. Set up your fork for local development
+-----------------------------------------
+The docs for this library are created using `sphinx`.
+To build the documentation, use the command::
+
+    $ make html
 
 ## Building from sources
 
@@ -52,6 +82,8 @@ if you use Python3.
 
 To run **integration** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
 In *test.ini* provide your *access_token* and *activity_id*
+
+
 
 ## Basic Usage
 
@@ -81,14 +113,14 @@ expires_at = token_response['expires_at']
 
 # Now store that short-lived access token somewhere (a database?)
 client.access_token = access_token
-# You must also store the refresh token to be used later on to obtain another valid access token 
+# You must also store the refresh token to be used later on to obtain another valid access token
 # in case the current is already expired
 client.refresh_token = refresh_token
 
 # An access_token is only valid for 6 hours, store expires_at somewhere and
 # check it before making an API call.
 client.token_expires_at = expires_at
- 
+
 athlete = client.get_athlete()
 print("For {id}, I now have an access token {token}".format(id=athlete.id, token=access_token))
 

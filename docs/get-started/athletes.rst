@@ -3,7 +3,8 @@
 Athletes
 ********
 
-This page is designed to mirror the structure of the documentation at http://strava.github.io/api/v3/athlete/ and
+This page is designed to mirror the structure of the documentation at
+https://developers.strava.com/docs/reference/#api-Athletes and
 describe the methods for working with athlete data in the Strava API.
 
 Retrieve Current Athlete
@@ -26,7 +27,7 @@ with an athlete ID.::
 
    athlete = client.get_athlete(227615)
    print("Hello, {}".format(athlete.firstname))
-   
+
 See the :class:`stravalib.model.Athlete` class for details.  only summary-level subset of attributes is returned
 when fetching information about another athlete.
 
@@ -44,7 +45,7 @@ depending on whether the friends for another or the current athlete (respectivel
    johns_friends = client.get_athlete_friends(227615)
    for a in johns_friends:
       print("{} is john's friend.".format(a.firstname))
-   
+
    # Now do the same for the currently authenticated athlete
    friends = client.get_athlete_friends()
    for a in friends:
@@ -58,12 +59,12 @@ Listing followers works basically the same as listing friends, and is effectivel
    johns_followers = client.get_athlete_followers(227615)
    for a in johns_followers:
       print("{} is following john.".format(a.firstname))
-   
+
    # Now do the same for the currently authenticated athlete
    friends = client.get_athlete_followers()
    for a in followers:
       print("{} is following you.".format(a.firstname))
- 
+
 
 Update Current Athlete
 ======================

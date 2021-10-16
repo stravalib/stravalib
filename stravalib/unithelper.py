@@ -1,4 +1,6 @@
 """
+Unit Helper
+==============
 Helpers for converting Strava's units to something more practical.
 
 These are really just thin wrappers to the brilliant 'units' python library.
@@ -29,10 +31,16 @@ def c2f(celsius):
     """
     Convert Celsius to Fahrenheit.
 
-    :param celsius: Temperature in Celsius.
-    :type celcius: float
-    :return: Temperature in Fahrenheit.
-    :rtype: float
+    Parameters
+    ----------
+    celsius :
+        Temperature in Celsius.
+
+    Returns
+    -------
+    float
+        Temperature in Fahrenheit.
+
     """
     return (9.0 / 5.0) * celsius + 32
 
@@ -40,14 +48,21 @@ def c2f(celsius):
 def timedelta_to_seconds(td):
     """
     Converts a timedelta to total seconds, including support for microseconds.
-
+    
     Return value is (potentially truncated) integer.
-
+    
     (This is built-in in Python >= 2.7, but we are still supporting Python 2.6 here.)
-    :param td: The timedelta object
-    :type td: datetime.timedelta
-    :return: The number of total seconds in the timedelta object.
-    :rtype: int
+
+    Parameters
+    ----------
+    td : datetime.timedelta
+        The timedelta object
+
+    Returns
+    -------
+    int
+        The number of total seconds in the timedelta object.
+
     """
     if td is None:
         return None

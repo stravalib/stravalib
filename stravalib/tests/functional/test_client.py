@@ -338,7 +338,7 @@ class AuthenticatedAthleteTest(FunctionalTestBase):
 class AthleteStatsTest(FunctionalTestBase):
     """
     Tests the functionality for collecting athlete statistics
-    http://strava.github.io/api/v3/athlete/#stats
+    https://developers.strava.com/docs/reference/#api-Athletes-getStats
     """
     def test_basic_get_from_client(self):
         stats = self.client.get_athlete_stats()

@@ -1,4 +1,6 @@
 """
+Protocol
+==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
 from __future__ import division, absolute_import, print_function, unicode_literals
@@ -207,7 +209,7 @@ class ApiV3(object):
 
         raw = requester(url, params=params)
         # Rate limits are taken from HTTP response headers
-        # https://strava.github.io/api/#rate-limiting
+        # https://developers.strava.com/docs/rate-limits/
         self.rate_limiter(raw.headers)
 
         if check_for_errors:
