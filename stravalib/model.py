@@ -1,5 +1,5 @@
 """
-Client
+Model
 ==============
 Entity classes for representing the various Strava datatypes.
 """

@@ -3,6 +3,7 @@
 API Reference
 =============
 Welcome to the API documentation for the stravalib package.
+Below the main modules are listed.
 
 .. warning::
    Note that only public facing methods are documented here.
@@ -11,5 +12,9 @@ Welcome to the API documentation for the stravalib package.
   :maxdepth: 2
 
   Client <reference/client>
-  Activity Uploader <reference/activityUploader>
+  Model <reference/model>
   Attributes <reference/attributes>
+  Exceptions <reference/exceptions>
+  Unit helper <reference/unithelper>
+  Protocol <reference/protocol>
+  Utility Submodule <reference/utilities>
