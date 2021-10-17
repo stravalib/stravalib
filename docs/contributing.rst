@@ -79,6 +79,10 @@ You are now ready to run the test suite. To run tests on python 3.x run ::
 
     $ nosetest
 
+NOTE - there may be some changes coming to the test suite infrastructure. For now the
+steps above work but you may encounter some issues running the test suite.
+More to come ...
+
 Documentation
 ~~~~~~~~~~~~~~
 The docs for this library are created using `sphinx`.
@@ -86,8 +90,7 @@ To build the documentation, use the command::
 
     $ make docs -B
 
+You can then open up the documentation locally in a web browser by opening the following
+file in a web browser on your computer:
 
-
-
-Work on and build documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+your-path-to-stravalib/stravalibe/docs/_build/html/index.html
