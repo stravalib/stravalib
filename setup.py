@@ -13,7 +13,7 @@ def parse_requirements(filename):
     return [line for line in lineiter if line and not line.startswith("#")]
 
 
-news = os.path.join(os.path.dirname(__file__), 'docs', 'news.rst')
+news = os.path.join(os.path.dirname(__file__), 'docs', 'changelog.rst')
 news = open(news).read()
 parts = re.split(r'([0-9\.]+)\s*\n\r?-+\n\r?', news)
 found_news = ''

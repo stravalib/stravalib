@@ -2,7 +2,7 @@
 
 **NOTE: This library could really use someone to help with (or take over) maintenance. Please reach out to hans@xmpl.org if you are interested in taking project over.**
 
-The stravalib project aims to provide a simple API for interacting with Strava v3 web services, in particular
+The **stravalib** project aims to provide a simple API for interacting with Strava v3 web services, in particular
 abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
 and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
 
@@ -18,7 +18,7 @@ See the [online documentation](http://pythonhosted.org/stravalib/) for more comp
 
 The package is available on PyPI to be installed using easy_install or pip:
 
-``` none
+```bash
 shell$ pip install stravalib
 ```
 
@@ -39,13 +39,13 @@ Ready to contribute? Here's how to set up Stravalib for local development.
 --------------------------------
 
 To create your own copy of the repository on GitHub, navigate to the
-`earthlab/earthpy <https://github.com/hozn/stravalib>`_ repository
+`hozn/stravalib <https://github.com/hozn/stravalib>`_ repository
 and click the **Fork** button in the top-right corner of the page.
 
 2. Clone your fork locally
 --------------------------
 
-Use ``git clone`` to get a local copy of your EarthPy repository on your
+Use ``git clone`` to get a local copy of your stravalib repository on your
 local filesystem::
 
     $ git clone git@github.com:your_name_here/stravalib.git

@@ -10,7 +10,6 @@ Welcome to Stravalib!
    Contributing <contributing>
    Change Log <changelog>
    API Reference Summary <reference>
-   DELETE ME API Reference <api/stravalib>
 
 **stravalib** is a python library for interacting with
 `version 3 <https://developers.strava.com/docs/reference/>`_ of the
