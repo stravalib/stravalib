@@ -864,7 +864,7 @@ class Activity(LoadableEntity):
 
     laps = EntityCollection(ActivityLap, (SUMMARY, DETAILED))  #: :class:`list` of :class:`stravalib.model.ActivityLap` objects.
     
-    hide_from_home = Attribute(bool, (SUMMARY, DETAILED)) #: (undocumented) Whether an activity is muted (hidden from Home and Club feeds).
+    hide_from_home = Attribute(bool, (SUMMARY, DETAILED)) #: Whether an activity is muted (hidden from Home and Club feeds).
 
     @property
     def comments(self):
