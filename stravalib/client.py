@@ -1378,7 +1378,8 @@ class Client(object):
         """
         Gets a running race for a given identifier.
 
-        https://developers.strava.com/docs/reference/#api-models-RunningRace
+        TODO: This has been deprecated by strava as of Nov 1 2021. See
+        https://developers.strava.com/docs/changelog/
 
         :param race_id: id for the race
 
@@ -1391,8 +1392,8 @@ class Client(object):
     def get_running_races(self, year=None):
         """
         Gets a running races for a given year.
-
-        https://developers.strava.com/docs/reference/#api-RunningRaces-getRunningRaces
+        TODO: this has been deprecated by strava as of Nov 1 2021 - See
+        https://developers.strava.com/docs/changelog/
 
         :param year: year for the races (default current)
 
