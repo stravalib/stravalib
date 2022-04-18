@@ -6,7 +6,7 @@ The **stravalib** project aims to provide a simple API for interacting with Stra
 abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
 and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
 
-See the [online documentation](http://pythonhosted.org/stravalib/) for more comprehensive documentation.
+See the [online documentation](https://stravalib.readthedocs.io/) for more comprehensive documentation.
 
 ## Dependencies
 
@@ -201,4 +201,4 @@ num_value = unithelper.miles(activity.distance).num
 
 ## Still reading?
 
-The [published sphinx documentation](http://pythonhosted.org/stravalib/) provides much more.
+The [published sphinx documentation](https://stravalib.readthedocs.io/) provides much more.
