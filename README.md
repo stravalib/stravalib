@@ -56,7 +56,7 @@ local filesystem::
 The docs for this library are created using `sphinx`.
 To build the documentation, use the command::
 
-    $ make html
+    $ make docs -B
 
 ## Building from sources
 

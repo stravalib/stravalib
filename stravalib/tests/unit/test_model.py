@@ -19,16 +19,16 @@ class ModelTest(TestBase):
              }
         a.from_dict(d)
 
-        self.assertEquals(3, len(a.clubs))
-        self.assertEquals('Team Roaring Mouse', a.clubs[0].name)
+        self.assertEqual(3, len(a.clubs))
+        self.assertEqual('Team Roaring Mouse', a.clubs[0].name)
 
     def test_speed_units(self):
         a = model.Activity()
 
         a.max_speed = 1000  # m/s
         a.average_speed = 1000  # m/s
-        self.assertEquals(3600.0, float(uh.kph(a.max_speed)))
-        self.assertEquals(3600.0, float(uh.kph(a.average_speed)))
+        self.assertEqual(3600.0, float(uh.kph(a.max_speed)))
+        self.assertEqual(3600.0, float(uh.kph(a.average_speed)))
 
         a.max_speed = uh.mph(1.0)
         # print repr(a.max_speed)
@@ -47,7 +47,7 @@ class ModelTest(TestBase):
         # Gear
         g = model.Gear()
         g.distance = 1000
-        self.assertEquals(1.0, float(uh.kilometers(g.distance)))
+        self.assertEqual(1.0, float(uh.kilometers(g.distance)))
 
         # Metric Split
         split = model.Split()
@@ -55,8 +55,8 @@ class ModelTest(TestBase):
         split.elevation_difference = 1000  # meters
         self.assertIsInstance(split.distance, Quantity)
         self.assertIsInstance(split.elevation_difference, Quantity)
-        self.assertEquals(1.0, float(uh.kilometers(split.distance)))
-        self.assertEquals(1.0, float(uh.kilometers(split.elevation_difference)))
+        self.assertEqual(1.0, float(uh.kilometers(split.distance)))
+        self.assertEqual(1.0, float(uh.kilometers(split.elevation_difference)))
         split = None
 
         # Segment
@@ -67,9 +67,9 @@ class ModelTest(TestBase):
         self.assertIsInstance(s.distance, Quantity)
         self.assertIsInstance(s.elevation_high, Quantity)
         self.assertIsInstance(s.elevation_low, Quantity)
-        self.assertEquals(1.0, float(uh.kilometers(s.distance)))
-        self.assertEquals(2.0, float(uh.kilometers(s.elevation_high)))
-        self.assertEquals(1.0, float(uh.kilometers(s.elevation_low)))
+        self.assertEqual(1.0, float(uh.kilometers(s.distance)))
+        self.assertEqual(2.0, float(uh.kilometers(s.elevation_high)))
+        self.assertEqual(1.0, float(uh.kilometers(s.elevation_low)))
 
         # Activity
         a = model.Activity()
@@ -77,8 +77,8 @@ class ModelTest(TestBase):
         a.total_elevation_gain = 1000  # m
         self.assertIsInstance(a.distance, Quantity)
         self.assertIsInstance(a.total_elevation_gain, Quantity)
-        self.assertEquals(1.0, float(uh.kilometers(a.distance)))
-        self.assertEquals(1.0, float(uh.kilometers(a.total_elevation_gain)))
+        self.assertEqual(1.0, float(uh.kilometers(a.distance)))
+        self.assertEqual(1.0, float(uh.kilometers(a.total_elevation_gain)))
 
     def test_weight_units(self):
         """
