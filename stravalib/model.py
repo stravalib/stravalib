@@ -232,6 +232,9 @@ class Bike(Gear):
     Represents an athlete's bike.
     """
     frame_type = Attribute(int, (DETAILED,))  #: (detailed-only) Type of bike frame.
+    nickname = Attribute(six.text_type, (DETAILED,))  #: Nickname for the bike.
+    converted_distance = Attribute(float, (SUMMARY, DETAILED), units=uh.meters)  #: Distance on the bike (meters)
+    retired = Attribute(bool, (SUMMARY, DETAILED))  #: Is the bike retired?
 
 
 class Shoe(Gear):
