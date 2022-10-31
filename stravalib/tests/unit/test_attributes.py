@@ -1,8 +1,10 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 
+import pytz
 import six
 
-from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute, LocationAttribute, LatLon
+from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute, LocationAttribute, LatLon, \
+    TimezoneAttribute
 from stravalib.model import Athlete, SubscriptionCallback
 from stravalib.tests import TestBase
 
@@ -54,6 +56,20 @@ class LocationAttributeTest(TestBase):
     def test_without_location(self):
         location = LocationAttribute((SUMMARY, DETAILED))
         self.assertIsNone(location.unmarshal([]))
+
+
+class TimezoneAttributeTest(TestBase):
+    def test_with_correct_timezone(self):
+        timezone = TimezoneAttribute((SUMMARY, DETAILED))
+        self.assertEqual(
+            pytz.timezone('Europe/Amsterdam'),
+            timezone.unmarshal('(GMT+01:00) Europe/Amsterdam')
+        )
+
+    def test_with_incorrect_timezone(self):
+        timezone = TimezoneAttribute((SUMMARY, DETAILED))
+        # These appear sometimes from Strava
+        self.assertIsNone(timezone.unmarshal('(GMT+00:00) Factory'))
 
 
 class ChoicesAttributeTest(TestBase):
