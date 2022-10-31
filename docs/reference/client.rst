@@ -94,8 +94,6 @@ Stream related methods
    Client.get_activity_streams
    Client.get_effort_streams
    Client.get_segment_streams
-   Client.get_running_race
-   Client.get_running_races
 
 Route related methods
 ----------------------
