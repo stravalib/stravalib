@@ -1,4 +1,4 @@
-name: Build Documentation
+name: Build Test and Documentation
 # Build on all branches
 on:
   push:
@@ -11,12 +11,14 @@ on:
 jobs:
   build-doc:
     runs-on: ubuntu-latest
+    env:
+      PYTHON-VERSION: "3.8"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: ${{ env.PYTHON-VERSION }}
       - name: Upgrade pip
         run: |
           # install pip=>20.1 to use "pip cache dir"
@@ -26,12 +28,12 @@ jobs:
         run: echo "::set-output name=dir::$(pip cache dir)"
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-py${{ env.PYTHON-VERSION }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-pip-py${{ env.PYTHON-VERSION }}
 
       - name: Install dependencies
         run: python3 -m pip install -r ./requirements.txt
@@ -54,12 +56,12 @@ jobs:
         run: echo "::set-output name=dir::$(pip cache dir)"
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-py${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-pip-py${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
