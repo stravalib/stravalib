@@ -49,7 +49,7 @@ setup(
     include_package_data=True,
     package_data={'stravalib': ['tests/resources/*']},
     install_requires=reqs,
-    tests_require=['nose>=1.0.3'],
+    tests_require=['pytest'],
     test_suite='stravalib.tests',
     classifiers=[
         'Development Status :: 4 - Beta',

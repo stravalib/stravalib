@@ -48,12 +48,12 @@ Finally install the dependencies and the stravalib package in development mode::
 
 Test suite
 ~~~~~~~~~~~
-Tests for stravalib are developed using ``nose``.
-Currently the test suite is setup to actually hit the strava api.
+Tests for stravalib are developed using ``pytest``.
+Currently, the functional/integration test suite is set up to actually hit the strava api.
 You will thus need an app setup in your Strava account to run the test suite.
 We recommend that you create a dummy account for this with a single activity to avoid
 any chances of your data being unintentionally modified. Once you have the app setup
-and a valid access_token for an account with atleast one activity, follow the steps
+and a valid access_token for an account with at least one activity, follow the steps
 below.
 
 1. Rename the file stravalib/stravalib/tests/test.ini-example --> test.ini
@@ -74,7 +74,7 @@ a dummy account to ensure you aren't modifying your actual account data.
 
 You are now ready to run the test suite. To run tests on python 3.x run ::
 
-    $ nosetest
+    $ pytest
 
 NOTE - there may be some changes coming to the test suite infrastructure. For now the
 steps above work but you may encounter some issues running the test suite.
