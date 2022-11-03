@@ -32,8 +32,12 @@ class ClientAuthorizationUrlTest(TestBase):
         url = self.client.authorization_url(1, "www.example.com", scope="activity:write")
         self.assertEqual(self.get_url_param(url, "scope"), "activity:write")
         # Check also with two params
-        url = self.client.authorization_url(1, "www.example.com", scope="activity:write,activity:read_all")
-        self.assertEqual(self.get_url_param(url, "scope"), "write,view_private")
+        url = self.client.authorization_url(
+            1,
+            "www.example.com",
+            scope=["activity:write", "activity:read_all"]
+        )
+        self.assertEqual(self.get_url_param(url, "scope"), "activity:write,activity:read_all")
 
     def test_scope_may_be_list(self):
         url = self.client.authorization_url(1, "www.example.com", scope=["activity:write", "activity:read_all"])
