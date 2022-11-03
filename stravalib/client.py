@@ -106,7 +106,7 @@ class Client(object):
             Choices are 'auto' or 'force'.  (Default is 'auto')
         scope : list[str]
             The access scope required.  Omit to imply "read" and "activity:read"
-            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
             'activity:read_all', 'activity:write'.
         state : str
             An arbitrary variable that will be returned to your application in the redirect URI.

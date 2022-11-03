@@ -66,7 +66,7 @@ class ApiV3(object):
         :type approval_prompt: str
 
         :param scope: The access scope required.  Omit to imply "read" and "activity:read"
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
                       'activity:read_all', 'activity:write'.
         :type scope: list[str]
 
