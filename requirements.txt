@@ -6,6 +6,7 @@ six
 
 # testing
 pytest
+responses
 
 # For docs build
 sphinx_copybutton
