@@ -1,6 +1,6 @@
 import pytest
 
-from unit.strava_api_stub import StravaAPIMock
+from stravalib.tests.unit.strava_api_stub import StravaAPIMock
 
 
 @pytest.fixture

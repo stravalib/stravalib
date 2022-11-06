@@ -1,21 +1,19 @@
 import json
 import logging
 import os
-from functools import cache, wraps
+from functools import wraps, lru_cache
 from typing import Dict, Any, Callable
 
-import pytest
 import requests
 from responses import BaseResponse, RequestsMock
 
-from protocol import ApiV3
-from stravalib import Client
+from stravalib.protocol import ApiV3
 from stravalib.tests import RESOURCES_DIR
 
 LOGGER = logging.getLogger(__name__)
 
 
-@cache
+@lru_cache(maxsize=1)
 def _get_strava_api_paths():
     use_local = False
 
