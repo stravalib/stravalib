@@ -75,4 +75,4 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-          pytest stravalib/tests/unit
+          pytest stravalib/tests/unit stravalib/tests/integration
