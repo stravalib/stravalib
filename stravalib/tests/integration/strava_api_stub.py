@@ -47,16 +47,37 @@ def _api_method_adapter(api_method: Callable) -> Callable:
         relative_url = args[0]
         # match url with swagger path
         path_info = _get_strava_api_paths()[relative_url]
-        # find default response in swagger
-        response = path_info['get']['responses']['200']['examples']['application/json']
-        # update fields if necessary
-        response.update(response_update)
+        # find default response in swagger if no json response is provided in the kwargs
+        if 'json' not in kwargs:
+            http_method = api_method.args[0].lower()
+            response_status = kwargs.get('status', 200)
+
+            try:
+                method_responses = path_info[http_method]
+            except KeyError:
+                raise ValueError(f'Endpoint {relative_url} has no support for method {http_method}')
+
+            try:
+                response = method_responses['responses'][str(response_status)]['examples']['application/json']
+            except KeyError:
+                LOGGER.warning(
+                    f'There are no known example responses for HTTP status {response_status}, '
+                    f'using empty response. You may want to provide a full json response '
+                    f'using the "json" keyword argument.'
+                )
+                response = {}
+
+            # update fields if necessary
+            if response_update is not None:
+                response.update(response_update)
+
+            kwargs.update({'json': response})
+
         # replace named parameters in url by wildcards
         matching_url = re.sub(r'\{\w+\}', r'\\w+', relative_url)
         return api_method(
-            re.compile(ApiV3().resolve_url(matching_url)),
+            re.compile(ApiV3().resolve_url(matching_url)),  # replaces url from args[0]
             *args[1:],
-            json=response,
             **kwargs
         )
     return method_wrapper
