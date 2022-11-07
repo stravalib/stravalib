@@ -14,6 +14,7 @@ from weakref import WeakKeyDictionary, WeakValueDictionary
 
 import arrow
 import pytz
+from pytz.exceptions import UnknownTimeZoneError
 from units.quantity import Quantity
 import six
 
@@ -206,7 +207,11 @@ class TimezoneAttribute(Attribute):
             else:
                 # America/Los_Angeles
                 tzname = v
-            v = pytz.timezone(tzname)
+            try:
+                v = pytz.timezone(tzname)
+            except UnknownTimeZoneError as e:
+                self.log.warning(f'Encountered unknown time zone {tzname}, returning None')
+                v = None
         return v
 
     def marshal(self, v):

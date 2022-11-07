@@ -48,8 +48,6 @@
       ~Client.get_route
       ~Client.get_route_streams
       ~Client.get_routes
-      ~Client.get_running_race
-      ~Client.get_running_races
       ~Client.get_segment
       ~Client.get_segment_effort
       ~Client.get_segment_efforts
