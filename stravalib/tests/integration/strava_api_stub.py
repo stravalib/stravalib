@@ -86,7 +86,7 @@ def _api_method_adapter(api_method: Callable) -> Callable:
 class StravaAPIMock(RequestsMock):
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
-        if name in ['add', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put']:
+        if name in ['delete', 'get', 'head', 'options', 'patch', 'post', 'put']:
             return _api_method_adapter(attr)
         else:
             return attr
