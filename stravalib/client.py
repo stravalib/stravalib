@@ -512,7 +512,7 @@ class Client(object):
 
         Will be detail-level if owned by authenticated user; otherwise summary-level.
 
-        https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
+        https://developers.strava.com/docs/reference/#api-Activities-getActivityById
 
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
@@ -522,6 +522,10 @@ class Client(object):
         :type include_all_efforts: bool
 
         :rtype: :class:`stravalib.model.Activity`
+
+        TODO: contrary to the Strava API documentation, this endpoint _always_
+        returns all segment efforts when the include_all_efforts parameter is provided,
+        regardless its value
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id,
                                 include_all_efforts=include_all_efforts)
