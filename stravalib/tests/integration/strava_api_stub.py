@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from functools import wraps, lru_cache
 from typing import Dict, Any, Callable
 
@@ -45,14 +46,18 @@ def _api_method_adapter(api_method: Callable) -> Callable:
         # get url from args/kwargs
         relative_url = args[0]
         # match url with swagger path
-        # TODO match parameterized URLs
         path_info = _get_strava_api_paths()[relative_url]
         # find default response in swagger
         response = path_info['get']['responses']['200']['examples']['application/json']
         # update fields if necessary
         response.update(response_update)
+        # replace named parameters in url by wildcards
+        matching_url = re.sub(r'\{\w+\}', r'\\w+', relative_url)
         return api_method(
-            ApiV3().resolve_url(relative_url), *args[1:], json=response, **kwargs
+            re.compile(ApiV3().resolve_url(matching_url)),
+            *args[1:],
+            json=response,
+            **kwargs
         )
     return method_wrapper
 
