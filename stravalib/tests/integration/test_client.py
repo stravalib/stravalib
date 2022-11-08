@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from responses import matchers
 
 from stravalib.tests import RESOURCES_DIR
 
@@ -54,3 +55,42 @@ def test_upload_activity(mock_strava_api, client):
         activity = uploader.wait()
         assert uploader.is_complete
         assert activity.id == test_activity_id
+
+
+@pytest.mark.parametrize(
+    'limit,n_raw_results,expected_n_activities',
+    (
+        (None, 10, 10),
+        (None, 0, 0),
+        (10, 10, 10),
+        (10, 20, 10),
+        (10, 1, 1),
+        (10, 0, 0)
+    )
+)
+def test_get_activities(mock_strava_api, client, limit, n_raw_results, expected_n_activities):
+    mock_strava_api.get(
+        '/athlete/activities',
+        response_update={'name': 'test_activity'},
+        n_results=n_raw_results
+    )
+    kwargs = {'limit': limit} if limit is not None else {}
+    activity_list = list(client.get_activities(**kwargs))
+    assert len(activity_list) == expected_n_activities
+    if expected_n_activities > 0:
+        assert activity_list[0].name == 'test_activity'
+
+
+def test_get_activities_paged(mock_strava_api, client):
+    for i in range(1, 4):
+        params = {'page': i, 'per_page': 200}
+        mock_strava_api.get(
+            '/athlete/activities',
+            response_update={'id': i},
+            n_results=(200 if i < 3 else 100),
+            match=[matchers.query_param_matcher(params)]
+        )
+    activity_list = list(client.get_activities())
+    assert len(activity_list) == 500
+    assert activity_list[0].id == 1
+    assert activity_list[400].id == 3

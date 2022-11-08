@@ -3,7 +3,7 @@ import logging
 import os
 import re
 from functools import wraps, lru_cache
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, Optional
 
 import requests
 from responses import BaseResponse, RequestsMock
@@ -41,10 +41,21 @@ def _get_strava_api_paths():
 def _api_method_adapter(api_method: Callable) -> Callable:
     @wraps(api_method)
     def method_wrapper(
-            *args, response_update: Dict[str, Any] = None, **kwargs
+            *args,
+            response_update: Dict[str, Any] = None,
+            n_results: Optional[int] = None,
+            **kwargs
     ) -> BaseResponse:
         # get url from args/kwargs
-        relative_url = args[0]
+        try:
+            relative_url = args[0]
+        except IndexError:
+            try:
+                relative_url = kwargs.pop('url')
+            except KeyError:
+                raise ValueError(
+                    'Expecting url either as first positional argument or keyword argument'
+                )
         # match url with swagger path
         path_info = _get_strava_api_paths()[relative_url]
         # find default response in swagger if no json response is provided in the kwargs
@@ -59,6 +70,9 @@ def _api_method_adapter(api_method: Callable) -> Callable:
 
             try:
                 response = method_responses['responses'][str(response_status)]['examples']['application/json']
+                if isinstance(response, list) and n_results is not None:
+                    # make sure response has n_results items
+                    response = (response * (n_results // len(response) + 1))[:n_results]
             except KeyError:
                 LOGGER.warning(
                     f'There are no known example responses for HTTP status {response_status}, '
@@ -69,7 +83,10 @@ def _api_method_adapter(api_method: Callable) -> Callable:
 
             # update fields if necessary
             if response_update is not None:
-                response.update(response_update)
+                if isinstance(response, list):
+                    response = [{**item, **response_update} for item in response]
+                else:
+                    response.update(response_update)
 
             kwargs.update({'json': response})
 
