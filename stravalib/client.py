@@ -1594,7 +1594,7 @@ class BatchedResultsIterator(object):
 
     def _fill_buffer(self):
         """
-        Fills the internal size-50 buffer from Strava API.
+        Fills the internal buffer from Strava API.
         """
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:
