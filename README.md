@@ -69,16 +69,25 @@ shell$ python setup.py install
 ```
 will build and install *stravalib* in your *pip* package repository.
 
-To execute **unit tests** you will need to run
+To execute **unit - or integration tests** you will need to run
 ```
-shell$ pytest stravalib/tests/unit
+shell$ pytest stravalib/tests/unit stravalib/tests/integration
 ```
 
-To run **integration** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
+To run **end-to-end** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
 In *test.ini* provide your *access_token* and *activity_id*. Now you can run
 ```
 shell$ pytest stravalib/tests/functional
 ```
+
+### Testing
+
+Please add tests that cover your changes, these will greatly reduce the effort of reviewing
+and merging your Pull Requests. In case you need it, there's a pytest fixture
+`mock_strava_api` that is based on `RequestsMock` from the `responses` package. It prevents
+requests being made to the actual Strava API and instead registers responses that are
+based on examples from the published Strava API documentation. Example usages of this
+fixture can be found in the `stravalib.tests.integration` package.
 
 
 ## Basic Usage

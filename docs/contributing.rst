@@ -49,7 +49,7 @@ Finally install the dependencies and the stravalib package in development mode::
 Test suite
 ~~~~~~~~~~~
 Tests for stravalib are developed using ``pytest``.
-Currently, the functional/integration test suite is set up to actually hit the strava api.
+Currently, the functional (end-to-end) test suite is set up to actually hit the strava api.
 You will thus need an app setup in your Strava account to run the test suite.
 We recommend that you create a dummy account for this with a single activity to avoid
 any chances of your data being unintentionally modified. Once you have the app setup
@@ -76,9 +76,12 @@ You are now ready to run the test suite. To run tests on python 3.x run ::
 
     $ pytest
 
-NOTE - there may be some changes coming to the test suite infrastructure. For now the
-steps above work but you may encounter some issues running the test suite.
-More to come ...
+For integration tests that should be run independently from Strava, there's a pytest
+fixture :func:`~stravalib.tests.integration.conftest.mock_strava_api`
+that is based on :class:`responses.RequestsMock`.
+It prevents requests being made to the actual Strava API and instead registers responses
+that are based on examples from the published Strava API documentation. Example usages of
+this fixture can be found in the :mod:`stravalib.tests.integration.test_client` module.
 
 Documentation
 ~~~~~~~~~~~~~~
