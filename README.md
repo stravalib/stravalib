@@ -30,8 +30,7 @@ download it and explore Strava content in your favorite python REPL.
 
 ## How to Contribute to Stravalib
 
-Get Started!
-============
+### Get Started!
 
 Ready to contribute? Here's how to set up Stravalib for local development.
 
@@ -58,7 +57,7 @@ To build the documentation, use the command::
 
     $ make docs -B
 
-## Building from sources
+### Building from sources
 
 To build the project from sources access the project root directory and run
 ```

@@ -90,7 +90,7 @@ To build the documentation, use the command::
 You can then open up the documentation locally in a web browser by opening the following
 file in a web browser on your computer:
 
-/your-path-to-stravalib-dir/stravalibe/docs/_build/html/index.html
+/your-path-to-stravalib-dir/stravalib/docs/_build/html/index.html
 
 About the documentation CI build
 --------------------------------
