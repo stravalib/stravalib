@@ -1,43 +1,36 @@
 name: Build Documentation
-# Build on all branches
+
 on:
+  pull_request:
   push:
     branches:
-      - '*'
-  pull_request:
-    branches:
-      - '*'
+      - master
 
 jobs:
-  deploy:
-    runs-on: ubuntu-18.04
+  build-doc:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON-VERSION: "3.10"
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
-
+          python-version: ${{ env.PYTHON-VERSION }}
       - name: Upgrade pip
         run: |
           # install pip=>20.1 to use "pip cache dir"
           python3 -m pip install --upgrade pip
-
       - name: Get pip cache dir
         id: pip-cache
         run: echo "::set-output name=dir::$(pip cache dir)"
-
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-py${{ env.PYTHON-VERSION }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
-
+            ${{ runner.os }}-pip-py${{ env.PYTHON-VERSION }}
       - name: Install dependencies
         run: python3 -m pip install -r ./requirements.txt
-
       - run: make docs -B
-

@@ -1,10 +1,12 @@
 from __future__ import absolute_import, unicode_literals
-from datetime import datetime, timedelta
-from io import BytesIO
 
-from stravalib import model, exc, attributes, unithelper as uh
-from stravalib.client import Client
+import os
+from datetime import datetime, timedelta
+
+from stravalib import model, exc, unithelper as uh
+from stravalib.tests import RESOURCES_DIR
 from stravalib.tests.functional import FunctionalTestBase
+
 
 class ClientWriteTest(FunctionalTestBase):
     
@@ -25,7 +27,6 @@ class ClientWriteTest(FunctionalTestBase):
         self.assertEqual(now, a.start_date_local)
         self.assertEqual(round(float(uh.miles(15.2)), 2), round(float(uh.miles(a.distance)), 2))
         self.assertEqual(timedelta(hours=3, minutes=4, seconds=5), a.elapsed_time)
-    
     
     def test_update_activity(self):
         """
@@ -53,8 +54,6 @@ class ClientWriteTest(FunctionalTestBase):
         update3 = self.client.update_activity(a.id, trainer=True)
         self.assertTrue(update3.private)
         self.assertTrue(update3.trainer)
-        
-        
         
     def test_upload_activity(self):
         """

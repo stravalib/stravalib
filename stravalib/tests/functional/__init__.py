@@ -1,14 +1,12 @@
-import warnings
 import os
+
 from six.moves.configparser import SafeConfigParser, NoOptionError
 
-from stravalib import model
 from stravalib.client import Client
-
-
-from stravalib.tests import TestBase, TESTS_DIR, RESOURCES_DIR
+from stravalib.tests import TestBase, TESTS_DIR
 
 TEST_CFG = os.path.join(TESTS_DIR, 'test.ini')
+
 
 class FunctionalTestBase(TestBase):
 

@@ -106,7 +106,7 @@ class Client(object):
             Choices are 'auto' or 'force'.  (Default is 'auto')
         scope : list[str]
             The access scope required.  Omit to imply "read" and "activity:read"
-            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
             'activity:read_all', 'activity:write'.
         state : str
             An arbitrary variable that will be returned to your application in the redirect URI.
@@ -512,7 +512,7 @@ class Client(object):
 
         Will be detail-level if owned by authenticated user; otherwise summary-level.
 
-        https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
+        https://developers.strava.com/docs/reference/#api-Activities-getActivityById
 
         :param activity_id: The ID of activity to fetch.
         :type activity_id: int
@@ -522,6 +522,10 @@ class Client(object):
         :type include_all_efforts: bool
 
         :rtype: :class:`stravalib.model.Activity`
+
+        TODO: contrary to the Strava API documentation, this endpoint _always_
+        returns all segment efforts when the include_all_efforts parameter is provided,
+        regardless its value
         """
         raw = self.protocol.get('/activities/{id}', id=activity_id,
                                 include_all_efforts=include_all_efforts)
@@ -1590,7 +1594,7 @@ class BatchedResultsIterator(object):
 
     def _fill_buffer(self):
         """
-        Fills the internal size-50 buffer from Strava API.
+        Fills the internal buffer from Strava API.
         """
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:

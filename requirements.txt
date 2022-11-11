@@ -5,7 +5,8 @@ pytz
 six
 
 # testing
-nose
+pytest
+responses
 
 # For docs build
 sphinx_copybutton

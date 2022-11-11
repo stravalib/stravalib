@@ -66,7 +66,7 @@ class ApiV3(object):
         :type approval_prompt: str
 
         :param scope: The access scope required.  Omit to imply "read" and "activity:read"
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'profile:read_all',
+                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
                       'activity:read_all', 'activity:write'.
         :type scope: list[str]
 
@@ -163,7 +163,7 @@ class ApiV3(object):
 
         return access_info
 
-    def _resolve_url(self, url):
+    def resolve_url(self, url):
         if not url.startswith('http'):
             url = urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
         return url
@@ -190,7 +190,7 @@ class ApiV3(object):
         :return: The parsed JSON response.
         :rtype: Dict[str,Any]
         """
-        url = self._resolve_url(url)
+        url = self.resolve_url(url)
         self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
         if params is None:
             params = {}
