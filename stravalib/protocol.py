@@ -3,20 +3,17 @@ Protocol
 ==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
-from __future__ import division, absolute_import, print_function, unicode_literals
 import abc
 import logging
 import functools
 
 import requests
-import six
-from six.moves.urllib.parse import urlunsplit, urljoin, urlencode
+from urllib.parse import urlunsplit, urljoin, urlencode
 
 from stravalib import exc
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ApiV3(object):
+class ApiV3(metaclass=abc.ABCMeta):
     """
     This class is responsible for performing the HTTP requests, rate limiting, and error handling.
     """
@@ -79,7 +76,7 @@ class ApiV3(object):
         assert approval_prompt in ('auto', 'force')
         if scope is None:
             scope = ['read', 'activity:read']
-        elif isinstance(scope, (six.text_type, six.binary_type)):
+        elif isinstance(scope, (str, bytes)):
             scope = [scope]
 
         unsupported = set(scope) - {'read', 'read_all',
