@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 from units.quantity import Quantity
 
 from stravalib import model

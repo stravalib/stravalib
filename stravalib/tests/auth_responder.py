@@ -16,15 +16,11 @@ Example Usage:
   presented in the browser after the exchange.  Save this value into your config (e.g. into your test.ini) to run
   functional tests.
 """
-from __future__ import unicode_literals, absolute_import, print_function
-
-from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import argparse
-from six.moves.urllib import parse as urlparse
+from urllib import parse as urlparse
 import threading
 import logging
-
-import six
 
 from stravalib import Client
 
@@ -54,10 +50,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if request_path.startswith('/authorization'):
             self.send_response(200)
-            self.send_header(six.b("Content-type"), six.b("text/plain"))
+            self.send_header(b"Content-type", b"text/plain")
             self.end_headers()
 
-            self.wfile.write(six.b("Authorization Handler\n\n"))
+            self.wfile.write(b"Authorization Handler\n\n")
             code = urlparse.parse_qs(parsed_path.query).get('code')
             if code:
                 code = code[0]
@@ -66,19 +62,19 @@ class RequestHandler(BaseHTTPRequestHandler):
                                                               code=code)
                 access_token = token_response['access_token']
                 self.server.logger.info("Exchanged code {} for access token {}".format(code, access_token))
-                self.wfile.write(six.b("Access Token: {}\n".format(access_token)))
+                self.wfile.write(b"Access Token: {}\n".format(access_token))
             else:
                 self.server.logger.error("No code param received.")
-                self.wfile.write(six.b("ERROR: No code param recevied.\n"))
+                self.wfile.write(b"ERROR: No code param recevied.\n")
         else:
             url = client.authorization_url(client_id=self.server.client_id,
                                            redirect_uri='http://localhost:{}/authorization'.format(self.server.server_port))
 
             self.send_response(302)
-            self.send_header(six.b("Content-type"), six.b("text/plain"))
-            self.send_header(six.b('Location'), six.b(url))
+            self.send_header("Content-type", "text/plain")
+            self.send_header(b"Location", bytes(url))
             self.end_headers()
-            self.wfile.write(six.b("Redirect to URL: {}\n".format(url)))
+            self.wfile.write(b"Redirect to URL: {}\n".format(url))
 
 
 def main(port, client_id, client_secret):

@@ -4,7 +4,7 @@ with getting access tokens.
 Create Virtualenv
 =================
 
-We'll assume you're using python3 (but python2 follows same pattern).
+We'll assume you're using python3.
 
 ```
 $ cd /path/to/stravalib

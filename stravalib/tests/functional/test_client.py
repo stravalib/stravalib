@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 from stravalib import model, attributes, exc, unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
