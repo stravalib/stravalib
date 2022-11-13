@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stravalib"
-version = "0.10.4"
+version = "0.10.5"
 description = "A Python package that makes it easy to access and download data from the Strava API."
 authors = ["Hans Lellelid <hans@xmpl.org>"]
 license = "Apache License 2.0"
@@ -28,6 +28,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
 version_variable = [
-    "docs/conf.py:version",
     "pyproject.toml:version"
+    
 ]
