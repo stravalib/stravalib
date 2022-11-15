@@ -1,0 +1,29 @@
+name: Publish to Test PyPI.org
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - test-build-scm
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Only publish from the origin repository, not forks
+    # if: github.repository_owner == 'stravalib'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3 
+        with:
+          fetch-depth: 0
+      # For testing only on this branch
+      - run: git checkout test-build-scm
+      # Build package 
+      - run: python3 -m pip install --upgrade build && python3 -m build
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          # Allow existing releases on test PyPI without errors.
+          # NOT TO BE USED in PyPI!
+          skip_existing: true
