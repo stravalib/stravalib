@@ -1,33 +1,7 @@
-[tool.poetry]
-name = "stravalib"
-version = "0.10.5"
-description = "A Python package that makes it easy to access and download data from the Strava API."
-authors = ["Hans Lellelid <hans@xmpl.org>"]
-license = "Apache License 2.0"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.7,<4.0"
-units = "^0.7"
-pytz = "^2022.6"
-six = "^1.16.0"
-arrow = "^1.2.3"
-requests = "^2.28.1"
-
-[tool.poetry.group.dev.dependencies]
-responses = "^0.22.0"
-pytest = "^7.2.0"
-python-semantic-release = "^7.32.2"
-
-[tool.poetry.group.docs.dependencies]
-pydata-sphinx-theme = "^0.11.0"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
-[tool.semantic_release]
-version_variable = [
-    "pyproject.toml:version"
-    
-]
+[tool.setuptools_scm]
+
+
