@@ -235,9 +235,7 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
-    # TODO: Doble check these endpoint doc URLs are correct
-    def get_athlete(self, athlete_id=None):
+    def get_athlete(self):
         """
         Gets the specified athlete; if athlete_id is None then retrieves a
         detail-level representation of currently authenticated athlete;
@@ -250,14 +248,7 @@ class Client(object):
         :return: The athlete model object.
         :rtype: :class:`stravalib.model.Athlete`
         """
-        if athlete_id is None:
-            raw = self.protocol.get('/athlete')
-        else:
-            raise NotImplementedError("The /athletes/{id} endpoint was removed by Strava.  "
-                                      "See https://developers.strava.com/docs/january-2018-update/")
-
-            # raw = self.protocol.get('/athletes/{athlete_id}', athlete_id=athlete_id)
-
+        raw = self.protocol.get('/athlete')
         return model.Athlete.deserialize(raw, bind_client=self)
 
     # TODO: this endpoint was removed so do we want to remove the URL altogether?
