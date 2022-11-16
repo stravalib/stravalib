@@ -28,7 +28,10 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
+          # fetch more than the last single commit to help scm generate proper version
+          fetch-depth: 20
           python-version: ${{ matrix.python-version }}
+    
       - name: Get pip cache dir
         id: pip-cache
         run: echo "::set-output name=dir::$(pip cache dir)"
