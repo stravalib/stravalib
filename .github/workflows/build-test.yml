@@ -6,6 +6,14 @@ on:
     branches:
       - master
 
+# Use bash by default in all jobs
+defaults:
+  run:
+    # Using "-l {0}" is necessary for conda environments to be activated
+    # But this breaks on MacOS if using actions/setup-python:
+    # https://github.com/actions/setup-python/issues/132
+    shell: bash
+
 jobs:
   build-test:
     name: Test Run (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -42,6 +50,7 @@ jobs:
         run: |
           # Build & install package
           python3 -m pip install --upgrade build && python3 -m build
+          # This breaks on windows builds - not sure why yet
           python -m pip install --no-deps dist/*.whl
       - name: List installed packages
         run: python -m pip freeze
