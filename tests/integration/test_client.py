@@ -3,7 +3,7 @@ import os
 import pytest
 from responses import matchers
 
-from stravalib.tests import RESOURCES_DIR
+from tests import RESOURCES_DIR
 
 
 def test_get_athlete(mock_strava_api, client):

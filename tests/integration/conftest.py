@@ -1,7 +1,7 @@
 import pytest
 
 from stravalib import Client
-from stravalib.tests.integration.strava_api_stub import StravaAPIMock
+from tests.integration.strava_api_stub import StravaAPIMock
 
 
 @pytest.fixture

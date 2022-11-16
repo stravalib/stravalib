@@ -1,6 +1,6 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 from stravalib.client import Client
-from stravalib.tests import TestBase
+from tests import TestBase
 import datetime
 import pytz
 from six.moves.urllib import parse as urlparse
