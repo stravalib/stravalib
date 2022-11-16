@@ -37,11 +37,12 @@ jobs:
           pip install -r requirements.txt
       - name: Build, install package
         run: |
-          # Build & install package
-          python -m build .
-          python -m pip install --no-deps dist/*.whl
+          # Install package from source (this might not do what we want with scm)
+          python -m pip install -e .
+          #build .
+          #python -m pip install --no-deps dist/*.whl
       - name: View envt
         run: pip list
       - name: Test with pytest
         run: |
-          pytest stravalib/tests/unit stravalib/tests/integration
+          pytest tests/unit tests/integration
