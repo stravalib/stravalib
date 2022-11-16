@@ -9,9 +9,6 @@ on:
 # Use bash by default in all jobs
 defaults:
   run:
-    # Using "-l {0}" is necessary for conda environments to be activated
-    # But this breaks on MacOS if using actions/setup-python:
-    # https://github.com/actions/setup-python/issues/132
     shell: bash
 
 jobs:
@@ -21,8 +18,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
+        os: [ "ubuntu", "macos", "windows" ]
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        # include:
+        #   - python: "3.7"
+        #     dependencies: oldest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
