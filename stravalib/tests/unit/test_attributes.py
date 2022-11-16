@@ -6,7 +6,7 @@ import six
 from stravalib.attributes import EntityAttribute, SUMMARY, DETAILED, ChoicesAttribute, LocationAttribute, LatLon, \
     TimezoneAttribute
 from stravalib.model import Athlete, SubscriptionCallback
-from tests import TestBase
+from stravalib.tests import TestBase
 
 
 class EntityAttributeTest(TestBase):

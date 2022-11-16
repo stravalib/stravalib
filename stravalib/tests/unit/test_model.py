@@ -4,7 +4,7 @@ from units.quantity import Quantity
 
 from stravalib import model
 from stravalib import unithelper as uh
-from tests import TestBase
+from stravalib.tests import TestBase
 
 
 class ModelTest(TestBase):

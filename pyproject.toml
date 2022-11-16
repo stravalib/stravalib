@@ -8,7 +8,7 @@ version_scheme =  "post-release"
 # Make sure scm doesn't use local scheme version for push to pypi 
 # (so there isn't a + in the version)
 local_scheme = "no-local-version"
-write_to =  "src/stravalib/_version_generated.py"
+write_to =  "stravalib/_version_generated.py"
 
 
 

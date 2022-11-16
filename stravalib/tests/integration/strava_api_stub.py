@@ -9,7 +9,7 @@ import requests
 from responses import BaseResponse, RequestsMock
 
 from stravalib.protocol import ApiV3
-from tests import RESOURCES_DIR
+from stravalib.tests import RESOURCES_DIR
 
 LOGGER = logging.getLogger(__name__)
 

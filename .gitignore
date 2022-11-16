@@ -2,6 +2,7 @@ env*/
 build/
 dist/
 *.pyc
+_version_generated.py
 # This will remove our ability to add CI in the .github dir
 #.*
 .DS_Store

@@ -1,6 +1,6 @@
 import arrow
 
-from tests import TestBase
+from stravalib.tests import TestBase
 from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule, get_seconds_until_next_quarter, \
     get_seconds_until_next_day, SleepingRateLimitRule
 
