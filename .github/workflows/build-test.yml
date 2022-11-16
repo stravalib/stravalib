@@ -38,9 +38,9 @@ jobs:
       - name: Build, install package
         run: |
           # Install package from source (this might not do what we want with scm)
-          python -m pip install -e .
-          #build .
-          #python -m pip install --no-deps dist/*.whl
+          #python -m pip install -e .
+          python3 -m build
+          python -m pip install --no-deps dist/*.whl
       - name: View envt
         run: pip list
       - name: Test with pytest
