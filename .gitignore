@@ -10,6 +10,7 @@ dist/
 *.egg/
 docs/_build/
 test.ini
+stravalib/_version_generated.py
 #*~
 examples/strava-oauth/settings.cfg
 

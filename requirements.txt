@@ -3,9 +3,13 @@ requests>=2.0,<3.0dev
 units
 pytz
 
-# testing
+# Testing
 pytest
 responses
+
+# Package build
+build
+twine
 
 # For docs build
 sphinx_copybutton

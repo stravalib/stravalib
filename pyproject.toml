@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+# Make sure setuptools uses version of last created tag - this allows us to specify bump
+version_scheme =  "post-release"
+# Make sure scm doesn't use local scheme version for push to pypi 
+# (so there isn't a + in the version)
+local_scheme = "no-local-version"
+write_to =  "stravalib/_version_generated.py"
+
+
+
