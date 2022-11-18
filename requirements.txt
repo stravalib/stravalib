@@ -7,10 +7,6 @@ pytz
 pytest
 responses
 
-# Package build
-build
-twine
-
 # For docs build
 sphinx_copybutton
 pydata_sphinx_theme
