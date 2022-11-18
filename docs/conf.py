@@ -17,11 +17,6 @@ import sys
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../stravalib'))
 
-#sys.path.insert(0, os.path.abspath('../../stravalib'))
-# sys.path.insert(0, os.path.abspath('../../stravalib/util'))
-
-
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -35,9 +30,14 @@ import datetime
 import stravalib 
 
 # General project info
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
 project = 'stravalib'
 
+# Automagically create the year vs hand code
 copyright = f"{datetime.date.today().year}, The {project} Developers"  # noqa: A001
+# Grab the package version from the version attr
 if len(stravalib.__version__.split(".")) > 3:
     version = "dev"
 else:
@@ -67,17 +67,6 @@ source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
-
-
-
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# The short X.Y version.
-# version = '0.6'
-# # The full version, including alpha/beta/rc tags.
-# release = '0.10.5'
 
 
 
