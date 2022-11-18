@@ -5,6 +5,8 @@ Change Log
 
 Unreleased
 ----------
+* Remove support for python 2.x (@yihong0618 pr#253)
+* Test refactoring and add CI build (@jsamoocha  #246)
 * Overhaul of documentation, fix links and CI build (@lwasser, #222)
 
 0.10.4
