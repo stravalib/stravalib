@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+* Refactor test suite and implement Ci for tests (@jsamoocha, #246)
+* Remove support for python 2.x (@yihong0618, #254)
 * Overhaul of documentation, fix links and CI build (@lwasser, #222)
 
 ## 0.10.4
