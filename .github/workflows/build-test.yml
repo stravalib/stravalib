@@ -6,6 +6,11 @@ on:
     branches:
       - master
 
+# Use bash by default in all jobs
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-test:
     name: Test Run (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -15,12 +20,19 @@ jobs:
       matrix:
         os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        include:
+          - python: "3.7"
+            dependencies: oldest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # fetch more than the last single commit to help scm generate proper version
+          fetch-depth: 20
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+    
       - name: Get pip cache dir
         id: pip-cache
         run: echo "::set-output name=dir::$(pip cache dir)"
@@ -34,7 +46,23 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
+        # Need tags for scm to provide a proper version
+      - name: List installed packages
+        run: python -m pip freeze
+      - name: Fetch git tags
+        run: git fetch origin 'refs/tags/*:refs/tags/*'
+      - name: Build package
+        run: |
+          # Build package
+          # This install virtualenv fixes a quirk where the build breaks on windows
+          python3 -m pip install "build[virtualenv]"
+          python3 -m build
+      - name: Install package
+        run: |
+          # This breaks on windows builds - not sure why yet
+          python -m pip install --no-deps dist/*.whl
+
       - name: Test with pytest
         run: |
           pytest stravalib/tests/unit stravalib/tests/integration

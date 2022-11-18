@@ -1,0 +1,57 @@
+name: Publish to Test PyPI.org
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Only publish from the origin repository, not forks
+    # if: github.repository_owner == 'stravalib'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3 
+        with:
+          # So scm can view previous commits
+          fetch-depth: 20
+      # For testing only on this branch
+      - run: git checkout test-build-scm
+      # Build package 
+      - run: |
+          python3 -m pip install --upgrade build && python3 -m build
+          echo ""
+          echo "Generated files:"
+          ls -lh dist/
+
+      - name: Check the archives
+        run: twine check dist/*
+
+#############################################################################
+  # Publish built wheels and source archives to PyPI and test PyPI
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    # Only publish from the origin repository, not forks
+    if: github.repository_owner == 'stravalib'
+
+    steps:
+
+      - name: Publish package to test PyPI
+        # Test push to test pypi on merge to master
+        if: github.event_name == 'push'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          # Allow existing releases on test PyPI without errors.
+          # NOT TO BE USED in PyPI!
+          skip_existing: true
+      
+      - name: Publish package to PyPI
+        # Only publish to real PyPI on release
+        if: success() && github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
