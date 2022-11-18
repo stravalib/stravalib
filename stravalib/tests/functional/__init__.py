@@ -1,6 +1,6 @@
 import os
 
-from six.moves.configparser import SafeConfigParser, NoOptionError
+from configparser import SafeConfigParser, NoOptionError
 
 from stravalib.client import Client
 from stravalib.tests import TestBase, TESTS_DIR

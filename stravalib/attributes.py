@@ -6,7 +6,6 @@ Attribute types used for the model.
 The types system provides a mechanism for serializing/un the data to/from JSON
 structures and for capturing additional information about the model attributes.
 """
-from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
 from datetime import datetime, timedelta, tzinfo, date
 from collections import namedtuple
@@ -16,7 +15,6 @@ import arrow
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
 from units.quantity import Quantity
-import six
 
 import stravalib.model
 
@@ -145,7 +143,7 @@ class TimestampAttribute(Attribute):
         Convert a timestamp in "2012-12-13T03:43:19Z" format to a `datetime.datetime` object.
         """
         if not isinstance(v, datetime):
-            if isinstance(v, six.integer_types):
+            if isinstance(v, int):
                 v = arrow.get(v)
             else:
                 try:
@@ -241,7 +239,7 @@ class TimeIntervalAttribute(Attribute):
         more complex types, where subclasses will override this behavior.
         """
         if not isinstance(v, timedelta):
-            if isinstance(v, six.text_type) or isinstance(v, six.binary_type):
+            if isinstance(v, str) or isinstance(v, bytes):
                 h,m,s = v.split(':')
                 v = timedelta(seconds = int(h)*3600 + int(m)*60 + int(s))
             else:
@@ -327,7 +325,7 @@ class EntityAttribute(Attribute):
 
     @type.setter
     def type(self, v):
-        if isinstance(v, (six.text_type, six.binary_type)):
+        if isinstance(v, (str, bytes)):
             # Supporting lazy class referencing
             self._lazytype = v
         else:

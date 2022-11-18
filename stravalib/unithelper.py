@@ -5,7 +5,6 @@ Helpers for converting Strava's units to something more practical.
 
 These are really just thin wrappers to the brilliant 'units' python library.
 """
-from __future__ import division, absolute_import, print_function, unicode_literals
 from units import unit
 import units.predefined
 

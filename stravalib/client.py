@@ -4,8 +4,6 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 import json
 import logging
 import functools
@@ -18,7 +16,6 @@ from datetime import datetime, timedelta
 
 import arrow
 import pytz
-import six
 
 from units.quantity import Quantity
 
@@ -706,7 +703,7 @@ class Client(object):
         :type commute: bool
         """
         if not hasattr(activity_file, 'read'):
-            if isinstance(activity_file, six.string_types):
+            if isinstance(activity_file, str):
                 activity_file = BytesIO(activity_file.encode('utf-8'))
             elif isinstance(activity_file, str):
                 activity_file = BytesIO(activity_file)
@@ -1153,12 +1150,12 @@ class Client(object):
             params['athlete_id'] = athlete_id
 
         if start_date_local:
-            if isinstance(start_date_local, six.string_types):
+            if isinstance(start_date_local, str):
                 start_date_local = arrow.get(start_date_local).naive
             params["start_date_local"] = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if end_date_local:
-            if isinstance(end_date_local, six.string_types):
+            if isinstance(end_date_local, str):
                 end_date_local = arrow.get(end_date_local).naive
             params["end_date_local"] = end_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 

@@ -10,9 +10,9 @@ See the [online documentation](http://pythonhosted.org/stravalib/) for more comp
 
 ## Dependencies
 
-* Python 2.7+, 3.4+  (Uses six for 2/3 compatibility.)
+* Python 3.7+
 * Setuptools for installing dependencies
-* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow, six
+* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow
 
 ## Installation
 
