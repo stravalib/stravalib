@@ -16,11 +16,13 @@ jobs:
         with:
           # So scm can view previous commits
           fetch-depth: 20
-      # For testing only on this branch
-      - run: git checkout test-build-scm
+        # Install requirements
+      - run: |
+          python -m pip install -r requirements-dev.txt
+          pip list
       # Build package 
       - run: |
-          python3 -m pip install --upgrade build && python3 -m build
+          python3 -m build
           echo ""
           echo "Generated files:"
           ls -lh dist/
