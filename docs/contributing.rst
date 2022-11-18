@@ -11,7 +11,7 @@ Ready to contribute? Here's how to set up Stravalib for local development.
 --------------------------------
 
 To create your own copy of the repository on GitHub, navigate to the
-`hozn/stravalib <https://github.com/hozn/stravalib>`_ repository
+`stravalib/stravalib <https://github.com/stravalib/stravalib>`_ repository
 and click the **Fork** button in the top-right corner of the page.
 
 2. Clone your fork locally
@@ -98,7 +98,7 @@ file in a web browser on your computer:
 About the documentation CI build
 --------------------------------
 Once your create a pull request, GitHub actions will build the docs and check for any syntax
-or url errors. Once the PR is approved and merged into the master branch of the ``hozn/stravalib``
+or url errors. Once the PR is approved and merged into the master branch of the ``stravalib/stravalib``
 repository, the docs will build and then get deployed to gh-pages as a live website to:
 
 TODO: ADD URL here. this won't work until the website is live.

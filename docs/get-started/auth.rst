@@ -61,5 +61,5 @@ To refresh the token you would call the :meth:`stravalib.client.Client.refresh_a
                                           refresh_token=last_refresh_token)
     new_access_token = token_response['access_token']
 
-See the https://github.com/hozn/stravalib/tree/master/examples/strava-oauth directory for an example
+See the https://github.com/stravalib/stravalib/tree/master/examples/strava-oauth directory for an example
 Flask application for fetching a Strava auth token.
