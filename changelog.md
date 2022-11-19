@@ -1,6 +1,11 @@
 # Change Log
 
 ## Unreleased
+
+* Fix get_athlete w new attrs for shoes given strava updates to API (@lwasser, #220)
+* Refactor deprecated unittest aliases for Python 3.11 compatibility (@tirkarthi, #223)
+* Patch: Update readme and fix broken links in docs (@lwasser, #229)
+* Improved unknown time zone handling (@jsamoocha, #242)
 * Move package to build / setupscm for version / remove setup.py and add CI push to pypi (@lwasser, #254, #251)
 * Refactor test suite and implement Ci for tests (@jsamoocha, #246)
 * Remove support for python 2.x (@yihong0618, #254)
