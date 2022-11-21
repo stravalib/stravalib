@@ -32,7 +32,76 @@ def test_get_activity(mock_strava_api, client, include_all_efforts, expected_url
     assert activity.id == test_activity_id
 
 
-def test_upload_activity(mock_strava_api, client):
+@pytest.mark.parametrize(
+    'activity_file_type,data_type,name,description,activity_type,private,external_id,'
+    'trainer,commute,expected_params,expected_exception',
+    (
+        ('file', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
+        ('str', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
+        ('not_supported', 'tcx', None, None, None, None, None, None, None, None, TypeError),
+        ('file', 'invalid', None, None, None, None, None, None, None, None, ValueError),
+        ('file', 'tcx', 'name', None, None, None, None, None, None, {'data_type': 'tcx', 'name': 'name'}, None),
+        ('file', 'tcx', None, 'descr', None, None, None, None, None, {'data_type': 'tcx', 'description': 'descr'}, None),
+        ('file', 'tcx', None, None, 'Run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'Run'}, None),
+        ('file', 'tcx', None, None, 'run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'run'}, None),
+        ('file', 'tcx', None, None, 'sleep', None, None, None, None, None, ValueError),
+        ('file', 'tcx', None, None, None, True, None, None, None, {'data_type': 'tcx', 'private': '1'}, None),
+        ('file', 'tcx', None, None, None, None, 42, None, None, {'data_type': 'tcx', 'external_id': '42'}, None),
+        ('file', 'tcx', None, None, None, None, None, True, None, {'data_type': 'tcx', 'trainer': 'true'}, None),
+        ('file', 'tcx', None, None, None, None, None, None, True, {'data_type': 'tcx', 'commute': 'true'}, None)
+    )
+)
+def test_upload_activity(
+        mock_strava_api,
+        client,
+        activity_file_type,
+        data_type,
+        name,
+        description,
+        activity_type,
+        private,
+        external_id,
+        trainer,
+        commute,
+        expected_params,
+        expected_exception
+):
+    init_upload_response = {
+        'id': 1,
+        'id_str': 'abc',
+        'external_id': 'abc',
+        'status': 'default_status',
+        'error': ''
+    }
+    upload_kwargs = {
+        **({'name': name} if name is not None else {}),
+        **({'description': description} if description is not None else {}),
+        **({'activity_type': activity_type} if activity_type is not None else {}),
+        **({'private': private} if private is not None else {}),
+        **({'external_id': external_id} if external_id is not None else {}),
+        **({'trainer': trainer} if trainer is not None else {}),
+        **({'commute': commute} if commute is not None else {})
+    }
+
+    def _call_upload(*args, **kwargs):
+        if expected_exception:
+            with pytest.raises(expected_exception):
+                client.upload_activity(*args, **kwargs)
+        else:
+            mock_strava_api.post('/uploads', status=201, json=init_upload_response)
+            _ = client.upload_activity(*args, **kwargs)
+            assert mock_strava_api.calls[-1].request.params == expected_params
+
+    with open(os.path.join(RESOURCES_DIR, 'sample.tcx')) as f:
+        if activity_file_type == 'file':
+            _call_upload(f, data_type, **upload_kwargs)
+        elif activity_file_type == 'str':
+            _call_upload(f.read(), data_type, **upload_kwargs)
+        else:
+            _call_upload({}, data_type, **upload_kwargs)
+
+
+def test_activity_uploader(mock_strava_api, client):
     test_activity_id = 42
     init_upload_response = {
         'id': 1,

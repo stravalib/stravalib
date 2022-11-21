@@ -4,12 +4,13 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
+import json
 import logging
-# import warnings # unused import
 import functools
 import time
 import collections
 import calendar
+import warnings
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -22,6 +23,10 @@ from stravalib import model, exc
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
+
+
+warnings.simplefilter('default')
+logging.captureWarnings(True)
 
 
 class Client(object):
@@ -233,9 +238,7 @@ class Client(object):
                                       result_fetcher=result_fetcher,
                                       limit=limit)
 
-
-    # TODO: Doble check these endpoint doc URLs are correct
-    def get_athlete(self, athlete_id=None):
+    def get_athlete(self):
         """
         Gets the specified athlete; if athlete_id is None then retrieves a
         detail-level representation of currently authenticated athlete;
@@ -248,14 +251,7 @@ class Client(object):
         :return: The athlete model object.
         :rtype: :class:`stravalib.model.Athlete`
         """
-        if athlete_id is None:
-            raw = self.protocol.get('/athlete')
-        else:
-            raise NotImplementedError("The /athletes/{id} endpoint was removed by Strava.  "
-                                      "See https://developers.strava.com/docs/january-2018-update/")
-
-            # raw = self.protocol.get('/athletes/{athlete_id}', athlete_id=athlete_id)
-
+        raw = self.protocol.get('/athlete')
         return model.Athlete.deserialize(raw, bind_client=self)
 
     # TODO: this endpoint was removed so do we want to remove the URL altogether?
@@ -663,7 +659,8 @@ class Client(object):
         return model.Activity.deserialize(raw_activity, bind_client=self)
 
     def upload_activity(self, activity_file, data_type, name=None, description=None,
-                        activity_type=None, private=None, external_id=None):
+                        activity_type=None, private=None, external_id=None, trainer=None,
+                        commute=None):
         """
         Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
 
@@ -686,13 +683,24 @@ class Client(object):
                               nordicski, alpineski, backcountryski, iceskate, inlineskate,
                               kitesurf, rollerski, windsurf, workout, snowboard, snowshoe
                               Type detected from file overrides, uses athlete's default type if not specified
+                              WARNING - This param is supported (as of 2022-11-15), but not
+                              documented and may be removed in the future.
         :type activity_type: str
 
-        :param private: (optional) set to True to mark the resulting activity as private, 'view_private' permissions will be necessary to view the activity
+        :param private: (optional) set to True to mark the resulting activity as private,
+                        'view_private' permissions will be necessary to view the activity.
+                        WARNING - This param is not supported by the Strava API and may be
+                        removed in the future.
         :type private: bool
 
         :param external_id: (optional) An arbitrary unique identifier may be specified which will be included in status responses.
         :type external_id: str
+
+        :param trainer: (optional) Whether the resulting activity should be marked as having been performed on a trainer.
+        :type trainer: bool
+
+        :param commute: (optional) Whether the resulting activity should be tagged as a commute.
+        :type commute: bool
         """
         if not hasattr(activity_file, 'read'):
             if isinstance(activity_file, str):
@@ -712,13 +720,29 @@ class Client(object):
         if description is not None:
             params['description'] = description
         if activity_type is not None:
+            warnings.warn(
+                'The "activity_type" parameter is undocumented in the Strava API. Its use '
+                'may lead to unexpected behavior or errors in the future.',
+                FutureWarning,
+                stacklevel=2
+            )
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
                 raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
             params['activity_type'] = activity_type
         if private is not None:
+            warnings.warn(
+                'The "private" parameter is unsupported by the Strava API. It has no '
+                'effect and may lead to errors in the future',
+                DeprecationWarning,
+                stacklevel=2
+            )
             params['private'] = int(private)
         if external_id is not None:
             params['external_id'] = external_id
+        if trainer is not None:
+            params['trainer'] = json.dumps(trainer)
+        if commute is not None:
+            params['commute'] = json.dumps(commute)
 
         initial_response = self.protocol.post('/uploads',
                                               files={'file': activity_file},
