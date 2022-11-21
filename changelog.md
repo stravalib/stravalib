@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-
+* FIX: Minor bug in PyPI push and also streamlined action build (@lwasser, #265)
 * Fix get_athlete w new attrs for shoes given strava updates to API (@lwasser, #220)
 * Refactor deprecated unittest aliases for Python 3.11 compatibility (@tirkarthi, #223)
 * Patch: Update readme and fix broken links in docs (@lwasser, #229)
