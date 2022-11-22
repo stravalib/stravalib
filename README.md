@@ -1,6 +1,6 @@
 # Welcome to stravalib
 
-The **stravalib** Python package provides easy-to-user= tools for accessing and 
+The **stravalib** Python package provides easy-to-use tools for accessing and 
 downloading Strava data from the Strava V3 web service. Stravalib provides an 
 easy-to-use CLient class that supports:
 * Authenticating with stravalib 
