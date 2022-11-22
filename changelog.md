@@ -1,6 +1,10 @@
 # Change Log
 
 ## Unreleased
+
+* Fix: add new attributes for bikes according to updates to Strava API to fix warning message (huaminghuangtw, #239)
+* Add an option to mute Strava activity on update (@ollyajoke, #227)
+* Update make to build and serve docs and also run current tests (@lwasser,#263)
 * FIX: Minor bug in PyPI push and also streamlined action build (@lwasser, #265)
 * Fix get_athlete w new attrs for shoes given strava updates to API (@lwasser, #220)
 * Refactor deprecated unittest aliases for Python 3.11 compatibility (@tirkarthi, #223)

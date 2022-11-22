@@ -64,4 +64,4 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest stravalib/tests/unit stravalib/tests/integration
+          make test
