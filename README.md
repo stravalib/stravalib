@@ -99,7 +99,7 @@ to-do list.
 
 In order to make use of this library, you will need to create an app in Strava 
 which is free to do. [Have a look at this tutorial for instructions on creating 
-an app with Strava - we will be updating our docs with this information soon. ]([✨](https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17)
+an app with Strava - we will be updating our docs with this information soon.](https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17)
 
 **NOTE** We will be updating our documentation with clear instructions to support this
 in the upcoming months
