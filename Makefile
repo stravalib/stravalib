@@ -13,7 +13,7 @@ help:
 
 
 build:
-	python -m build .
+	python -m build
 
 install:
 	python -m pip install --no-deps -e .
