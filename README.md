@@ -1,30 +1,27 @@
 # Welcome to stravalib
 
-The **stravalib** project aims to provide a simple API for interacting with Strava v3 web services, in particular
-abstracting the v3 REST API around a rich and easy-to-use object model and providing support for date/time/temporal attributes
-and quantities with units (using the [python units library](http://pypi.python.org/pypi/units)).
+The **stravalib** Python package provides easy-to-user= tools for accessing and 
+downloading Strava data from the Strava V3 web service. Stravalib provides an 
+easy-to-use CLient class that supports:
+* Authenticating with stravalib 
+* Accessing and downloading strava activity, club and profile data 
+* Making changes to account activities 
 
-See the [online documentation](https://stravalib.readthedocs.io/) for more comprehensive documentation.
+It also provides support for working with date/time/temporal attributes
+and quantities through the [Python units library](http://pypi.python.org/pypi/units).
+
+See the [online documentation](https://stravalib.readthedocs.io/) to learn more.
 
 ## Dependencies
 
 * Python 3.7+
 * Setuptools for installing dependencies
-* Other python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow
+* Other Python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow
 
 ## Installation
 
-The package is available on PyPI to be installed using easy_install or pip:
+The package is available on PyPI to be installed using `easy_install` or `Or you can
 
-```bash
-shell$ pip install stravalib
-```
-
-(Installing in a [virtual environment](https://pypi.python.org/pypi/virtualenv) is always recommended.)
-
-Of course, by itself this package doesn't do much; it's a library.  So it is more likely that you will
-list this package as a dependency in your own `install_requires` directive in `setup.py`.  Or you can
-download it and explore Strava content in your favorite python REPL.
 
 ## How to Contribute to Stravalib
 
@@ -53,32 +50,37 @@ local filesystem::
 The docs for this library are created using `sphinx`.
 To build the documentation, use the command::
 
-    $ make docs -B
+`$ make -C docs -B`
 
 ### Building from sources
 
 To build the project from sources access the project root directory and run
-```
+
+```bash
 shell$ python setup.py build
 ```
 Running
+
 ```
-shell$ python setup.py install
+shell$ make install
 ```
+
 will build and install *stravalib* in your *pip* package repository.
 
 To execute **unit - or integration tests** you will need to run
-```
-shell$ pytest stravalib/tests/unit stravalib/tests/integration
+
+```bash
+shell$ make test
 ```
 
+## Local Tests 
 To run **end-to-end** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
 In *test.ini* provide your *access_token* and *activity_id*. Now you can run
 ```
 shell$ pytest stravalib/tests/functional
 ```
 
-### Testing
+### Pull Requests and tests
 
 Please add tests that cover your changes, these will greatly reduce the effort of reviewing
 and merging your Pull Requests. In case you need it, there's a pytest fixture
@@ -86,7 +88,6 @@ and merging your Pull Requests. In case you need it, there's a pytest fixture
 requests being made to the actual Strava API and instead registers responses that are
 based on examples from the published Strava API documentation. Example usages of this
 fixture can be found in the `stravalib.tests.integration` package.
-
 
 ## Basic Usage
 
@@ -96,8 +97,15 @@ to-do list.
 
 ### Authentication
 
-In order to make use of this library, you will need to have access keys for one or more Strava users. This
-effectively requires you to run a webserver; this is outside the scope of this library, but stravalib does provide helper methods to make it easier.
+In order to make use of this library, you will need to create an app in Strava 
+which is free to do. Have a look at this tutorial for instructions on creating 
+an app with Strava. 
+
+**NOTE** We will be updating our documentation with clear instructions to support this
+in the upcoming months
+
+Once you have created your app, stravalib have several helper methods to make 
+authentication easier.
 
 ```python
 from stravalib.client import Client
