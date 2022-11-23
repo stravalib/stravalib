@@ -34,5 +34,5 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install -r ./requirements.txt
-          python3 -m pip install -e .
-      - run: make docs -B
+          python3 -m pip install .
+      - run: make -C docs html

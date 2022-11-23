@@ -23,7 +23,6 @@ See the [online documentation](https://stravalib.readthedocs.io/) to learn more.
 
 The package is available on PyPI to be installed using `easy_install` or `Or you can
 
-
 ## How to Contribute to Stravalib
 
 ### Get Started!
@@ -49,9 +48,10 @@ local filesystem::
 3. Set up your fork for local development
 -----------------------------------------
 The docs for this library are created using `sphinx`.
-To build the documentation, use the command::
+To build the html version of the documentation, use the 
+command:
 
-`$ make -C docs -B`
+`$ make -C docs html`
 
 ### Building from sources
 
