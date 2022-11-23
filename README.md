@@ -1,4 +1,5 @@
 # Welcome to stravalib
+![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest)
 
 The **stravalib** Python package provides easy-to-use tools for accessing and 
 downloading Strava data from the Strava V3 web service. Stravalib provides an 
