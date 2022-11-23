@@ -17,7 +17,7 @@ Welcome to Stravalib!
 `Strava <https://www.strava.com>`_  API.
 
 This library is designed provide a simple and easy-to-use object model paradigm for interacting
-with the API, support modern versions of Python (2.7, 3.2+), and expose the full functionality of the REST API.
+with the API, support modern versions of Python (3.7+), and expose the full functionality of the REST API.
 
 **Why use stravalib?**  The Strava REST API is fairly straightforward.  The main reasons to use something like
 stravalib would be:
