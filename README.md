@@ -55,23 +55,17 @@ command:
 
 ### Building from sources
 
-To build the project from sources access the project root directory and run
+To build the project locally in editable mode,
+access the project root directory and run:
 
 ```bash
-shell$ python setup.py build
+$ pip install -e .
 ```
-Running
-
-```
-shell$ make install
-```
-
-will build and install *stravalib* in your *pip* package repository.
 
 To execute **unit - or integration tests** you will need to run
 
 ```bash
-shell$ make test
+$ make test
 ```
 
 ## Local Tests 
