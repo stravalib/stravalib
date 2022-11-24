@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
 
 ## v1.0.0
 
