@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - fix_actions
+      - master
 
 jobs:
   build-doc:
