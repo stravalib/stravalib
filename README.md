@@ -1,4 +1,5 @@
 # Welcome to stravalib
+![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest)
 
 The **stravalib** Python package provides easy-to-use tools for accessing and 
 downloading Strava data from the Strava V3 web service. Stravalib provides an 
@@ -21,7 +22,6 @@ See the [online documentation](https://stravalib.readthedocs.io/) to learn more.
 ## Installation
 
 The package is available on PyPI to be installed using `easy_install` or `Or you can
-
 
 ## How to Contribute to Stravalib
 
@@ -48,29 +48,24 @@ local filesystem::
 3. Set up your fork for local development
 -----------------------------------------
 The docs for this library are created using `sphinx`.
-To build the documentation, use the command::
+To build the html version of the documentation, use the 
+command:
 
-`$ make -C docs -B`
+`$ make -C docs html`
 
 ### Building from sources
 
-To build the project from sources access the project root directory and run
+To build the project locally in editable mode,
+access the project root directory and run:
 
 ```bash
-shell$ python setup.py build
+$ pip install -e .
 ```
-Running
-
-```
-shell$ make install
-```
-
-will build and install *stravalib* in your *pip* package repository.
 
 To execute **unit - or integration tests** you will need to run
 
 ```bash
-shell$ make test
+$ make test
 ```
 
 ## Local Tests 
