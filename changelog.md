@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Fix: deprecated set-output command in actions build (@yihong0618, #272)
 
 ## v1.0.0
 
