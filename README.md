@@ -1,17 +1,17 @@
 # Welcome to stravalib
-![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908) 
+![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic)
+
+https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg
 
 The **stravalib** Python package provides easy-to-use tools for accessing and 
-downloading Strava data from the Strava V3 web service. Stravalib provides an 
-easy-to-use CLient class that supports:
+downloading Strava data from the Strava V3 web service. Stravalib provides a Client class that supports:
 * Authenticating with stravalib 
 * Accessing and downloading strava activity, club and profile data 
 * Making changes to account activities 
 
 It also provides support for working with date/time/temporal attributes
 and quantities through the [Python units library](http://pypi.python.org/pypi/units).
-
-See the [online documentation](https://stravalib.readthedocs.io/) to learn more.
 
 ## Dependencies
 
@@ -21,7 +21,9 @@ See the [online documentation](https://stravalib.readthedocs.io/) to learn more.
 
 ## Installation
 
-The package is available on PyPI to be installed using `easy_install` or `Or you can
+The package is available on PyPI to be installed using `easy_install` or `pip`:
+
+`pip install stravalib`
 
 ## How to Contribute to Stravalib
 
