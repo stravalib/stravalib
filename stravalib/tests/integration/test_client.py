@@ -137,6 +137,44 @@ def test_upload_activity(
             _call_upload({})
 
 
+@pytest.mark.parametrize(
+    'update_kwargs,expected_params,expected_warning,expected_exception',
+    (
+        ({}, {}, None, None),
+        ({'city': 'foo'}, {'city': 'foo'}, DeprecationWarning, None),
+        ({'state': 'foo'}, {'state': 'foo'}, DeprecationWarning, None),
+        ({'country': 'foo'}, {'country': 'foo'}, DeprecationWarning, None),
+        ({'sex': 'foo'}, {'sex': 'foo'}, DeprecationWarning, None),
+        ({'weight': 'foo'}, {}, None, ValueError),
+        ({'weight': '99.9'}, {'weight': '99.9'}, None, None),
+        ({'weight': 99.9}, {'weight': '99.9'}, None, None),
+        ({'weight': 99}, {'weight': '99.0'}, None, None)
+    )
+)
+def test_update_athlete(
+        mock_strava_api,
+        client,
+        update_kwargs,
+        expected_params,
+        expected_warning,
+        expected_exception
+):
+    def _call_and_assert():
+        _ = client.update_athlete(**update_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_and_assert()
+    else:
+        mock_strava_api.put('/athlete', status=200)
+        if expected_warning:
+            with pytest.warns(expected_warning):
+                _call_and_assert()
+        else:
+            _call_and_assert()
+
+
 def test_activity_uploader(mock_strava_api, client):
     test_activity_id = 42
     init_upload_response = {

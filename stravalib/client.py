@@ -322,6 +322,9 @@ class Client(object):
                   'country': country,
                   'sex': sex}
         params = {k: v for (k, v) in params.items() if v is not None}
+        for p in params.keys():
+            if p != 'weight':
+                warn_param_deprecation(p)
         if weight is not None:
             params['weight'] = float(weight)
 
