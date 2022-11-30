@@ -610,7 +610,7 @@ class Client(object):
         :type distance: :class:`units.quantity.Quantity` or float (meters)
         """
         if isinstance(elapsed_time, timedelta):
-            elapsed_time = unithelper.timedelta_to_seconds(elapsed_time)
+            elapsed_time = elapsed_time.seconds
 
         if isinstance(distance, Quantity):
             distance = float(unithelper.meters(distance))
