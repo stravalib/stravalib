@@ -633,11 +633,15 @@ class Client(object):
                               iceskate, inlineskate, kitesurf, rollerski,
                               windsurf, workout, snowboard, snowshoe
         :param private: Whether the activity is private.
+                        WARNING - This param is not supported by the Strava API and may be
+                        removed in the future.
         :param commute: Whether the activity is a commute.
         :param trainer: Whether this is a trainer activity.
         :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
         :param description: Description for the activity.
         :param device_name: Device name for the activity
+                            WARNING - This param is not supported by the Strava API and may be
+                            removed in the future.
         :param hide_from_home: Whether the activity is muted (hidden from Home and Club feeds).
 
         :return: The updated activity.
@@ -656,6 +660,7 @@ class Client(object):
             params['type'] = activity_type
 
         if private is not None:
+            warn_param_deprecation('private')
             params['private'] = int(private)
 
         if commute is not None:
@@ -671,6 +676,7 @@ class Client(object):
             params['description'] = description
 
         if device_name is not None:
+            warn_param_deprecation('device_name')
             params['device_name'] = device_name
         
         if hide_from_home is not None:
