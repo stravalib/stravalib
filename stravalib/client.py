@@ -309,9 +309,25 @@ class Client(object):
         https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
 
         :param city: City the athlete lives in
+
+                     .. deprecated:: 1.0
+                     This param is not supported by the Strava API and may be
+                     removed in the future.
         :param state: State the athlete lives in
+
+                      .. deprecated:: 1.0
+                      This param is not supported by the Strava API and may be
+                      removed in the future.
         :param country: Country the athlete lives in
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
+                        removed in the future.
         :param sex: Sex of the athlete
+
+                    .. deprecated:: 1.0
+                    This param is not supported by the Strava API and may be
+                    removed in the future.
         :param weight: Weight of the athlete in kg (float)
 
         :return: The updated athlete
@@ -636,14 +652,18 @@ class Client(object):
                               iceskate, inlineskate, kitesurf, rollerski,
                               windsurf, workout, snowboard, snowshoe
         :param private: Whether the activity is private.
-                        WARNING - This param is not supported by the Strava API and may be
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
                         removed in the future.
         :param commute: Whether the activity is a commute.
         :param trainer: Whether this is a trainer activity.
         :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
         :param description: Description for the activity.
         :param device_name: Device name for the activity
-                            WARNING - This param is not supported by the Strava API and may be
+
+                            .. deprecated:: 1.0
+                            This param is not supported by the Strava API and may be
                             removed in the future.
         :param hide_from_home: Whether the activity is muted (hidden from Home and Club feeds).
 
@@ -720,7 +740,9 @@ class Client(object):
 
         :param private: (optional) set to True to mark the resulting activity as private,
                         'view_private' permissions will be necessary to view the activity.
-                        WARNING - This param is not supported by the Strava API and may be
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
                         removed in the future.
         :type private: bool
 
