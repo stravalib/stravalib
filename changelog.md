@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))
 * Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
 * Fix: deprecated set-output command in actions build (@yihong0618, #272)
 * Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
