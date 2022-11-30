@@ -29,6 +29,24 @@ warnings.simplefilter('default')
 logging.captureWarnings(True)
 
 
+def warn_param_deprecation(param_name: str):
+    warnings.warn(
+        f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
+        'effect and may lead to errors in the future.',
+        DeprecationWarning,
+        stacklevel=3
+    )
+
+
+def warn_param_unofficial(param_name: str):
+    warnings.warn(
+        f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
+        'may lead to unexpected behavior or errors in the future.',
+        FutureWarning,
+        stacklevel=3
+    )
+
+
 class Client(object):
     """
     Main client class for interacting with the exposed Strava v3 API methods.
@@ -724,22 +742,12 @@ class Client(object):
         if description is not None:
             params['description'] = description
         if activity_type is not None:
-            warnings.warn(
-                'The "activity_type" parameter is undocumented in the Strava API. Its use '
-                'may lead to unexpected behavior or errors in the future.',
-                FutureWarning,
-                stacklevel=2
-            )
+            warn_param_unofficial('activity_type')
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
                 raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
             params['activity_type'] = activity_type
         if private is not None:
-            warnings.warn(
-                'The "private" parameter is unsupported by the Strava API. It has no '
-                'effect and may lead to errors in the future',
-                DeprecationWarning,
-                stacklevel=2
-            )
+            warn_param_deprecation('private')
             params['private'] = int(private)
         if external_id is not None:
             params['external_id'] = external_id
