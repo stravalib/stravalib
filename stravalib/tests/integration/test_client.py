@@ -33,6 +33,50 @@ def test_get_activity(mock_strava_api, client, include_all_efforts, expected_url
 
 
 @pytest.mark.parametrize(
+    'update_kwargs,expected_params,expected_warning,expected_exception',
+    (
+        ({}, {}, None, None),
+        ({'name': 'foo'}, {'name': 'foo'}, None, None),
+        ({'activity_type': 'foo'}, {}, None, ValueError),
+        ({'activity_type': 'Run'}, {'type': 'run'}, None, None),
+        ({'activity_type': 'run'}, {'type': 'run'}, None, None),
+        ({'activity_type': 'RUN'}, {'type': 'run'}, None, None),
+        ({'private': True}, {'private': '1'}, DeprecationWarning, None),
+        ({'commute': True}, {'commute': '1'}, None, None),
+        ({'trainer': True}, {'trainer': '1'}, None, None),
+        ({'gear_id': 'fb42'}, {'gear_id': 'fb42'}, None, None),
+        ({'description': 'foo'}, {'description': 'foo'}, None, None),
+        ({'device_name': 'foo'}, {'device_name': 'foo'}, DeprecationWarning, None),
+        ({'hide_from_home': False}, {'hide_from_home': '0'}, None, None),
+    )
+)
+def test_update_activity(
+        mock_strava_api,
+        client,
+        update_kwargs,
+        expected_params,
+        expected_warning,
+        expected_exception
+):
+    activity_id = 42
+
+    def _call_update_activity():
+        _ = client.update_activity(activity_id, **update_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_update_activity()
+    else:
+        mock_strava_api.put('/activities/{id}', status=200)
+        if expected_warning:
+            with pytest.warns(expected_warning):
+                _call_update_activity()
+        else:
+            _call_update_activity()
+
+
+@pytest.mark.parametrize(
     'activity_file_type,data_type,name,description,activity_type,private,external_id,'
     'trainer,commute,expected_params,expected_exception',
     (

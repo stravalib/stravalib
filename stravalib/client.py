@@ -656,8 +656,8 @@ class Client(object):
 
         if activity_type is not None:
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
-            params['type'] = activity_type
+                raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
+            params['type'] = activity_type.lower()
 
         if private is not None:
             warn_param_deprecation('private')
