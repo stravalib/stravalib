@@ -619,9 +619,9 @@ class Client(object):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-            raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
+            raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
 
-        params = dict(name=name, type=activity_type, start_date_local=start_date_local,
+        params = dict(name=name, type=activity_type.lower(), start_date_local=start_date_local,
                       elapsed_time=elapsed_time)
 
         if description is not None:

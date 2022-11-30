@@ -1,9 +1,11 @@
+import datetime
 import os
 
 import pytest
 from responses import matchers
 
 from stravalib.tests import RESOURCES_DIR
+from stravalib.unithelper import miles
 
 
 def test_get_athlete(mock_strava_api, client):
@@ -173,6 +175,58 @@ def test_update_athlete(
                 _call_and_assert()
         else:
             _call_and_assert()
+
+
+@pytest.mark.parametrize(
+    'extra_create_kwargs,extra_expected_params,expected_exception',
+    (
+        ({}, {}, None),
+        ({'activity_type': 'run'}, {'type': 'run'}, None),
+        ({'activity_type': 'Run'}, {'type': 'run'}, None),
+        ({'activity_type': 'sleep'}, {}, ValueError),
+        (
+                {'start_date_local': datetime.datetime(2022, 1, 1, 10, 0, 0)},
+                {'start_date_local': '2022-01-01T10:00:00Z'},
+                None
+        ),
+        ({'elapsed_time': datetime.timedelta(minutes=1)}, {'elapsed_time': '60'}, None),
+        ({'distance': 1000}, {'distance': '1000'}, None),
+        ({'distance': miles(1)}, {'distance': '1609.344'}, None),
+        ({'description': 'foo'}, {'description': 'foo'}, None)
+    )
+)
+def test_create_activity(
+        mock_strava_api,
+        client,
+        extra_create_kwargs,
+        extra_expected_params,
+        expected_exception
+):
+    default_call_kwargs = {
+        'name': 'test',
+        'activity_type': 'Run',
+        'start_date_local': '2022-01-01T09:00:00',
+        'elapsed_time': 3600
+    }
+    default_request_params = {
+        'name': 'test',
+        'type': 'run',
+        'start_date_local': '2022-01-01T09:00:00',
+        'elapsed_time': '3600'
+    }
+    call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
+    expected_params = {**default_request_params, **extra_expected_params}
+
+    def _call_and_assert():
+        _ = client.create_activity(**call_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_and_assert()
+    else:
+        mock_strava_api.post('/activities', status=201)
+        _call_and_assert()
 
 
 def test_activity_uploader(mock_strava_api, client):
