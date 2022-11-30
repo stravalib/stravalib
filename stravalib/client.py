@@ -739,8 +739,8 @@ class Client(object):
                 raise TypeError("Invalid type specified for activity_file: {0}".format(type(activity_file)))
 
         valid_data_types = ('fit', 'fit.gz', 'tcx', 'tcx.gz', 'gpx', 'gpx.gz')
-        if not data_type in valid_data_types:
-            raise ValueError("Invalid data type {0}. Possible values {1!r}".format(data_type, valid_data_types))
+        if data_type not in valid_data_types:
+            raise ValueError(f'Invalid data type {data_type}. Possible values {valid_data_types!r}')
 
         params = {'data_type': data_type}
         if name is not None:
@@ -748,19 +748,19 @@ class Client(object):
         if description is not None:
             params['description'] = description
         if activity_type is not None:
-            warn_param_unofficial('activity_type')
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
-            params['activity_type'] = activity_type
+                raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
+            warn_param_unofficial('activity_type')
+            params['activity_type'] = activity_type.lower()
         if private is not None:
             warn_param_deprecation('private')
             params['private'] = int(private)
         if external_id is not None:
             params['external_id'] = external_id
         if trainer is not None:
-            params['trainer'] = json.dumps(trainer)
+            params['trainer'] = int(trainer)
         if commute is not None:
-            params['commute'] = json.dumps(commute)
+            params['commute'] = int(commute)
 
         initial_response = self.protocol.post('/uploads',
                                               files={'file': activity_file},

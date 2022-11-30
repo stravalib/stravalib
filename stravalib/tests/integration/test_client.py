@@ -77,22 +77,21 @@ def test_update_activity(
 
 
 @pytest.mark.parametrize(
-    'activity_file_type,data_type,name,description,activity_type,private,external_id,'
-    'trainer,commute,expected_params,expected_exception',
+    'activity_file_type,data_type,upload_kwargs,expected_params,expected_warning,expected_exception',
     (
-        ('file', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
-        ('str', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
-        ('not_supported', 'tcx', None, None, None, None, None, None, None, None, TypeError),
-        ('file', 'invalid', None, None, None, None, None, None, None, None, ValueError),
-        ('file', 'tcx', 'name', None, None, None, None, None, None, {'data_type': 'tcx', 'name': 'name'}, None),
-        ('file', 'tcx', None, 'descr', None, None, None, None, None, {'data_type': 'tcx', 'description': 'descr'}, None),
-        ('file', 'tcx', None, None, 'Run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'Run'}, None),
-        ('file', 'tcx', None, None, 'run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'run'}, None),
-        ('file', 'tcx', None, None, 'sleep', None, None, None, None, None, ValueError),
-        ('file', 'tcx', None, None, None, True, None, None, None, {'data_type': 'tcx', 'private': '1'}, None),
-        ('file', 'tcx', None, None, None, None, 42, None, None, {'data_type': 'tcx', 'external_id': '42'}, None),
-        ('file', 'tcx', None, None, None, None, None, True, None, {'data_type': 'tcx', 'trainer': 'true'}, None),
-        ('file', 'tcx', None, None, None, None, None, None, True, {'data_type': 'tcx', 'commute': 'true'}, None)
+        ('file', 'tcx', {}, {'data_type': 'tcx'}, None, None),
+        ('str', 'tcx', {}, {'data_type': 'tcx'}, None, None),
+        ('not_supported', 'tcx', {}, {}, None, TypeError),
+        ('file', 'invalid', {}, {}, None, ValueError),
+        ('file', 'tcx', {'name': 'name'}, {'data_type': 'tcx', 'name': 'name'}, None, None),
+        ('file', 'tcx', {'description': 'descr'}, {'data_type': 'tcx', 'description': 'descr'}, None, None),
+        ('file', 'tcx', {'activity_type': 'run'}, {'data_type': 'tcx', 'activity_type': 'run'}, FutureWarning, None),
+        ('file', 'tcx', {'activity_type': 'Run'}, {'data_type': 'tcx', 'activity_type': 'run'}, FutureWarning, None),
+        ('file', 'tcx', {'activity_type': 'sleep'}, None, None, ValueError),
+        ('file', 'tcx', {'private': True}, {'data_type': 'tcx', 'private': '1'}, DeprecationWarning, None),
+        ('file', 'tcx', {'external_id': 42}, {'data_type': 'tcx', 'external_id': '42'}, None, None),
+        ('file', 'tcx', {'trainer': True}, {'data_type': 'tcx', 'trainer': '1'}, None, None),
+        ('file', 'tcx', {'commute': False}, {'data_type': 'tcx', 'commute': '0'}, None, None)
     )
 )
 def test_upload_activity(
@@ -100,14 +99,9 @@ def test_upload_activity(
         client,
         activity_file_type,
         data_type,
-        name,
-        description,
-        activity_type,
-        private,
-        external_id,
-        trainer,
-        commute,
+        upload_kwargs,
         expected_params,
+        expected_warning,
         expected_exception
 ):
     init_upload_response = {
@@ -117,32 +111,30 @@ def test_upload_activity(
         'status': 'default_status',
         'error': ''
     }
-    upload_kwargs = {
-        **({'name': name} if name is not None else {}),
-        **({'description': description} if description is not None else {}),
-        **({'activity_type': activity_type} if activity_type is not None else {}),
-        **({'private': private} if private is not None else {}),
-        **({'external_id': external_id} if external_id is not None else {}),
-        **({'trainer': trainer} if trainer is not None else {}),
-        **({'commute': commute} if commute is not None else {})
-    }
 
-    def _call_upload(*args, **kwargs):
+    def _call_and_assert(file):
+        _ = client.upload_activity(file, data_type, **upload_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    def _call_upload(file):
         if expected_exception:
             with pytest.raises(expected_exception):
-                client.upload_activity(*args, **kwargs)
+                _call_and_assert(file)
         else:
             mock_strava_api.post('/uploads', status=201, json=init_upload_response)
-            _ = client.upload_activity(*args, **kwargs)
-            assert mock_strava_api.calls[-1].request.params == expected_params
+            if expected_warning:
+                with pytest.warns(expected_warning):
+                    _call_and_assert(file)
+            else:
+                _call_and_assert(file)
 
     with open(os.path.join(RESOURCES_DIR, 'sample.tcx')) as f:
         if activity_file_type == 'file':
-            _call_upload(f, data_type, **upload_kwargs)
+            _call_upload(f)
         elif activity_file_type == 'str':
-            _call_upload(f.read(), data_type, **upload_kwargs)
+            _call_upload(f.read())
         else:
-            _call_upload({}, data_type, **upload_kwargs)
+            _call_upload({})
 
 
 def test_activity_uploader(mock_strava_api, client):
