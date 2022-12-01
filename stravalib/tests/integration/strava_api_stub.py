@@ -118,6 +118,10 @@ def _api_method_adapter(api_method: Callable) -> Callable:
                 if isinstance(response, list) and n_results is not None:
                     # make sure response has n_results items
                     response = (response * (n_results // len(response) + 1))[:n_results]
+                elif n_results is not None:
+                    # force single response in example into result list (not all examples provide lists)
+                    LOGGER.warning(f'Forcing example single response into list')
+                    response = [{**response, **response_update}] * n_results
             except KeyError:
                 LOGGER.warning(
                     f'There are no known example responses for HTTP status {response_status}, '
