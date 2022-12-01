@@ -1,11 +1,13 @@
 # Change Log
 
 ## Unreleased
+* Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page (@lwasser, #276)
 * Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))
+* Add: code cov to test suite (@lwasser, #262)
 * Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
 * Fix: deprecated set-output command in actions build (@yihong0618, #272)
 * Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
-* Add: code cov to test suite (@lwasser, #262)
+* Add: development guide page to documentation and minor documentation cleanup and fixes (@lwasser, #278)
 
 ## v1.0.0
 
@@ -27,7 +29,6 @@
 * Change: Remove support for python 2.x (@yihong0618, #254)
 * Change: Overhaul of documentation, fix links and CI build (@lwasser, #222)
 
--------
 ### Contributors to this release
 @jsamoocha, @yihong0618, @tirkarthi, @huaminghuangtw, @ollyajoke, @lwasser
 
@@ -92,42 +93,35 @@
 * Fix for delete_activity (@jonderwaater, #99)
 
 ## 0.6.5
------
 * Updated ActivityPhoto model to support native photos and reverted get_activity_photos behavior for backwards
   compatibility (@hozn, #98)
 * Added missing Club attributes (MMI) (@hozn, #97)
 
 ## 0.6.4
------
 * Added support for undocumented inclusion of laps in activity details. (@hozn, #96)
 * Added missing parameter for get_activity_photos (@hozn, #94)
 * Added missing activyt pr_count attribute (@Wilm0r, #95)
 * add "starred" property on SegmentExplorerResult (@mdarmetko, #92)
 
 ## 0.6.3
------
 * Fixed update_activity to include description (@hozn, #91)
 
 ## 0.6.2
------
 * More Python3 bugfixes
 
 ## 0.6.1
------
 * Python3 bugfixes (@Tafkas, @martinogden)
 * Added delete_activity
 * added context_entries parameter to get_segment_leaderboard method (@jedman)
 
 ## 0.6.0
------
-* Use (reuqire) more modern pip/setuptools.
+* Use (require) more modern pip/setuptools.
 * Full Python 3 support (using Six). (@hozn, #69)
 * Webhooks support (thanks to loisaidasam) (@hozn, #77)
 * explore_segments bugfix (@hozn, #71)
 * General updates to model/attribs (@hozn, #64, #73, etc.)
 
 ## 0.5.0
------
 * Renamed `Activity.photos` property to `full_photos` due to new conflict with Strava API (@hozn, #45)
 
 ## 0.4.0
