@@ -4,6 +4,7 @@
 * Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
 * Fix: deprecated set-output command in actions build (@yihong0618, #272)
 * Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
+* Add: code cov to test suite (@lwasser, #262)
 
 ## v1.0.0
 
