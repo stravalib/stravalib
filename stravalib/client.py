@@ -4,13 +4,11 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
-import json
-import logging
 import functools
+import logging
 import time
 import collections
 import calendar
-import warnings
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -19,32 +17,11 @@ import pytz
 
 from units.quantity import Quantity
 
+from stravalib.exc import warn_param_deprecation, warn_param_unofficial
 from stravalib import model, exc
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
-
-
-warnings.simplefilter('default')
-logging.captureWarnings(True)
-
-
-def warn_param_deprecation(param_name: str):
-    warnings.warn(
-        f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
-        'effect and may lead to errors in the future.',
-        DeprecationWarning,
-        stacklevel=3
-    )
-
-
-def warn_param_unofficial(param_name: str):
-    warnings.warn(
-        f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
-        'may lead to unexpected behavior or errors in the future.',
-        FutureWarning,
-        stacklevel=3
-    )
 
 
 class Client(object):
