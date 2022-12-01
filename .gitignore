@@ -13,6 +13,8 @@ test.ini
 stravalib/_version_generated.py
 #*~
 examples/strava-oauth/settings.cfg
+# Code cov
+.coverage
 
 # so people don't mistakenly delete and submit a pr with these
 stravalib/tests/test.ini-example

@@ -6,6 +6,8 @@ pytz
 # Testing
 pytest
 responses
+# Code coverage
+pytest-cov
 
 # For docs build
 sphinx_copybutton

@@ -66,3 +66,7 @@ jobs:
       - name: Run tests with pytest
         run: |
           make test
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' &&  matrix.python-version == '3.9'}}
+        uses: codecov/codecov-action@v3
