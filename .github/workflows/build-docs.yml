@@ -36,6 +36,7 @@ jobs:
         run: |
           python3 -m pip install -r ./requirements.txt
           python3 -m pip install .
-      - run: |
+      - name: Build docs & linkcheck
+        run: |
         # Build html and link check
         make -C docs
