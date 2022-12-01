@@ -23,7 +23,7 @@ test:
 	mkdir -p $(TESTDIR)
 	cd $(TESTDIR); 
 	pytest $(PYTEST_ARGS) $(PROJECT)
-	#rm -r $(TESTDIR)
+	rm -r $(TESTDIR)
 
 ## Clean up all unneeded files and directories and things that shouldn't be under version control
 clean:
