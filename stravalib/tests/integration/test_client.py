@@ -1,9 +1,11 @@
+import datetime
 import os
 
 import pytest
 from responses import matchers
 
 from stravalib.tests import RESOURCES_DIR
+from stravalib.unithelper import miles
 
 
 def test_get_athlete(mock_strava_api, client):
@@ -33,22 +35,65 @@ def test_get_activity(mock_strava_api, client, include_all_efforts, expected_url
 
 
 @pytest.mark.parametrize(
-    'activity_file_type,data_type,name,description,activity_type,private,external_id,'
-    'trainer,commute,expected_params,expected_exception',
+    'update_kwargs,expected_params,expected_warning,expected_exception',
     (
-        ('file', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
-        ('str', 'tcx', None, None, None, None, None, None, None, {'data_type': 'tcx'}, None),
-        ('not_supported', 'tcx', None, None, None, None, None, None, None, None, TypeError),
-        ('file', 'invalid', None, None, None, None, None, None, None, None, ValueError),
-        ('file', 'tcx', 'name', None, None, None, None, None, None, {'data_type': 'tcx', 'name': 'name'}, None),
-        ('file', 'tcx', None, 'descr', None, None, None, None, None, {'data_type': 'tcx', 'description': 'descr'}, None),
-        ('file', 'tcx', None, None, 'Run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'Run'}, None),
-        ('file', 'tcx', None, None, 'run', None, None, None, None, {'data_type': 'tcx', 'activity_type': 'run'}, None),
-        ('file', 'tcx', None, None, 'sleep', None, None, None, None, None, ValueError),
-        ('file', 'tcx', None, None, None, True, None, None, None, {'data_type': 'tcx', 'private': '1'}, None),
-        ('file', 'tcx', None, None, None, None, 42, None, None, {'data_type': 'tcx', 'external_id': '42'}, None),
-        ('file', 'tcx', None, None, None, None, None, True, None, {'data_type': 'tcx', 'trainer': 'true'}, None),
-        ('file', 'tcx', None, None, None, None, None, None, True, {'data_type': 'tcx', 'commute': 'true'}, None)
+        ({}, {}, None, None),
+        ({'name': 'foo'}, {'name': 'foo'}, None, None),
+        ({'activity_type': 'foo'}, {}, None, ValueError),
+        ({'activity_type': 'Run'}, {'type': 'run'}, None, None),
+        ({'activity_type': 'run'}, {'type': 'run'}, None, None),
+        ({'activity_type': 'RUN'}, {'type': 'run'}, None, None),
+        ({'private': True}, {'private': '1'}, DeprecationWarning, None),
+        ({'commute': True}, {'commute': '1'}, None, None),
+        ({'trainer': True}, {'trainer': '1'}, None, None),
+        ({'gear_id': 'fb42'}, {'gear_id': 'fb42'}, None, None),
+        ({'description': 'foo'}, {'description': 'foo'}, None, None),
+        ({'device_name': 'foo'}, {'device_name': 'foo'}, DeprecationWarning, None),
+        ({'hide_from_home': False}, {'hide_from_home': '0'}, None, None),
+    )
+)
+def test_update_activity(
+        mock_strava_api,
+        client,
+        update_kwargs,
+        expected_params,
+        expected_warning,
+        expected_exception
+):
+    activity_id = 42
+
+    def _call_update_activity():
+        _ = client.update_activity(activity_id, **update_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_update_activity()
+    else:
+        mock_strava_api.put('/activities/{id}', status=200)
+        if expected_warning:
+            with pytest.warns(expected_warning):
+                _call_update_activity()
+        else:
+            _call_update_activity()
+
+
+@pytest.mark.parametrize(
+    'activity_file_type,data_type,upload_kwargs,expected_params,expected_warning,expected_exception',
+    (
+        ('file', 'tcx', {}, {'data_type': 'tcx'}, None, None),
+        ('str', 'tcx', {}, {'data_type': 'tcx'}, None, None),
+        ('not_supported', 'tcx', {}, {}, None, TypeError),
+        ('file', 'invalid', {}, {}, None, ValueError),
+        ('file', 'tcx', {'name': 'name'}, {'data_type': 'tcx', 'name': 'name'}, None, None),
+        ('file', 'tcx', {'description': 'descr'}, {'data_type': 'tcx', 'description': 'descr'}, None, None),
+        ('file', 'tcx', {'activity_type': 'run'}, {'data_type': 'tcx', 'activity_type': 'run'}, FutureWarning, None),
+        ('file', 'tcx', {'activity_type': 'Run'}, {'data_type': 'tcx', 'activity_type': 'run'}, FutureWarning, None),
+        ('file', 'tcx', {'activity_type': 'sleep'}, None, None, ValueError),
+        ('file', 'tcx', {'private': True}, {'data_type': 'tcx', 'private': '1'}, DeprecationWarning, None),
+        ('file', 'tcx', {'external_id': 42}, {'data_type': 'tcx', 'external_id': '42'}, None, None),
+        ('file', 'tcx', {'trainer': True}, {'data_type': 'tcx', 'trainer': '1'}, None, None),
+        ('file', 'tcx', {'commute': False}, {'data_type': 'tcx', 'commute': '0'}, None, None)
     )
 )
 def test_upload_activity(
@@ -56,14 +101,9 @@ def test_upload_activity(
         client,
         activity_file_type,
         data_type,
-        name,
-        description,
-        activity_type,
-        private,
-        external_id,
-        trainer,
-        commute,
+        upload_kwargs,
         expected_params,
+        expected_warning,
         expected_exception
 ):
     init_upload_response = {
@@ -73,32 +113,120 @@ def test_upload_activity(
         'status': 'default_status',
         'error': ''
     }
-    upload_kwargs = {
-        **({'name': name} if name is not None else {}),
-        **({'description': description} if description is not None else {}),
-        **({'activity_type': activity_type} if activity_type is not None else {}),
-        **({'private': private} if private is not None else {}),
-        **({'external_id': external_id} if external_id is not None else {}),
-        **({'trainer': trainer} if trainer is not None else {}),
-        **({'commute': commute} if commute is not None else {})
-    }
 
-    def _call_upload(*args, **kwargs):
+    def _call_and_assert(file):
+        _ = client.upload_activity(file, data_type, **upload_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    def _call_upload(file):
         if expected_exception:
             with pytest.raises(expected_exception):
-                client.upload_activity(*args, **kwargs)
+                _call_and_assert(file)
         else:
             mock_strava_api.post('/uploads', status=201, json=init_upload_response)
-            _ = client.upload_activity(*args, **kwargs)
-            assert mock_strava_api.calls[-1].request.params == expected_params
+            if expected_warning:
+                with pytest.warns(expected_warning):
+                    _call_and_assert(file)
+            else:
+                _call_and_assert(file)
 
     with open(os.path.join(RESOURCES_DIR, 'sample.tcx')) as f:
         if activity_file_type == 'file':
-            _call_upload(f, data_type, **upload_kwargs)
+            _call_upload(f)
         elif activity_file_type == 'str':
-            _call_upload(f.read(), data_type, **upload_kwargs)
+            _call_upload(f.read())
         else:
-            _call_upload({}, data_type, **upload_kwargs)
+            _call_upload({})
+
+
+@pytest.mark.parametrize(
+    'update_kwargs,expected_params,expected_warning,expected_exception',
+    (
+        ({}, {}, None, None),
+        ({'city': 'foo'}, {'city': 'foo'}, DeprecationWarning, None),
+        ({'state': 'foo'}, {'state': 'foo'}, DeprecationWarning, None),
+        ({'country': 'foo'}, {'country': 'foo'}, DeprecationWarning, None),
+        ({'sex': 'foo'}, {'sex': 'foo'}, DeprecationWarning, None),
+        ({'weight': 'foo'}, {}, None, ValueError),
+        ({'weight': '99.9'}, {'weight': '99.9'}, None, None),
+        ({'weight': 99.9}, {'weight': '99.9'}, None, None),
+        ({'weight': 99}, {'weight': '99.0'}, None, None)
+    )
+)
+def test_update_athlete(
+        mock_strava_api,
+        client,
+        update_kwargs,
+        expected_params,
+        expected_warning,
+        expected_exception
+):
+    def _call_and_assert():
+        _ = client.update_athlete(**update_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_and_assert()
+    else:
+        mock_strava_api.put('/athlete', status=200)
+        if expected_warning:
+            with pytest.warns(expected_warning):
+                _call_and_assert()
+        else:
+            _call_and_assert()
+
+
+@pytest.mark.parametrize(
+    'extra_create_kwargs,extra_expected_params,expected_exception',
+    (
+        ({}, {}, None),
+        ({'activity_type': 'run'}, {'type': 'run'}, None),
+        ({'activity_type': 'Run'}, {'type': 'run'}, None),
+        ({'activity_type': 'sleep'}, {}, ValueError),
+        (
+                {'start_date_local': datetime.datetime(2022, 1, 1, 10, 0, 0)},
+                {'start_date_local': '2022-01-01T10:00:00Z'},
+                None
+        ),
+        ({'elapsed_time': datetime.timedelta(minutes=1)}, {'elapsed_time': '60'}, None),
+        ({'distance': 1000}, {'distance': '1000'}, None),
+        ({'distance': miles(1)}, {'distance': '1609.344'}, None),
+        ({'description': 'foo'}, {'description': 'foo'}, None)
+    )
+)
+def test_create_activity(
+        mock_strava_api,
+        client,
+        extra_create_kwargs,
+        extra_expected_params,
+        expected_exception
+):
+    default_call_kwargs = {
+        'name': 'test',
+        'activity_type': 'Run',
+        'start_date_local': '2022-01-01T09:00:00',
+        'elapsed_time': 3600
+    }
+    default_request_params = {
+        'name': 'test',
+        'type': 'run',
+        'start_date_local': '2022-01-01T09:00:00',
+        'elapsed_time': '3600'
+    }
+    call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
+    expected_params = {**default_request_params, **extra_expected_params}
+
+    def _call_and_assert():
+        _ = client.create_activity(**call_kwargs)
+        assert mock_strava_api.calls[-1].request.params == expected_params
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            _call_and_assert()
+    else:
+        mock_strava_api.post('/activities', status=201)
+        _call_and_assert()
 
 
 def test_activity_uploader(mock_strava_api, client):

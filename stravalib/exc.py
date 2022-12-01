@@ -4,6 +4,8 @@ Exceptions & Error Handling
 Exceptions and error handling for stravalib.
 These are classes designed to capture and handle various errors encountered when interacting with the Strava API.
 """
+import logging
+import warnings
 
 import requests.exceptions
 
@@ -88,3 +90,26 @@ class NotAuthenticatedAthlete(AuthError):
     Exception when trying to access data which requires an authenticated athlete
     """
     pass
+
+
+# Warnings configuration and helper functions
+warnings.simplefilter('default')
+logging.captureWarnings(True)
+
+
+def warn_param_deprecation(param_name: str):
+    warnings.warn(
+        f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
+        'effect and may lead to errors in the future.',
+        DeprecationWarning,
+        stacklevel=3
+    )
+
+
+def warn_param_unofficial(param_name: str):
+    warnings.warn(
+        f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
+        'may lead to unexpected behavior or errors in the future.',
+        FutureWarning,
+        stacklevel=3
+    )

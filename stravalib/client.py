@@ -4,13 +4,11 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
-import json
-import logging
 import functools
+import logging
 import time
 import collections
 import calendar
-import warnings
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -19,14 +17,11 @@ import pytz
 
 from units.quantity import Quantity
 
+from stravalib.exc import warn_param_deprecation, warn_param_unofficial
 from stravalib import model, exc
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
 from stravalib import unithelper
-
-
-warnings.simplefilter('default')
-logging.captureWarnings(True)
 
 
 class Client(object):
@@ -291,9 +286,25 @@ class Client(object):
         https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
 
         :param city: City the athlete lives in
+
+                     .. deprecated:: 1.0
+                     This param is not supported by the Strava API and may be
+                     removed in the future.
         :param state: State the athlete lives in
+
+                      .. deprecated:: 1.0
+                      This param is not supported by the Strava API and may be
+                      removed in the future.
         :param country: Country the athlete lives in
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
+                        removed in the future.
         :param sex: Sex of the athlete
+
+                    .. deprecated:: 1.0
+                    This param is not supported by the Strava API and may be
+                    removed in the future.
         :param weight: Weight of the athlete in kg (float)
 
         :return: The updated athlete
@@ -304,6 +315,9 @@ class Client(object):
                   'country': country,
                   'sex': sex}
         params = {k: v for (k, v) in params.items() if v is not None}
+        for p in params.keys():
+            if p != 'weight':
+                warn_param_deprecation(p)
         if weight is not None:
             params['weight'] = float(weight)
 
@@ -573,7 +587,7 @@ class Client(object):
         :type distance: :class:`units.quantity.Quantity` or float (meters)
         """
         if isinstance(elapsed_time, timedelta):
-            elapsed_time = unithelper.timedelta_to_seconds(elapsed_time)
+            elapsed_time = elapsed_time.seconds
 
         if isinstance(distance, Quantity):
             distance = float(unithelper.meters(distance))
@@ -582,9 +596,9 @@ class Client(object):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-            raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
+            raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
 
-        params = dict(name=name, type=activity_type, start_date_local=start_date_local,
+        params = dict(name=name, type=activity_type.lower(), start_date_local=start_date_local,
                       elapsed_time=elapsed_time)
 
         if description is not None:
@@ -615,11 +629,19 @@ class Client(object):
                               iceskate, inlineskate, kitesurf, rollerski,
                               windsurf, workout, snowboard, snowshoe
         :param private: Whether the activity is private.
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
+                        removed in the future.
         :param commute: Whether the activity is a commute.
         :param trainer: Whether this is a trainer activity.
         :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
         :param description: Description for the activity.
         :param device_name: Device name for the activity
+
+                            .. deprecated:: 1.0
+                            This param is not supported by the Strava API and may be
+                            removed in the future.
         :param hide_from_home: Whether the activity is muted (hidden from Home and Club feeds).
 
         :return: The updated activity.
@@ -634,10 +656,11 @@ class Client(object):
 
         if activity_type is not None:
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
-            params['type'] = activity_type
+                raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
+            params['type'] = activity_type.lower()
 
         if private is not None:
+            warn_param_deprecation('private')
             params['private'] = int(private)
 
         if commute is not None:
@@ -653,6 +676,7 @@ class Client(object):
             params['description'] = description
 
         if device_name is not None:
+            warn_param_deprecation('device_name')
             params['device_name'] = device_name
         
         if hide_from_home is not None:
@@ -693,7 +717,9 @@ class Client(object):
 
         :param private: (optional) set to True to mark the resulting activity as private,
                         'view_private' permissions will be necessary to view the activity.
-                        WARNING - This param is not supported by the Strava API and may be
+
+                        .. deprecated:: 1.0
+                        This param is not supported by the Strava API and may be
                         removed in the future.
         :type private: bool
 
@@ -715,8 +741,8 @@ class Client(object):
                 raise TypeError("Invalid type specified for activity_file: {0}".format(type(activity_file)))
 
         valid_data_types = ('fit', 'fit.gz', 'tcx', 'tcx.gz', 'gpx', 'gpx.gz')
-        if not data_type in valid_data_types:
-            raise ValueError("Invalid data type {0}. Possible values {1!r}".format(data_type, valid_data_types))
+        if data_type not in valid_data_types:
+            raise ValueError(f'Invalid data type {data_type}. Possible values {valid_data_types!r}')
 
         params = {'data_type': data_type}
         if name is not None:
@@ -724,29 +750,19 @@ class Client(object):
         if description is not None:
             params['description'] = description
         if activity_type is not None:
-            warnings.warn(
-                'The "activity_type" parameter is undocumented in the Strava API. Its use '
-                'may lead to unexpected behavior or errors in the future.',
-                FutureWarning,
-                stacklevel=2
-            )
             if not activity_type.lower() in [t.lower() for t in model.Activity.TYPES]:
-                raise ValueError("Invalid activity type: {0}.  Possible values: {1!r}".format(activity_type, model.Activity.TYPES))
-            params['activity_type'] = activity_type
+                raise ValueError(f'Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}')
+            warn_param_unofficial('activity_type')
+            params['activity_type'] = activity_type.lower()
         if private is not None:
-            warnings.warn(
-                'The "private" parameter is unsupported by the Strava API. It has no '
-                'effect and may lead to errors in the future',
-                DeprecationWarning,
-                stacklevel=2
-            )
+            warn_param_deprecation('private')
             params['private'] = int(private)
         if external_id is not None:
             params['external_id'] = external_id
         if trainer is not None:
-            params['trainer'] = json.dumps(trainer)
+            params['trainer'] = int(trainer)
         if commute is not None:
-            params['commute'] = json.dumps(commute)
+            params['commute'] = int(commute)
 
         initial_response = self.protocol.post('/uploads',
                                               files={'file': activity_file},
