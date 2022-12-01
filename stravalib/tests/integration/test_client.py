@@ -254,6 +254,37 @@ def test_activity_uploader(mock_strava_api, client):
         assert activity.id == test_activity_id
 
 
+def test_get_route(mock_strava_api, client):
+    mock_strava_api.get('/routes/{id}', status=200, response_update={'name': 'test_route'})
+    route = client.get_route(42)
+    assert route.name == 'test_route'
+
+
+@pytest.mark.parametrize(
+    'limit,n_raw_results,expected_n_segments',
+    (
+        (None, 0, 0),
+        (None, 10, 10),
+        (10, 10, 10),
+        (10, 20, 10),
+        (10, 1, 1),
+        (10, 0, 0)
+    )
+
+)
+def test_get_starred_segments(mock_strava_api, client, limit, n_raw_results, expected_n_segments):
+    mock_strava_api.get(
+        '/segments/starred',
+        response_update={'name': 'test_segment'},
+        n_results=n_raw_results
+    )
+    kwargs = {'limit': limit} if limit is not None else {}
+    activity_list = list(client.get_starred_segments(**kwargs))
+    assert len(activity_list) == expected_n_segments
+    if expected_n_segments > 0:
+        assert activity_list[0].name == 'test_segment'
+
+
 @pytest.mark.parametrize(
     'limit,n_raw_results,expected_n_activities',
     (
