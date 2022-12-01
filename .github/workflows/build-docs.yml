@@ -38,5 +38,5 @@ jobs:
           python3 -m pip install .
       - name: Build docs & linkcheck
         run: |
-        # Build html and link check
-        make -C docs
+          # Build html and link check
+          make -C docs
