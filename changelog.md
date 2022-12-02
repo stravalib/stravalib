@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-* Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page (@lwasser, #276)
+* Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page and add linkcheck to docs build (@lwasser, #276)
 * Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))
 * Add: code cov to test suite (@lwasser, #262)
 * Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
