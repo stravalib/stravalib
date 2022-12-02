@@ -11,5 +11,11 @@ pytest-cov
 
 # For docs build
 sphinx_copybutton
-pydata_sphinx_theme
+furo
 sphinx-autobuild
+# Support markdown w full rst functionality!
+myst-nb
+sphinx_design
+# Support for social / adds meta tags
+sphinxext-opengraph
+sphinx-inline-tabs
