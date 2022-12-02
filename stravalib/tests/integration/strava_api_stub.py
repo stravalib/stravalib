@@ -116,7 +116,7 @@ def _api_method_adapter(api_method: Callable) -> Callable:
             try:
                 response = method_responses['responses'][str(response_status)]['examples']['application/json']
                 if isinstance(response, list) and n_results is not None:
-                    # make sure response has n_results items
+                    # Make sure response has n_results items
                     response = (response * (n_results // len(response) + 1))[:n_results]
                 elif n_results is not None:
                     # Force single response in example into result list (not all examples provide lists)
