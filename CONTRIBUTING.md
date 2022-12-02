@@ -1,21 +1,22 @@
 # How to Contribute to Stravalib
 
-**Attention:** This contributing guide provides a high-level overview for contributing 
-to `stravalib`. If you are interested in submitting a pr, be sure to read our
-development guide **TODO link to be added in next pr**. 
+**Attention:** This contributing guide provides a high-level overview for 
+contributing to `stravalib`. 
 
 **Thank you for considering contributing to stravalib!** 
-
 This is a community-driven project. It's people like you that make it useful and
-successful. These are some of the many ways to contribute:
+successful. We welcome contributions of all kinds. Below are some of the many ways that you can contribute to `stravalib`:
 
 * Submit bug reports and feature requests
 * Write tutorials or examples
 * Fix typos and improve the documentation
 * Submit code fixes
 
-## Contribution ground rules
+[Please read our
+development guide](https://stravalib.readthedocs.io/contributing/development-guide.html) if you are interested in submitting a pull request to suggest changes to 
+our code or documentation,.
 
+## Contribution ground rules
 The stravalib maintainers work on stravalib in their free time because 
 they love the package's contribution to the Python ecosystem. As such we
 value contributions but also value respectful interactions with stravalib users.  
@@ -26,14 +27,12 @@ Everyone must abide by our [Code of Conduct](https://github.com/stravalib/strava
 read it carefully. Our goal is to maintain a diverse community of stravalib users and contributors that's pleasant for everyone.
 
 ## How to start contributing to stravalib
-If you are thinking about submitting a change to stravalib, please start
+If you are thinking about submitting a change to stravalib documentation or code, please start
 by [submitting an issue in our GitHub repository](https://github.com/stravalib/stravalib/issues/). 
-We will use that issue to communicate with you about
+We will use that issue to communicate with you about:
 
 1. Whether the change is in scope for the project
 2. Any issues that you need help with or clarification on. 
-
-We welcome changes to both documentation and code. 
 
 ### Want to submit a pull request with changes to our code or documentation?
 
@@ -42,7 +41,7 @@ pull request please be sure to:
 
 1. Read this document fully 
 2. Submit an issue about the change as discussed below and
-2. Read our development guide - **TODO: LINK TO BE ADDED IN NEXT PR!**
+2. [Read our development guide](https://stravalib.readthedocs.io/contributing/development-guide.html)
 
 ### How to report a bug in stravalib or typo in our documentation
 Found a bug? Or a typo in our documentation? We want to know about it!  
@@ -102,11 +101,13 @@ if you wish to run the test suite locally, you can use:
 make test
 ```
 
-```{warning}
-THIS SECTION WILL BE UPDATED ONCE WE ADD CODECOV TO THE BUILD!
-
-The coverage report will let you know which lines of code are touched by the tests.
-```
+### Test coverage
+We use codecov implemented through the pytest-cov extension to sphinx to 
+track  `stravalib's` test coverage. If you submit changes to the stravalib 
+api, please try to also include tests (if you can) to support the feature 
+that you are adding or the bug that you are fixing. If you are not comfortable with writing tests, no worries. Please just let us know when you 
+submit your initial issue. We want you to contribute and are happy to help
+if needed! 
 
 ### Documentation
 
@@ -125,14 +126,13 @@ make -C docs serve
 ```
 
 You can learn more about our documentation infrastructure in our 
-development guide. 
+[development guide](https://stravalib.readthedocs.io/contributing/development-guide.html).
 
+### Code Review and issue response timeline 
 
-### Code Review
-
-After you've submitted a pull request, you should expect to hear at least a comment
-within a couple of days.
-We may suggest some changes or improvements or alternatives.
+After you've submitted a pull request or an issue, you should expect to see at the minimum,
+a comment within a couple of days to a week depending on how busy the maintainers are at that time.
+If you submitted a pull request, we may suggest some changes,  improvements or alternative approaches.
 
 Some things that will increase the chance that your pull request is accepted quickly:
 
@@ -146,9 +146,16 @@ Some things that will increase the chance that your pull request is accepted qui
   for documentation and docstrings.
 * Run the automatic code formatter and style checks.
 
-Pull requests will automatically have tests run by GitHub Actions.
-This includes running both the unit tests as well as code linters.
-Github will show the status of these checks on the pull request.
-Try to get them all passing (green).
-If you have any trouble, leave a comment in the Pull Request or open an Issue.
+All pull requests are automatically tested using workflows in GitHub Actions. Our tests include:
 
+* running the test suite 
+* testing the documentation build (which includes API documentation created from docstrings)
+* running code format and syntax tests for code formatters (TODO: code formatters will be added to stravalib soon!)
+
+When you submit a pull request, you will see whether the tests ran or failed. 
+You will also see the resulting % code coverage based upon your pull request. 
+
+Please try to ensure that all tests pass (Green checks) in your pull request 
+before requesting a review from maintainers. If you have any trouble with the 
+GitHub action tests, please leave a comment in the Pull Request or open an Issue. 
+We will do our best to help you. 

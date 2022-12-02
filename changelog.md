@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Add: Development & build/release guide to documentation, edit button to documentation theme, pr template for release (@lwasser, #289)
 * Add: Integration tests for /routes/{id} and /segments/starred (GET) (@jsamoocha, #250 (partial))
 * Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page and add linkcheck to docs build (@lwasser, #276)
 * Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))

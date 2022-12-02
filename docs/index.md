@@ -97,7 +97,7 @@ Home <self>
 :caption: Get Started
 
 Get Started <get-started/index>
-Authentication <get-started/auth>
+Authentication <get-started/authenticate-with-strava>
 Activities <get-started/activities>
 Athletes <get-started/athletes>
 
@@ -108,7 +108,10 @@ Athletes <get-started/athletes>
 :caption: Contributing
 :maxdepth: 2
 
-How to Contribute <contributing/how-to-contribute>
+Contributing Guide <contributing/how-to-contribute>
+Development Guide <contributing/development-guide>
+Build & Release Guide <contributing/build-release-guide>
+New Contributor Resources <contributing/resources-for-new-contributors>
 Change Log <contributing/documentation-changelog>
 ```
 
