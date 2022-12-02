@@ -1,0 +1,39 @@
+html, body {
+    font-size: 1.02rem;
+}
+
+.admonition {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+
+h1 {
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+h2 {
+    margin-top: 60px;
+}
+
+h3 {
+    margin-top: 40px}
+
+figcaption .caption-text {
+    text-align: left!important;
+}
+
+figure {
+    margin-top: 60px!important;
+    margin-bottom: 60px!important;
+}
+
+figcaption {
+    font-size: .9em;
+    font-weight: bold;
+  }
+
+.admonition p {
+    font-size: 1.1em;
+    font-weight: bold;
+  }
