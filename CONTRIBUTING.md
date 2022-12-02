@@ -2,7 +2,7 @@
 
 **Attention:** This contributing guide provides a high-level overview for contributing 
 to `stravalib`. If you are interested in submitting a pr, be sure to read our
-[development guide](https://stravalib.readthedocs.io/contributing/development-guide.html). 
+development guide **TODO link to be added in next pr**. 
 
 **Thank you for considering contributing to stravalib!** 
 
@@ -22,12 +22,12 @@ value contributions but also value respectful interactions with stravalib users.
 
 **Please be considerate and respectful of others** in all of your communications
 in this repository.
-Everyone must abide by our [Code of Conduct](https://www.github.com/stravalib/stravalib/CODE_OF_CONDUCT.md). Please
+Everyone must abide by our [Code of Conduct](https://github.com/stravalib/stravalib/blob/master/CODE_OF_CONDUCT.md). Please
 read it carefully. Our goal is to maintain a diverse community of stravalib users and contributors that's pleasant for everyone.
 
 ## How to start contributing to stravalib
 If you are thinking about submitting a change to stravalib, please start
-by [submitting an issue in our GitHub repository](https://www.github.com/stravalib/stravalib/issues/). 
+by [submitting an issue in our GitHub repository](https://github.com/stravalib/stravalib/issues/). 
 We will use that issue to communicate with you about
 
 1. Whether the change is in scope for the project
@@ -42,7 +42,7 @@ pull request please be sure to:
 
 1. Read this document fully 
 2. Submit an issue about the change as discussed below and
-2. [Read our development guide](https://stravalib.readthedocs.io/contributing/development-guide.html)
+2. Read our development guide - **TODO: LINK TO BE ADDED IN NEXT PR!**
 
 ### How to report a bug in stravalib or typo in our documentation
 Found a bug? Or a typo in our documentation? We want to know about it!  
@@ -59,7 +59,7 @@ submit a documentation fix directly to us using a pull request to our
 repository.
 
 ## An overview of our stravalib git / GitHub workflow 
-We follow the [git pull request workflow](http://www.asmeurer.com/git-workflow/) to
+We follow the [git pull request workflow](https://www.asmeurer.com/git-workflow/) to
 make changes to our codebase.
 Every change made goes through a pull request, even our own, so that our
 [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) services
@@ -85,7 +85,7 @@ Automated testing helps ensure that our code is as free of bugs as it can be.
 It also lets us know immediately if a change we make breaks any other part of the code.
 
 All of our test code and data are stored in the `tests` directory within the stravalib package directory.
-We use the [pytest](https://pytest.org/) framework to run the test suite.
+We use the [pytest](https://docs.pytest.org/en/latest/) framework to run the test suite.
 
 If you are submitting a code fix, and know how to write tests, please include tests for your code in your pr. This helps us ensure that your change doesn't break any of the existing functionality.
 Tests also help us be confident that we won't break your code in the future.
@@ -111,7 +111,7 @@ The coverage report will let you know which lines of code are touched by the tes
 ### Documentation
 
 Our documentation is in the `doc` folder.
-We use [sphinx](http://www.sphinx-doc.org/) to build the web pages from 
+We use [sphinx](https://www.sphinx-doc.org/en/master/) to build the web pages from 
 these sources. To build the HTML files:
 
 ```bash
@@ -142,14 +142,13 @@ Some things that will increase the chance that your pull request is accepted qui
 * Write documentation for your code (docstrings) and leave comments explaining the
   *reason* behind non-obvious things.
 * Include an example of new features in the gallery or tutorials.
-* Follow the [numpy guide](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt)
-  for documentation.
+* Follow the [numpy style guide](https://numpydoc.readthedocs.io/en/latest/format.html)
+  for documentation and docstrings.
 * Run the automatic code formatter and style checks.
 
 Pull requests will automatically have tests run by GitHub Actions.
 This includes running both the unit tests as well as code linters.
 Github will show the status of these checks on the pull request.
 Try to get them all passing (green).
-If you have any trouble, leave a comment in the PR or
-[get in touch](#how-can-i-talk-to-you).
+If you have any trouble, leave a comment in the Pull Request or open an Issue.
 
