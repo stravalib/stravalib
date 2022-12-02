@@ -71,7 +71,7 @@ downloading Strava data from the Strava V3 web service. Stravalib provides a
 * Making changes to account activities 
 
 It also provides support for working with date/time/temporal attributes
-and quantities through the [Python units library](http://pypi.python.org/pypi/units).
+and quantities through the [Python units library](https://pypi.org/project/units/).
 
 ## Why use stravalib?
 
@@ -97,7 +97,7 @@ Home <self>
 :caption: Get Started
 
 Get Started <get-started/index>
-Authentication <get-started/authenticate-with-strava>
+Authentication <get-started/auth>
 Activities <get-started/activities>
 Athletes <get-started/athletes>
 
