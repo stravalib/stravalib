@@ -1,0 +1,5 @@
+[run]
+branch = True
+omit =
+    */tests/*
+    */_version_generated.py
