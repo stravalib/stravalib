@@ -104,7 +104,7 @@ sets of tests that you can run:
 1. unit tests that are setup to run on CI. These tests use mock 
 instances of the API to avoid needed to setup an API key yourself locally. 
 
-## Unit / Mocked test suite
+### Unit - and integration test suite
 
 ```{warning}
 We will add more information about the test suite in the near future
