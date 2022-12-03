@@ -329,7 +329,7 @@ Once you create a pull request, GitHub actions will build the docs and
 check for any syntax or url errors. Once the PR is approved and merged into the master branch of the `stravalib/stravalib`
 repository, the docs will build and be [available at the readthedocs website](https://stravalib.readthedocs.io/en/latest/).
 
-## Cleanup of documentation and package build files 
+### Cleanup of documentation and package build files 
 To clean up all documentation build folders and files, run the following 
 command from the root of the `stravalib` directory: 
 
