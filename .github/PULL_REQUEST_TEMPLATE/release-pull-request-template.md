@@ -9,7 +9,7 @@ Please use this template when you are preparing to make a release to stravalib
 - [ ] Be sure to clearly specify what version you are bumping to in the PR title: Example: Bump to version x.x
 - [ ] Add the version of this release to our changelog
 - [ ] Organize items changes under the new version in groups as follows: Added, Fixed and Changed
-- [ ] Add all contributor to the release below those sections 
+- [ ] Add all contributors to the release below those sections 
 - [ ] Wait for a maintainer to approve the pull request. Then merge! You are now ready to create the release. 
 
 The changelog should look something like this:
