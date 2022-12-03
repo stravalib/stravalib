@@ -12,7 +12,7 @@ successful. We welcome contributions of all kinds. Below are some of the many wa
 
 [Please read our
 development guide](https://stravalib.readthedocs.io/contributing/development-guide.html) if you are interested in submitting a pull request to suggest changes to 
-our code or documentation,.
+our code or documentation.
 
 ## Contribution ground rules
 The stravalib maintainers work on stravalib in their free time because 
