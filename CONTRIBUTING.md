@@ -30,7 +30,7 @@ by [submitting an issue in our GitHub repository](https://github.com/stravalib/s
 We will use that issue to communicate with you about:
 
 1. Whether the change is in scope for the project
-2. Any issues that you need help with or clarification on. 
+2. Any obstacles that you need help with or clarification on. 
 
 ### Want to submit a pull request with changes to our code or documentation?
 
