@@ -132,7 +132,7 @@ make test
 3. Finally it removes the temporary directory 
 
 
-## Functional end-to-end test suite 
+### Functional end-to-end test suite 
 The functional (end-to-end) test suite is set up to hit the STRAVA api.
 You will thus need an app setup in your Strava account to run the test suite.
 We recommend that you create a dummy account for this with a single activity to avoid
