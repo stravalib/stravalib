@@ -1,7 +1,5 @@
 # How to Contribute to Stravalib
 
-**Attention:** This contributing guide provides a high-level overview for 
-contributing to `stravalib`. 
 
 **Thank you for considering contributing to stravalib!** 
 This is a community-driven project. It's people like you that make it useful and
