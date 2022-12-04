@@ -1,9 +1,9 @@
 # How to Contribute to Stravalib
 
-
 **Thank you for considering contributing to stravalib!** 
 This is a community-driven project. It's people like you that make it useful and
-successful. We welcome contributions of all kinds. Below are some of the many ways that you can contribute to `stravalib`:
+successful. We welcome contributions of all kinds. Below are some of the
+ways that you can contribute to `stravalib`:
 
 * Submit bug reports and feature requests
 * Write tutorials or examples
@@ -11,22 +11,24 @@ successful. We welcome contributions of all kinds. Below are some of the many wa
 * Submit code fixes
 
 [Please read our
-development guide](https://stravalib.readthedocs.io/contributing/development-guide.html) if you are interested in submitting a pull request to suggest changes to 
+development guide](https://stravalib.readthedocs.io/contributing/development-guide.html) 
+if you are interested in submitting a pull request to suggest changes to 
 our code or documentation.
 
 ## Contribution ground rules
-The stravalib maintainers work on stravalib in their free time because 
+The `stravalib` maintainers work on `stravalib` in their free time because 
 they love the package's contribution to the Python ecosystem. As such we
-value contributions but also value respectful interactions with stravalib users.  
+value contributions but also value respectful interactions with `stravalib` users.  
 
 **Please be considerate and respectful of others** in all of your communications
 in this repository.
-Everyone must abide by our [Code of Conduct](https://github.com/stravalib/stravalib/blob/master/CODE_OF_CONDUCT.md). Please
-read it carefully. Our goal is to maintain a diverse community of stravalib users and contributors that's pleasant for everyone.
+Everyone must abide by our [Code of Conduct](https://github.com/stravalib/stravalib/blob/master/CODE_OF_CONDUCT.md). 
+Please read it carefully. Our goal is to maintain a diverse community of 
+`stravalib` users and contributors that's pleasant for everyone.
 
 ## How to start contributing to stravalib
-If you are thinking about submitting a change to stravalib documentation or code, please start
-by [submitting an issue in our GitHub repository](https://github.com/stravalib/stravalib/issues/). 
+If you are thinking about submitting a change to stravalib documentation or 
+code, please start by [submitting an issue in our GitHub repository](https://github.com/stravalib/stravalib/issues/). 
 We will use that issue to communicate with you about:
 
 1. Whether the change is in scope for the project
@@ -78,16 +80,24 @@ This workflow allows our  *master* branch to always be stable.
 * Be aware that the pull request review process is not immediate. The time that it takes to review a pull request is generally proportional to the size of the pull request. Larger pull requests may take longer to review and merge.
 
 ### Testing your code 
-Automated testing helps ensure that our code is as free of bugs as it can be.
-It also lets us know immediately if a change we make breaks any other part of the code.
+Automated testing ensures that our code is as free of bugs as it can be.
+It also lets us know immediately if a change that we make breaks any other part 
+of the code.
 
-All of our test code and data are stored in the `tests` directory within the stravalib package directory.
-We use the [pytest](https://docs.pytest.org/en/latest/) framework to run the test suite.
+All of our test code and data are stored in the `tests` directory within the 
+`stravalib` package directory.
+We use the [pytest](https://docs.pytest.org/en/latest/) framework to run the 
+test suite.
 
-If you are submitting a code fix, and know how to write tests, please include tests for your code in your pr. This helps us ensure that your change doesn't break any of the existing functionality.
+If you are submitting a code fix or enhancement, and know how to write tests, 
+please include tests for your code in your pr. This helps us ensure that your 
+change doesn't break any of the existing functionality.
+
 Tests also help us be confident that we won't break your code in the future.
 
-If you're **new to testing**, see existing test files for examples of things to do.
+If you're **new to testing**, please review existing test files for examples 
+of how to create tests.
+
 **Don't let the tests keep you from submitting your contribution!**
 If you're not sure how to do this or are having trouble, submit your pull 
 request anyway. We will help you create the tests and sort out any kind of problem during code review.
@@ -100,12 +110,9 @@ make test
 ```
 
 ### Test coverage
-We use codecov implemented through the pytest-cov extension to sphinx to 
-track  `stravalib's` test coverage. If you submit changes to the stravalib 
-api, please try to also include tests (if you can) to support the feature 
-that you are adding or the bug that you are fixing. If you are not comfortable with writing tests, no worries. Please just let us know when you 
-submit your initial issue. We want you to contribute and are happy to help
-if needed! 
+We use cod`ecov implemented through the `pytest-cov` extension to sphinx to 
+track `stravalib`'s test % coverage. When you submit a pull request, you will 
+see how that pull request affects our package's total test coverage.   
 
 ### Documentation
 

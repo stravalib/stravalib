@@ -243,8 +243,8 @@ readthedocs build is passing or failing.
 
 [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest)
 
-Currently @hozn and @lwasser have access to the docs build 
-**#TODO: Add jonatan? just so someone else can troubleshoot?**
+Currently @hozn, @lwasser and @jsamoocha have access to the readthedocs `stravalib`
+documentation build 
 
 Online documentation will be updated on all merges to the master branch of 
 `stravalib`. 
