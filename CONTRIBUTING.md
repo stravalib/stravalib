@@ -110,7 +110,7 @@ make test
 ```
 
 ### Test coverage
-We use cod`ecov implemented through the `pytest-cov` extension to sphinx to 
+We use `codecov` implemented through the `pytest-cov` extension to sphinx to 
 track `stravalib`'s test % coverage. When you submit a pull request, you will 
 see how that pull request affects our package's total test coverage.   
 
