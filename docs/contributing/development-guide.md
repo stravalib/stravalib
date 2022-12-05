@@ -107,7 +107,14 @@ instances of the API to avoid needed to setup an API key yourself locally.
 ### Unit - and integration test suite
 
 ```{warning}
-We will add more information about the test suite in the near future
+We will add more information about the test suite in the near future.
+
+For integration tests that should be run independently from Strava, there's a pytest
+fixture :func:`~stravalib.tests.integration.conftest.mock_strava_api`
+that is based on :class:`responses.RequestsMock`.
+It prevents requests being made to the actual Strava API and instead registers responses
+that are based on examples from the published Strava API documentation. Example usages of
+this fixture can be found in the :mod:`stravalib.tests.integration.test_client` module.
 ```
 
 We have setup the test suite to run on the stravalib package as installed.
@@ -168,12 +175,6 @@ You are now ready to run the test suite. To run tests on python 3.x run:
 $ pytest
 ```
 
-For integration tests that should be run independently from Strava, there's a pytest
-fixture :func:`~stravalib.tests.integration.conftest.mock_strava_api`
-that is based on :class:`responses.RequestsMock`.
-It prevents requests being made to the actual Strava API and instead registers responses
-that are based on examples from the published Strava API documentation. Example usages of
-this fixture can be found in the :mod:`stravalib.tests.integration.test_client` module.
 
 ### Test code coverage 
 We use [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) to calculate 
