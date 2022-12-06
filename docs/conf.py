@@ -90,6 +90,13 @@ pygments_style = 'sphinx'
 html_title = "Stravalib Docs"
 # Theme and css
 html_theme = "furo"
+# Add edit button to furo theme 
+html_theme_options = {
+    "source_repository": "https://github.com/stravalib/stravalib/",
+    "source_branch": "master",
+    "source_directory": "docs/",
+}
+
 html_static_path = ["_static"]
 html_css_files = ["stravalib.css"]
 

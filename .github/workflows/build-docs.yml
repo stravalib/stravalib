@@ -40,3 +40,10 @@ jobs:
         run: |
           # Build html and link check
           make -C docs
+      - name: Print doc link failures in the output.txt file
+        if: success() || failure()
+        run: |
+          cat docs/_build/linkcheck/output.txt | while read line
+          do
+            echo -e "$line \n"
+          done

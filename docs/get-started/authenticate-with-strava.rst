@@ -6,7 +6,11 @@ Authentication and Authorization
 In order to use this library to retrieve information about athletes and actitivies,
 you will need authorization to do so.
 
-See the `official documentation <https://developers.strava.com/docs/authentication/>`_
+`This is a nice tutorial that has information about 
+setting up a free app within STRAVA <https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17>`_
+.
+
+If you want a more technical overview, see the `official documentation <https://developers.strava.com/docs/authentication/>`_
 for a description of the OAuth2 protocol that Strava uses to authenticate users.
 
 Requesting Authorization
