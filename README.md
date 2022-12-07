@@ -2,8 +2,6 @@
 [![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908) 
 ![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic) [![codecov](https://codecov.io/gh/stravalib/stravalib/branch/master/graph/badge.svg?token=sHbFJn7epy)](https://codecov.io/gh/stravalib/stravalib)
 
-https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg
-
 The **stravalib** Python package provides easy-to-use tools for accessing and 
 downloading Strava data from the Strava V3 web service. Stravalib provides a Client class that supports:
 * Authenticating with stravalib 
