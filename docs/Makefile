@@ -46,7 +46,7 @@ linkcheck: html
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
 
-## Serve live docs in a browser
+# Serve live docs in a browser
 serve:
 	pwd
-	sphinx-autobuild ../docs _build/html
+	sphinx-autobuild ../docs _build/html --watch stravalib/
