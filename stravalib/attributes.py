@@ -7,16 +7,16 @@ The types system provides a mechanism for serializing/un the data to/from JSON
 structures and for capturing additional information about the model attributes.
 """
 import logging
-from datetime import datetime, timedelta, tzinfo, date
 from collections import namedtuple
-from weakref import WeakKeyDictionary, WeakValueDictionary
+from datetime import datetime, timedelta, tzinfo, date
+from weakref import WeakKeyDictionary
 
 import arrow
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
-from units.quantity import Quantity
 
 import stravalib.model
+from stravalib.unithelper import is_quantity_type
 
 # Depending on the type of request, objects will be returned in meta,  summary or detailed representations. The
 # representation of the returned object is indicated by the resource_state attribute.
@@ -74,7 +74,7 @@ class Attribute(object):
         (By default this will just return the underlying object; subclasses
         can override for specific behaviors -- e.g. date formatting.)
         """
-        if isinstance(v, Quantity):
+        if is_quantity_type(v):
             return v.num
         else:
             return v
@@ -89,7 +89,7 @@ class Attribute(object):
         """
         if self.units:
             # Note that we don't want to cast to type in this case!
-            if not isinstance(v, Quantity):
+            if not is_quantity_type(v):
                 v = self.units(v)
         elif not isinstance(v, self.type):
             v = self.type(v)

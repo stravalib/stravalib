@@ -1,8 +1,7 @@
-from units.quantity import Quantity
-
 from stravalib import model
 from stravalib import unithelper as uh
 from stravalib.tests import TestBase
+from stravalib.unithelper import Quantity
 
 
 class ModelTest(TestBase):
@@ -25,8 +24,8 @@ class ModelTest(TestBase):
 
         a.max_speed = 1000  # m/s
         a.average_speed = 1000  # m/s
-        self.assertEqual(3600.0, float(uh.kph(a.max_speed)))
-        self.assertEqual(3600.0, float(uh.kph(a.average_speed)))
+        self.assertAlmostEqual(3600.0, float(uh.kph(a.max_speed)))
+        self.assertAlmostEqual(3600.0, float(uh.kph(a.average_speed)))
 
         a.max_speed = uh.mph(1.0)
         # print repr(a.max_speed)
