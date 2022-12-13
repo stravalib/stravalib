@@ -9,13 +9,13 @@ downloading Strava data from the Strava V3 web service. Stravalib provides a Cli
 * Making changes to account activities 
 
 It also provides support for working with date/time/temporal attributes
-and quantities through the [Python units library](http://pypi.python.org/pypi/units).
+and quantities through the [Python Pint library](https://pypi.org/project/Pint/).
 
 ## Dependencies
 
 * Python 3.7+
 * Setuptools for installing dependencies
-* Other Python libraries (installed automatically when using pip/easy_install): requests, pytz, units, arrow
+* Other Python libraries (installed automatically when using pip/easy_install): requests, pytz, pint, arrow
 
 ## Installation
 
@@ -111,7 +111,7 @@ authorize_url = client.authorization_url(client_id=1234, redirect_uri='http://lo
 # .....
 
 # Extract the code from your webapp response
-code = request.get('code') # or whatever your framework does
+code = requests.get('code') # or whatever your framework does
 token_response = client.exchange_code_for_token(client_id=1234, client_secret='asdf1234', code=code)
 access_token = token_response['access_token']
 refresh_token = token_response['refresh_token']
@@ -180,15 +180,14 @@ if 'altitude' in streams.keys():
 
 ### Working with Units
 
-stravalib uses the [python units library](https://pypi.python.org/pypi/units/) to facilitate working
-with the values in the API that have associated units (e.g. distance, speed).  You can use the units library
-directly
-stravalib.unithelper module for shortcuts
+stravalib uses the [python Pint library](https://pypi.org/project/Pint/) to facilitate working
+with the values in the API that have associated units (e.g. distance, speed).  You can use the pint library
+directly or through the `stravalib.unithelper` module for shortcuts
 
 ```python
 
 activity = client.get_activity(96089609)
-assert isinstance(activity.distance, units.quantity.Quantity)
+assert isinstance(activity.distance, unithelper.Quantity)
 print(activity.distance)
 # 22530.80 m
 
