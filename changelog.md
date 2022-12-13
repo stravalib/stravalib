@@ -10,6 +10,7 @@
 * Fix: deprecated set-output command in actions build (@yihong0618, #272)
 * Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
 * Add: pull request templates for regular pr and release (@lwasser, #294)
+* Add: Replace `units` dependency by `pint` (@jsamoocha, #281)
 
 ## v1.0.0
 
