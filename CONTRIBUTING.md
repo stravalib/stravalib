@@ -10,8 +10,7 @@ ways that you can contribute to `stravalib`:
 * Fix typos and improve the documentation
 * Submit code fixes
 
-[Please read our
-development guide](https://stravalib.readthedocs.io/contributing/development-guide.html) 
+[Please read our development guide](https://stravalib.readthedocs.io/en/latest/contributing/development-guide.html) 
 if you are interested in submitting a pull request to suggest changes to 
 our code or documentation.
 
