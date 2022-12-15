@@ -1,18 +1,31 @@
 # Change Log
 
 ## Unreleased
+
+## v1.1.0
+
+### Added
 * Add: Development & build/release guide to documentation, edit button to documentation theme, pr template for release (@lwasser, #289)
 * Add: Integration tests for /routes/{id} and /segments/starred (GET) (@jsamoocha, #250 (partial))
-* Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page and add linkcheck to docs build (@lwasser, #276)
 * Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))
 * Add: code cov to test suite (@lwasser, #262)
 * Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
+* Add: pull request templates for regular pr and release (@lwasser, #294)
+* Add: Support for python 3.11
+
+### Fixed
+* Fix: Move docs to `furo` theme, add `myst` support for markdown, include CONTRIBUTING.md in documentation, enhance intro documentation page and add linkcheck to docs build (@lwasser, #276)
 * Fix: deprecated set-output command in actions build (@yihong0618, #272)
 * Fix: Add readthedocs config file to ensure build installs using pip (@lwasser, #270)
-* Add: pull request templates for regular pr and release (@lwasser, #294)
+
+### Changed
 * Change: Replace `units` dependency by `pint` (@jsamoocha, #281)
+
+### Removed
 * Remove: Support for python 3.7
-* Add: Support for python 3.11
+
+### Contributors to this release
+@lwasser, @yihong0618, @jsamoocha
 
 ## v1.0.0
 
