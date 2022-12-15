@@ -99,7 +99,7 @@ what people would actually want to see (e.g. meters-per-second instead of
 kilometers-per-hour or miles-per-hour).
 
 To facilitate working with these quantities, stravalib makes use of the
-`units library <https://pypi.org/project/units/>`_.  You can simply cast the values string
+`pint library <https://pypi.org/project/Pint/>`_.  You can simply cast the values string
 to see a representation that includes the units::
 
    activity = client.get_activity(96089609)
@@ -116,7 +116,7 @@ library directly, stravalib provides a preconfigured set of common units to simp
    # 14.00 mi
 
 Of course, if you want to do something besides display those values, you'll likely
-want a number.  You can directly access the 'num' attribute of the :class:`units.quantity.Quantity` instance,
+want a number.  You can directly access the 'magnitude' attribute of the :class:`pint.Quantity` instance,
 or just cast to a numeric type (e.g. float).::
 
    activity = client.get_activity(96089609)

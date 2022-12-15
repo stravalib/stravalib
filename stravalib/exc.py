@@ -113,3 +113,13 @@ def warn_param_unofficial(param_name: str):
         FutureWarning,
         stacklevel=3
     )
+
+
+def warn_units_deprecated():
+    warnings.warn(
+        'You are using a Quantity object or attributes from the units library, which is '
+        'deprecated. Support for these types will be removed in the future. Instead, '
+        'please use Quantity objects from the Pint package (https://pint.readthedocs.io).',
+        DeprecationWarning,
+        stacklevel=3
+    )

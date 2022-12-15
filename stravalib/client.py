@@ -4,24 +4,23 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
+import calendar
+import collections
 import functools
 import logging
 import time
-import collections
-import calendar
-from io import BytesIO
 from datetime import datetime, timedelta
+from io import BytesIO
 
 import arrow
 import pytz
 
-from units.quantity import Quantity
-
-from stravalib.exc import warn_param_deprecation, warn_param_unofficial
 from stravalib import model, exc
+from stravalib import unithelper
+from stravalib.exc import warn_param_deprecation, warn_param_unofficial
 from stravalib.protocol import ApiV3
 from stravalib.util import limiter
-from stravalib import unithelper
+from stravalib.unithelper import is_quantity_type
 
 
 class Client(object):
@@ -583,13 +582,13 @@ class Client(object):
         :param description: The description for the activity.
         :type description: str
 
-        :param distance: The distance in meters (float) or a :class:`units.quantity.Quantity` instance.
-        :type distance: :class:`units.quantity.Quantity` or float (meters)
+        :param distance: The distance in meters (float) or a :class:`pint.Quantity` instance.
+        :type distance: :class:`pint.Quantity` or float (meters)
         """
         if isinstance(elapsed_time, timedelta):
             elapsed_time = elapsed_time.seconds
 
-        if isinstance(distance, Quantity):
+        if is_quantity_type(distance):
             distance = float(unithelper.meters(distance))
 
         if isinstance(start_date_local, datetime):
