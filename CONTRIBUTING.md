@@ -41,7 +41,7 @@ pull request please be sure to:
 
 1. Read this document fully 
 2. Submit an issue about the change as discussed below and
-2. [Read our development guide](https://stravalib.readthedocs.io/contributing/development-guide.html)
+2. [Read our development guide](https://stravalib.readthedocs.io/en/latest/contributing/development-guide.html)
 
 ### How to report a bug in stravalib or typo in our documentation
 Found a bug? Or a typo in our documentation? We want to know about it!  
@@ -131,7 +131,7 @@ make -C docs serve
 ```
 
 You can learn more about our documentation infrastructure in our 
-[development guide](https://stravalib.readthedocs.io/contributing/development-guide.html).
+[development guide](https://stravalib.readthedocs.io/en/latest/contributing/development-guide.html).
 
 ### Code Review and issue response timeline 
 
