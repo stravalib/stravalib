@@ -15,7 +15,7 @@ and quantities through the [Python Pint library](https://pypi.org/project/Pint/)
 
 * Python 3.8+
 * Setuptools for installing dependencies
-* Other Python libraries (installed automatically when using pip/easy_install): requests, pytz, pint, arrow, pydantic
+* Other Python libraries (installed automatically when using pip): requests, pytz, pint, arrow, pydantic
 
 ## Installation
 
