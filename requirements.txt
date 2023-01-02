@@ -2,6 +2,7 @@ arrow
 requests>=2.0,<3.0dev
 pint
 pytz
+pydantic
 
 # Testing
 pytest
