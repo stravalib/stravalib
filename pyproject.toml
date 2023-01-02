@@ -20,7 +20,7 @@ license = {text = "Apache 2.0 License"}
 authors = [{name="Hans Lellelid", email="hans@xmpl.org"}]
 maintainers = [
      {name = "Leah Wasser", email = "leah@pyopensci.org"},
-     {name = "Hans Lellelid", email = "hans@xmpl.org"},
+     {name = "Hans Lellelid"},
      {name = "Jonatan Smoocha"},
      {name = "Yihong"},
     ]
