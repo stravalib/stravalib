@@ -19,7 +19,7 @@ and quantities through the [Python Pint library](https://pypi.org/project/Pint/)
 
 ## Installation
 
-The package is available on PyPI to be installed using `easy_install` or `pip`:
+The package is available on PyPI to be installed using `pip`:
 
 `pip install stravalib`
 
@@ -33,7 +33,7 @@ Ready to contribute? Here's how to set up Stravalib for local development.
 --------------------------------
 
 To create your own copy of the repository on GitHub, navigate to the
-`hozn/stravalib <https://github.com/hozn/stravalib>`_ repository
+`stravalib/stravalib <https://github.com/stravalib/stravalib>`_ repository
 and click the **Fork** button in the top-right corner of the page.
 
 2. Clone your fork locally

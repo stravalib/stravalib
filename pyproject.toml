@@ -10,5 +10,51 @@ version_scheme =  "post-release"
 local_scheme = "no-local-version"
 write_to =  "stravalib/_version_generated.py"
 
+[project]
+name = "stravalib"
+description = "A Python package that makes it easy to access and download data from the Strava V3 REST API."
+keywords = ["strava", "running", "cycling", "athletes"]
+readme = "README.md"
+dynamic =["version"]
+license = {text = "Apache 2.0 License"} 
+authors = [{name="Hans Lellelid", email="hans@xmpl.org"}]
+maintainers = [
+     {name = "Leah Wasser"},
+     {name = "Hans Lellelid"},
+     {name = "Jonatan Samoocha"},
+     {name = "Yihong"},
+    ]
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  # Because license is listed below does it need to be here too?
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+]
 
+
+dependencies = [
+    "pint",
+    "pytz",
+    "arrow",
+    "requests",
+    "pydantic",
+]
+
+[project.urls]
+homepage = "https://example.com"
+documentation = "https://stravalib.readthedocs.io"
+repository = "https://github.com/stravalib/stravalib"
+changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
 
