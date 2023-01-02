@@ -21,7 +21,7 @@ authors = [{name="Hans Lellelid", email="hans@xmpl.org"}]
 maintainers = [
      {name = "Leah Wasser"},
      {name = "Hans Lellelid"},
-     {name = "Jonatan Smoocha"},
+     {name = "Jonatan Samoocha"},
      {name = "Yihong"},
     ]
 requires-python = ">=3.8"
