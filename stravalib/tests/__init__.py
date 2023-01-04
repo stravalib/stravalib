@@ -11,11 +11,10 @@ else:
     from unittest import TestCase
 
 TESTS_DIR = os.path.dirname(__file__)
-RESOURCES_DIR = os.path.join(TESTS_DIR, 'resources')
+RESOURCES_DIR = os.path.join(TESTS_DIR, "resources")
 
 
 class TestBase(TestCase):
-
     def setUp(self):
         super(TestBase, self).setUp()
 
