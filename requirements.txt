@@ -4,13 +4,13 @@ pint
 pydantic
 pytz
 requests>=2.0,<3.0dev
-responses
 
 # Pre commit hook
 pre-commit
 
 # Testing
 pytest
+responses
 # Code coverage
 pytest-cov
 
