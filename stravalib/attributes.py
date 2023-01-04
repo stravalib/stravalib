@@ -31,10 +31,13 @@ class Attribute(object):
     """
     Base descriptor class for a Strava model attribute.
     """
+
     _type = None
 
     def __init__(self, type_, resource_states=None, units=None):
-        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.log = logging.getLogger(
+            "{0.__module__}.{0.__name__}".format(self.__class__)
+        )
         self.type = type_
         self.resource_states = resource_states
         self.data = WeakKeyDictionary()
@@ -44,7 +47,7 @@ class Attribute(object):
         if obj is not None:
             # It is being called on an object (not class)
             # This can cause infinite loops, when we're attempting to get the resource_state attribute ...
-            #if hasattr(clazz, 'resource_state') \
+            # if hasattr(clazz, 'resource_state') \
             #   and obj.resource_state is not None \
             #   and not obj.resource_state in self.resource_states:
             #    raise AttributeError("attribute required resource state not satisfied by object")
@@ -97,10 +100,12 @@ class Attribute(object):
 
 
 class DateAttribute(Attribute):
-    """
-    """
+    """ """
+
     def __init__(self, resource_states=None):
-        super(DateAttribute, self).__init__(date, resource_states=resource_states)
+        super(DateAttribute, self).__init__(
+            date, resource_states=resource_states
+        )
 
     def marshal(self, v):
         """
@@ -122,10 +127,12 @@ class DateAttribute(Attribute):
 
 
 class TimestampAttribute(Attribute):
-    """
-    """
+    """ """
+
     def __init__(self, resource_states=None, tzinfo=pytz.utc):
-        super(TimestampAttribute, self).__init__(datetime, resource_states=resource_states)
+        super(TimestampAttribute, self).__init__(
+            datetime, resource_states=resource_states
+        )
         self.tzinfo = tzinfo
 
     def marshal(self, v):
@@ -158,14 +165,16 @@ class TimestampAttribute(Attribute):
         return v
 
 
-LatLon = namedtuple('LatLon', ['lat', 'lon'])
+LatLon = namedtuple("LatLon", ["lat", "lon"])
 
 
 class LocationAttribute(Attribute):
-    """
-    """
+    """ """
+
     def __init__(self, resource_states=None):
-        super(LocationAttribute, self).__init__(LatLon, resource_states=resource_states)
+        super(LocationAttribute, self).__init__(
+            LatLon, resource_states=resource_states
+        )
 
     def marshal(self, v):
         """
@@ -179,8 +188,7 @@ class LocationAttribute(Attribute):
         return "{lat},{lon}".format(lat=v.lat, lon=v.lon) if v else None
 
     def unmarshal(self, v):
-        """
-        """
+        """ """
         if not isinstance(v, LatLon):
             if type(v) == str:
                 lat, lon = v.split(',')
@@ -191,10 +199,12 @@ class LocationAttribute(Attribute):
 
 
 class TimezoneAttribute(Attribute):
-    """
-    """
+    """ """
+
     def __init__(self, resource_states=None):
-        super(TimezoneAttribute, self).__init__(pytz.timezone, resource_states=resource_states)
+        super(TimezoneAttribute, self).__init__(
+            pytz.timezone, resource_states=resource_states
+        )
 
     def unmarshal(self, v):
         """
@@ -203,16 +213,18 @@ class TimezoneAttribute(Attribute):
         a `pytz.timestamp` object.
         """
         if not isinstance(v, tzinfo):
-            if ' ' in v:
+            if " " in v:
                 # (GMT-08:00) America/Los_Angeles
-                tzname = v.split(' ', 1)[1]
+                tzname = v.split(" ", 1)[1]
             else:
                 # America/Los_Angeles
                 tzname = v
             try:
                 v = pytz.timezone(tzname)
             except UnknownTimeZoneError as e:
-                self.log.warning(f'Encountered unknown time zone {tzname}, returning None')
+                self.log.warning(
+                    f"Encountered unknown time zone {tzname}, returning None"
+                )
                 v = None
         return v
 
@@ -231,8 +243,11 @@ class TimeIntervalAttribute(Attribute):
     """
     Handles time durations, assumes upstream int value in seconds.
     """
+
     def __init__(self, resource_states=None):
-        super(TimeIntervalAttribute, self).__init__(int, resource_states=resource_states)
+        super(TimeIntervalAttribute, self).__init__(
+            int, resource_states=resource_states
+        )
 
     def unmarshal(self, v):
         """
@@ -244,8 +259,8 @@ class TimeIntervalAttribute(Attribute):
         """
         if not isinstance(v, timedelta):
             if isinstance(v, str) or isinstance(v, bytes):
-                h,m,s = v.split(':')
-                v = timedelta(seconds = int(h)*3600 + int(m)*60 + int(s))
+                h, m, s = v.split(":")
+                v = timedelta(seconds=int(h) * 3600 + int(m) * 60 + int(s))
             else:
                 v = timedelta(seconds=v)
         return v
@@ -263,12 +278,14 @@ class TimeIntervalAttribute(Attribute):
         else:
             return str(v) if v else None
 
+
 class ChoicesAttribute(Attribute):
     """
     Attribute where there are several choices the attribute may take.
 
     Allows conversion from the API value to a more helpful python value.
     """
+
     def __init__(self, *args, **kwargs):
         self.choices = kwargs.pop("choices", {})
         super(ChoicesAttribute, self).__init__(*args, **kwargs)
@@ -288,10 +305,16 @@ class ChoicesAttribute(Attribute):
                 return orig[0]
             elif len(orig) == 0:
                 # No such choice
-                raise NotImplementedError("No such reverse choice {0} for field {1}.".format(v, self))
+                raise NotImplementedError(
+                    "No such reverse choice {0} for field {1}.".format(v, self)
+                )
             else:
                 # Too many choices. We could return one possible choice (e.g. orig[0]).
-                raise NotImplementedError("Too many reverse choices {0} for value {1} for field {2}".format(orig, v, self))
+                raise NotImplementedError(
+                    "Too many reverse choices {0} for value {1} for field {2}".format(
+                        orig, v, self
+                    )
+                )
 
     def unmarshal(self, v):
         """
@@ -304,7 +327,9 @@ class ChoicesAttribute(Attribute):
         try:
             return self.choices[v]
         except KeyError:
-            self.log.warning("No such choice {0} for field {1}.".format(v, self))
+            self.log.warning(
+                "No such choice {0} for field {1}.".format(v, self)
+            )
             # Just return the value from the API
             return v
 
@@ -313,6 +338,7 @@ class EntityAttribute(Attribute):
     """
     Attribute for another entity.
     """
+
     _lazytype = None
 
     def __init__(self, *args, **kwargs):
@@ -339,7 +365,9 @@ class EntityAttribute(Attribute):
         if val is not None:
             # If the "owning" object has a bind_client set, we want to pass that
             # down into the objects we are deserializing here
-            self.data[obj] = self.unmarshal(val, bind_client=getattr(obj, 'bind_client', None))
+            self.data[obj] = self.unmarshal(
+                val, bind_client=getattr(obj, "bind_client", None)
+            )
         else:
             self.data[obj] = None
 
@@ -358,27 +386,32 @@ class EntityAttribute(Attribute):
         """
         Cast the specified value to the entity type.
         """
-        #self.log.debug("Unmarshall {0!r}: {1!r}".format(self, value))
+        # self.log.debug("Unmarshall {0!r}: {1!r}".format(self, value))
         if not isinstance(value, self.type):
             o = self.type()
-            if bind_client is not None and hasattr(o.__class__, 'bind_client'):
+            if bind_client is not None and hasattr(o.__class__, "bind_client"):
                 o.bind_client = bind_client
 
             if isinstance(value, dict):
                 for (k, v) in value.items():
                     if not hasattr(o.__class__, k):
-                        self.log.warning("Unable to set attribute {0} on entity {1!r}".format(k, o))
+                        self.log.warning(
+                            "Unable to set attribute {0} on entity {1!r}".format(
+                                k, o
+                            )
+                        )
                     else:
-                        #self.log.debug("Setting attribute {0} on entity {1!r}".format(k, o))
+                        # self.log.debug("Setting attribute {0} on entity {1!r}".format(k, o))
                         setattr(o, k, v)
                 value = o
             else:
-                raise Exception("Unable to unmarshall object {0!r}".format(value))
+                raise Exception(
+                    "Unable to unmarshall object {0!r}".format(value)
+                )
         return value
 
 
 class EntityCollection(EntityAttribute):
-
     def marshal(self, values):
         """
         Turn a list of entities into a list of dictionaries.
@@ -396,4 +429,9 @@ class EntityCollection(EntityAttribute):
         Cast the list.
         """
         if values is not None:
-            return [super(EntityCollection, self).unmarshal(v, bind_client=bind_client) for v in values]
+            return [
+                super(EntityCollection, self).unmarshal(
+                    v, bind_client=bind_client
+                )
+                for v in values
+            ]

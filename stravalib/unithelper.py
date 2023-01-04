@@ -19,6 +19,7 @@ class UnitsQuantity(Protocol):
     attribute in the units library consists of other classes, so this
     representation may not be 100% backward compatible!
     """
+
     num: float
     unit: str
 

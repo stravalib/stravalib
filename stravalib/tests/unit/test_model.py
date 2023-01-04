@@ -10,14 +10,21 @@ class ModelTest(TestBase):
 
     def test_entity_collections(self):
         a = model.Athlete()
-        d = {'clubs': [{'resource_state': 2, 'id': 7, 'name': 'Team Roaring Mouse'},
-                       {'resource_state': 2, 'id': 1, 'name': 'Team Strava Cycling'},
-                       {'resource_state': 2, 'id': 34444, 'name': 'Team Strava Cyclocross'}]
-             }
+        d = {
+            "clubs": [
+                {"resource_state": 2, "id": 7, "name": "Team Roaring Mouse"},
+                {"resource_state": 2, "id": 1, "name": "Team Strava Cycling"},
+                {
+                    "resource_state": 2,
+                    "id": 34444,
+                    "name": "Team Strava Cyclocross",
+                },
+            ]
+        }
         a.from_dict(d)
 
         self.assertEqual(3, len(a.clubs))
-        self.assertEqual('Team Roaring Mouse', a.clubs[0].name)
+        self.assertEqual("Team Roaring Mouse", a.clubs[0].name)
 
     def test_speed_units(self):
         a = model.Activity()
@@ -78,8 +85,7 @@ class ModelTest(TestBase):
         self.assertEqual(1.0, float(uh.kilometers(a.total_elevation_gain)))
 
     def test_weight_units(self):
-        """
-        """
+        """ """
         # PowerActivityZone
 
     def test_subscription_deser(self):
@@ -89,10 +95,10 @@ class ModelTest(TestBase):
             "aspect_type": "create",
             "callback_url": "http://you.com/callback/",
             "created_at": "2015-04-29T18:11:09.400558047-07:00",
-            "updated_at": "2015-04-29T18:11:09.400558047-07:00"
+            "updated_at": "2015-04-29T18:11:09.400558047-07:00",
         }
         sub = model.Subscription.deserialize(d)
-        self.assertEqual(d['id'], sub.id)
+        self.assertEqual(d["id"], sub.id)
 
     def test_subscription_update_deser(self):
         d = {
@@ -101,7 +107,10 @@ class ModelTest(TestBase):
             "object_id": 12312312312,
             "object_type": "activity",
             "aspect_type": "create",
-            "event_time": 1297286541
+            "event_time": 1297286541,
         }
         subupd = model.SubscriptionUpdate.deserialize(d)
-        self.assertEqual('2011-02-09 21:22:21', subupd.event_time.strftime('%Y-%m-%d %H:%M:%S'))
+        self.assertEqual(
+            "2011-02-09 21:22:21",
+            subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
