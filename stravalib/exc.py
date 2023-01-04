@@ -54,6 +54,7 @@ class RateLimitExceeded(RuntimeError):
 
     https://developers.strava.com/docs/rate-limits/
     """
+
     def __init__(self, msg, timeout=None, limit=None):
         super(RateLimitExceeded, self).__init__()
         self.limit = limit
@@ -89,37 +90,38 @@ class NotAuthenticatedAthlete(AuthError):
     """
     Exception when trying to access data which requires an authenticated athlete
     """
+
     pass
 
 
 # Warnings configuration and helper functions
-warnings.simplefilter('default')
+warnings.simplefilter("default")
 logging.captureWarnings(True)
 
 
 def warn_param_deprecation(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
-        'effect and may lead to errors in the future.',
+        "effect and may lead to errors in the future.",
         DeprecationWarning,
-        stacklevel=3
+        stacklevel=3,
     )
 
 
 def warn_param_unofficial(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
-        'may lead to unexpected behavior or errors in the future.',
+        "may lead to unexpected behavior or errors in the future.",
         FutureWarning,
-        stacklevel=3
+        stacklevel=3,
     )
 
 
 def warn_units_deprecated():
     warnings.warn(
-        'You are using a Quantity object or attributes from the units library, which is '
-        'deprecated. Support for these types will be removed in the future. Instead, '
-        'please use Quantity objects from the Pint package (https://pint.readthedocs.io).',
+        "You are using a Quantity object or attributes from the units library, which is "
+        "deprecated. Support for these types will be removed in the future. Instead, "
+        "please use Quantity objects from the Pint package (https://pint.readthedocs.io).",
         DeprecationWarning,
-        stacklevel=3
+        stacklevel=3,
     )

@@ -18,10 +18,12 @@ class ApiV3(metaclass=abc.ABCMeta):
     This class is responsible for performing the HTTP requests, rate limiting, and error handling.
     """
 
-    server = 'www.strava.com'
-    api_base = '/api/v3'
+    server = "www.strava.com"
+    api_base = "/api/v3"
 
-    def __init__(self, access_token=None, requests_session=None, rate_limiter=None):
+    def __init__(
+        self, access_token=None, requests_session=None, rate_limiter=None
+    ):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
         object.
@@ -32,7 +34,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         :param requests_session: An existing :class:`requests.Session` object to use.
         :type requests_session::class:`requests.Session`
         """
-        self.log = logging.getLogger('{0.__module__}.{0.__name__}'.format(self.__class__))
+        self.log = logging.getLogger(
+            "{0.__module__}.{0.__name__}".format(self.__class__)
+        )
         self.access_token = access_token
         if requests_session:
             self.rsession = requests_session
@@ -46,7 +50,14 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         self.rate_limiter = rate_limiter
 
-    def authorization_url(self, client_id, redirect_uri, approval_prompt='auto', scope=None, state=None):
+    def authorization_url(
+        self,
+        client_id,
+        redirect_uri,
+        approval_prompt="auto",
+        scope=None,
+        state=None,
+    ):
         """
         Get the URL needed to authorize your application to access a Strava user's information.
 
@@ -73,32 +84,43 @@ class ApiV3(metaclass=abc.ABCMeta):
         :return: The URL to use for authorization link.
         :rtype: str
         """
-        assert approval_prompt in ('auto', 'force')
+        assert approval_prompt in ("auto", "force")
         if scope is None:
-            scope = ['read', 'activity:read']
+            scope = ["read", "activity:read"]
         elif isinstance(scope, (str, bytes)):
             scope = [scope]
 
-        unsupported = set(scope) - {'read', 'read_all',
-                                    'profile:read_all', 'profile:write',
-                                    'activity:read', 'activity:read_all',
-                                    'activity:write'}
+        unsupported = set(scope) - {
+            "read",
+            "read_all",
+            "profile:read_all",
+            "profile:write",
+            "activity:read",
+            "activity:read_all",
+            "activity:write",
+        }
 
-        assert not unsupported, 'Unsupported scope value(s): {}'.format(unsupported)
+        assert not unsupported, "Unsupported scope value(s): {}".format(
+            unsupported
+        )
 
         if isinstance(scope, (list, tuple)):
-            scope = ','.join(scope)
+            scope = ",".join(scope)
 
-        params = {'client_id': client_id,
-                  'redirect_uri': redirect_uri,
-                  'approval_prompt': approval_prompt,
-                  'response_type': 'code'}
+        params = {
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "approval_prompt": approval_prompt,
+            "response_type": "code",
+        }
         if scope is not None:
-            params['scope'] = scope
+            params["scope"] = scope
         if state is not None:
-            params['state'] = state
+            params["state"] = state
 
-        return urlunsplit(('https', self.server, '/oauth/authorize', urlencode(params), ''))
+        return urlunsplit(
+            ("https", self.server, "/oauth/authorize", urlencode(params), "")
+        )
 
     def exchange_code_for_token(self, client_id, client_secret, code):
         """
@@ -118,15 +140,21 @@ class ApiV3(metaclass=abc.ABCMeta):
                  and expires_at (number of seconds since Epoch when the provided access token will expire)
         :rtype: dict
         """
-        response = self._request('https://{0}/oauth/token'.format(self.server),
-                                 params={'client_id': client_id, 'client_secret': client_secret, 'code': code,
-                                 'grant_type': 'authorization_code'},
-                                 method='POST')
+        response = self._request(
+            "https://{0}/oauth/token".format(self.server),
+            params={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "code": code,
+                "grant_type": "authorization_code",
+            },
+            method="POST",
+        )
         access_info = dict()
-        access_info['access_token'] = response['access_token']
-        access_info['refresh_token'] = response.get('refresh_token', None)
-        access_info['expires_at'] = response.get('expires_at', None)
-        self.access_token = response['access_token']
+        access_info["access_token"] = response["access_token"]
+        access_info["refresh_token"] = response.get("refresh_token", None)
+        access_info["expires_at"] = response.get("expires_at", None)
+        self.access_token = response["access_token"]
 
         return access_info
 
@@ -148,24 +176,35 @@ class ApiV3(metaclass=abc.ABCMeta):
                  and expires_at (number of seconds since Epoch when the provided access token will expire)
         :rtype: dict
         """
-        response = self._request('https://{0}/oauth/token'.format(self.server),
-                                 params={'client_id': client_id, 'client_secret': client_secret,
-                                 'refresh_token': refresh_token, 'grant_type': 'refresh_token'},
-                                 method='POST')
+        response = self._request(
+            "https://{0}/oauth/token".format(self.server),
+            params={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token",
+            },
+            method="POST",
+        )
         access_info = dict()
-        access_info['access_token'] = response['access_token']
-        access_info['refresh_token'] = response['refresh_token']
-        access_info['expires_at'] = response['expires_at']
-        self.access_token = response['access_token']
+        access_info["access_token"] = response["access_token"]
+        access_info["refresh_token"] = response["refresh_token"]
+        access_info["expires_at"] = response["expires_at"]
+        self.access_token = response["access_token"]
 
         return access_info
 
     def resolve_url(self, url):
-        if not url.startswith('http'):
-            url = urljoin('https://{0}'.format(self.server), self.api_base + '/' + url.strip('/'))
+        if not url.startswith("http"):
+            url = urljoin(
+                "https://{0}".format(self.server),
+                self.api_base + "/" + url.strip("/"),
+            )
         return url
 
-    def _request(self, url, params=None, files=None, method='GET', check_for_errors=True):
+    def _request(
+        self, url, params=None, files=None, method="GET", check_for_errors=True
+    ):
         """
         Perform the underlying request, returning the parsed JSON results.
 
@@ -188,21 +227,31 @@ class ApiV3(metaclass=abc.ABCMeta):
         :rtype: Dict[str,Any]
         """
         url = self.resolve_url(url)
-        self.log.info("{method} {url!r} with params {params!r}".format(method=method, url=url, params=params))
+        self.log.info(
+            "{method} {url!r} with params {params!r}".format(
+                method=method, url=url, params=params
+            )
+        )
         if params is None:
             params = {}
         if self.access_token:
-            params['access_token'] = self.access_token
+            params["access_token"] = self.access_token
 
-        methods = {'GET': self.rsession.get,
-                   'POST': functools.partial(self.rsession.post, files=files),
-                   'PUT': self.rsession.put,
-                   'DELETE': self.rsession.delete}
+        methods = {
+            "GET": self.rsession.get,
+            "POST": functools.partial(self.rsession.post, files=files),
+            "PUT": self.rsession.put,
+            "DELETE": self.rsession.delete,
+        }
 
         try:
             requester = methods[method.upper()]
         except KeyError:
-            raise ValueError("Invalid/unsupported request method specified: {0}".format(method))
+            raise ValueError(
+                "Invalid/unsupported request method specified: {0}".format(
+                    method
+                )
+            )
 
         raw = requester(url, params=params)
         # Rate limits are taken from HTTP response headers
@@ -234,23 +283,34 @@ class ApiV3(metaclass=abc.ABCMeta):
         except ValueError:
             pass
         else:
-            if 'message' in json_response or 'errors' in json_response:
-                error_str = '{0}: {1}'.format(json_response.get('message', 'Undefined error'), json_response.get('errors'))
+            if "message" in json_response or "errors" in json_response:
+                error_str = "{0}: {1}".format(
+                    json_response.get("message", "Undefined error"),
+                    json_response.get("errors"),
+                )
 
         # Special subclasses for some errors
         msg = None
         exc_class = None
         if response.status_code == 404:
-            msg = '%s: %s' % (response.reason, error_str)
+            msg = "%s: %s" % (response.reason, error_str)
             exc_class = exc.ObjectNotFound
         elif response.status_code == 401:
-            msg = '%s: %s' % (response.reason, error_str)
+            msg = "%s: %s" % (response.reason, error_str)
             exc_class = exc.AccessUnauthorized
         elif 400 <= response.status_code < 500:
-            msg = '%s Client Error: %s [%s]' % (response.status_code, response.reason, error_str)
+            msg = "%s Client Error: %s [%s]" % (
+                response.status_code,
+                response.reason,
+                error_str,
+            )
             exc_class = exc.Fault
         elif 500 <= response.status_code < 600:
-            msg = '%s Server Error: %s [%s]' % (response.status_code, response.reason, error_str)
+            msg = "%s Server Error: %s [%s]" % (
+                response.status_code,
+                response.reason,
+                error_str,
+            )
             exc_class = exc.Fault
         elif error_str:
             msg = error_str
@@ -287,8 +347,12 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, check_for_errors=check_for_errors)
+        params = dict(
+            [(k, v) for k, v in kwargs.items() if not k in referenced]
+        )
+        return self._request(
+            url, params=params, check_for_errors=check_for_errors
+        )
 
     def post(self, url, files=None, check_for_errors=True, **kwargs):
         """
@@ -296,8 +360,16 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, files=files, method='POST', check_for_errors=check_for_errors)
+        params = dict(
+            [(k, v) for k, v in kwargs.items() if not k in referenced]
+        )
+        return self._request(
+            url,
+            params=params,
+            files=files,
+            method="POST",
+            check_for_errors=check_for_errors,
+        )
 
     def put(self, url, check_for_errors=True, **kwargs):
         """
@@ -305,8 +377,12 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='PUT', check_for_errors=check_for_errors)
+        params = dict(
+            [(k, v) for k, v in kwargs.items() if not k in referenced]
+        )
+        return self._request(
+            url, params=params, method="PUT", check_for_errors=check_for_errors
+        )
 
     def delete(self, url, check_for_errors=True, **kwargs):
         """
@@ -314,5 +390,12 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict([(k, v) for k, v in kwargs.items() if not k in referenced])
-        return self._request(url, params=params, method='DELETE', check_for_errors=check_for_errors)
+        params = dict(
+            [(k, v) for k, v in kwargs.items() if not k in referenced]
+        )
+        return self._request(
+            url,
+            params=params,
+            method="DELETE",
+            check_for_errors=check_for_errors,
+        )

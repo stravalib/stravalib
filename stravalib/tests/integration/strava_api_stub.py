@@ -20,7 +20,7 @@ def _get_strava_api_paths():
 
     try:
         strava_api_swagger_response = requests.get(
-            'https://developers.strava.com/swagger/swagger.json'
+            "https://developers.strava.com/swagger/swagger.json"
         )
         if strava_api_swagger_response.status_code != 200:
             use_local = True
@@ -29,13 +29,15 @@ def _get_strava_api_paths():
 
     if use_local:
         LOGGER.warning(
-            'Failed to retrieve recent swagger API definition from Strava, using '
-            '(potentially stale) version from local resources'
+            "Failed to retrieve recent swagger API definition from Strava, using "
+            "(potentially stale) version from local resources"
         )
-        with open(os.path.join(RESOURCES_DIR, 'strava_swagger.json'), 'r') as swagger_file:
-            return json.load(swagger_file)['paths']
+        with open(
+            os.path.join(RESOURCES_DIR, "strava_swagger.json"), "r"
+        ) as swagger_file:
+            return json.load(swagger_file)["paths"]
     else:
-        return strava_api_swagger_response.json()['paths']
+        return strava_api_swagger_response.json()["paths"]
 
 
 def _api_method_adapter(api_method: Callable) -> Callable:
@@ -45,10 +47,10 @@ def _api_method_adapter(api_method: Callable) -> Callable:
 
     @wraps(api_method)
     def method_wrapper(
-            *args,
-            response_update: Dict[str, Any] = None,
-            n_results: Optional[int] = None,
-            **kwargs
+        *args,
+        response_update: Dict[str, Any] = None,
+        n_results: Optional[int] = None,
+        **kwargs,
     ) -> BaseResponse:
         """
         Wrapper for mock registration methods of `responses.RequestsMock`
@@ -96,36 +98,44 @@ def _api_method_adapter(api_method: Callable) -> Callable:
             relative_url = args[0]
         except IndexError:
             try:
-                relative_url = kwargs.pop('url')
+                relative_url = kwargs.pop("url")
             except KeyError:
                 raise ValueError(
-                    'Expecting url either as first positional argument or keyword argument'
+                    "Expecting url either as first positional argument or keyword argument"
                 )
         # match url with swagger path
         path_info = _get_strava_api_paths()[relative_url]
         # find default response in swagger if no json response is provided in the kwargs
-        if 'json' not in kwargs:
+        if "json" not in kwargs:
             http_method = api_method.args[0].lower()
-            response_status = kwargs.get('status', 200)
+            response_status = kwargs.get("status", 200)
 
             try:
                 method_responses = path_info[http_method]
             except KeyError:
-                raise ValueError(f'Endpoint {relative_url} has no support for method {http_method}')
+                raise ValueError(
+                    f"Endpoint {relative_url} has no support for method {http_method}"
+                )
 
             try:
-                response = method_responses['responses'][str(response_status)]['examples']['application/json']
+                response = method_responses["responses"][str(response_status)][
+                    "examples"
+                ]["application/json"]
                 if isinstance(response, list) and n_results is not None:
                     # Make sure response has n_results items
-                    response = (response * (n_results // len(response) + 1))[:n_results]
+                    response = (response * (n_results // len(response) + 1))[
+                        :n_results
+                    ]
                 elif n_results is not None:
                     # Force single response in example into result list (not all examples provide lists)
-                    LOGGER.warning(f'Forcing example single response into list')
+                    LOGGER.warning(
+                        f"Forcing example single response into list"
+                    )
                     response = [{**response, **response_update}] * n_results
             except KeyError:
                 LOGGER.warning(
-                    f'There are no known example responses for HTTP status {response_status}, '
-                    f'using empty response. You may want to provide a full json response '
+                    f"There are no known example responses for HTTP status {response_status}, "
+                    f"using empty response. You may want to provide a full json response "
                     f'using the "json" keyword argument.'
                 )
                 response = {}
@@ -133,19 +143,24 @@ def _api_method_adapter(api_method: Callable) -> Callable:
             # update fields if necessary
             if response_update is not None:
                 if isinstance(response, list):
-                    response = [{**item, **response_update} for item in response]
+                    response = [
+                        {**item, **response_update} for item in response
+                    ]
                 else:
                     response.update(response_update)
 
-            kwargs.update({'json': response})
+            kwargs.update({"json": response})
 
         # replace named parameters in url by wildcards
-        matching_url = re.sub(r'\{\w+\}', r'\\w+', relative_url)
+        matching_url = re.sub(r"\{\w+\}", r"\\w+", relative_url)
         return api_method(
-            re.compile(ApiV3().resolve_url(matching_url)),  # replaces url from args[0]
+            re.compile(
+                ApiV3().resolve_url(matching_url)
+            ),  # replaces url from args[0]
             *args[1:],
-            **kwargs
+            **kwargs,
         )
+
     return method_wrapper
 
 
@@ -166,7 +181,15 @@ class StravaAPIMock(RequestsMock):
 
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
-        if name in ['delete', 'get', 'head', 'options', 'patch', 'post', 'put']:
+        if name in [
+            "delete",
+            "get",
+            "head",
+            "options",
+            "patch",
+            "post",
+            "put",
+        ]:
             return _api_method_adapter(attr)
         else:
             return attr

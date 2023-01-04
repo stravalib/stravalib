@@ -58,3 +58,5 @@ documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
 
+[tool.black]
+line-length = 79

@@ -1,8 +1,12 @@
+# Package deps
 arrow
-requests>=2.0,<3.0dev
 pint
-pytz
 pydantic
+pytz
+requests>=2.0,<3.0dev
+
+# Pre commit hook
+pre-commit
 
 # Testing
 pytest
@@ -10,13 +14,13 @@ responses
 # Code coverage
 pytest-cov
 
-# For docs build
-sphinx_copybutton
+# Docs
 furo
-sphinx-autobuild
-# Support markdown w full rst functionality!
+# Support markdown w full rst functionality
 myst-nb
+sphinx-autobuild
+sphinx-inline-tabs
+sphinx_copybutton
 sphinx_design
 # Support for social / adds meta tags
 sphinxext-opengraph
-sphinx-inline-tabs
