@@ -734,7 +734,7 @@ class Client(object):
         if not hasattr(activity_file, 'read'):
             if isinstance(activity_file, str):
                 activity_file = BytesIO(activity_file.encode('utf-8'))
-            elif isinstance(activity_file, str):
+            elif isinstance(activity_file, bytes):
                 activity_file = BytesIO(activity_file)
             else:
                 raise TypeError("Invalid type specified for activity_file: {0}".format(type(activity_file)))
