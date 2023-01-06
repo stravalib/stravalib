@@ -64,10 +64,8 @@ class TestClientUploadActivity(TestBase):
 
     def test_upload_activity_file_with_different_types(self):
         """
-        Test uploading an activity.
+        Test uploading an activity with different activity_file object types.
 
-        NOTE: This requires clearing out the uploaded activities from configured
-        writable Strava acct.
         """
 
         with mock.patch("stravalib.protocol.ApiV3.post", return_value={}), open(

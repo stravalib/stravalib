@@ -694,7 +694,7 @@ class Client(object):
         https://developers.strava.com/docs/reference/#api-Uploads-createUpload
 
         :param activity_file: The file object to upload or file contents.
-        :type activity_file: file or str
+        :type activity_file: TextIOWrapper, str or bytes
 
         :param data_type: File format for upload. Possible values: fit, fit.gz, tcx, tcx.gz, gpx, gpx.gz
         :type data_type: str
