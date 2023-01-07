@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Add: Support uploading `activity_file` object with type `bytes` (@gitexel, #308)
 
 ## v1.1.0
 

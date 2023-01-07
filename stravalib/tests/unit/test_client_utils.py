@@ -1,5 +1,8 @@
+import os
+from unittest import mock
+
 from stravalib.client import Client
-from stravalib.tests import TestBase
+from stravalib.tests import TestBase, RESOURCES_DIR
 import datetime
 import pytz
 from urllib import parse as urlparse
@@ -54,3 +57,32 @@ class ClientAuthorizationUrlTest(TestBase):
         self.assertEqual(self.get_url_param(url, "client_id"), "1")
         self.assertEqual(self.get_url_param(url, "redirect_uri"), "www.example.com")
         self.assertEqual(self.get_url_param(url, "approval_prompt"), "auto")
+
+
+class TestClientUploadActivity(TestBase):
+    client = Client()
+
+    def test_upload_activity_file_with_different_types(self):
+        """
+        Test uploading an activity with different activity_file object types.
+
+        """
+
+        with mock.patch("stravalib.protocol.ApiV3.post", return_value={}), open(
+            os.path.join(RESOURCES_DIR, "sample.tcx")
+        ) as fp:
+            # test activity_file with type TextIOWrapper
+            uploader = self.client.upload_activity(fp, data_type="tcx")
+            self.assertTrue(uploader.is_processing)
+
+            # test activity_file with type str
+            uploader = self.client.upload_activity(
+                fp.read(), data_type="tcx", activity_type="ride"
+            )
+            self.assertTrue(uploader.is_processing)
+
+            # test activity_file with type bytes
+            uploader = self.client.upload_activity(
+                fp.read().encode("utf-8"), data_type="tcx", activity_type="ride"
+            )
+            self.assertTrue(uploader.is_processing)
