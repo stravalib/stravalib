@@ -5,17 +5,15 @@ Entity classes for representing the various Strava datatypes.
 """
 import abc
 import logging
-
 from collections.abc import Sequence
 
 from stravalib import exc
 from stravalib import unithelper as uh
-
-from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute,
-                                  TimestampAttribute, LocationAttribute,
-                                  EntityCollection, EntityAttribute,
-                                  TimeIntervalAttribute, TimezoneAttribute,
-                                  DateAttribute, ChoicesAttribute)
+from stravalib.attributes import (DETAILED, META, SUMMARY, Attribute,
+                                  ChoicesAttribute, DateAttribute,
+                                  EntityAttribute, EntityCollection,
+                                  LocationAttribute, TimeIntervalAttribute,
+                                  TimestampAttribute, TimezoneAttribute)
 
 
 class BaseEntity(metaclass=abc.ABCMeta):

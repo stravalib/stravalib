@@ -2,8 +2,7 @@ import time
 
 from stravalib import exc
 from stravalib.tests.functional import FunctionalTestBase
-from stravalib.util.limiter import DefaultRateLimiter
-from stravalib.util.limiter import XRateLimitRule
+from stravalib.util.limiter import DefaultRateLimiter, XRateLimitRule
 
 
 class ClientDefaultRateLimiterTest(FunctionalTestBase):

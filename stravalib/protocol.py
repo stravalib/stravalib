@@ -4,11 +4,11 @@ Protocol
 Low-level classes for interacting directly with the Strava API webservers.
 """
 import abc
-import logging
 import functools
+import logging
+from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
-from urllib.parse import urlunsplit, urljoin, urlencode
 
 from stravalib import exc
 

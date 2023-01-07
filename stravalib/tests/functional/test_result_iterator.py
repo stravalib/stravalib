@@ -4,6 +4,7 @@ from stravalib import model
 from stravalib.client import BatchedResultsIterator
 from stravalib.tests.functional import FunctionalTestBase
 
+
 class ResultIteratorTest(FunctionalTestBase):
         
     def setUp(self):

@@ -1,7 +1,8 @@
 import os
 from datetime import datetime, timedelta
 
-from stravalib import model, exc, unithelper as uh
+from stravalib import exc, model
+from stravalib import unithelper as uh
 from stravalib.tests import RESOURCES_DIR
 from stravalib.tests.functional import FunctionalTestBase
 
