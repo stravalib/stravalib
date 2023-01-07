@@ -1,0 +1,4 @@
+# Placeholder for pre-commit config that will be added later.
+# Pre-commit CI needs this file to exist and will fail otherwise.
+
+repos: []
