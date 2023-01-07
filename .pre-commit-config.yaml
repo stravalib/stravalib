@@ -1,6 +1,6 @@
 # pre-commit is a tool to perform a predefined set of tasks manually and/or
 # automatically before git commits are made.
-# Here we are using precommit with the precommit.ci bot to implement 
+# Here we are using precommit with the precommit.ci bot to implement
 # code fixes automagically in pr's
 # Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
 #
@@ -35,13 +35,15 @@ repos:
     hooks:
       - id: flake8
 
-# Black for auto code formatting
-repos:
-- repo: https://github.com/psf/black
-  rev: 22.12.0
-  hooks:
-  - id: black
-    language_version: python3.8
+  # Black for auto code formatting
+  - repo: https://github.com/psf/black
+    rev: 22.12.0
+    hooks:
+      - id: black
+        language_version: python3.8
+
+#repos:
+
 
 # Update hook versions every quarter (so we don't get hit with weekly update pr's)
 ci:
