@@ -5,25 +5,26 @@ Entity classes for representing the various Strava datatypes.
 """
 import abc
 import logging
-
 from collections.abc import Sequence
+
+from exc import warn_method_deprecation
+from strava_model import DetailedClub
 
 from stravalib import exc
 from stravalib import unithelper as uh
-
 from stravalib.attributes import (
+    DETAILED,
     META,
     SUMMARY,
-    DETAILED,
     Attribute,
-    TimestampAttribute,
-    LocationAttribute,
-    EntityCollection,
-    EntityAttribute,
-    TimeIntervalAttribute,
-    TimezoneAttribute,
-    DateAttribute,
     ChoicesAttribute,
+    DateAttribute,
+    EntityAttribute,
+    EntityCollection,
+    LocationAttribute,
+    TimeIntervalAttribute,
+    TimestampAttribute,
+    TimezoneAttribute,
 )
 
 
@@ -116,6 +117,21 @@ class BaseEntity(metaclass=abc.ABCMeta):
         )
 
 
+class DeprecatedSerializableMixin:
+    @classmethod
+    def deserialize(cls, v):
+        """
+        Creates a new object based on serialized (dict) struct.
+        """
+        warn_method_deprecation(
+            cls,
+            "deserialize()",
+            "parse_obj()",
+            "https://docs.pydantic.dev/usage/models/#helper-functions",
+        )
+        return cls.parse_obj(v)
+
+
 class ResourceStateEntity(BaseEntity):
     """
     Mixin for entities that include the resource_state attribute.
@@ -191,65 +207,70 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
         raise NotImplementedError()  # This is a little harder now due to resource states, etc.
 
 
-class Club(LoadableEntity):
-    """
-    Class to represent a club.
+class Club(DetailedClub, DeprecatedSerializableMixin):
+    pass
 
-    Currently summary and detail resource states have the same attributes.
-    """
 
-    _members = None
-    _activities = None
-
-    name = Attribute(str, (SUMMARY, DETAILED))  #: Name of the club.
-    profile_medium = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 62x62 pixel club picture
-    profile = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 124x124 pixel club picture
-    description = Attribute(str, (DETAILED,))  #: Description of the club
-    club_type = Attribute(
-        str, (DETAILED,)
-    )  #: Type of club (casual_club, racing_team, shop, company, other)
-    sport_type = Attribute(
-        str, (DETAILED,)
-    )  #: Sport of the club (cycling, running, triathlon, other)
-    city = Attribute(str, (DETAILED,))  #: City the club is based in
-    state = Attribute(str, (DETAILED,))  #: State the club is based in
-    country = Attribute(str, (DETAILED,))  #: Country the club is based in
-    private = Attribute(bool, (DETAILED,))  #: Whether the club is private
-    member_count = Attribute(
-        int, (DETAILED,)
-    )  #: Number of members in the club
-    verified = Attribute(bool, (SUMMARY, DETAILED))
-    url = Attribute(str, (SUMMARY, DETAILED))  #: vanity club URL slug
-    featured = Attribute(bool, (SUMMARY, DETAILED))
-    cover_photo = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a ~1185x580 pixel cover photo
-    cover_photo_small = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a ~360x176 pixel cover photo
-    membership = Attribute(str, (DETAILED,))
-    admin = Attribute(bool, (DETAILED,))
-    owner = Attribute(bool, (DETAILED,))
-
-    @property
-    def members(self):
-        """An iterator of :class:`stravalib.model.Athlete` members of this club."""
-        if self._members is None:
-            self.assert_bind_client()
-            self._members = self.bind_client.get_club_members(self.id)
-        return self._members
-
-    @property
-    def activities(self):
-        """An iterator of reverse-chronological :class:`stravalib.model.Activity` activities for this club."""
-        if self._activities is None:
-            self.assert_bind_client()
-            self._activities = self.bind_client.get_club_activities(self.id)
-        return self._activities
+# class Club(LoadableEntity):
+# TODO check if all these attributes are part of the new class
+#     """
+#     Class to represent a club.
+#
+#     Currently summary and detail resource states have the same attributes.
+#     """
+#
+#     _members = None
+#     _activities = None
+#
+#     name = Attribute(str, (SUMMARY, DETAILED))  #: Name of the club.
+#     profile_medium = Attribute(
+#         str, (SUMMARY, DETAILED)
+#     )  #: URL to a 62x62 pixel club picture
+#     profile = Attribute(
+#         str, (SUMMARY, DETAILED)
+#     )  #: URL to a 124x124 pixel club picture
+#     description = Attribute(str, (DETAILED,))  #: Description of the club
+#     club_type = Attribute(
+#         str, (DETAILED,)
+#     )  #: Type of club (casual_club, racing_team, shop, company, other)
+#     sport_type = Attribute(
+#         str, (DETAILED,)
+#     )  #: Sport of the club (cycling, running, triathlon, other)
+#     city = Attribute(str, (DETAILED,))  #: City the club is based in
+#     state = Attribute(str, (DETAILED,))  #: State the club is based in
+#     country = Attribute(str, (DETAILED,))  #: Country the club is based in
+#     private = Attribute(bool, (DETAILED,))  #: Whether the club is private
+#     member_count = Attribute(
+#         int, (DETAILED,)
+#     )  #: Number of members in the club
+#     verified = Attribute(bool, (SUMMARY, DETAILED))
+#     url = Attribute(str, (SUMMARY, DETAILED))  #: vanity club URL slug
+#     featured = Attribute(bool, (SUMMARY, DETAILED))
+#     cover_photo = Attribute(
+#         str, (SUMMARY, DETAILED)
+#     )  #: URL to a ~1185x580 pixel cover photo
+#     cover_photo_small = Attribute(
+#         str, (SUMMARY, DETAILED)
+#     )  #: URL to a ~360x176 pixel cover photo
+#     membership = Attribute(str, (DETAILED,))
+#     admin = Attribute(bool, (DETAILED,))
+#     owner = Attribute(bool, (DETAILED,))
+#
+#     @property
+#     def members(self):
+#         """An iterator of :class:`stravalib.model.Athlete` members of this club."""
+#         if self._members is None:
+#             self.assert_bind_client()
+#             self._members = self.bind_client.get_club_members(self.id)
+#         return self._members
+#
+#     @property
+#     def activities(self):
+#         """An iterator of reverse-chronological :class:`stravalib.model.Activity` activities for this club."""
+#         if self._activities is None:
+#             self.assert_bind_client()
+#             self._activities = self.bind_client.get_club_activities(self.id)
+#         return self._activities
 
 
 class Gear(IdentifiableEntity):

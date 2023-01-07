@@ -361,6 +361,12 @@ def test_get_starred_segments(
         assert activity_list[0].name == "test_segment"
 
 
+def test_get_club(mock_strava_api, client):
+    mock_strava_api.get("/clubs/{id}", response_update={"name": "foo"})
+    club = client.get_club(42)
+    assert club.name == "foo"
+
+
 @pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_activities",
     (

@@ -15,12 +15,11 @@ from io import BytesIO
 import arrow
 import pytz
 
-from stravalib import model, exc
-from stravalib import unithelper
+from stravalib import exc, model, unithelper
 from stravalib.exc import warn_param_deprecation, warn_param_unofficial
 from stravalib.protocol import ApiV3
-from stravalib.util import limiter
 from stravalib.unithelper import is_quantity_type
+from stravalib.util import limiter
 
 
 class Client(object):
@@ -502,7 +501,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.deserialize(raw, bind_client=self)
+        return model.Club.parse_obj(raw)
 
     def get_club_members(self, club_id, limit=None):
         """
