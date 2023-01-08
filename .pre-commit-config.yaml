@@ -13,7 +13,7 @@
 
 ci:
     autofix_prs: false
-    #skip: []
+    skip: [flake8]
     #autofix_commit_msg: |
         #'[pre-commit.ci 🤖] Apply code format tools to PR'
     # Update hook versions every quarter (so we don't get hit with weekly update pr's)
