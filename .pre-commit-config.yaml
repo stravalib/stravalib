@@ -5,7 +5,7 @@
 # code fixes automagically in pr's. You will still want to install pre-commit
 # to run locally
 # Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
-# To run on a pr, use: pre-commit.ci run
+# To run on a pr, add a comment with the text "pre-commit.ci run"
 # Common tasks
 #
 # - Run on all files:   pre-commit run --all-files
