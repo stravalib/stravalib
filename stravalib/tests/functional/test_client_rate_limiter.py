@@ -41,7 +41,7 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
         # request fired to early (less than 5 sec) causes timeout exception
         with self.assertRaises(exc.RateLimitTimeout):
             self.client.get_athlete()
-        
+
         # once rate limit has exceeded wait until another reuqest is possible
         #  check if timout has been set
         self.assertTrue(rate_limit_rule.limit_timeout > 0)

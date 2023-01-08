@@ -1,8 +1,14 @@
 import pytz
 
-from stravalib.attributes import (DETAILED, SUMMARY, ChoicesAttribute,
-                                  EntityAttribute, LatLon, LocationAttribute,
-                                  TimezoneAttribute)
+from stravalib.attributes import (
+    DETAILED,
+    SUMMARY,
+    ChoicesAttribute,
+    EntityAttribute,
+    LatLon,
+    LocationAttribute,
+    TimezoneAttribute,
+)
 from stravalib.model import Athlete, SubscriptionCallback
 from stravalib.tests import TestBase
 

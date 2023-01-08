@@ -21,7 +21,7 @@ install:
 test:
 	# Create tmp dir to ensure that tests are run on the installed version of stravalib
 	mkdir -p $(TESTDIR)
-	cd $(TESTDIR); 
+	cd $(TESTDIR);
 	pytest $(PYTEST_ARGS) $(PROJECT)
 	rm -r $(TESTDIR)
 

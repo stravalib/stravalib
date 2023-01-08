@@ -11,7 +11,7 @@
 * Add: Integration tests for /routes/{id} and /segments/starred (GET) (@jsamoocha, #250 (partial))
 * Add: Add integration tests for all POST/PUT client methods (@jsamoocha, #250 (partial))
 * Add: code cov to test suite (@lwasser, #262)
-* Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274) 
+* Add: add code of conduct to the repo, update contributing guide + readme badges (@lwasser, #269, #274)
 * Add: pull request templates for regular pr and release (@lwasser, #294)
 * Add: Support for python 3.11
 
@@ -43,7 +43,7 @@
 * Fix: Refactor deprecated unittest aliases for Python 3.11 compatibility (@tirkarthi, #223)
 * Patch: Update readme and fix broken links in docs (@lwasser, #229)
 
-### Changed 
+### Changed
 * Change: Improved unknown time zone handling (@jsamoocha, #242)
 * Change: Refactor test suite and implement Ci for tests (@jsamoocha, #246)
 * Change: Remove support for python 2.x (@yihong0618, #254)

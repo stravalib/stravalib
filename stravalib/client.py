@@ -676,7 +676,7 @@ class Client(object):
         if device_name is not None:
             warn_param_deprecation('device_name')
             params['device_name'] = device_name
-        
+
         if hide_from_home is not None:
             params['hide_from_home'] = int(hide_from_home)
 
