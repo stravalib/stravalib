@@ -1,8 +1,8 @@
 # pre-commit is a tool that you run locally
 # to perform a predefined set of tasks manually and/or
-# automatically before git commits are made. 
-# Here we are using pre-commit with the precommit.ci bot to implement 
-# code fixes automagically in pr's. You will still want to install pre-commit 
+# automatically before git commits are made.
+# Here we are using pre-commit with the precommit.ci bot to implement
+# code fixes automagically in pr's. You will still want to install pre-commit
 # to run locally
 # Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
 # To run on a pr, use: pre-commit.ci run
@@ -13,7 +13,7 @@
 
 ci:
     autofix_prs: false
-    skip: [black]
+    #skip: []
     #autofix_commit_msg: |
         #'[pre-commit.ci 🤖] Apply code format tools to PR'
     # Update hook versions every quarter (so we don't get hit with weekly update pr's)
@@ -33,7 +33,6 @@ repos:
     hooks:
       # Autoformat: Makes sure files end in a newline and only a newline.
       - id: end-of-file-fixer
-
       # Lint: Check for files with names that would conflict on a
       # case-insensitive filesystem like MacOS HFS+ or Windows FAT.
       - id: check-case-conflict
@@ -46,11 +45,8 @@ repos:
       - id: flake8
 
 # Black for auto code formatting
-repos:
-- repo: https://github.com/psf/black
-  rev: 22.12.0
-  hooks:
-  - id: black
-    language_version: python3.8
-
-
+#   - repo: https://github.com/psf/black
+#     rev: 22.12.0
+#     hooks:
+#     - id: black
+#       language_version: python3.8

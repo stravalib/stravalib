@@ -69,29 +69,40 @@ $ pip install -e .
 
 ## Code style and linting
 
-We use the following tools to ensure consistent code format:
+We use the following tools to ensure consistent code format that follows
+the Python Enhancement Protocol (PEP) 008 standards. These standards dictate
+best practices for Python code readability and consistency:
 
-* black for overall code format
-* isort - to ensure imports are ordered following pep8 guidelines
-* flake8
+* [black](https://black.readthedocs.io/en/stable/) for consistent code format
+that generally follows [PEP 8 guidlines](https://peps.python.org/pep-0008/).
+Because black's default line length is 88 characters, we adjust it to 79
+characters in the config [to follow PEP 8 line width guidelines](https://peps.python.org/pep-0008/#maximum-line-length).
+* [isort](https://pycqa.github.io/isort/): ensure imports are ordered following [PEP 8 import guidelines](https://peps.python.org/pep-0008/#imports)
+* [flake8](https://flake8.pycqa.org/en/latest/): flake8 is a linter. It identifies other PEP 8 issues in the code that Black will not address including comments that extend beyond 79
+characters and doc string line width. It also will identify unused imports and
+unused but declared variables.
 
-For local development, you can use our `pre-commit` hook setup.
+For local development, you can use our [`pre-commit` hook setup](https://pre-commit.com/).
 When installed, the pre-commit hook will run each code format
-tool, every time you make a commit to your local clone of stravalib.
-If your code doesn't "pass" checks for each tool then
+tool, specified in the `pre-commit-config.yaml file`, every time you make a
+commit to your local clone of stravalib. If your code doesn't "pass" checks for
+each tool then the following happens:
 
-1. If it's `black` or `isort`, the code will be fixed / updated
-2. If it's flake8, it will provide you with a list of flake8 issues in your code. you will need to fix each individually.
+1. If it's a `black` or `isort` error, the code will be fixed / updated by black
+and/or isort.
+2. If it's a `flake8` error, flake8 will provide you with a list of
+issues in your code. You will need to fix each individually by hand.
 
-### Setup the pre-commit hook
+### Setup and run the pre-commit hooks
 
-To setup the hook locally, run:
+To setup the pre-commit hook locally, run:
 
 ```
 $ pre-commit install
 ```
 
-The tools installed will be the ones listed in the **.pre-commit-config.yaml** file.
+The tools installed will be the ones listed in the **.pre-commit-config.yaml**
+file.
 
 ````{tip}
 You can run all hooks locally without a commit by using:
@@ -100,27 +111,46 @@ You can run all hooks locally without a commit by using:
 $ .git/hooks/pre-commit
 ```
 
+You can also run a single hook using the following:
+
+```
+# Only run isort
+# pre-commit run isort
+```
 ````
 
 ### Pre-commit.ci bot
 
-We have setup a bot that will run code format steps on each pr.
+We use the `https://pre-commit.ci`, in addition to pre-commit in our local
+build to manage pull requests. The configuration for this bot can be found
+in the ci: section of the `pre-commit-config.yaml` file.
+This bot can run all of the code format hooks on every pull request if it's set
+to do so.
 
-To call the bot on a pr, add the text:
+Currently, we have the bot setup to only run when it's asked to run on a PR.
+To call the bot on a pull request, add the text:
+
 `pre-commit.ci run`
 
-as a single line comment in the PR. The bot will automatically run.
+as a single line comment in the pull request. The bot will automatically run
+all of the hooks that it is configured to run.
 
 
 ```{tip}
-If you are working locally and wish to overwrite some of the commits
-made by the bot you can always run
+If you have an open Pull Request but you need to make some changes locally,
+and the bot has already run on your pull request and added a commit, you can
+force push to the pull request to avoid multiple bot commits.
+
+To do this simply:
+* Do not pull down any changes from the pull request,
+* Commit your changes locally,
+
+When you are ready to push your local changes use:
 
 `git push origin branch-name-here --force`
 
-If you have not yet pulled down pre-commit bots changes, this will
-force the branch to be in the same commit state as your local fork's
-branch.
+If you have not yet pulled down pre-commit bot's changes, this will
+force the branch to be in the same commit state as your local branch.
 
 ```
 
