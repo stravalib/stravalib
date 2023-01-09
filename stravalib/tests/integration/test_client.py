@@ -367,6 +367,15 @@ def test_get_club(mock_strava_api, client):
     assert club.name == "foo"
 
 
+@pytest.mark.parametrize("n_clubs", ((0,), (2,)))
+def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
+    mock_strava_api.get(
+        "/athlete/clubs", response_update={"name": "foo"}, n_results=n_clubs
+    )
+    clubs = client.get_athlete_clubs()
+    assert len(clubs) == n_clubs
+
+
 @pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_activities",
     (

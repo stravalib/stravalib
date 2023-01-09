@@ -464,10 +464,7 @@ class Client(object):
         :rtype: :py:class:`list`
         """
         club_structs = self.protocol.get("/athlete/clubs")
-        return [
-            model.Club.deserialize(raw, bind_client=self)
-            for raw in club_structs
-        ]
+        return [model.Club.parse_obj(raw) for raw in club_structs]
 
     def join_club(self, club_id):
         """

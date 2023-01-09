@@ -162,7 +162,16 @@ class DeprecatedSerializableMixin(BaseModel):
         return self.dict()
 
 
-class FieldConversionMixin:
+class BackwardCompatibilityMixin:
+    """
+    Mixin that intercepts attribute lookup and raises warnings or modifies return values
+    based on what is defined in the following class attributes:
+    * _deprecated_fields (TODO)
+    * _unsupported_fields (TODO)
+    * _field_conversions
+    * _unit_registry (TODO)
+    """
+
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
         if attr in ["_field_conversions"]:
@@ -250,7 +259,9 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
         raise NotImplementedError()  # This is a little harder now due to resource states, etc.
 
 
-class Club(DetailedClub, DeprecatedSerializableMixin, FieldConversionMixin):
+class Club(
+    DetailedClub, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+):
     _field_conversions = {
         "activity_types": lambda types: [t.value for t in types]
     }
