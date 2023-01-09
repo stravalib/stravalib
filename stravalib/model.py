@@ -7,9 +7,6 @@ import abc
 import logging
 from collections.abc import Sequence
 
-from exc import warn_method_deprecation
-from strava_model import DetailedClub
-
 from stravalib import exc
 from stravalib import unithelper as uh
 from stravalib.attributes import (
@@ -26,6 +23,8 @@ from stravalib.attributes import (
     TimestampAttribute,
     TimezoneAttribute,
 )
+from stravalib.exc import warn_method_deprecation
+from stravalib.strava_model import DetailedClub
 
 
 class BaseEntity(metaclass=abc.ABCMeta):
