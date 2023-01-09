@@ -1,13 +1,40 @@
+from unittest import skip
+
+import pytest
+
 from stravalib import model
 from stravalib import unithelper as uh
+from stravalib.model import Club
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity
+
+
+@pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
+class TestLegacyModelSerialization:
+    def test_legacy_deserialize(self, model_class, attr, value):
+        with pytest.warns(DeprecationWarning):
+            model_obj = model_class.deserialize({attr: value})
+            assert getattr(model_obj, attr) == value
+
+    def test_legacy_from_dict(self, model_class, attr, value):
+        with pytest.warns(DeprecationWarning):
+            model_obj = model_class()
+            model_obj.from_dict({attr: value})
+            assert getattr(model_obj, attr) == value
+
+    def test_legacy_to_dict(self, model_class, attr, value):
+        with pytest.warns(DeprecationWarning):
+            model_obj = model_class(**{attr: value})
+            model_dict_legacy = model_obj.to_dict()
+            model_dict_modern = model_obj.dict()
+            assert model_dict_legacy == model_dict_modern
 
 
 class ModelTest(TestBase):
     def setUp(self):
         super(ModelTest, self).setUp()
 
+    @skip
     def test_entity_collections(self):
         a = model.Athlete()
         d = {

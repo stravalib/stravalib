@@ -7,6 +7,8 @@ import abc
 import logging
 from collections.abc import Sequence
 
+from pydantic import BaseModel
+
 from stravalib import exc
 from stravalib import unithelper as uh
 from stravalib.attributes import (
@@ -116,11 +118,15 @@ class BaseEntity(metaclass=abc.ABCMeta):
         )
 
 
-class DeprecatedSerializableMixin:
+class DeprecatedSerializableMixin(BaseModel):
+    """
+    Provides backward compatibility with legacy BaseEntity
+    """
+
     @classmethod
     def deserialize(cls, v):
         """
-        Creates a new object based on serialized (dict) struct.
+        Creates and returns a new object based on serialized (dict) struct.
         """
         warn_method_deprecation(
             cls,
@@ -129,6 +135,31 @@ class DeprecatedSerializableMixin:
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
         return cls.parse_obj(v)
+
+    def from_dict(self, v):
+        """
+        Deserializes v into self, resetting and ond/or overwriting existing fields
+        """
+        warn_method_deprecation(
+            self.__class__.__name__,
+            "from_dict()",
+            "parse_obj()",
+            "https://docs.pydantic.dev/usage/models/#helper-functions",
+        )
+        # Ugly hack is necessary because parse_obj does not behave in-place but returns a new object
+        self.__init__(**self.parse_obj(v).dict())
+
+    def to_dict(self):
+        """
+        Returns a dict representation of self
+        """
+        warn_method_deprecation(
+            self.__class__.__name__,
+            "to_dict()",
+            "dict()",
+            "https://docs.pydantic.dev/usage/exporting_models/",
+        )
+        return self.dict()
 
 
 class ResourceStateEntity(BaseEntity):
