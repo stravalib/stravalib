@@ -26,7 +26,7 @@ from stravalib.attributes import (
     TimezoneAttribute,
 )
 from stravalib.exc import warn_method_deprecation
-from stravalib.strava_model import DetailedClub, DetailedGear
+from stravalib.strava_model import ActivityTotal, DetailedClub, DetailedGear
 
 
 class BaseEntity(metaclass=abc.ABCMeta):
@@ -277,21 +277,10 @@ class Gear(
     pass
 
 
-class ActivityTotals(BaseEntity):
-    """
-    Represent ytd/recent/all run/ride totals.
-    """
-
-    achievement_count = Attribute(int)  #: How many achievements
-    count = Attribute(int)  #: How many activities
-    distance = Attribute(float, units=uh.meters)  #: Total distance travelled
-    elapsed_time = (
-        TimeIntervalAttribute()
-    )  #: :class:`datetime.timedelta` of total elapsed time
-    elevation_gain = Attribute(float, units=uh.meters)  #: Total elevation gain
-    moving_time = (
-        TimeIntervalAttribute()
-    )  #: :class:`datetime.timedelta` of total moving time
+class ActivityTotals(
+    ActivityTotal, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+):
+    pass
 
 
 class AthleteStats(BaseEntity):
