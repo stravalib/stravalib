@@ -9,7 +9,10 @@ from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity
 
 
-@pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
+@pytest.mark.parametrize(
+    "model_class,attr,value",
+    ((Club, "name", "foo"), (Club, "activity_types", ["Ride", "Run"])),
+)
 class TestLegacyModelSerialization:
     def test_legacy_deserialize(self, model_class, attr, value):
         with pytest.warns(DeprecationWarning):

@@ -162,6 +162,19 @@ class DeprecatedSerializableMixin(BaseModel):
         return self.dict()
 
 
+class FieldConversionMixin:
+    def __getattribute__(self, attr):
+        value = object.__getattribute__(self, attr)
+        if attr in ["_field_conversions"]:
+            return value
+        if attr in self._field_conversions:
+            value = self._field_conversions[attr](value)
+        # if attr in self._unit_registry:
+        #     # Return a Quantity
+        #     value = UnitConverter(self._unit_registry[attr])(value)
+        return value
+
+
 class ResourceStateEntity(BaseEntity):
     """
     Mixin for entities that include the resource_state attribute.
@@ -237,8 +250,10 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
         raise NotImplementedError()  # This is a little harder now due to resource states, etc.
 
 
-class Club(DetailedClub, DeprecatedSerializableMixin):
-    pass
+class Club(DetailedClub, DeprecatedSerializableMixin, FieldConversionMixin):
+    _field_conversions = {
+        "activity_types": lambda types: [t.value for t in types]
+    }
 
 
 # class Club(LoadableEntity):
