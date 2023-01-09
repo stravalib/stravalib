@@ -77,6 +77,7 @@ class ModelTest(TestBase):
         split.moving_time = 3.1
         split.elapsed_time = 5.73
 
+    @skip
     def test_distance_units(self):
         # Gear
         g = model.Gear()

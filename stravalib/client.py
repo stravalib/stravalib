@@ -1058,7 +1058,7 @@ class Client(object):
         :return: The Bike or Shoe subclass object.
         :rtype: :class:`stravalib.model.Gear`
         """
-        return model.Gear.deserialize(
+        return model.Gear.parse_obj(
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 

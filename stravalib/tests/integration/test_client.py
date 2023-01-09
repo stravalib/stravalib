@@ -367,13 +367,20 @@ def test_get_club(mock_strava_api, client):
     assert club.name == "foo"
 
 
-@pytest.mark.parametrize("n_clubs", ((0,), (2,)))
+@pytest.mark.parametrize("n_clubs", (0, 2))
 def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
     mock_strava_api.get(
         "/athlete/clubs", response_update={"name": "foo"}, n_results=n_clubs
     )
     clubs = client.get_athlete_clubs()
     assert len(clubs) == n_clubs
+    if clubs:
+        assert clubs[0].name == "foo"
+
+
+def test_get_gear(mock_strava_api, client):
+    mock_strava_api.get("/gear/{id}", response_update={"name": "foo_bike"})
+    assert client.get_gear(42).name == "foo_bike"
 
 
 @pytest.mark.parametrize(

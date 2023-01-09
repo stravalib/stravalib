@@ -26,7 +26,7 @@ from stravalib.attributes import (
     TimezoneAttribute,
 )
 from stravalib.exc import warn_method_deprecation
-from stravalib.strava_model import DetailedClub
+from stravalib.strava_model import DetailedClub, DetailedGear
 
 
 class BaseEntity(metaclass=abc.ABCMeta):
@@ -176,8 +176,12 @@ class BackwardCompatibilityMixin:
         value = object.__getattribute__(self, attr)
         if attr in ["_field_conversions"]:
             return value
-        if attr in self._field_conversions:
-            value = self._field_conversions[attr](value)
+        try:
+            if attr in self._field_conversions:
+                value = self._field_conversions[attr](value)
+        except AttributeError:
+            # Current model class has no field conversions defined
+            pass
         # if attr in self._unit_registry:
         #     # Return a Quantity
         #     value = UnitConverter(self._unit_registry[attr])(value)
@@ -267,132 +271,10 @@ class Club(
     }
 
 
-# class Club(LoadableEntity):
-# TODO check if all these attributes are part of the new class
-#     """
-#     Class to represent a club.
-#
-#     Currently summary and detail resource states have the same attributes.
-#     """
-#
-#     _members = None
-#     _activities = None
-#
-#     name = Attribute(str, (SUMMARY, DETAILED))  #: Name of the club.
-#     profile_medium = Attribute(
-#         str, (SUMMARY, DETAILED)
-#     )  #: URL to a 62x62 pixel club picture
-#     profile = Attribute(
-#         str, (SUMMARY, DETAILED)
-#     )  #: URL to a 124x124 pixel club picture
-#     description = Attribute(str, (DETAILED,))  #: Description of the club
-#     club_type = Attribute(
-#         str, (DETAILED,)
-#     )  #: Type of club (casual_club, racing_team, shop, company, other)
-#     sport_type = Attribute(
-#         str, (DETAILED,)
-#     )  #: Sport of the club (cycling, running, triathlon, other)
-#     city = Attribute(str, (DETAILED,))  #: City the club is based in
-#     state = Attribute(str, (DETAILED,))  #: State the club is based in
-#     country = Attribute(str, (DETAILED,))  #: Country the club is based in
-#     private = Attribute(bool, (DETAILED,))  #: Whether the club is private
-#     member_count = Attribute(
-#         int, (DETAILED,)
-#     )  #: Number of members in the club
-#     verified = Attribute(bool, (SUMMARY, DETAILED))
-#     url = Attribute(str, (SUMMARY, DETAILED))  #: vanity club URL slug
-#     featured = Attribute(bool, (SUMMARY, DETAILED))
-#     cover_photo = Attribute(
-#         str, (SUMMARY, DETAILED)
-#     )  #: URL to a ~1185x580 pixel cover photo
-#     cover_photo_small = Attribute(
-#         str, (SUMMARY, DETAILED)
-#     )  #: URL to a ~360x176 pixel cover photo
-#     membership = Attribute(str, (DETAILED,))
-#     admin = Attribute(bool, (DETAILED,))
-#     owner = Attribute(bool, (DETAILED,))
-#
-#     @property
-#     def members(self):
-#         """An iterator of :class:`stravalib.model.Athlete` members of this club."""
-#         if self._members is None:
-#             self.assert_bind_client()
-#             self._members = self.bind_client.get_club_members(self.id)
-#         return self._members
-#
-#     @property
-#     def activities(self):
-#         """An iterator of reverse-chronological :class:`stravalib.model.Activity` activities for this club."""
-#         if self._activities is None:
-#             self.assert_bind_client()
-#             self._activities = self.bind_client.get_club_activities(self.id)
-#         return self._activities
-
-
-class Gear(IdentifiableEntity):
-    """
-    Information about Gear (bike or shoes) used during activity.
-    """
-
-    id = Attribute(str, (META, SUMMARY, DETAILED))  #: Alpha-numeric gear ID.
-    name = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Name athlete entered for bike (does not apply to shoes)
-    distance = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: Distance for this bike/shoes.
-    primary = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: athlete's default bike/shoes
-    brand_name = Attribute(str, (DETAILED,))  #: Brand name of bike/shoes.
-    model_name = Attribute(str, (DETAILED,))  #: Modelname of bike/shoes.
-    description = Attribute(
-        str, (DETAILED,)
-    )  #: Description of bike/shoe item.
-
-    @classmethod
-    def deserialize(cls, v):
-        """
-        Creates a new object based on serialized (dict) struct.
-        """
-        if v is None:
-            return None
-        if cls == Gear and v.get("resource_state") == 3:
-            if "frame_type" in v:
-                o = Bike()
-            else:
-                o = Shoe()
-        else:
-            o = cls()
-        o.from_dict(v)
-        return o
-
-
-class Bike(Gear):
-    """
-    Represents an athlete's bike.
-    """
-
-    frame_type = Attribute(
-        int, (DETAILED,)
-    )  #: (detailed-only) Type of bike frame.
-    nickname = Attribute(str, (DETAILED,))  #: Nickname for the bike.
-    converted_distance = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: Distance on the bike (meters)
-    retired = Attribute(bool, (SUMMARY, DETAILED))  #: Is the bike retired?
-
-
-class Shoe(Gear):
-    """
-    Represents an athlete's pair of shoes.
-    """
-
-    nickname = Attribute(str, (DETAILED,))  #: Nickname for the shoe.
-    converted_distance = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: Distance on the shoe (meters)
-    retired = Attribute(bool, (SUMMARY, DETAILED))  #: Is the shoe retired?
+class Gear(
+    DetailedGear, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+):
+    pass
 
 
 class ActivityTotals(BaseEntity):
@@ -522,12 +404,12 @@ class Athlete(LoadableEntity):
     clubs = EntityCollection(
         Club, (DETAILED,)
     )  #: (detailed-only) Which clubs athlete belongs to. (:class:`list` of :class:`stravalib.model.Club`)
-    bikes = EntityCollection(
-        Bike, (DETAILED,)
-    )  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
-    shoes = EntityCollection(
-        Shoe, (DETAILED,)
-    )  #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
+    # bikes = EntityCollection(
+    #     Bike, (DETAILED,)
+    # )  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
+    # shoes = EntityCollection(
+    #     Shoe, (DETAILED,)
+    # )  #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
 
     super_user = Attribute(
         bool, (SUMMARY, DETAILED)
