@@ -1,12 +1,13 @@
+from datetime import timedelta
 from unittest import skip
 
 import pytest
 
 from stravalib import model
 from stravalib import unithelper as uh
-from stravalib.model import Club
+from stravalib.model import ActivityTotals, Club
 from stravalib.tests import TestBase
-from stravalib.unithelper import Quantity
+from stravalib.unithelper import Quantity, UnitConverter
 
 
 @pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
@@ -28,6 +29,30 @@ class TestLegacyModelSerialization:
             model_dict_legacy = model_obj.to_dict()
             model_dict_modern = model_obj.dict()
             assert model_dict_legacy == model_dict_modern
+
+
+@pytest.mark.parametrize(
+    "model_class,raw,expected_value,expected_warning",
+    (
+        (Club, {"name": "foo"}, "foo", None),
+        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100), None),
+        (
+            ActivityTotals,
+            {"distance": 100.0},
+            UnitConverter("meters")(100.0),
+            None,
+        ),
+    ),
+)
+def test_backward_compatibility_mixin(
+    model_class, raw, expected_value, expected_warning
+):
+    obj = model_class.parse_obj(raw)
+    if expected_warning:
+        with pytest.warns(expected_warning):
+            assert getattr(obj, list(raw.keys())[0]) == expected_value
+    else:
+        assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
 class ModelTest(TestBase):

@@ -6,7 +6,7 @@ from responses import matchers
 
 from stravalib.exc import AccessUnauthorized
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import miles
+from stravalib.unithelper import UnitConverter, miles
 
 
 def test_get_athlete(mock_strava_api, client):
@@ -421,7 +421,9 @@ def test_get_athlete_stats(
             client.get_athlete_stats(athlete_id)
     else:
         stats = client.get_athlete_stats(athlete_id)
-        assert stats.biggest_ride_distance == expected_biggest_ride_distance
+        assert stats.biggest_ride_distance == UnitConverter("meters")(
+            expected_biggest_ride_distance
+        )
 
 
 def test_get_gear(mock_strava_api, client):

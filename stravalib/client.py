@@ -262,7 +262,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Athlete`
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.deserialize(raw, bind_client=self)
+        return model.Athlete.parse_obj(raw)
 
     # TODO: this endpoint was removed so do we want to remove the URL altogether?
     def get_athlete_friends(self, athlete_id=None, limit=None):
@@ -342,7 +342,7 @@ class Client(object):
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.deserialize(raw_athlete, bind_client=self)
+        return model.Athlete.parse_obj(raw_athlete)
 
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """

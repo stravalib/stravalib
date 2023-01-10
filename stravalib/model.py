@@ -16,7 +16,6 @@ from stravalib.attributes import (
     META,
     SUMMARY,
     Attribute,
-    ChoicesAttribute,
     DateAttribute,
     EntityAttribute,
     EntityCollection,
@@ -26,12 +25,15 @@ from stravalib.attributes import (
     TimezoneAttribute,
 )
 from stravalib.exc import warn_method_deprecation
+from stravalib.field_conversions import enum_values, time_interval
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
+    DetailedAthlete,
     DetailedClub,
     DetailedGear,
 )
+from stravalib.unithelper import UnitConverter
 
 
 class BaseEntity(metaclass=abc.ABCMeta):
@@ -174,12 +176,12 @@ class BackwardCompatibilityMixin:
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
     * _field_conversions
-    * _unit_registry (TODO)
+    * _unit_registry
     """
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
-        if attr in ["_field_conversions"]:
+        if attr in ["_field_conversions", "_unit_registry"]:
             return value
         try:
             if attr in self._field_conversions:
@@ -187,9 +189,13 @@ class BackwardCompatibilityMixin:
         except AttributeError:
             # Current model class has no field conversions defined
             pass
-        # if attr in self._unit_registry:
-        #     # Return a Quantity
-        #     value = UnitConverter(self._unit_registry[attr])(value)
+        try:
+            if attr in self._unit_registry:
+                # Return a Quantity
+                value = UnitConverter(self._unit_registry[attr])(value)
+        except AttributeError:
+            # Current model class has no unit registry defined
+            pass
         return value
 
 
@@ -271,9 +277,7 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
 class Club(
     DetailedClub, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
-    _field_conversions = {
-        "activity_types": lambda types: [t.value for t in types]
-    }
+    _field_conversions = {"activity_types": enum_values}
 
 
 class Gear(
@@ -285,262 +289,26 @@ class Gear(
 class ActivityTotals(
     ActivityTotal, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
-    pass
+    _field_conversions = {
+        "elapsed_time": time_interval,
+        "moving_time": time_interval,
+    }
+    _unit_registry = {"distance": "meters", "elevation_gain": "meters"}
 
 
 class AthleteStats(
     ActivityStats, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    _unit_registry = {
+        "biggest_ride_distance": "meters",
+        "biggest_climb_elevation_gain": "meters",
+    }
+
+
+class Athlete(
+    DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+):
     pass
-
-
-class Athlete(LoadableEntity):
-    """
-    Represents a Strava athlete.
-    """
-
-    firstname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's first name.
-    lastname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's last name.
-    profile_medium = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 62x62 pixel profile picture
-    profile = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 124x124 pixel profile picture
-    city = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home city
-    state = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home state
-    country = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home country
-    sex = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Athlete's sex ('M', 'F' or null)
-    friend = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    premium = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete is a premium member (true/false). Deprecated use summit.
-    summit = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether the athlete has any Summit subscription.
-
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was created.
-    updated_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was last updated.
-
-    approve_followers = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete has elected to approve followers
-
-    badge_type_id = Attribute(int, (SUMMARY, DETAILED))  #: (undocumented)
-
-    follower_count = Attribute(
-        int, (DETAILED,)
-    )  #: (detailed-only) How many people are following this athlete
-    friend_count = Attribute(
-        int, (DETAILED,)
-    )  #: (detailed-only) How many people is this athlete following
-    mutual_friend_count = Attribute(
-        int, (DETAILED,)
-    )  #: (detailed-only) How many people are both following and being followed by this athlete
-    athlete_type = ChoicesAttribute(
-        str, (DETAILED,), choices={0: "cyclist", 1: "runner"}
-    )  #: athlete's default sport: 0 is cyclist, 1 is runner
-    date_preference = Attribute(
-        str, (DETAILED,)
-    )  #: (detailed-only) Athlete's preferred date representation (e.g. "%m/%d/%Y")
-    measurement_preference = Attribute(
-        str, (DETAILED,)
-    )  #: (detailed-only) How athlete prefers to see measurements (i.e. "feet" (or what "meters"?))
-    email = Attribute(
-        str, (DETAILED,)
-    )  #: (detailed-only)  Athlete's email address
-
-    clubs = EntityCollection(
-        Club, (DETAILED,)
-    )  #: (detailed-only) Which clubs athlete belongs to. (:class:`list` of :class:`stravalib.model.Club`)
-    # bikes = EntityCollection(
-    #     Bike, (DETAILED,)
-    # )  #: (detailed-only) Which bikes this athlete owns. (:class:`list` of :class:`stravalib.model.Bike`)
-    # shoes = EntityCollection(
-    #     Shoe, (DETAILED,)
-    # )  #: (detailed-only) Which shoes this athlete owns. (:class:`list` of :class:`stravalib.model.Shoe`)
-
-    super_user = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: (undocumented) Whether athlete is a super user (not
-
-    email_language = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: The user's preferred lang/locale (e.g. en-US)
-
-    # A bunch of undocumented detailed-resolution attribs
-    weight = Attribute(
-        float, (DETAILED,), units=uh.kg
-    )  #: (undocumented, detailed-only)  Athlete's configured weight.
-    max_heartrate = Attribute(
-        float, (DETAILED,)
-    )  #: (undocumented, detailed-only) Athlete's configured max HR
-
-    username = Attribute(
-        str, (DETAILED)
-    )  #: (undocumented, detailed-only) Athlete's username.
-    description = Attribute(
-        str, (DETAILED,)
-    )  #: (undocumented, detailed-only) Athlete's personal description
-    instagram_username = Attribute(
-        str, (DETAILED,)
-    )  #: (undocumented, detailed-only) Associated instagram username
-
-    offer_in_app_payment = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only)
-    global_privacy = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has global privacy enabled.
-    receive_newsletter = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receive newsletter
-    email_kom_lost = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receive emails when KOMs are lost.
-    dateofbirth = DateAttribute(
-        (DETAILED,)
-    )  #: (undocumented, detailed-only) Athlete's date of birth
-    facebook_sharing_enabled = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether Athlete has enabled sharing on Facebook
-    ftp = Attribute(str, (DETAILED,))  #: (undocumented, detailed-only)
-    profile_original = Attribute(
-        str, (DETAILED,)
-    )  #: (undocumented, detailed-only)
-    premium_expiration_date = Attribute(
-        int, (DETAILED,)
-    )  #: (undocumented, detailed-only) When does premium membership expire (:class:`int` unix epoch)
-    email_send_follower_notices = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only)
-    plan = Attribute(str, (DETAILED,))  #: (undocumented, detailed-only)
-    agreed_to_terms = Attribute(
-        str, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has agreed to terms
-    follower_request_count = Attribute(
-        int, (DETAILED,)
-    )  #: (undocumented, detailed-only) How many people have requested to follow this athlete
-    email_facebook_twitter_friend_joins = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receve emails when a twitter or facebook friend joins Strava
-    receive_kudos_emails = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receive emails on kudos
-    receive_follower_feed_emails = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receive emails on new followers
-    receive_comment_emails = Attribute(
-        bool, (DETAILED,)
-    )  #: (undocumented, detailed-only) Whether athlete has elected to receive emails on activity comments
-
-    sample_race_distance = Attribute(
-        int, (DETAILED,)
-    )  # (undocumented, detailed-only)
-    sample_race_time = Attribute(
-        int, (DETAILED,)
-    )  # (undocumented, detailed-only)
-
-    membership = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: (undocumented, club members only) String indicating the membership type of club
-    admin = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: (undocumented, club members only) Flag indicating whether member is an admin of club
-    owner = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: (undocumented, club members only) Flag indicating whether member is owner of club
-
-    subscription_permissions = Attribute(
-        list
-    )  #: (undocumented) Unsure what this holds exactly!
-
-    _friends = None
-    _followers = None
-    _stats = None
-    _is_authenticated = None
-
-    def __str__(self):
-        return "<Athlete id={id} firstname={fname} lastname={lname}>".format(
-            id=self.id, fname=self.firstname, lname=self.lastname
-        )
-
-    def __repr__(self):
-        return (
-            "<Athlete id={id} firstname={fname!r} lastname={lname!r}>".format(
-                id=self.id, fname=self.firstname, lname=self.lastname
-            )
-        )
-
-    def is_authenticated_athlete(self):
-        """
-        :return: Boolean as to whether the athlete is the authenticated athlete.
-        """
-        if self._is_authenticated is None:
-            if self.resource_state == DETAILED:
-                # If the athlete is in detailed state it must be the authenticated athlete
-                self._is_authenticated = True
-            else:
-                # We need to check this athlete's id matches the authenticated athlete's id
-                self.assert_bind_client()
-                authenticated_athlete = self.bind_client.get_athlete()
-                self._is_authenticated = authenticated_athlete.id == self.id
-        return self._is_authenticated
-
-    @property
-    def friends(self):
-        """
-        :return: Iterator of :class:`stravalib.model.Athlete` friend objects for this athlete.
-        """
-        if self._friends is None:
-            self.assert_bind_client()
-            if self.friend_count > 0:
-                self._friends = self.bind_client.get_athlete_friends(self.id)
-            else:
-                # Shortcut if we know there aren't any
-                self._friends = []
-        return self._friends
-
-    @property
-    def followers(self):
-        """
-        :return: Iterator of :class:`stravalib.model.Athlete` followers objects for this athlete.
-        """
-        if self._followers is None:
-            self.assert_bind_client()
-            if self.follower_count > 0:
-                self._followers = self.bind_client.get_athlete_followers(
-                    self.id
-                )
-            else:
-                # Shortcut if we know there aren't any
-                self._followers = []
-        return self._followers
-
-    @property
-    def stats(self):
-        """
-        :return: Associated :class:`stravalib.model.AthleteStats`
-        """
-        if not self.is_authenticated_athlete():
-            raise exc.NotAuthenticatedAthlete(
-                "Statistics are only available for the authenticated athlete"
-            )
-        if self._stats is None:
-            self.assert_bind_client()
-            self._stats = self.bind_client.get_athlete_stats(self.id)
-        return self._stats
 
 
 class ActivityComment(LoadableEntity):

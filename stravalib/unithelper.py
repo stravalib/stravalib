@@ -4,7 +4,7 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 from numbers import Number
-from typing import Protocol, Union, runtime_checkable, Any
+from typing import Any, Protocol, Union, runtime_checkable
 
 import pint
 
@@ -41,6 +41,10 @@ class Quantity:
     def unit(self):
         warn_units_deprecated()
         return str(self.q.units)
+
+    def __eq__(self, other):
+        # sloppy, but temporary (because deprecated)
+        return self.q == other.q
 
     def __int__(self):
         return int(self.q.magnitude)
