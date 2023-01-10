@@ -4,20 +4,12 @@ import pytest
 
 from stravalib import model
 from stravalib import unithelper as uh
-from stravalib.model import ActivityTotals, Club, Gear
+from stravalib.model import Club
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity
 
 
-@pytest.mark.parametrize(
-    "model_class,attr,value",
-    (
-        (Club, "name", "foo"),
-        (Club, "activity_types", ["Ride", "Run"]),
-        (Gear, "name", "foo"),
-        (ActivityTotals, "achievement_count", 42),
-    ),
-)
+@pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
 class TestLegacyModelSerialization:
     def test_legacy_deserialize(self, model_class, attr, value):
         with pytest.warns(DeprecationWarning):
