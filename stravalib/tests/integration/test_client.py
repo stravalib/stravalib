@@ -4,6 +4,7 @@ import os
 import pytest
 from responses import matchers
 
+from stravalib.exc import AccessUnauthorized
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
 
@@ -376,6 +377,51 @@ def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
     assert len(clubs) == n_clubs
     if clubs:
         assert clubs[0].name == "foo"
+
+
+@pytest.mark.parametrize(
+    "athlete_id,authenticated_athlete,expected_biggest_ride_distance,expected_exception",
+    (
+        (42, True, 1000, None),
+        (42, False, None, AccessUnauthorized),
+        (None, True, 1000, None),
+    ),
+)
+def test_get_athlete_stats(
+    mock_strava_api,
+    client,
+    athlete_id,
+    authenticated_athlete,
+    expected_biggest_ride_distance,
+    expected_exception,
+):
+    if athlete_id is None:
+        mock_strava_api.get("/athlete", response_update={"id": 42})
+    if authenticated_athlete:
+        mock_strava_api.get(
+            "/athletes/{id}/stats",
+            response_update={
+                "biggest_ride_distance": expected_biggest_ride_distance
+            },
+        )
+    else:
+        mock_strava_api.get(
+            "/athletes/{id}/stats",
+            json=[
+                {
+                    "resource": "Athlete",
+                    "field": "access_token",
+                    "code": "invalid",
+                }
+            ],
+            status=401,
+        )
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            client.get_athlete_stats(athlete_id)
+    else:
+        stats = client.get_athlete_stats(athlete_id)
+        assert stats.biggest_ride_distance == expected_biggest_ride_distance
 
 
 def test_get_gear(mock_strava_api, client):

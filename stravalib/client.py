@@ -452,7 +452,7 @@ class Client(object):
         # TODO: Better error handling - this will return a 401 if this athlete
         #       is not the authenticated athlete.
 
-        return model.AthleteStats.deserialize(raw)
+        return model.AthleteStats.parse_obj(raw)
 
     def get_athlete_clubs(self):
         """
