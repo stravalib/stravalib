@@ -16,13 +16,14 @@ Example Usage:
   presented in the browser after the exchange.  Save this value into your config (e.g. into your test.ini) to run
   functional tests.
 """
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import argparse
-from urllib import parse as urlparse
-import threading
 import logging
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib import parse as urlparse
 
 from stravalib import Client
+
 
 class StravaAuthHTTPServer(HTTPServer):
 

@@ -1,7 +1,7 @@
 # Makefile for Sphinx documentation
 
 # You can set these variables from the command line.
-SPHINXOPTS    = 
+SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAUTOGEN = sphinx-autogen
 BUILDDIR      = _build
@@ -27,15 +27,15 @@ help:
 	@echo "  clean      clean all local doc directories out"
 	@echo "  serve      serve the docs locally using sphinx autobuild"
 	@echo "  linkcheck  run sphinx link check on the docs and produce output w broken links"
-	
-# Run: make -C docs clean 
+
+# Run: make -C docs clean
 clean:
 	rm -rf $(BUILDDIR)/html/*
 	rm -rf $(BUILDDIR)/doctrees
 	rm -rf $(BUILDDIR)/linkcheck
 	rm -rf .ipynb_checkpoints
 
-html: 
+html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

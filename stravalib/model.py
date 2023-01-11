@@ -5,17 +5,24 @@ Entity classes for representing the various Strava datatypes.
 """
 import abc
 import logging
-
 from collections.abc import Sequence
 
 from stravalib import exc
 from stravalib import unithelper as uh
-
-from stravalib.attributes import (META, SUMMARY, DETAILED, Attribute,
-                                  TimestampAttribute, LocationAttribute,
-                                  EntityCollection, EntityAttribute,
-                                  TimeIntervalAttribute, TimezoneAttribute,
-                                  DateAttribute, ChoicesAttribute)
+from stravalib.attributes import (
+    DETAILED,
+    META,
+    SUMMARY,
+    Attribute,
+    ChoicesAttribute,
+    DateAttribute,
+    EntityAttribute,
+    EntityCollection,
+    LocationAttribute,
+    TimeIntervalAttribute,
+    TimestampAttribute,
+    TimezoneAttribute,
+)
 
 
 class BaseEntity(metaclass=abc.ABCMeta):
@@ -866,7 +873,7 @@ class Activity(LoadableEntity):
     highlighted_kudosers = Attribute(bool, (DETAILED,))  #: (undocumented)
 
     laps = EntityCollection(ActivityLap, (SUMMARY, DETAILED))  #: :class:`list` of :class:`stravalib.model.ActivityLap` objects.
-    
+
     hide_from_home = Attribute(bool, (SUMMARY, DETAILED)) #: Whether an activity is muted (hidden from Home and Club feeds).
 
     @property

@@ -8,7 +8,7 @@ structures and for capturing additional information about the model attributes.
 """
 import logging
 from collections import namedtuple
-from datetime import datetime, timedelta, tzinfo, date
+from datetime import date, datetime, timedelta, tzinfo
 from weakref import WeakKeyDictionary
 
 import arrow

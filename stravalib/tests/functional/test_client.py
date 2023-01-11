@@ -1,8 +1,11 @@
-from stravalib import model, attributes, exc, unithelper as uh
+import datetime
+
+import requests
+
+from stravalib import attributes, exc, model
+from stravalib import unithelper as uh
 from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
-import datetime
-import requests
 
 
 class ClientTest(FunctionalTestBase):

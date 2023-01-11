@@ -2,10 +2,10 @@ closes #issue-this-closes-here
 
 *The text above will ensure the issue will be closed when this PR is merged*
 
-<!--- * If this pr does not address an open issue  in the repository, please be sure 
-to explain what this pull request fixes or does. We prefer to discuss changes in issues first, to just ensure we are all on the same page about the change being proposed. 
+<!--- * If this pr does not address an open issue  in the repository, please be sure
+to explain what this pull request fixes or does. We prefer to discuss changes in issues first, to just ensure we are all on the same page about the change being proposed.
 
-* If this is a technical code change, please be sure that you have [read our contributing guide.](https://stravalib.readthedocs.io/en/latest/contributing/how-to-contribute.html) 
+* If this is a technical code change, please be sure that you have [read our contributing guide.](https://stravalib.readthedocs.io/en/latest/contributing/how-to-contribute.html)
 -->
 
 ## Description
@@ -35,16 +35,16 @@ tests to support whatever fix of feature you're implementing.
 
 ## Do all of the CI tests run successfully on this pr?
 
-- [ ] Check this when your PR has a green check. 
+- [ ] Check this when your PR has a green check.
 
-*If you are having a hard time getting the tests to run correctly feel free to 
+*If you are having a hard time getting the tests to run correctly feel free to
 ping one of the maintainers here!*
 
 <!---
 If you are a stravalib maintainer submitting a PR in preparation for a new release
 you can use the pull request release template:
 
-[https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md](https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md). Be sure to modify 
-the text "branch-name-here" in the above url to apply the release template.  
+[https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md](https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md). Be sure to modify
+the text "branch-name-here" in the above url to apply the release template.
 -->
 

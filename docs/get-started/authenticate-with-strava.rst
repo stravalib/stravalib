@@ -6,7 +6,7 @@ Authentication and Authorization
 In order to use this library to retrieve information about athletes and actitivies,
 you will need authorization to do so.
 
-`This is a nice tutorial that has information about 
+`This is a nice tutorial that has information about
 setting up a free app within STRAVA <https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17>`_
 .
 

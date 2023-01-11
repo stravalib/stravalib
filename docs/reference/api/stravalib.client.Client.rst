@@ -5,14 +5,14 @@
 
 .. autoclass:: Client
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~Client.__init__
       ~Client.authorization_url
       ~Client.create_activity
@@ -63,15 +63,14 @@
       ~Client.update_activity
       ~Client.update_athlete
       ~Client.upload_activity
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~Client.access_token
-   
-   
+

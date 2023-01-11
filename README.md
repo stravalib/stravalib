@@ -1,12 +1,12 @@
 # Welcome to stravalib
-[![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908) 
+[![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908)
 ![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic) [![codecov](https://codecov.io/gh/stravalib/stravalib/branch/master/graph/badge.svg?token=sHbFJn7epy)](https://codecov.io/gh/stravalib/stravalib)
 
-The **stravalib** Python package provides easy-to-use tools for accessing and 
+The **stravalib** Python package provides easy-to-use tools for accessing and
 downloading Strava data from the Strava V3 web service. Stravalib provides a Client class that supports:
-* Authenticating with stravalib 
-* Accessing and downloading strava activity, club and profile data 
-* Making changes to account activities 
+* Authenticating with stravalib
+* Accessing and downloading strava activity, club and profile data
+* Making changes to account activities
 
 It also provides support for working with date/time/temporal attributes
 and quantities through the [Python Pint library](https://pypi.org/project/Pint/).
@@ -48,7 +48,7 @@ local filesystem::
 3. Set up your fork for local development
 -----------------------------------------
 The docs for this library are created using `sphinx`.
-To build the html version of the documentation, use the 
+To build the html version of the documentation, use the
 command:
 
 `$ make -C docs html`
@@ -68,7 +68,7 @@ To execute **unit - or integration tests** you will need to run
 $ make test
 ```
 
-## Local Tests 
+## Local Tests
 To run **end-to-end** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
 In *test.ini* provide your *access_token* and *activity_id*. Now you can run
 ```
@@ -92,14 +92,14 @@ to-do list.
 
 ### Authentication
 
-In order to make use of this library, you will need to create an app in Strava 
-which is free to do. [Have a look at this tutorial for instructions on creating 
+In order to make use of this library, you will need to create an app in Strava
+which is free to do. [Have a look at this tutorial for instructions on creating
 an app with Strava - we will be updating our docs with this information soon.](https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17)
 
 **NOTE** We will be updating our documentation with clear instructions to support this
 in the upcoming months
 
-Once you have created your app, stravalib have several helper methods to make 
+Once you have created your app, stravalib have several helper methods to make
 authentication easier.
 
 ```python

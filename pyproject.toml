@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 # Make sure setuptools uses version of last created tag - this allows us to specify bump
 version_scheme =  "post-release"
-# Make sure scm doesn't use local scheme version for push to pypi 
+# Make sure scm doesn't use local scheme version for push to pypi
 # (so there isn't a + in the version)
 local_scheme = "no-local-version"
 write_to =  "stravalib/_version_generated.py"
@@ -16,7 +16,7 @@ description = "A Python package that makes it easy to access and download data f
 keywords = ["strava", "running", "cycling", "athletes"]
 readme = "README.md"
 dynamic =["version"]
-license = {text = "Apache 2.0 License"} 
+license = {text = "Apache 2.0 License"}
 authors = [{name="Hans Lellelid", email="hans@xmpl.org"}]
 maintainers = [
      {name = "Leah Wasser"},
@@ -58,3 +58,10 @@ documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
 
+[tool.black]
+line-length = 79
+# When editing the config for black in this file, be sure to make 
+# the same edits in the repo stravalib/strava_swagger2pydantic
+
+[tool.isort]
+profile = "black"

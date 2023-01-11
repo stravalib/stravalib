@@ -1,11 +1,12 @@
+import datetime
 import os
 from unittest import mock
+from urllib import parse as urlparse
+
+import pytz
 
 from stravalib.client import Client
-from stravalib.tests import TestBase, RESOURCES_DIR
-import datetime
-import pytz
-from urllib import parse as urlparse
+from stravalib.tests import RESOURCES_DIR, TestBase
 
 
 class ClientUtilsTest(TestBase):

@@ -1,9 +1,8 @@
 import os
-
-from configparser import SafeConfigParser, NoOptionError
+from configparser import NoOptionError, SafeConfigParser
 
 from stravalib.client import Client
-from stravalib.tests import TestBase, TESTS_DIR
+from stravalib.tests import TESTS_DIR, TestBase
 
 TEST_CFG = os.path.join(TESTS_DIR, 'test.ini')
 

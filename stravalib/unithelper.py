@@ -4,7 +4,7 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 from numbers import Number
-from typing import Protocol, Union, runtime_checkable, Any
+from typing import Any, Protocol, Union, runtime_checkable
 
 import pint
 

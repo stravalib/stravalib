@@ -1,8 +1,13 @@
 import arrow
 
 from stravalib.tests import TestBase
-from stravalib.util.limiter import get_rates_from_response_headers, XRateLimitRule, get_seconds_until_next_quarter, \
-    get_seconds_until_next_day, SleepingRateLimitRule
+from stravalib.util.limiter import (
+    SleepingRateLimitRule,
+    XRateLimitRule,
+    get_rates_from_response_headers,
+    get_seconds_until_next_day,
+    get_seconds_until_next_quarter,
+)
 
 test_response = {'Status': '404 Not Found', 'X-Request-Id': 'a1a4a4973962ffa7e0f18d7c485fe741',
                  'Content-Encoding': 'gzip', 'Content-Length': '104', 'Connection': 'keep-alive',

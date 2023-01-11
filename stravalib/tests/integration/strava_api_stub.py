@@ -2,8 +2,8 @@ import json
 import logging
 import os
 import re
-from functools import wraps, lru_cache
-from typing import Dict, Any, Callable, Optional
+from functools import lru_cache, wraps
+from typing import Any, Callable, Dict, Optional
 
 import requests
 from responses import BaseResponse, RequestsMock
