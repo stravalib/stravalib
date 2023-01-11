@@ -21,3 +21,8 @@ examples/strava-oauth/settings.cfg
 stravalib/tests/test.ini-example
 stravalib/tests/test.ini
 stravalib/docs/api
+
+# Flask app
+examples/strava-oauth/settings.cfg
+test.py 
+test-stravalib.py

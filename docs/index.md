@@ -98,6 +98,7 @@ Home <self>
 
 Get Started <get-started/index>
 Authentication <get-started/authenticate-with-strava>
+Authenticate Locally without Flask <get-started/authenticate-without-flask-strava>
 Activities <get-started/activities>
 Athletes <get-started/athletes>
 
