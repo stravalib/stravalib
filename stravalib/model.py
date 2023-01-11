@@ -6,6 +6,7 @@ Entity classes for representing the various Strava datatypes.
 import abc
 import logging
 from collections.abc import Sequence
+from typing import Dict
 
 from pydantic import BaseModel
 
@@ -131,7 +132,7 @@ class DeprecatedSerializableMixin(BaseModel):
     """
 
     @classmethod
-    def deserialize(cls, v):
+    def deserialize(cls, attribute_value_mapping: Dict):
         """
         Creates and returns a new object based on serialized (dict) struct.
         """
@@ -141,9 +142,9 @@ class DeprecatedSerializableMixin(BaseModel):
             "parse_obj()",
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
-        return cls.parse_obj(v)
+        return cls.parse_obj(attribute_value_mapping)
 
-    def from_dict(self, v):
+    def from_dict(self, attribute_value_mapping: Dict):
         """
         Deserializes v into self, resetting and ond/or overwriting existing fields
         """
@@ -154,7 +155,7 @@ class DeprecatedSerializableMixin(BaseModel):
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
         # Ugly hack is necessary because parse_obj does not behave in-place but returns a new object
-        self.__init__(**self.parse_obj(v).dict())
+        self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
     def to_dict(self):
         """
