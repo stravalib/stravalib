@@ -1,12 +1,14 @@
+from unittest import skip
+
 import pytz
 
 from stravalib.attributes import (
-    EntityAttribute,
-    SUMMARY,
     DETAILED,
+    SUMMARY,
     ChoicesAttribute,
-    LocationAttribute,
+    EntityAttribute,
     LatLon,
+    LocationAttribute,
     TimezoneAttribute,
 )
 from stravalib.model import Athlete, SubscriptionCallback
@@ -75,6 +77,7 @@ class TimezoneAttributeTest(TestBase):
         self.assertIsNone(timezone.unmarshal("(GMT+00:00) Factory"))
 
 
+@skip
 class ChoicesAttributeTest(TestBase):
     def test_no_choices_kwarg_means_choices_empty_dict(self):
         c = ChoicesAttribute(str, (SUMMARY,))

@@ -42,6 +42,10 @@ class Quantity:
         warn_units_deprecated()
         return str(self.q.units)
 
+    def __eq__(self, other):
+        # sloppy, but temporary (because deprecated)
+        return self.q == other.q
+
     def __int__(self):
         return int(self.q.magnitude)
 
