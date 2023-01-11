@@ -6,6 +6,7 @@ These are classes designed to capture and handle various errors encountered when
 """
 import logging
 import warnings
+from typing import Type
 
 import requests.exceptions
 
@@ -105,6 +106,20 @@ class NotAuthenticatedAthlete(AuthError):
 # Warnings configuration and helper functions
 warnings.simplefilter("default")
 logging.captureWarnings(True)
+
+
+def warn_method_deprecation(
+    klass: Type, method_name: str, alternative: str, alt_url: str = None
+):
+    alt_support_msg = (
+        f" See {alt_url} for more information." if alt_url else ""
+    )
+    warnings.warn(
+        f'The method "{method_name}" of class "{klass}" is deprecated and will be '
+        f'removed in the future. Instead, you can use "{alternative}".{alt_support_msg}',
+        DeprecationWarning,
+        stacklevel=3,
+    )
 
 
 def warn_param_deprecation(param_name: str):

@@ -7,9 +7,9 @@ import responses
 from responses import matchers
 
 from stravalib.client import ActivityUploader
-from stravalib.exc import ActivityPhotoUploadFailed
+from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import miles
+from stravalib.unithelper import UnitConverter, miles
 
 
 def test_get_athlete(mock_strava_api, client):
@@ -365,6 +365,75 @@ def test_get_starred_segments(
     assert len(activity_list) == expected_n_segments
     if expected_n_segments > 0:
         assert activity_list[0].name == "test_segment"
+
+
+def test_get_club(mock_strava_api, client):
+    mock_strava_api.get("/clubs/{id}", response_update={"name": "foo"})
+    club = client.get_club(42)
+    assert club.name == "foo"
+
+
+@pytest.mark.parametrize("n_clubs", (0, 2))
+def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
+    mock_strava_api.get(
+        "/athlete/clubs", response_update={"name": "foo"}, n_results=n_clubs
+    )
+    clubs = client.get_athlete_clubs()
+    assert len(clubs) == n_clubs
+    if clubs:
+        assert clubs[0].name == "foo"
+
+
+@pytest.mark.parametrize(
+    "athlete_id,authenticated_athlete,expected_biggest_ride_distance,expected_exception",
+    (
+        (42, True, 1000, None),
+        (42, False, None, AccessUnauthorized),
+        (None, True, 1000, None),
+    ),
+)
+def test_get_athlete_stats(
+    mock_strava_api,
+    client,
+    athlete_id,
+    authenticated_athlete,
+    expected_biggest_ride_distance,
+    expected_exception,
+):
+    if athlete_id is None:
+        mock_strava_api.get("/athlete", response_update={"id": 42})
+    if authenticated_athlete:
+        mock_strava_api.get(
+            "/athletes/{id}/stats",
+            response_update={
+                "biggest_ride_distance": expected_biggest_ride_distance
+            },
+        )
+    else:
+        mock_strava_api.get(
+            "/athletes/{id}/stats",
+            json=[
+                {
+                    "resource": "Athlete",
+                    "field": "access_token",
+                    "code": "invalid",
+                }
+            ],
+            status=401,
+        )
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            client.get_athlete_stats(athlete_id)
+    else:
+        stats = client.get_athlete_stats(athlete_id)
+        assert stats.biggest_ride_distance == UnitConverter("meters")(
+            expected_biggest_ride_distance
+        )
+
+
+def test_get_gear(mock_strava_api, client):
+    mock_strava_api.get("/gear/{id}", response_update={"name": "foo_bike"})
+    assert client.get_gear(42).name == "foo_bike"
 
 
 @pytest.mark.parametrize(
