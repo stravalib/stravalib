@@ -60,8 +60,11 @@ changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
 
 [tool.black]
 line-length = 79
+<<<<<<< HEAD
 # When editing the config for black in this file, be sure to make 
 # the same edits in the repo stravalib/strava_swagger2pydantic
+=======
+>>>>>>> 785622d (Model Extension (#315))
 
 [tool.isort]
 profile = "black"

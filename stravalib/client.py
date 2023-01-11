@@ -262,7 +262,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Athlete`
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.deserialize(raw, bind_client=self)
+        return model.Athlete.parse_obj(raw)
 
     # TODO: this endpoint was removed so do we want to remove the URL altogether?
     def get_athlete_friends(self, athlete_id=None, limit=None):
@@ -342,7 +342,7 @@ class Client(object):
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.deserialize(raw_athlete, bind_client=self)
+        return model.Athlete.parse_obj(raw_athlete)
 
     def get_athlete_followers(self, athlete_id=None, limit=None):
         """
@@ -452,7 +452,7 @@ class Client(object):
         # TODO: Better error handling - this will return a 401 if this athlete
         #       is not the authenticated athlete.
 
-        return model.AthleteStats.deserialize(raw)
+        return model.AthleteStats.parse_obj(raw)
 
     def get_athlete_clubs(self):
         """
@@ -464,10 +464,7 @@ class Client(object):
         :rtype: :py:class:`list`
         """
         club_structs = self.protocol.get("/athlete/clubs")
-        return [
-            model.Club.deserialize(raw, bind_client=self)
-            for raw in club_structs
-        ]
+        return [model.Club.parse_obj(raw) for raw in club_structs]
 
     def join_club(self, club_id):
         """
@@ -501,7 +498,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.deserialize(raw, bind_client=self)
+        return model.Club.parse_obj(raw)
 
     def get_club_members(self, club_id, limit=None):
         """
@@ -1061,7 +1058,7 @@ class Client(object):
         :return: The Bike or Shoe subclass object.
         :rtype: :class:`stravalib.model.Gear`
         """
-        return model.Gear.deserialize(
+        return model.Gear.parse_obj(
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 
