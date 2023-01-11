@@ -93,6 +93,7 @@ def test_update_activity(
     (
         ("file", "tcx", {}, {"data_type": "tcx"}, None, None),
         ("str", "tcx", {}, {"data_type": "tcx"}, None, None),
+        ("bytes", "tcx", {}, {"data_type": "tcx"}, None, None),
         ("not_supported", "tcx", {}, {}, None, TypeError),
         ("file", "invalid", {}, {}, None, ValueError),
         (
@@ -203,8 +204,8 @@ def test_upload_activity(
             _call_upload(f)
         elif activity_file_type == "str":
             _call_upload(f.read())
-        elif activity_file_type == 'bytes':
-            _call_upload(f.read().encode('utf-8'))
+        elif activity_file_type == "bytes":
+            _call_upload(f.read().encode("utf-8"))
         else:
             _call_upload({})
 
