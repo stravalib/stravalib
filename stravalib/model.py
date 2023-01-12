@@ -30,6 +30,7 @@ from stravalib.field_conversions import enum_values, time_interval
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
+    Comment,
     DetailedAthlete,
     DetailedClub,
     DetailedGear,
@@ -332,19 +333,10 @@ class Athlete(
         return [Gear.parse_obj(g) for g in raw_gear]
 
 
-class ActivityComment(LoadableEntity):
-    """
-    Comments attached to an activity.
-    """
-
-    activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
-    text = Attribute(str, (META, SUMMARY, DETAILED))  #: Text of comment
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when was coment created
-    athlete = EntityAttribute(
-        Athlete, (SUMMARY, DETAILED)
-    )  #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
+class ActivityComment(Comment):
+    @validator("athlete")
+    def to_extended_athlete(cls, raw_athlete: Dict):
+        return Athlete.parse_obj(raw_athlete)
 
 
 class ActivityPhotoPrimary(LoadableEntity):

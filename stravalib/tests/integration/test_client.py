@@ -473,3 +473,16 @@ def test_get_activities_paged(mock_strava_api, client):
     assert len(activity_list) == 500
     assert activity_list[0].id == 1
     assert activity_list[400].id == 3
+
+
+def test_get_activity_comments(mock_strava_api, client):
+    mock_strava_api.get(
+        "/activities/{id}/comments",
+        response_update={"text": "foo"},
+        n_results=2,
+    )
+    comment_list = list(
+        client.get_activity_comments(42)
+    )  # no idea what the markdown param is supposed to do
+    assert len(comment_list) == 2
+    assert comment_list[0].text == "foo"
