@@ -1903,9 +1903,15 @@ class BatchedResultsIterator(object):
 
         entities = []
         for raw in raw_results:
-            entities.append(
-                self.entity.deserialize(raw, bind_client=self.bind_client)
-            )
+            try:
+                new_entity = self.entity.parse_obj(raw)
+                # TODO: try adding bind_client to entity
+            except AttributeError:
+                # entity doesn't have a parse_obj() method, so must be of a legacy type
+                new_entity = self.entity.deserialize(
+                    raw, bind_client=self.bind_client
+                )
+            entities.append(new_entity)
 
         self._buffer = collections.deque(entities)
 
