@@ -419,45 +419,12 @@ class ActivityPhoto(LoadableEntity):
         )
 
 
-class ActivityKudos(LoadableEntity):
+class ActivityKudos(Athlete):
     """
     Activity kudos are a subset of athlete properties.
     """
 
-    firstname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's first name.
-    lastname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's last name.
-    profile_medium = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 62x62 pixel profile picture
-    profile = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 124x124 pixel profile picture
-    city = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home city
-    state = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home state
-    country = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home country
-    sex = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Athlete's sex ('M', 'F' or null)
-    friend = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    premium = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete is a premium member (true/false)
-
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was created.
-    updated_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was last updated.
-
-    approve_followers = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete has elected to approve followers
+    pass
 
 
 class ActivityLap(LoadableEntity):
