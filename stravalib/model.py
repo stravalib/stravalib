@@ -6,9 +6,9 @@ Entity classes for representing the various Strava datatypes.
 import abc
 import logging
 from collections.abc import Sequence
-from typing import Dict
+from typing import Dict, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from stravalib import exc
 from stravalib import unithelper as uh
@@ -305,11 +305,31 @@ class AthleteStats(
         "biggest_climb_elevation_gain": "meters",
     }
 
+    @validator(
+        "recent_ride_totals",
+        "recent_run_totals",
+        "recent_swim_totals",
+        "ytd_ride_totals",
+        "ytd_run_totals",
+        "ytd_swim_totals",
+        "all_ride_totals",
+        "all_run_totals",
+        "all_swim_totals",
+    )
+    def to_extended_totals(cls, raw_totals: Dict):
+        return ActivityTotals.parse_obj(raw_totals)
+
 
 class Athlete(
     DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
-    pass
+    @validator("clubs")
+    def to_extended_clubs(cls, raw_clubs: List[Dict]):
+        return [Club.parse_obj(c) for c in raw_clubs]
+
+    @validator("bikes", "shoes")
+    def to_extended_gear(cls, raw_gear: List[Dict]):
+        return [Gear.parse_obj(g) for g in raw_gear]
 
 
 class ActivityComment(LoadableEntity):
