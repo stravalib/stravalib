@@ -34,6 +34,8 @@ from stravalib.strava_model import (
     DetailedAthlete,
     DetailedClub,
     DetailedGear,
+    PhotosSummary,
+    Primary,
 )
 from stravalib.unithelper import UnitConverter
 
@@ -339,42 +341,24 @@ class ActivityComment(Comment):
         return Athlete.parse_obj(raw_athlete)
 
 
-class ActivityPhotoPrimary(LoadableEntity):
-    """
-    A primary photo attached to an activity (different structure from full photo record)
-    """
-
-    id = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: ID of photo, if external.
-    unique_id = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: ID of photo, if internal.
-    urls = Attribute(dict, (META, SUMMARY, DETAILED))
-    source = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: 1=internal, 2=instagram
-    use_primary_photo = Attribute(
-        bool, (META, SUMMARY, DETAILED)
-    )  #: (undocumented)
+class ActivityPhotoPrimary(Primary):
+    pass
 
 
-class ActivityPhotoMeta(BaseEntity):
+class ActivityPhotoMeta(PhotosSummary):
     """
     The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
     """
 
-    count = Attribute(int, (META, SUMMARY, DETAILED))
-    primary = EntityAttribute(ActivityPhotoPrimary, (META, SUMMARY, DETAILED))
-    use_primary_photo = Attribute(bool, (META, SUMMARY, DETAILED))
-
-    def __repr__(self):
-        return "<{0} count={1}>".format(self.__class__.__name__, self.count)
+    @validator("primary")
+    def to_extended_primary(cls, raw_primary: Dict):
+        return ActivityPhotoPrimary.parse_obj(raw_primary)
 
 
 class ActivityPhoto(LoadableEntity):
     """
     A full photo record attached to an activity.
+    TODO: this entity is entirely undocumented by Strava and there is no official endpoint to retrieve it
     """
 
     athlete_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of athlete
