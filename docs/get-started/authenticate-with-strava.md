@@ -13,7 +13,9 @@ for a description of the OAuth2 protocol that Strava uses to authenticate users.
 
 ## Requesting Authorization
 
-The :class:`stravalib.client.Client` class provides the :meth:`stravalib.client.Client.authorization_url` method
+The [stravalib.client.Client](stravalib.client.Client) class provides the 
+[stravalib.client.Client.authorization_url](stravalib.client.Client.authorization_url) 
+ method
 to build an authorization URL which can be clicked on by a user in order to grant your application access to
 their account data.
 

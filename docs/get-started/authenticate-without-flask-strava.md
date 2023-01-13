@@ -24,7 +24,7 @@ An example workflow (that doesn't rely upon a web app tool like Flask) is below.
 # You will use this to login to your strava account
 import webbrowser
 
-from stravalib.client important Client
+from stravalib.client import Client
 
 # Open the secrets file and store the client_id and token as objects
 # Read below to learn how to setup the app that provides you with the client ID
@@ -36,7 +36,8 @@ client_id, access_token = (
 # Create a client object
 client = Client()
 # Define your scope (this is read only - see below for write example which would 
-# allow you to publish new activities to your Strava account)
+# allow you to publish new activities to your Strava account).
+# read_all allows read for both private and public activities
 scope = ["read_all", "profile:read_all", "activity:read_all"]
 
 # Create a localhost url for authorization (for local development)
@@ -76,6 +77,11 @@ token_response = client.exchange_code_for_token(
         client_id=client_id, client_secret=access_token, code=code
     )
 
+token_response
+# Example output of token_response
+# {'access_token': 'value-here-123123123', 'refresh_token': # '123123123', 
+# 'expires_at': 1673665980}
+
 # Add the access token to the client object
 # Actually this is weird should it be client.access_token = to use the same instance??
 client = Client(access_token = token_response["access_token"])
@@ -83,10 +89,15 @@ client = Client(access_token = token_response["access_token"])
 athlete = client.get_athlete() 
 # Print athlete name :) if this works your connection is successful!
 print("Hi, ", athlete.firstname, "Welcome to stravalib!")
+
+# You can also start exploring stats
+stats = client.get_athlete_stats()
+stats.all_run_totals.count
 ```
 
 Below we walk you through all of the above steps. We also show you how to 
 refresh your access token as it only will be usable for 6 hours.
+
 
 ## First, create a developer app in your Strava account
 
