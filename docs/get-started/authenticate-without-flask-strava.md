@@ -26,10 +26,10 @@ import webbrowser
 
 from stravalib.client import Client
 
-# Open the secrets file and store the client_id and token as objects
+# Open the secrets file and store the client id and client secret as objects, separated by a comma
 # Read below to learn how to setup the app that provides you with the client ID
-# and app access token
-client_id, access_token = (
+# and client secret
+client_id, client_secret = (
         open("client_secrets.txt").read().strip().split(",")
     )
 
