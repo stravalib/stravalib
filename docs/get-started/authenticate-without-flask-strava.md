@@ -377,12 +377,12 @@ the current token is good for, you can refresh the token using the
 
 # Open the token object that you saved locally earlier
 with open(token_path_pickle, "rb") as f:
-    access_token = pickle.load(f)
+    tokens = pickle.load(f)
 
 refresh_response = client.refresh_access_token(
     client_id=client_id,
     client_secret=client_secret,
-    refresh_token=access_token["refresh_token"],
+    refresh_token=tokens["refresh_token"],
     )
 
 # TODO: Again this seems weird. Why doesn't this all get updated when you refresh 
