@@ -54,6 +54,7 @@ class RateLimitExceeded(RuntimeError):
 
     https://developers.strava.com/docs/rate-limits/
     """
+
     def __init__(self, msg, timeout=None, limit=None):
         super(RateLimitExceeded, self).__init__()
         self.limit = limit
@@ -88,6 +89,7 @@ class ActivityPhotoUploadFailed(RuntimeError):
 class ActivityPhotoUploadNotSupported(ActivityPhotoUploadFailed):
     pass
 
+
 class TimeoutExceeded(RuntimeError):
     pass
 
@@ -116,6 +118,24 @@ def warn_param_deprecation(param_name: str):
 def warn_param_unofficial(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
+        'may lead to unexpected behavior or errors in the future.',
+        FutureWarning,
+        stacklevel=3
+    )
+
+
+def warn_attribute_unofficial(attr_name: str):
+    warnings.warn(
+        f'The "{attr_name}" parameter is undocumented in the Strava API. Its use '
+        'may lead to unexpected behavior or errors in the future.',
+        FutureWarning,
+        stacklevel=3
+    )
+
+
+def warn_method_unofficial(method_name: str):
+    warnings.warn(
+        f'The "{method_name}" method is undocumented in the Strava API. Its use '
         'may lead to unexpected behavior or errors in the future.',
         FutureWarning,
         stacklevel=3
