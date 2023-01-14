@@ -1,9 +1,13 @@
 import datetime
 import os
+from unittest import mock
 
 import pytest
+import responses
 from responses import matchers
 
+from stravalib.client import ActivityUploader
+from stravalib.exc import ActivityPhotoUploadFailed
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
 
@@ -325,3 +329,98 @@ def test_get_activities_paged(mock_strava_api, client):
     assert len(activity_list) == 500
     assert activity_list[0].id == 1
     assert activity_list[400].id == 3
+
+
+@responses.activate
+def test_upload_activity_photo_works(client):
+    """
+        Test uploading an activity with a photo.
+
+        """
+
+    strava_pre_signed_uri = 'https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg'
+    photo_bytes = b'photo_data'
+    photo_metadata_header = {
+        "Content-Type": "image/jpeg",
+        "Expect": '100-continue',
+        'Host': 'strava-photo-uploads-prod.s3-accelerate.amazonaws.com',
+    }
+    activity_upload_response = {
+        "id": 12345,
+        "external_id": "external_id",
+        "error": None,
+        "status": "Your activity is ready.",
+        "activity_id": 12345,
+        "photo_metadata": [{
+            "uri": strava_pre_signed_uri,
+            "header": photo_metadata_header,
+            "method": "PUT",
+            "max_size": 1600,
+        }]
+    }
+    with responses.RequestsMock(assert_all_requests_are_fired=True) as _responses:
+        _responses.add(
+            responses.PUT,
+            "https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg",
+            status=200,
+        )
+
+        _responses.add(
+            responses.GET,
+            "https://www.strava.com/api/v3/uploads/12345",
+            status=200,
+            json=activity_upload_response
+        )
+
+        activity_uploader = ActivityUploader(client, response=activity_upload_response)
+
+        activity_uploader.upload_photo(photo=photo_bytes)
+
+
+def test_upload_activity_photo_fail_type_error(client):
+    activity_uploader = ActivityUploader(client, response={})
+
+    with pytest.raises(ActivityPhotoUploadFailed) as error:
+        activity_uploader.upload_photo(photo='photo_str')
+
+    assert str(error.value) == 'Photo must be bytes type'
+
+
+@mock.patch('stravalib.client.ActivityUploader.poll')
+def test_upload_activity_photo_fail_activity_upload_not_complete(client):
+    activity_upload_response = {
+        "id": 1234578,
+        "external_id": "external_id",
+        "error": None,
+        "status": "Your activity is being processed.",
+    }
+    activity_uploader = ActivityUploader(client, response=activity_upload_response)
+
+    with pytest.raises(ActivityPhotoUploadFailed) as error:
+        activity_uploader.upload_photo(photo=b'photo_bytes')
+
+    assert str(error.value) == 'Activity upload not complete'
+
+
+@pytest.mark.parametrize('photo_metadata', (
+        None,
+        [],
+        [{}],
+))
+@mock.patch('stravalib.client.ActivityUploader.poll')
+def test_upload_activity_photo_fail_not_supported(client, photo_metadata):
+    activity_upload_response = {
+        "id": 1234578,
+        "external_id": "external_id",
+        "error": None,
+        "status": "Your activity is ready.",
+        "activity_id": 1234578,
+        "photo_metadata": photo_metadata
+    }
+
+    activity_uploader = ActivityUploader(client, response=activity_upload_response)
+
+    with pytest.raises(ActivityPhotoUploadFailed) as error:
+        activity_uploader.upload_photo(photo=b'photo_bytes')
+
+    assert str(error.value) == 'Photo upload not supported'

@@ -81,6 +81,13 @@ class CreatedActivityDeleted(ActivityUploadFailed):
     pass
 
 
+class ActivityPhotoUploadFailed(RuntimeError):
+    pass
+
+
+class ActivityPhotoUploadNotSupported(ActivityPhotoUploadFailed):
+    pass
+
 class TimeoutExceeded(RuntimeError):
     pass
 
