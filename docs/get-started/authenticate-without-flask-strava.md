@@ -74,7 +74,7 @@ print(
 
 # Exchange the code returned from Strava for an access token
 token_response = client.exchange_code_for_token(
-        client_id=client_id, client_secret=access_token, code=code
+        client_id=client_id, client_secret=client_secret, code=code
     )
 
 token_response
