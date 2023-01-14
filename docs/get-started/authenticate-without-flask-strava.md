@@ -59,7 +59,7 @@ webbrowser.open(url)
 print(
         """You will see a url that looks like this. """,
         """http://127.0.0.1:5000/authorization?state=&code=12323423423423423423423550&scope=read,activity:read_all,profile:read_all,read_all")""",
-        """Copy the values between code= and & in the url that you see in hte 
+        """Copy the values between code= and & in the url that you see in the 
         browser. """,
 )
 # Using input allows you to copy the code into your Python console 
