@@ -442,6 +442,9 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Athletes-getStats
 
+        Note that this will return the stats for _public_ activities only,
+        regardless of the scopes of the current access token.
+
         :return: A model containing the Stats
         :rtype: :py:class:`stravalib.model.AthleteStats`
         """

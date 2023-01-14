@@ -303,6 +303,11 @@ class ActivityTotals(
 class AthleteStats(
     ActivityStats, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    """
+    Rolled-up totals for rides, runs and swims, as shown in an athlete's public
+    profile. Non-public activities are not counted for these totals.
+    """
+
     _unit_registry = {
         "biggest_ride_distance": "meters",
         "biggest_climb_elevation_gain": "meters",
