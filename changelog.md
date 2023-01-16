@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Add: Upload photo to activity (@gitexel, #318)
 * Add: Support uploading `activity_file` object with type `bytes` (@gitexel, #308)
 * Add: Pre-commit hook + instructions and configure precommit.ci bot (@lwasser, #293)
 

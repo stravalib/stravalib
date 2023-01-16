@@ -11,12 +11,19 @@ import logging
 import time
 from datetime import datetime, timedelta
 from io import BytesIO
+from typing import Dict, List, Optional
 
 import arrow
 import pytz
 
 from stravalib import exc, model, unithelper
-from stravalib.exc import warn_param_deprecation, warn_param_unofficial
+from stravalib.exc import (
+    ActivityPhotoUploadNotSupported,
+    warn_attribute_unofficial,
+    warn_method_unofficial,
+    warn_param_deprecation,
+    warn_param_unofficial,
+)
 from stravalib.protocol import ApiV3
 from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
@@ -1700,6 +1707,22 @@ class ActivityUploader(object):
         self.client = client
         self.response = response
         self.update_from_response(response, raise_exc=raise_exc)
+    @property
+    def photo_metadata(self):
+        """
+        photo metadata for the activity upload response, if any.
+        it contains a pre-signed uri for uploading the photo.
+        Note1: This is only available after the upload has completed.
+        Note2: available only for partner apps (not for regular account)
+        """
+
+        warn_attribute_unofficial('photo_metadata')
+
+        return self._photo_metadata
+
+    @photo_metadata.setter
+    def photo_metadata(self, value):
+        self._photo_metadata = value
 
     def update_from_response(self, response, raise_exc=True):
         """
@@ -1716,6 +1739,8 @@ class ActivityUploader(object):
         self.external_id = response.get('external_id')
         self.activity_id = response.get('activity_id')
         self.status = response.get('status') or response.get('message')
+        # undocumented field, it contains pre-signed uri to upload photo to
+        self._photo_metadata: Optional[List[Dict]] = response.get('photo_metadata')
 
         if response.get('error'):
             self.error = response.get('error')
@@ -1789,3 +1814,50 @@ class ActivityUploader(object):
                 raise exc.TimeoutExceeded()
         # If we got this far, we must have an activity!
         return self.client.get_activity(self.activity_id)
+
+    def upload_photo(self, photo, timeout=None):
+        """
+        Uploads a photo to the activity.
+
+        NOTE1: In order to upload a photo, the activity must be uploaded and processed.
+
+        NOTE2: The ability to add photos to activity is currently limited to partner apps & devices such as Zwift,
+        Peloton, Tempo Move, etc... Given that the ability isn't in the public API, neither are the docs
+
+        :param photo: The file-like object to upload.
+        :type photo: bytes
+
+        :param timeout: The max seconds to wait. Will raise TimeoutExceeded
+        :type timeout: float
+        """
+
+        warn_method_unofficial('upload_photo')
+
+        try:
+            if not isinstance(photo, bytes):
+                raise TypeError("Photo must be bytes type")
+
+            self.poll()
+
+            if self.is_processing:
+                raise ValueError('Activity upload not complete')
+
+            if not self.photo_metadata:
+                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+
+            photos_data: List[Dict] = [
+                photo_data
+                for photo_data in self.photo_metadata
+                if photo_data and photo_data.get("method") == "PUT" and photo_data.get("header", {}).get("Content-Type") == "image/jpeg"
+            ]
+
+            if not photos_data:
+                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+
+            if photos_data:
+                response = self.client.protocol.rsession.put(
+                    url=photos_data[0]['uri'], data=photo, headers=photos_data[0]['header'], timeout=timeout
+                )
+                response.raise_for_status()
+        except Exception as error:
+            raise exc.ActivityPhotoUploadFailed(error)
