@@ -449,6 +449,9 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Athletes-getStats
 
+        Note that this will return the stats for _public_ activities only,
+        regardless of the scopes of the current access token.
+
         :return: A model containing the Stats
         :rtype: :py:class:`stravalib.model.AthleteStats`
         """
@@ -1910,9 +1913,15 @@ class BatchedResultsIterator(object):
 
         entities = []
         for raw in raw_results:
-            entities.append(
-                self.entity.deserialize(raw, bind_client=self.bind_client)
-            )
+            try:
+                new_entity = self.entity.parse_obj(raw)
+                # TODO: try adding bind_client to entity
+            except AttributeError:
+                # entity doesn't have a parse_obj() method, so must be of a legacy type
+                new_entity = self.entity.deserialize(
+                    raw, bind_client=self.bind_client
+                )
+            entities.append(new_entity)
 
         self._buffer = collections.deque(entities)
 
