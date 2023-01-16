@@ -68,6 +68,6 @@ profile = "black"
 
 [tool.pytest.ini_options]
 filterwarnings = [
-    "ignore::stravalib.exc.StravaFutureWarning",
-    "ignore::stravalib.exc.StravaDeprecationWarning"
+    "ignore::FutureWarning:stravalib.*",
+    "ignore::DeprecationWarning:stravalib.*"
 ]
