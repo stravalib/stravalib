@@ -1,5 +1,5 @@
 TESTDIR=tmp-test-dir-stravalib
-PYTEST_ARGS=--cov stravalib stravalib/tests/unit stravalib/tests/integration
+PYTEST_ARGS=--import-mode=importlib --cov stravalib stravalib/tests/unit stravalib/tests/integration
 
 ## I still need to add code cov to this build
 help:
@@ -22,7 +22,7 @@ test:
 	# Create tmp dir to ensure that tests are run on the installed version of stravalib
 	mkdir -p $(TESTDIR)
 	cd $(TESTDIR);
-	pytest $(PYTEST_ARGS) $(PROJECT)
+	python -m pytest $(PYTEST_ARGS) $(PROJECT)
 	rm -r $(TESTDIR)
 
 ## Clean up all unneeded files and directories and things that shouldn't be under version control
