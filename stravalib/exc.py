@@ -106,11 +106,19 @@ warnings.simplefilter('default')
 logging.captureWarnings(True)
 
 
+class StravaFutureWarning(FutureWarning):
+    pass
+
+
+class StravaDeprecationWarning(DeprecationWarning):
+    pass
+
+
 def warn_param_deprecation(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
         'effect and may lead to errors in the future.',
-        DeprecationWarning,
+        StravaDeprecationWarning,
         stacklevel=3
     )
 
@@ -119,7 +127,7 @@ def warn_param_unofficial(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
         'may lead to unexpected behavior or errors in the future.',
-        FutureWarning,
+        StravaFutureWarning,
         stacklevel=3
     )
 
@@ -128,7 +136,7 @@ def warn_attribute_unofficial(attr_name: str):
     warnings.warn(
         f'The "{attr_name}" parameter is undocumented in the Strava API. Its use '
         'may lead to unexpected behavior or errors in the future.',
-        FutureWarning,
+        StravaFutureWarning,
         stacklevel=3
     )
 
@@ -137,7 +145,7 @@ def warn_method_unofficial(method_name: str):
     warnings.warn(
         f'The "{method_name}" method is undocumented in the Strava API. Its use '
         'may lead to unexpected behavior or errors in the future.',
-        FutureWarning,
+        StravaFutureWarning,
         stacklevel=3
     )
 
@@ -147,6 +155,6 @@ def warn_units_deprecated():
         'You are using a Quantity object or attributes from the units library, which is '
         'deprecated. Support for these types will be removed in the future. Instead, '
         'please use Quantity objects from the Pint package (https://pint.readthedocs.io).',
-        DeprecationWarning,
+        StravaDeprecationWarning,
         stacklevel=3
     )

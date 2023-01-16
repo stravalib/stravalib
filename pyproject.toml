@@ -65,3 +65,9 @@ line-length = 79
 
 [tool.isort]
 profile = "black"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::stravalib.exc.StravaFutureWarning",
+    "ignore::stravalib.exc.StravaDeprecationWarning"
+]
