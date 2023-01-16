@@ -6,9 +6,9 @@ Entity classes for representing the various Strava datatypes.
 import abc
 import logging
 from collections.abc import Sequence
-from typing import Dict
+from typing import Dict, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from stravalib import exc
 from stravalib import unithelper as uh
@@ -30,9 +30,12 @@ from stravalib.field_conversions import enum_values, time_interval
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
+    Comment,
     DetailedAthlete,
     DetailedClub,
     DetailedGear,
+    PhotosSummary,
+    Primary,
 )
 from stravalib.unithelper import UnitConverter
 
@@ -300,69 +303,67 @@ class ActivityTotals(
 class AthleteStats(
     ActivityStats, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    """
+    Rolled-up totals for rides, runs and swims, as shown in an athlete's public
+    profile. Non-public activities are not counted for these totals.
+    """
+
     _unit_registry = {
         "biggest_ride_distance": "meters",
         "biggest_climb_elevation_gain": "meters",
     }
 
+    @validator(
+        "recent_ride_totals",
+        "recent_run_totals",
+        "recent_swim_totals",
+        "ytd_ride_totals",
+        "ytd_run_totals",
+        "ytd_swim_totals",
+        "all_ride_totals",
+        "all_run_totals",
+        "all_swim_totals",
+    )
+    def to_extended_totals(cls, raw_totals: Dict):
+        return ActivityTotals.parse_obj(raw_totals)
+
 
 class Athlete(
     DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    @validator("clubs")
+    def to_extended_clubs(cls, raw_clubs: List[Dict]):
+        return [Club.parse_obj(c) for c in raw_clubs]
+
+    @validator("bikes", "shoes")
+    def to_extended_gear(cls, raw_gear: List[Dict]):
+        return [Gear.parse_obj(g) for g in raw_gear]
+
+
+class ActivityComment(Comment):
+    @validator("athlete")
+    def to_extended_athlete(cls, raw_athlete: Dict):
+        return Athlete.parse_obj(raw_athlete)
+
+
+class ActivityPhotoPrimary(Primary):
     pass
 
 
-class ActivityComment(LoadableEntity):
-    """
-    Comments attached to an activity.
-    """
-
-    activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
-    text = Attribute(str, (META, SUMMARY, DETAILED))  #: Text of comment
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when was coment created
-    athlete = EntityAttribute(
-        Athlete, (SUMMARY, DETAILED)
-    )  #: Associated :class:`stravalib.model.Athlete` (summary-level representation)
-
-
-class ActivityPhotoPrimary(LoadableEntity):
-    """
-    A primary photo attached to an activity (different structure from full photo record)
-    """
-
-    id = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: ID of photo, if external.
-    unique_id = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: ID of photo, if internal.
-    urls = Attribute(dict, (META, SUMMARY, DETAILED))
-    source = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: 1=internal, 2=instagram
-    use_primary_photo = Attribute(
-        bool, (META, SUMMARY, DETAILED)
-    )  #: (undocumented)
-
-
-class ActivityPhotoMeta(BaseEntity):
+class ActivityPhotoMeta(PhotosSummary):
     """
     The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
     """
 
-    count = Attribute(int, (META, SUMMARY, DETAILED))
-    primary = EntityAttribute(ActivityPhotoPrimary, (META, SUMMARY, DETAILED))
-    use_primary_photo = Attribute(bool, (META, SUMMARY, DETAILED))
-
-    def __repr__(self):
-        return "<{0} count={1}>".format(self.__class__.__name__, self.count)
+    @validator("primary")
+    def to_extended_primary(cls, raw_primary: Dict):
+        return ActivityPhotoPrimary.parse_obj(raw_primary)
 
 
 class ActivityPhoto(LoadableEntity):
     """
     A full photo record attached to an activity.
+    TODO: this entity is entirely undocumented by Strava and there is no official endpoint to retrieve it
     """
 
     athlete_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of athlete
@@ -423,45 +424,12 @@ class ActivityPhoto(LoadableEntity):
         )
 
 
-class ActivityKudos(LoadableEntity):
+class ActivityKudos(Athlete):
     """
     Activity kudos are a subset of athlete properties.
     """
 
-    firstname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's first name.
-    lastname = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's last name.
-    profile_medium = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 62x62 pixel profile picture
-    profile = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: URL to a 124x124 pixel profile picture
-    city = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home city
-    state = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home state
-    country = Attribute(str, (SUMMARY, DETAILED))  #: Athlete's home country
-    sex = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Athlete's sex ('M', 'F' or null)
-    friend = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' the authenticated athlete's following status of this athlete
-    follower = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: 'pending', 'accepted', 'blocked' or 'null' this athlete's following status of the authenticated athlete
-    premium = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete is a premium member (true/false)
-
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was created.
-    updated_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when athlete record was last updated.
-
-    approve_followers = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete has elected to approve followers
+    pass
 
 
 class ActivityLap(LoadableEntity):

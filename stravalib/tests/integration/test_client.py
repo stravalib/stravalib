@@ -585,3 +585,26 @@ def test_upload_activity_photo_fail_not_supported(client, photo_metadata):
         activity_uploader.upload_photo(photo=b'photo_bytes')
 
     assert str(error.value) == 'Photo upload not supported'
+
+def test_get_activity_comments(mock_strava_api, client):
+    mock_strava_api.get(
+        "/activities/{id}/comments",
+        response_update={"text": "foo"},
+        n_results=2,
+    )
+    comment_list = list(
+        client.get_activity_comments(42)
+    )  # no idea what the markdown param is supposed to do
+    assert len(comment_list) == 2
+    assert comment_list[0].text == "foo"
+
+
+def test_get_activity_kudos(mock_strava_api, client):
+    mock_strava_api.get(
+        "/activities/{id}/kudos",
+        response_update={"lastname": "Doe"},
+        n_results=2,
+    )
+    kudoer_list = list(client.get_activity_kudos(42))
+    assert len(kudoer_list) == 2
+    assert kudoer_list[0].lastname == "Doe"

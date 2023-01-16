@@ -101,9 +101,9 @@ class TestClientUploadActivity(TestBase):
 
         """
 
-        with mock.patch("stravalib.protocol.ApiV3.post", return_value={}), open(
-            os.path.join(RESOURCES_DIR, "sample.tcx")
-        ) as fp:
+        with mock.patch(
+            "stravalib.protocol.ApiV3.post", return_value={}
+        ), open(os.path.join(RESOURCES_DIR, "sample.tcx")) as fp:
             # test activity_file with type TextIOWrapper
             uploader = self.client.upload_activity(fp, data_type="tcx")
             self.assertTrue(uploader.is_processing)
@@ -116,6 +116,8 @@ class TestClientUploadActivity(TestBase):
 
             # test activity_file with type bytes
             uploader = self.client.upload_activity(
-                fp.read().encode("utf-8"), data_type="tcx", activity_type="ride"
+                fp.read().encode("utf-8"),
+                data_type="tcx",
+                activity_type="ride",
             )
             self.assertTrue(uploader.is_processing)

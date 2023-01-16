@@ -24,6 +24,7 @@ from urllib import parse as urlparse
 
 from stravalib import Client
 
+
 class StravaAuthHTTPServer(HTTPServer):
     def __init__(
         self,
