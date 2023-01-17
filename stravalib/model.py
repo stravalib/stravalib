@@ -3,10 +3,12 @@ Model
 ==============
 Entity classes for representing the various Strava datatypes.
 """
+from __future__ import annotations
+
 import abc
 import logging
 from collections.abc import Sequence
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, validator
 
@@ -203,6 +205,19 @@ class BackwardCompatibilityMixin:
         return value
 
 
+class BoundClientEntity(BaseModel):
+    # Using Any as type here to prevent catch-22 between circular import and
+    # pydantic forward-referencing issues "resolved" by PEP-8 violations.
+    # See e.g. https://github.com/pydantic/pydantic/issues/1873
+    bound_client: Optional[Any] = None
+
+    def assert_bound_client(self):
+        if self.bound_client is None:
+            raise exc.UnboundEntity(
+                f"Unable to fetch objects for unbound {self.__class__} entity."
+            )
+
+
 class ResourceStateEntity(BaseEntity):
     """
     Mixin for entities that include the resource_state attribute.
@@ -279,9 +294,17 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
 
 
 class Club(
-    DetailedClub, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+    DetailedClub,
+    DeprecatedSerializableMixin,
+    BackwardCompatibilityMixin,
+    BoundClientEntity,
 ):
     _field_conversions = {"activity_types": enum_values}
+
+    @property
+    def members(self):
+        self.assert_bound_client()
+        return self.bound_client.get_club_members(self.id)
 
 
 class Gear(

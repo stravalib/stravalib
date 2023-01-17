@@ -4,6 +4,8 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
+from __future__ import annotations
+
 import calendar
 import collections
 import functools
@@ -473,6 +475,8 @@ class Client(object):
         :return: A list of :class:`stravalib.model.Club`
         :rtype: :py:class:`list`
         """
+
+        # TODO: This should return a BatchedResultsIterator!
         club_structs = self.protocol.get("/athlete/clubs")
         return [model.Club.parse_obj(raw) for raw in club_structs]
 
@@ -508,7 +512,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.parse_obj(raw)
+        return model.Club.parse_obj({**raw, **{"bound_client": self}})
 
     def get_club_members(self, club_id, limit=None):
         """
@@ -1906,7 +1910,6 @@ class BatchedResultsIterator(object):
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:
             self._eof()
-
         raw_results = self.result_fetcher(
             page=self._page, per_page=self.per_page
         )
@@ -1914,8 +1917,9 @@ class BatchedResultsIterator(object):
         entities = []
         for raw in raw_results:
             try:
-                new_entity = self.entity.parse_obj(raw)
-                # TODO: try adding bind_client to entity
+                new_entity = self.entity.parse_obj(
+                    {**raw, **{'bound_client': self.bind_client}}
+                )
             except AttributeError:
                 # entity doesn't have a parse_obj() method, so must be of a legacy type
                 new_entity = self.entity.deserialize(
@@ -1980,6 +1984,7 @@ class ActivityUploader(object):
         self.client = client
         self.response = response
         self.update_from_response(response, raise_exc=raise_exc)
+
     @property
     def photo_metadata(self):
         """
@@ -1989,7 +1994,7 @@ class ActivityUploader(object):
         Note2: available only for partner apps (not for regular account)
         """
 
-        warn_attribute_unofficial('photo_metadata')
+        warn_attribute_unofficial("photo_metadata")
 
         return self._photo_metadata
 
@@ -2008,12 +2013,14 @@ class ActivityUploader(object):
         :type raise_exc: bool
         :raise stravalib.exc.ActivityUploadFailed: If the response indicates an error and raise_exc is True.
         """
-        self.upload_id = response.get('id')
-        self.external_id = response.get('external_id')
-        self.activity_id = response.get('activity_id')
-        self.status = response.get('status') or response.get('message')
+        self.upload_id = response.get("id")
+        self.external_id = response.get("external_id")
+        self.activity_id = response.get("activity_id")
+        self.status = response.get("status") or response.get("message")
         # undocumented field, it contains pre-signed uri to upload photo to
-        self._photo_metadata: Optional[List[Dict]] = response.get('photo_metadata')
+        self._photo_metadata: Optional[List[Dict]] = response.get(
+            "photo_metadata"
+        )
 
         if response.get("error"):
             self.error = response.get("error")
@@ -2106,7 +2113,7 @@ class ActivityUploader(object):
         :type timeout: float
         """
 
-        warn_method_unofficial('upload_photo')
+        warn_method_unofficial("upload_photo")
 
         try:
             if not isinstance(photo, bytes):
@@ -2115,23 +2122,33 @@ class ActivityUploader(object):
             self.poll()
 
             if self.is_processing:
-                raise ValueError('Activity upload not complete')
+                raise ValueError("Activity upload not complete")
 
             if not self.photo_metadata:
-                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+                raise ActivityPhotoUploadNotSupported(
+                    "Photo upload not supported"
+                )
 
             photos_data: List[Dict] = [
                 photo_data
                 for photo_data in self.photo_metadata
-                if photo_data and photo_data.get("method") == "PUT" and photo_data.get("header", {}).get("Content-Type") == "image/jpeg"
+                if photo_data
+                and photo_data.get("method") == "PUT"
+                and photo_data.get("header", {}).get("Content-Type")
+                == "image/jpeg"
             ]
 
             if not photos_data:
-                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+                raise ActivityPhotoUploadNotSupported(
+                    "Photo upload not supported"
+                )
 
             if photos_data:
                 response = self.client.protocol.rsession.put(
-                    url=photos_data[0]['uri'], data=photo, headers=photos_data[0]['header'], timeout=timeout
+                    url=photos_data[0]["uri"],
+                    data=photo,
+                    headers=photos_data[0]["header"],
+                    timeout=timeout,
                 )
                 response.raise_for_status()
         except Exception as error:

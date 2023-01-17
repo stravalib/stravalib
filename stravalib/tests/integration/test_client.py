@@ -385,6 +385,17 @@ def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
         assert clubs[0].name == "foo"
 
 
+@pytest.mark.parametrize('n_members', (0, 2))
+def test_get_club_members(mock_strava_api, client, n_members):
+    mock_strava_api.get(
+        '/clubs/{id}/members', response_update={'lastname': 'Doe'}, n_results=n_members
+    )
+    members = list(client.get_club_members(42))
+    assert len(members) == n_members
+    if members:
+        assert members[0].lastname == 'Doe'
+
+
 @pytest.mark.parametrize(
     "athlete_id,authenticated_athlete,expected_biggest_ride_distance,expected_exception",
     (
