@@ -592,7 +592,7 @@ class Client(object):
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.deserialize(raw, bind_client=self)
+        return model.Activity.parse_obj({**raw, **{'bound_client': self}})
 
     def get_friend_activities(self, limit=None):
         """
@@ -681,7 +681,7 @@ class Client(object):
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.deserialize(raw_activity, bind_client=self)
+        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
 
     def update_activity(
         self,
@@ -772,7 +772,7 @@ class Client(object):
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.deserialize(raw_activity, bind_client=self)
+        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
 
     def upload_activity(
         self,
@@ -1104,10 +1104,10 @@ class Client(object):
         :return: A segment object.
         :rtype: :class:`stravalib.model.Segment`
         """
-        return model.Segment.deserialize(
-            self.protocol.get("/segments/{id}", id=segment_id),
-            bind_client=self,
-        )
+        return model.Segment.parse_obj({
+            **self.protocol.get("/segments/{id}", id=segment_id),
+            **{'bound_client': self}
+        })
 
     def get_starred_segments(self, limit=None):
         """

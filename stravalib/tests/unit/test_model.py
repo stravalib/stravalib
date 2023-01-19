@@ -1,11 +1,19 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import skip
 
 import pytest
+import pytz
 
 from stravalib import model
 from stravalib import unithelper as uh
-from stravalib.model import ActivityTotals, Club
+from stravalib.model import (
+    Activity,
+    ActivityLap,
+    ActivityTotals,
+    BaseEffort,
+    Club,
+    Segment,
+)
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity, UnitConverter
 
@@ -42,6 +50,7 @@ class TestLegacyModelSerialization:
             UnitConverter("meters")(100.0),
             None,
         ),
+        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'), None)
     ),
 )
 def test_backward_compatibility_mixin(
@@ -54,6 +63,21 @@ def test_backward_compatibility_mixin(
     else:
         assert getattr(obj, list(raw.keys())[0]) == expected_value
 
+
+@pytest.mark.parametrize(
+    'model_class,raw,expected_value',
+    (
+        (Activity, {'start_latlng': []}, None),
+        (Segment, {'start_latlng': []}, None),
+        (Activity, {'timezone': 'foobar'}, None),
+        (Activity, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
+        (BaseEffort, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
+        (ActivityLap, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7))
+    )
+)
+def test_deserialization_edge_cases(model_class, raw, expected_value):
+    obj = model_class.parse_obj(raw)
+    assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 class ModelTest(TestBase):
     def setUp(self):
