@@ -1344,7 +1344,7 @@ class Client(object):
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
-            model.SegmentExplorerResult.deserialize(v, bind_client=self)
+            model.SegmentExplorerResult.parse_obj({**v, **{'bound_client': self}})
             for v in raw["segments"]
         ]
 

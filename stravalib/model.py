@@ -23,7 +23,6 @@ from stravalib.attributes import (
     META,
     SUMMARY,
     Attribute,
-    DateAttribute,
     EntityAttribute,
     EntityCollection,
     LocationAttribute,
@@ -43,6 +42,7 @@ from stravalib.strava_model import (
     DetailedGear,
     DetailedSegment,
     DetailedSegmentEffort,
+    ExplorerSegment,
     Lap,
     LatLng,
     PhotosSummary,
@@ -50,6 +50,7 @@ from stravalib.strava_model import (
     Primary,
     Split,
     SummaryPRSegmentEffort,
+    SummarySegmentEffort,
 )
 from stravalib.unithelper import UnitConverter
 
@@ -591,7 +592,9 @@ class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     _field_conversions = {'elapsed_time': time_interval, 'moving_time': time_interval}
 
 
-class SegmentExplorerResult(LoadableEntity):
+class SegmentExplorerResult(
+    ExplorerSegment, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
+):
     """
     Represents a segment result from the segment explorer feature.
 
@@ -599,52 +602,28 @@ class SegmentExplorerResult(LoadableEntity):
     via the 'segment' property of this object.)
     """
 
-    _segment = None
-    id = Attribute(int)  #: ID of the segment.
-    name = Attribute(str)  #: Name of the segment
-    climb_category = Attribute(
-        int
-    )  #: Climb category for the segment (0 is higher)
-    climb_category_desc = Attribute(str)  #: Climb category text
-    avg_grade = Attribute(float)  #: Average grade for segment.
-    start_latlng = LocationAttribute()  #: Start lat/lon for segment
-    end_latlng = LocationAttribute()  #: End lat/lon for segment
-    elev_difference = Attribute(
-        float, units=uh.meters
-    )  #: Total elevation difference over segment.
-    distance = Attribute(float, units=uh.meters)  #: Distance of segment.
-    points = Attribute(str)  #: Encoded Google polyline of points in segment
-    starred = Attribute(
-        bool
-    )  #: Whether this segment is starred by authenticated athlete
+    _unit_registry = {
+        'elev_difference', 'meters',
+        'distance', 'meters'
+    }
 
-    @property
+    _latlng_extensions = extend_types('start_latlng', 'end_latlng', model_class='LatLon')
+
+    @lazy_property
     def segment(self):
         """Associated (full) :class:`stravalib.model.Segment` object."""
-        if self._segment is None:
-            self.assert_bind_client()
-            if self.id is not None:
-                self._segment = self.bind_client.get_segment(self.id)
-        return self._segment
+        return self.bound_client.get_segment(self.id)
 
 
-
-
-class AthleteSegmentStats(BaseEntity):
+class AthleteSegmentStats(SummarySegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
-    An undocumented structure being returned for segment stats for current athlete.
+    A structure being returned for segment stats for current athlete.
     """
 
-    effort_count = Attribute(
-        int
-    )  #: (UNDOCUMENTED) Presumably how many efforts current athlete has on segment.
-    pr_elapsed_time = (
-        TimeIntervalAttribute()
-    )  #: (UNDOCUMENTED) Presumably PR elapsed time for segment.
-    pr_date = DateAttribute()  #: (UNDOCUMENTED) Presumably date of PR :)
+    _field_conversions = {'pr_elapsed_time': time_interval}
 
 
-class AthletePrEffort(SummaryPRSegmentEffort):
+class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     _field_conversions = {'pr_elapsed_time': time_interval}
 
     @property
@@ -653,7 +632,7 @@ class AthletePrEffort(SummaryPRSegmentEffort):
         return self.pr_elapsed_time
 
 
-class LatLon(LatLng):
+class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     Enables backward compatibility for legacy namedtuple
     """
@@ -687,6 +666,8 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
 
     _latlng_extensions = extend_types('start_latlng', 'end_latlng', model_class=LatLon)
     _map_extensions = extend_types('map', model_class=Map)
+    _segment_stat_extension = extend_types('athlete_segment_stats', model_class=AthleteSegmentStats)
+    _pr_effort_extension = extend_types('athlete_pr_effort', model_class=AthletePrEffort)
 
     @lazy_property
     def leaderboard(self):

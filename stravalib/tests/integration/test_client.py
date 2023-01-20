@@ -623,6 +623,15 @@ def test_get_activity_comments(mock_strava_api, client):
     assert comment_list[0].text == "foo"
 
 
+def test_explore_segments(mock_strava_api, client):
+    # TODO parameterize test with multiple inputs
+    # It is hard to patch the response for this one, since the
+    # endpoint returns a nested list of segments.
+    mock_strava_api.get('/segments/explore')
+    segment_list = client.explore_segments((1, 2, 3, 4))
+    assert len(segment_list) == 1
+    assert segment_list[0].name == 'Hawk Hill'
+
 def test_get_activity_kudos(mock_strava_api, client):
     mock_strava_api.get(
         "/activities/{id}/kudos",
