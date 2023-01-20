@@ -8,7 +8,6 @@ from __future__ import annotations
 import abc
 import logging
 import sys
-from collections.abc import Sequence
 from datetime import datetime
 from functools import wraps
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, Union
@@ -669,11 +668,6 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     _segment_stat_extension = extend_types('athlete_segment_stats', model_class=AthleteSegmentStats)
     _pr_effort_extension = extend_types('athlete_pr_effort', model_class=AthletePrEffort)
 
-    @lazy_property
-    def leaderboard(self):
-        # Undocumented
-        return self.bound_client.get_segment_leaderboard(self.id)
-
 
 class SegmentEfforAchievement(BaseEntity):
     """
@@ -775,59 +769,6 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     # Added for backward compatibility
     # TODO maybe deprecate?
     TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
-
-
-class SegmentLeaderboardEntry(BoundEntity):
-    """
-    Represents a single entry on a segment leaderboard.
-
-    The :class:`stravalib.model.SegmentLeaderboard` object is essentially a collection
-    of instances of this class.
-
-    NOTE: This changed Jan 2018 to provide far less detail than before
-    """
-
-    athlete_name = Attribute(str)  #: The public name of the athlete.
-    elapsed_time = TimeIntervalAttribute()  #: The elapsed time for this effort
-    moving_time = TimeIntervalAttribute()  #: The moving time for this effort
-    start_date = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when this effot was started in GMT
-    start_date_local = TimestampAttribute(
-        (SUMMARY, DETAILED), tzinfo=None
-    )  #: :class:`datetime.datetime` when this effort was started in activity timezone
-    rank = Attribute(int)  #: The rank on the leaderboard.
-
-    def __repr__(self):
-        return "<SegmentLeaderboardEntry rank={0} athlete_name={1!r}>".format(
-            self.rank, self.athlete_name
-        )
-
-
-class SegmentLeaderboard(Sequence, BoundEntity):
-    """
-    The ranked leaderboard for a segment.
-
-    This class is effectively a collection of :class:`stravalib.model.SegmentLeaderboardEntry` objects.
-    """
-
-    entry_count = Attribute(int)
-    effort_count = Attribute(int)
-    kom_type = Attribute(str)
-
-    entries = EntityCollection(SegmentLeaderboardEntry)
-
-    def __iter__(self):
-        return iter(self.entries)
-
-    def __len__(self):
-        return len(self.entries)
-
-    def __contains__(self, k):
-        return k in self.entries
-
-    def __getitem__(self, k):
-        return self.entries[k]
 
 
 class DistributionBucket(BaseEntity):

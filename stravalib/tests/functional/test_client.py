@@ -238,35 +238,6 @@ class ClientTest(FunctionalTestBase):
         self.assertEqual("XT Wings 2", g.model_name)
         self.assertEqual("", g.description)
 
-    def test_get_segment_leaderboard(self):
-        lb = self.client.get_segment_leaderboard(229781)
-        print(lb.effort_count)
-        print(lb.entry_count)
-        for i, e in enumerate(lb):
-            print("{0}: {1}".format(i, e))
-
-        self.assertEqual(10, len(lb.entries))  # 10 top results
-        self.assertIsInstance(lb.entries[0], model.SegmentLeaderboardEntry)
-        self.assertEqual(1, lb.entries[0].rank)
-        self.assertTrue(lb.effort_count > 8000)  # At time of writing 8206
-
-        # Check the relationships
-        athlete = lb[0].athlete
-        print(athlete)
-        self.assertEqual(
-            lb[0].athlete_name,
-            "{0} {1}".format(athlete.firstname, athlete.lastname),
-        )
-
-        effort = lb[0].effort
-        print(effort)
-        self.assertIsInstance(effort, model.SegmentEffort)
-        self.assertEqual("Hawk Hill", effort.name)
-
-        activity = lb[0].activity
-        self.assertIsInstance(activity, model.Activity)
-        # Can't assert much since #1 ranked activity will likely change in the future.
-
     def test_get_segment(self):
         segment = self.client.get_segment(229781)
         self.assertIsInstance(segment, model.Segment)
