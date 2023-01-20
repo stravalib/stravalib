@@ -669,20 +669,28 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     _pr_effort_extension = extend_types('athlete_pr_effort', model_class=AthletePrEffort)
 
 
-class SegmentEfforAchievement(BaseEntity):
+class SegmentEffortAchievement(BaseModel):
     """
     An undocumented structure being returned for segment efforts.
     """
 
-    rank = Attribute(
-        int
-    )  #: Rank in segment (either overall leaderboard, or pr rank)
-    type = Attribute(
-        str
-    )  #: The type of achievement -- e.g. 'year_pr' or 'overall'
-    type_id = Attribute(
-        int
-    )  #: Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
+    rank: Optional[int] = None
+    """
+    Rank in segment (either overall leaderboard, or pr rank)
+    """
+
+    type: Optional[str] = None
+    """
+    The type of achievement -- e.g. 'year_pr' or 'overall'
+    """
+
+    type_id: Optional[int] = None
+    """
+    Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
+    """
+
+    effort_count: Optional[int] = None
+
 
 
 class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
@@ -715,6 +723,8 @@ class SegmentEffort(BaseEffort):
     """
     Class representing a best effort on a particular segment.
     """
+
+    achievements: Optional[List[SegmentEffortAchievement]] = None
 
 
 class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
