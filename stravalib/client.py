@@ -273,41 +273,6 @@ class Client(object):
         raw = self.protocol.get("/athlete")
         return model.Athlete.parse_obj(raw)
 
-    # TODO: this endpoint was removed so do we want to remove the URL altogether?
-    def get_athlete_friends(self, athlete_id=None, limit=None):
-        """
-        Gets friends for current (or specified) athlete.
-
-        https://developers.strava.com/docs/reference/#api-models-DetailedAthlete
-
-        :param: athlete_id
-        :type: athlete_id: int
-
-        :param limit: Maximum number of athletes to return (default unlimited).
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        if athlete_id is None:
-            result_fetcher = functools.partial(
-                self.protocol.get, "/athlete/friends"
-            )
-        else:
-            raise NotImplementedError(
-                "The /athletes/{id}/friends endpoint was removed by Strava.  "
-                "See https://developers.strava.com/docs/january-2018-update/"
-            )
-            # result_fetcher = functools.partial(self.protocol.get,
-            #                                    '/athletes/{id}/friends',
-            #                                    id=athlete_id)
-
-        return BatchedResultsIterator(
-            entity=model.Athlete,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-            limit=limit,
-        )
 
     def update_athlete(
         self, city=None, state=None, country=None, sex=None, weight=None
@@ -353,67 +318,6 @@ class Client(object):
         raw_athlete = self.protocol.put("/athlete", **params)
         return model.Athlete.parse_obj(raw_athlete)
 
-    def get_athlete_followers(self, athlete_id=None, limit=None):
-        """
-        Gets followers for current (or specified) athlete.
-
-        :param: athlete_id
-        :type athlete_id: int
-
-        :param limit: Maximum number of athletes to return (default unlimited).
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        if athlete_id is None:
-            result_fetcher = functools.partial(
-                self.protocol.get, "/athlete/followers"
-            )
-        else:
-            raise NotImplementedError(
-                "The /athletes/{id}/followers endpoint was removed by Strava.  "
-                "See https://developers.strava.com/docs/january-2018-update/"
-            )
-            # result_fetcher = functools.partial(self.protocol.get,
-            #                                    '/athletes/{id}/followers',
-            #                                    id=athlete_id)
-
-        return BatchedResultsIterator(
-            entity=model.Athlete,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-            limit=limit,
-        )
-
-    def get_both_following(self, athlete_id, limit=None):
-        """
-        Retrieve the athletes who both the authenticated user and the indicated
-         athlete are following.
-
-        This endpoint was removed by Strava in Jan 2018.
-
-        :param athlete_id: The ID of the other athlete (for follower intersection with current athlete)
-        :type athlete_id: int
-
-        :param limit: Maximum number of athletes to return. (default unlimited)
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        raise NotImplementedError(
-            "The /athletes/{id}/both-following endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
-        )
-        # result_fetcher = functools.partial(self.protocol.get,
-        #                                    '/athletes/{id}/both-following',
-        #                                    id=athlete_id)
-        #
-        # return BatchedResultsIterator(entity=model.Athlete,
-        #                               bind_client=self,
-        #                               result_fetcher=result_fetcher,
-        #                               limit=limit)
 
     # TODO: Can't find this in the api documentation either. Does it still work?
     def get_athlete_koms(self, athlete_id, limit=None):
