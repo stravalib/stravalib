@@ -439,6 +439,16 @@ class Athlete(
     def authenticated_athlete(self):
         return self.bound_client.get_athlete()
 
+    @lazy_property
+    def stats(self):
+        """
+        :return: Associated :class:`stravalib.model.AthleteStats`
+        """
+        if not self.is_authenticated_athlete():
+            raise exc.NotAuthenticatedAthlete("Statistics are only available for the authenticated athlete")
+        return self.bound_client.get_athlete_stats(self.id)
+
+
     def is_authenticated_athlete(self):
         """
         :return: Boolean as to whether the athlete is the authenticated athlete.
