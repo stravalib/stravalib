@@ -428,11 +428,32 @@ class AthleteStats(
 
 
 class Athlete(
-    DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin
+    DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin, BoundClientEntity
 ):
+    is_authenticated: Optional[bool] = None
+
     _clubs_extension = extend_types('clubs', model_class=Club, as_collection=True)
     _gear_extension = extend_types('bikes', 'shoes', model_class=Gear, as_collection=True)
 
+    @lazy_property
+    def authenticated_athlete(self):
+        return self.bound_client.get_athlete()
+
+    def is_authenticated_athlete(self):
+        """
+        :return: Boolean as to whether the athlete is the authenticated athlete.
+        """
+
+        if self.is_authenticated is None:
+            if self.resource_state == 3:
+                # If the athlete is in detailed state it must be the authenticated athlete
+                self.is_authenticated = True
+            else:
+                # We need to check this athlete's id matches the authenticated athlete's id
+                authenticated_athlete = self.authenticated_athlete
+                self.is_authenticated = authenticated_athlete.id == self.id
+
+        return self.is_authenticated
 
 class ActivityComment(Comment):
     _athlete_extension = extend_types('athlete', model_class=Athlete)

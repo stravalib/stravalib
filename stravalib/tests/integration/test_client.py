@@ -8,6 +8,7 @@ from responses import matchers
 
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
+from stravalib.model import Athlete
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import UnitConverter, meters, miles
 
@@ -631,3 +632,21 @@ def test_get_activity_kudos(mock_strava_api, client):
     kudoer_list = list(client.get_activity_kudos(42))
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"
+
+
+class TestIsAuthenticatedAthlete:
+    def test_default(self, mock_strava_api, client):
+        mock_strava_api.get('/athlete', response_update={'id': 42})
+        athlete = client.get_athlete()
+        assert athlete.is_authenticated_athlete()
+
+    def test_caching(self):
+        athlete = Athlete(is_authenticated=True)
+        assert athlete.is_authenticated_athlete()
+
+    @pytest.mark.parametrize('match_id,expected_result', ((False, False), (True, True)))
+    def test_from_summary(self, mock_strava_api, client, match_id, expected_result):
+        mock_strava_api.get('/clubs/{id}/members', response_update={'id': 42 if match_id else 21})
+        mock_strava_api.get('/athlete', response_update={'id': 42})
+        club_members = list(client.get_club_members(99))
+        assert club_members[0].is_authenticated_athlete() == expected_result

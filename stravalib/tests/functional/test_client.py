@@ -2,9 +2,8 @@ import datetime
 
 import requests
 
-from stravalib import attributes, exc, model
+from stravalib import attributes, model
 from stravalib import unithelper as uh
-from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
 
 
@@ -341,38 +340,6 @@ class ClientTest(FunctionalTestBase):
             segment.elevation_high - segment.elevation_low,
             places=0,
         )
-
-
-class AuthenticatedAthleteTest(FunctionalTestBase):
-    """
-    Tests the function is_authenticated_athlete in model.Athlete
-    """
-
-    def test_caching(self):
-        a = model.Athlete()
-        a._is_authenticated = "Not None"
-        self.assertEqual(a.is_authenticated_athlete(), "Not None")
-
-    def test_correct_athlete_returns_true(self):
-        a = self.client.get_athlete()
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_detailed_resource_state_means_true(self):
-        a = model.Athlete()
-        a.resource_state = attributes.DETAILED
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_correct_athlete_not_detailed_returns_true(self):
-        a = self.client.get_athlete()
-        a.resource_state = attributes.SUMMARY
-        # Now will have to do a look up for the authenticated athlete and check the ids match
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_not_authenticated_athlete_is_false(self):
-        CAV_ID = 1353775
-        a = self.client.get_athlete(CAV_ID)
-        self.assertEqual(a.resource_state, attributes.SUMMARY)
-        self.assertFalse(a.is_authenticated_athlete())
 
 
 class AthleteStatsTest(FunctionalTestBase):
