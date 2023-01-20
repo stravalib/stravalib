@@ -699,7 +699,6 @@ class SegmentEffortAchievement(BaseModel):
     effort_count: Optional[int] = None
 
 
-
 class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Base class for a best effort or segment effort.
