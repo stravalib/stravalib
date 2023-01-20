@@ -91,7 +91,7 @@ def extend_types(*args, model_class: Union[Type[BaseModel], str]=None, as_collec
     """
 
     if model_class is None:
-        raise ValueError('This validator should provided with a destination class')
+        raise ValueError('This validator should be provided with a destination class')
 
     def extender(serialized_value: Optional[Any]):
         if isinstance(model_class, str):
@@ -105,7 +105,7 @@ def extend_types(*args, model_class: Union[Type[BaseModel], str]=None, as_collec
                 return klass.parse_obj(serialized_value)
         else:
             return None
-    return validator(*args, **kwargs, allow_reuse=True)(extender)
+    return validator(*args, **kwargs, allow_reuse=True, pre=True)(extender)
 
 
 # Custom validators for some edge cases:
