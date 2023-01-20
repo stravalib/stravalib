@@ -9,7 +9,7 @@ from responses import matchers
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import UnitConverter, miles
+from stravalib.unithelper import UnitConverter, meters, miles
 
 
 def test_get_athlete(mock_strava_api, client):
@@ -40,6 +40,20 @@ def test_get_activity(
         activity = client.get_activity(test_activity_id)
     assert mock_strava_api.calls[-1].request.url.endswith(expected_url)
     assert activity.id == test_activity_id
+
+
+def test_get_activity_laps(mock_strava_api, client):
+    mock_strava_api.get('/activities/{id}/laps', response_update={'distance': 1000}, n_results=2)
+    laps = list(client.get_activity_laps(42))
+    assert len(laps) == 2
+    assert laps[0].distance == meters(1000)
+
+
+def test_get_club_activities(mock_strava_api, client):
+    mock_strava_api.get('/clubs/{id}/activities', response_update={'distance': 1000}, n_results=2)
+    activities = list(client.get_club_activities(42))
+    assert len(activities) == 2
+    assert activities[0].distance == meters(1000)
 
 
 @pytest.mark.parametrize(
@@ -472,6 +486,18 @@ def test_get_activities(
     assert len(activity_list) == expected_n_activities
     if expected_n_activities > 0:
         assert activity_list[0].name == "test_activity"
+
+
+
+def test_get_segment(mock_strava_api, client):
+    mock_strava_api.get('/segments/{id}', response_update={'name': 'foo'})
+    segment = client.get_segment(42)
+    assert segment.name == 'foo'
+
+def test_get_segment_effort(mock_strava_api, client):
+    mock_strava_api.get('/segment_efforts/{id}', response_update={'max_heartrate': 170})
+    effort = client.get_segment_effort(42)
+    assert effort.max_heartrate == 170
 
 
 def test_get_activities_paged(mock_strava_api, client):

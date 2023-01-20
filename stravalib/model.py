@@ -522,7 +522,7 @@ class ActivityKudos(Athlete):
     pass
 
 
-class ActivityLap(Lap):
+class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     _field_conversions = {
         'elapsed_time': time_interval,
         'moving_time': time_interval

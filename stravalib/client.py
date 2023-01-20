@@ -1088,7 +1088,7 @@ class Client(object):
         :return: The specified effort on a segment.
         :rtype: :class:`stravalib.model.SegmentEffort`
         """
-        return model.SegmentEffort.deserialize(
+        return model.SegmentEffort.parse_obj(
             self.protocol.get("/segment_efforts/{id}", id=effort_id)
         )
 
