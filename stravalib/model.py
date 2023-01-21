@@ -638,6 +638,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
     @root_validator
     def check_valid_latlng(cls, values):
+        # Strava sometimes returns an empty list in case of activities without GPS
         return values if values else None
 
     @property
