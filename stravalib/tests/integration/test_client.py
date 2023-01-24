@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 from unittest import mock
 
@@ -56,6 +57,16 @@ def test_get_club_activities(mock_strava_api, client):
     assert len(activities) == 2
     assert activities[0].distance == meters(1000)
 
+
+def test_get_activity_zones(mock_strava_api, client):
+    # Unfortunately, there is no example response for this endpoint in swagger.json
+    with open(os.path.join(RESOURCES_DIR, 'example_zone_response.json'), 'r') as zone_response_fp:
+        zone_response = json.load(zone_response_fp)
+    mock_strava_api.get('/activities/{id}/zones', json=zone_response)
+    activity_zones = client.get_activity_zones(42)
+    assert len(activity_zones) == 2
+    assert activity_zones[0].type == 'heartrate'
+    assert activity_zones[0].sensor_based
 
 @pytest.mark.parametrize(
     "update_kwargs,expected_params,expected_warning,expected_exception",

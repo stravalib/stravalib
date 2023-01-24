@@ -10,7 +10,7 @@ import logging
 import sys
 from datetime import datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -23,9 +23,7 @@ from stravalib.attributes import (
     SUMMARY,
     Attribute,
     EntityAttribute,
-    EntityCollection,
     LocationAttribute,
-    TimeIntervalAttribute,
     TimestampAttribute,
 )
 from stravalib.exc import warn_method_deprecation
@@ -34,6 +32,7 @@ from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
     ActivityType,
+    ActivityZone,
     Comment,
     DetailedActivity,
     DetailedAthlete,
@@ -50,6 +49,7 @@ from stravalib.strava_model import (
     Split,
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
+    TimedZoneRange,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -783,103 +783,27 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
 
 
-class DistributionBucket(BaseEntity):
+class DistributionBucket(TimedZoneRange):
     """
     A single distribution bucket object, used for activity zones.
     """
 
-    max = Attribute(int)  #: Max datatpoint
-    min = Attribute(int)  #: Min datapoint
-    time = Attribute(
-        int, units=uh.seconds
-    )  #: Time in seconds (*not* a :class:`datetime.timedelta`)
+    _field_conversions = {'time': uh.seconds}
 
 
-class BaseActivityZone(LoadableEntity):
+class BaseActivityZone(ActivityZone, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Base class for activity zones.
 
     A collection of :class:`stravalib.model.DistributionBucket` objects.
     """
 
-    distribution_buckets = EntityCollection(
-        DistributionBucket, (SUMMARY, DETAILED)
-    )  #: The collection of :class:`stravalib.model.DistributionBucket` objects
-    type = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Type of activity zone (heartrate, power, pace).
-    sensor_based = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether zone data is sensor-based (as opposed to calculated)
+    # overriding the superclass type: it should also support pace as value
+    type: Optional[Literal["heartrate", "power", "pace"]] = None
 
-    @classmethod
-    def deserialize(cls, v, bind_client=None):
-        """
-        Creates a new object based on serialized (dict) struct.
-        """
-        if v is None:
-            return None
-        az_classes = {
-            "heartrate": HeartrateActivityZone,
-            "power": PowerActivityZone,
-            "pace": PaceActivityZone,
-        }
-        try:
-            clazz = az_classes[v["type"]]
-        except KeyError:
-            raise ValueError(
-                "Unsupported activity zone type: {0}".format(v["type"])
-            )
-        else:
-            o = clazz(bind_client=bind_client)
-            o.from_dict(v)
-            return o
-
-
-class HeartrateActivityZone(BaseActivityZone):
-    """
-    Activity zone for heart rate.
-    """
-
-    score = Attribute(
-        int, (SUMMARY, DETAILED)
-    )  #: The score (suffer score) for this HR zone.
-    points = Attribute(
-        int, (SUMMARY, DETAILED)
-    )  #: The points for this HR zone.
-    custom_zones = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether athlete has setup custom zones.
-    max = Attribute(int, (SUMMARY, DETAILED))  #: The max heartrate
-
-
-class PaceActivityZone(BaseActivityZone):
-    """
-    Activity zone for pace.
-    """
-
-    score = Attribute(int, (SUMMARY, DETAILED))  #: The score for this zone.
-    sample_race_distance = Attribute(
-        int, (SUMMARY, DETAILED), units=uh.meters
-    )  #: (Not sure?)
-    sample_race_time = TimeIntervalAttribute(
-        (SUMMARY, DETAILED)
-    )  #: (Not sure?)
-
-
-class PowerActivityZone(BaseActivityZone):
-    """
-    Activity zone for power.
-    """
-
-    # these 2 below were removed according to June 3, 2014 update @
-    # https://developers.strava.com/docs/changelog/
-    bike_weight = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.kgs
-    )  #: Weight of bike being used (factored into power calculations)
-    athlete_weight = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.kgs
-    )  #: Weight of athlete (factored into power calculations)
+    _distribution_extension = extend_types(
+        'distribution_buckets', model_class=DistributionBucket, as_collection=True
+    )
 
 
 class Stream(LoadableEntity):

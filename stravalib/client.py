@@ -804,16 +804,15 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Activities-getZonesByActivityId
 
-        :param activity_id: The activity for which to zones.
+        :param activity_id: The activity for which to get zones.
         :type activity_id: int
 
-        :return: An list of :class:`stravalib.model.ActivityComment` objects.
+        :return: A list of :class:`stravalib.model.BaseActivityZone` objects.
         :rtype: :py:class:`list`
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
-        # We use a factory to give us the correct zone based on type.
         return [
-            model.BaseActivityZone.deserialize(z, bind_client=self)
+            model.BaseActivityZone.parse_obj({**z, **{'bound_client': self}})
             for z in zones
         ]
 
