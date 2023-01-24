@@ -1228,7 +1228,7 @@ class Client(object):
         :param activity_id: The ID of activity.
         :type activity_id: int
 
-        :param types: (optional) A list of the the types of streams to fetch.
+        :param types: (optional) A list of the types of streams to fetch.
         :type types: list
 
         :param resolution: (optional, default is 'all') indicates desired number

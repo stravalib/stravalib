@@ -68,6 +68,18 @@ def test_get_activity_zones(mock_strava_api, client):
     assert activity_zones[0].type == 'heartrate'
     assert activity_zones[0].sensor_based
 
+
+def test_get_activity_streams(mock_strava_api, client):
+    # TODO: parameterize test to cover all branching
+    mock_strava_api.get(
+        '/activities/{id}/streams',
+        response_update={'data': [1, 2, 3]}
+    )
+    # the example in swagger.json returns a distance stream
+    streams = client.get_activity_streams(42)
+    assert streams['distance'].data == [1, 2, 3]
+
+
 @pytest.mark.parametrize(
     "update_kwargs,expected_params,expected_warning,expected_exception",
     (

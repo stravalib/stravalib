@@ -33,6 +33,7 @@ from stravalib.strava_model import (
     ActivityTotal,
     ActivityType,
     ActivityZone,
+    BaseStream,
     Comment,
     DetailedActivity,
     DetailedAthlete,
@@ -806,29 +807,16 @@ class BaseActivityZone(ActivityZone, BackwardCompatibilityMixin, DeprecatedSeria
     )
 
 
-class Stream(LoadableEntity):
+class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     Stream of readings from the activity, effort or segment.
     """
 
-    type = Attribute(str)
-    data = Attribute(list)  #: array of values
-    series_type = Attribute(
-        str
-    )  #: type of stream: time, latlng, distance, altitude, velocity_smooth, heartrate, cadence, watts, temp, moving, grade_smooth
-    original_size = Attribute(
-        int
-    )  #: the size of the complete stream (when not reduced with resolution)
-    resolution = Attribute(
-        str
-    )  #: (optional, default is 'all') the desired number of data points. 'low' (100), 'medium' (1000), 'high' (10000) or 'all'
+    type: Optional[str] = None
 
-    def __repr__(self):
-        return "<Stream type={} resolution={} original_size={}>".format(
-            self.type,
-            self.resolution,
-            self.original_size,
-        )
+    # Not using the typed subclasses from the generated model
+    # for backward compatibility:
+    data: Optional[List[Any]] = None
 
 
 class RunningRace(LoadableEntity):
