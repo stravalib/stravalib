@@ -271,7 +271,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Athlete`
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.parse_obj(raw)
+        return model.Athlete.parse_obj({**raw, **{'bound_client': self}})
 
 
     def update_athlete(
@@ -316,7 +316,7 @@ class Client(object):
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.parse_obj(raw_athlete)
+        return model.Athlete.parse_obj({**raw_athlete, **{'bound_client': self}})
 
 
     # TODO: Can't find this in the api documentation either. Does it still work?
@@ -380,9 +380,9 @@ class Client(object):
         :rtype: :py:class:`list`
         """
 
-        # TODO: This should return a BatchedResultsIterator!
+        # TODO: This should return a BatchedResultsIterator or otherwise at most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
-        return [model.Club.parse_obj(raw) for raw in club_structs]
+        return [model.Club.parse_obj({**raw, **{'bound_client': self}}) for raw in club_structs]
 
     def join_club(self, club_id):
         """
