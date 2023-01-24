@@ -819,41 +819,6 @@ class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin
     data: Optional[List[Any]] = None
 
 
-class RunningRace(LoadableEntity):
-    """
-    Represents a RunningRace.
-    """
-
-    name = Attribute(str, (SUMMARY, DETAILED))  #: Name of the race.
-    id = Attribute(int)  #: The unique identifier of this race.
-    running_race_type = Attribute(int)  #: Type of race
-    distance = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: Distance for race in meters.
-    start_date_local = TimestampAttribute(
-        (SUMMARY, DETAILED), tzinfo=None
-    )  #: :class:`datetime.datetime` when race was started local
-    city = Attribute(str, (DETAILED,))  #: City the race is taking place in
-    state = Attribute(str, (DETAILED,))  #: State the race is taking place in
-    country = Attribute(
-        str, (DETAILED,)
-    )  #: Country the race is taking place in
-    description = Attribute(
-        str,
-        (
-            SUMMARY,
-            DETAILED,
-        ),
-    )  #: Description of the route.
-    route_ids = Attribute(list)  #: Set of routes that cover this race's course
-    measurement_preference = Attribute(
-        str, (DETAILED,)
-    )  #: (detailed-only) How race prefers to see measurements (i.e. "feet" (or what "meters"?))
-    url = Attribute(str, (SUMMARY, DETAILED))  #: vanity race URL slug
-    website_url = Attribute(str, (SUMMARY, DETAILED))  #: race's website
-    status = Attribute(str, (SUMMARY, DETAILED))  #: (undocumented attribute)
-
-
 class Route(LoadableEntity):
     """
     Represents a Route.
