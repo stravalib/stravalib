@@ -51,7 +51,6 @@ from stravalib.strava_model import (
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
 )
-from stravalib.unithelper import UnitConverter
 
 LOGGER = logging.getLogger(__name__)
 
@@ -84,7 +83,12 @@ def lazy_property(fn):
     return property(wrapper)
 
 
-def extend_types(*args, model_class: Union[Type[BaseModel], str]=None, as_collection: bool=False, **kwargs):
+def extend_types(
+        *args,
+        model_class: Union[Type[BaseModel], str]=None,
+        as_collection: bool=False,
+        **kwargs
+):
     """
     Returns a reusable pydantic validator for parsing optional nested
     structures into a desired destination class `model_class`.
@@ -262,25 +266,29 @@ class BackwardCompatibilityMixin:
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
     * _field_conversions
-    * _unit_registry
     """
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
-        if attr in ["_field_conversions", "_unit_registry"]:
+        if attr in ["_field_conversions", "bound_client"] or attr.startswith('_'):
             return value
         try:
-            if attr in self._field_conversions:
-                value = self._field_conversions[attr](value)
-        except AttributeError:
-            # Current model class has no field conversions defined
+            value.bound_client = self.bound_client
+            return value
+        except (AttributeError, ValueError):
             pass
         try:
-            if attr in self._unit_registry:
-                # Return a Quantity
-                value = UnitConverter(self._unit_registry[attr])(value)
+            for v in value:
+                v.bound_client = self.bound_client
+            return value
+        except (AttributeError, ValueError, TypeError):
+            # TypeError if v is not iterable
+            pass
+        try:
+            if attr in self._field_conversions:
+                return self._field_conversions[attr](value)
         except AttributeError:
-            # Current model class has no unit registry defined
+            # Current model class has no field conversions defined
             pass
         return value
 
@@ -396,8 +404,9 @@ class ActivityTotals(
     _field_conversions = {
         "elapsed_time": time_interval,
         "moving_time": time_interval,
+        "distance": uh.meters,
+        "elevation_gain": uh.meters
     }
-    _unit_registry = {"distance": "meters", "elevation_gain": "meters"}
 
 
 class AthleteStats(
@@ -408,9 +417,9 @@ class AthleteStats(
     profile. Non-public activities are not counted for these totals.
     """
 
-    _unit_registry = {
-        "biggest_ride_distance": "meters",
-        "biggest_climb_elevation_gain": "meters",
+    _field_conversions = {
+        "biggest_ride_distance": uh.meters,
+        "biggest_climb_elevation_gain": uh.meters,
     }
 
     _activity_total_extensions = extend_types(
@@ -556,14 +565,11 @@ class ActivityKudos(Athlete):
 class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     _field_conversions = {
         'elapsed_time': time_interval,
-        'moving_time': time_interval
-    }
-
-    _unit_registry = {
-        'distance': 'meters',
-        'total_elevation_gain': 'meters',
-        'average_speed': 'm/s',
-        'max_speed': 'm/s'
+        'moving_time': time_interval,
+        'distance': uh.meters,
+        'total_elevation_gain': uh.meters,
+        'average_speed': uh.meters_per_second,
+        'max_speed': uh.meters_per_second
     }
 
     _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
@@ -582,13 +588,13 @@ class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     on the units used in this object, just the binning of values).
     """
 
-    _unit_registry = {
-        'distance': 'meters',
-        'elevation_difference': 'meters',
-        'average_speed': 'm/s'
+    _field_conversions = {
+        'elapsed_time': time_interval,
+        'moving_time': time_interval,
+        'distance': uh.meters,
+        'elevation_difference': uh.meters,
+        'average_speed': uh.meters_per_second
     }
-
-    _field_conversions = {'elapsed_time': time_interval, 'moving_time': time_interval}
 
 
 class SegmentExplorerResult(
@@ -601,9 +607,9 @@ class SegmentExplorerResult(
     via the 'segment' property of this object.)
     """
 
-    _unit_registry = {
-        'elev_difference', 'meters',
-        'distance', 'meters'
+    _field_conversions = {
+        'elev_difference', uh.meters,
+        'distance', uh.meters
     }
 
     _latlng_extensions = extend_types('start_latlng', 'end_latlng', model_class='LatLon')
@@ -655,11 +661,11 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     Represents a single Strava segment.
     """
 
-    _unit_registry = {
-        'distance': 'meters',
-        'elevation_high': 'meters',
-        'elevation_low': 'meters',
-        'total_elevation_gain': 'meters'
+    _field_conversions = {
+        'distance': uh.meters,
+        'elevation_high': uh.meters,
+        'elevation_low': uh.meters,
+        'total_elevation_gain': uh.meters
     }
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
@@ -700,11 +706,9 @@ class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSe
     """
 
     _field_conversions = {
-        'moving_time': time_interval, 'elapsed_time': time_interval
-    }
-
-    _unit_registry = {
-        'distance': 'meters'
+        'moving_time': time_interval,
+        'elapsed_time': time_interval,
+        'distance': uh.meters
     }
 
     _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
@@ -736,14 +740,12 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     _field_conversions = {
         'moving_time': time_interval,
         'elapsed_time': time_interval,
-        'timezone': timezone
+        'timezone': timezone,
+        'distance': uh.meters,
+        'total_elevation_gain': uh.meters,
+        'average_speed': uh.meters_per_second,
+        'max_speed': uh.meters_per_second
 
-    }
-    _unit_registry = {
-        'distance': 'meters',
-        'total_elevation_gain': 'meters',
-        'average_speed': 'm/s',
-        'max_speed': 'm/s'
     }
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)

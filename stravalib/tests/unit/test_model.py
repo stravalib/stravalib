@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
+from typing import List, Optional
 from unittest import skip
 
+import pint
 import pytest
 import pytz
+from pydantic import BaseModel, ValidationError, create_model
 
 from stravalib import model
 from stravalib import unithelper as uh
@@ -10,10 +13,15 @@ from stravalib.model import (
     Activity,
     ActivityLap,
     ActivityTotals,
+    BackwardCompatibilityMixin,
     BaseEffort,
+    BoundClientEntity,
     Club,
+    LatLon,
     Segment,
+    extend_types,
 )
+from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity, UnitConverter
 
@@ -78,6 +86,116 @@ def test_backward_compatibility_mixin(
 def test_deserialization_edge_cases(model_class, raw, expected_value):
     obj = model_class.parse_obj(raw)
     assert getattr(obj, list(raw.keys())[0]) == expected_value
+
+
+# Below are some toy classes to test type extensions and attribute lookup:
+class A(BaseModel, BackwardCompatibilityMixin):
+    x: Optional[int] = None
+
+
+class ConversionA(A, BackwardCompatibilityMixin):
+    _field_conversions = {'x': uh.meters}
+
+
+class BoundA(A, BoundClientEntity):
+    pass
+
+class B(BaseModel, BackwardCompatibilityMixin):
+    a: Optional[A] = None
+    bound_a: Optional[BoundA] = None
+
+
+class BoundB(B, BoundClientEntity):
+    pass
+
+class C(BaseModel, BackwardCompatibilityMixin):
+    a: Optional[List[A]] = None
+    bound_a: Optional[List[BoundA]] = None
+
+
+class BoundC(C, BoundClientEntity):
+    pass
+
+
+class D(BaseModel, BackwardCompatibilityMixin):
+    a: Optional[LatLng] = None
+
+class ExtA(A):
+    def foo(self):
+        return self.x
+
+
+class ExtLatLng(LatLng):
+    def foo(self):
+        return f'[{self[0], self[1]}]'
+
+
+@pytest.mark.parametrize(
+    'base_class,extender,raw_data,expected_foo_result,expected_exception',
+    (
+        (B, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, None),
+        (B, extend_types('a', model_class=ExtA), {'a': {}}, None, None),
+        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': {'x': 42}}, 42, ValidationError),
+        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}]}, 42, ValidationError),
+        (C, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, ValidationError),
+        (C, extend_types('a', model_class=ExtA), {'a': [{'x': 42}]}, 42, ValidationError),
+        (C, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}, {'x': 21}]}, [42, 21], None),
+        (D, extend_types('a', model_class=LatLon), {'a': [1, 2]}, '[1,2]', None)  # edge case for __root__ fields
+    )
+)
+def test_type_extensions(base_class, extender, raw_data, expected_foo_result, expected_exception):
+    X = create_model('X', __base__=base_class, __validators__={'ext': extender})
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            X.parse_obj(raw_data)
+    else:
+        x = X.parse_obj(raw_data)
+
+        if base_class == B:
+            assert x.a.foo() == expected_foo_result
+        elif base_class == C:  # a is a list
+            for a, expected_foo in zip(x.a, expected_foo_result):
+                assert a.foo() == expected_foo
+
+
+@pytest.mark.parametrize(
+    'lookup_expression,expected_result,expected_bound_client',
+    (
+        (A().x, None, False),
+        (B().a, None, False),
+        (A(x=1).x, 1, False),
+        (B(a=A(x=1)).a, A(x=1), False),
+        (C(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
+        (ConversionA(x=1).x, pint.Quantity('1 meter'), False),
+        (BoundA(x=1).x, 1, False),
+        (B(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
+        (B(bound_a=BoundA(x=1, bound_client=1)).bound_a, BoundA(x=1, bound_client=1), True),
+        (BoundB(a=A(x=1)).a, A(x=1), False),
+        (BoundB(a=A(x=1), bound_client=1).a, A(x=1), False),
+        (BoundB(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
+        (BoundB(bound_a=BoundA(x=1), bound_client=1).bound_a, BoundA(x=1, bound_client=1), True),
+        (C(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1], BoundA(x=2), None),
+        (C(bound_a=[BoundA(x=1, bound_client=1), BoundA(x=2, bound_client=1)]).bound_a[1],
+         BoundA(x=2, bound_client=1), True),
+        (BoundC(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
+        (BoundC(a=[A(x=1), A(x=2)], bound_client=1).a[1], A(x=2), False),
+        (BoundC(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1],
+         BoundA(x=2), None),
+        (BoundC(bound_a=[BoundA(x=1), BoundA(x=2)], bound_client=1).bound_a[1],
+         BoundA(x=2, bound_client=1), True)
+    )
+)
+def test_backward_compatible_attribute_lookup(lookup_expression, expected_result, expected_bound_client):
+    assert lookup_expression == expected_result
+
+    if expected_bound_client:
+        assert lookup_expression.bound_client is not None
+    elif expected_bound_client is None:
+        assert lookup_expression.bound_client is None
+    elif not expected_bound_client:
+        assert not hasattr(lookup_expression, 'bound_client')
+
 
 class ModelTest(TestBase):
     def setUp(self):
