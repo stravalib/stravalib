@@ -700,7 +700,7 @@ class SegmentEffortAchievement(BaseModel):
 
 
 
-class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Base class for a best effort or segment effort.
     """
