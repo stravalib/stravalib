@@ -835,25 +835,22 @@ class Route(Route, BackwardCompatibilityMixin, DeprecatedSerializableMixin, Boun
     }
 
 
-# OLD URL - http://strava.github.io/api/partner/v3/events/
-class Subscription(LoadableEntity):
+class Subscription(BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Represents a Webhook Event Subscription.
-
-    https://developers.strava.com/docs/reference/#api-models-SummaryAthlete
     """
 
-    OBJECT_TYPE_ACTIVITY = "activity"
-    ASPECT_TYPE_CREATE = "create"
+    OBJECT_TYPE_ACTIVITY: ClassVar[str] = "activity"
+    ASPECT_TYPE_CREATE: ClassVar[str] = "create"
+    VERIFY_TOKEN_DEFAULT: ClassVar[str] = "STRAVA"
 
-    VERIFY_TOKEN_DEFAULT = "STRAVA"
-
-    application_id = Attribute(int)
-    object_type = Attribute(str)
-    aspect_type = Attribute(str)
-    callback_url = Attribute(str)
-    created_at = TimestampAttribute()
-    updated_at = TimestampAttribute()
+    id: Optional[int] = None
+    application_id: Optional[int] = None
+    object_type: Optional[str] = None
+    aspect_type: Optional[str] = None
+    callback_url: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 class SubscriptionCallback(LoadableEntity):

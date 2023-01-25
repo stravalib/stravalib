@@ -1530,7 +1530,8 @@ class Client(object):
             verify_token=verify_token,
         )
         raw = self.protocol.post("/push_subscriptions", **params)
-        return model.Subscription.deserialize(raw, bind_client=self)
+        return model.Subscription.parse_obj({**raw, **{'bound_client': self}})
+
 
     def handle_subscription_callback(
         self, raw, verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT

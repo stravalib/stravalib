@@ -382,6 +382,23 @@ def test_get_route(mock_strava_api, client):
     assert route.name == "15k, no traffic"
 
 
+@responses.activate
+def test_create_subscription(mock_strava_api, client):
+    responses.post(
+        'https://www.strava.com/api/v3/push_subscriptions',
+        json={
+            'application_id': 42,
+            'object_type': 'activity',
+            'aspect_type': 'create',
+            'callback_url': 'https://foobar.com',
+            'created_at': 1674660406
+        },
+        status=200
+    )
+    created_subscription = client.create_subscription(42, 42, 'https://foobar.com')
+    assert created_subscription.application_id == 42
+
+
 @pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_segments",
     (

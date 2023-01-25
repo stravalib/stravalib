@@ -292,7 +292,7 @@ class ModelTest(TestBase):
             "created_at": "2015-04-29T18:11:09.400558047-07:00",
             "updated_at": "2015-04-29T18:11:09.400558047-07:00",
         }
-        sub = model.Subscription.deserialize(d)
+        sub = model.Subscription.parse_obj(d)
         self.assertEqual(d["id"], sub.id)
 
     def test_subscription_update_deser(self):
