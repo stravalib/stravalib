@@ -1456,7 +1456,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Route`
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
-        return model.Route.deserialize(raw, bind_client=self)
+        return model.Route.parse_obj({**raw, **{'bound_client': self}})
 
     def get_route_streams(self, route_id):
         """

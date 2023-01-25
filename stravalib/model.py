@@ -22,7 +22,6 @@ from stravalib.attributes import (
     META,
     SUMMARY,
     Attribute,
-    EntityAttribute,
     LocationAttribute,
     TimestampAttribute,
 )
@@ -47,6 +46,7 @@ from stravalib.strava_model import (
     PhotosSummary,
     PolylineMap,
     Primary,
+    Route,
     Split,
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
@@ -819,47 +819,20 @@ class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin
     data: Optional[List[Any]] = None
 
 
-class Route(LoadableEntity):
+class Route(Route, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Represents a Route.
     """
 
-    name = Attribute(str, (SUMMARY, DETAILED))  #: Name of the route.
-    description = Attribute(
-        str,
-        (
-            SUMMARY,
-            DETAILED,
-        ),
-    )  #: Description of the route.
-    athlete = EntityAttribute(
-        Athlete, (SUMMARY, DETAILED)
-    )  #: The associated :class:`stravalib.model.Athlete` that performed this activity.
-    distance = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: The distance for the route.
-    elevation_gain = Attribute(
-        float, (SUMMARY, DETAILED), units=uh.meters
-    )  #: Total elevation gain for the route.
-    map = EntityAttribute(
-        Map, (SUMMARY, DETAILED)
-    )  #: :class:`stravalib.model.Map` object for route.
-    type = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Activity type of route (1 for ride, 2 for run).
-    sub_type = Attribute(
-        str, (SUMMARY, DETAILED)
-    )  #: Activity sub-type of route (1 for road (ride and run), 2 for mtb, 3 for cx, 4 for trail, 5 for mixed).
-    private = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether the route is private.
-    starred = Attribute(
-        bool, (SUMMARY, DETAILED)
-    )  #: Whether the route is starred.
-    timestamp = Attribute(
-        int, (SUMMARY, DETAILED)
-    )  #: Unix timestamp when route was last updated.
-    # segments = NOT IMPLEMENTED
+    # Superclass field overrides for using extended types
+    athlete: Optional[Athlete] = None
+    map: Optional[Map] = None
+    segments: Optional[List[Segment]]
+
+    _field_conversions = {
+        'distance': uh.meters,
+        'elevation_gain': uh.meters
+    }
 
 
 # OLD URL - http://strava.github.io/api/partner/v3/events/

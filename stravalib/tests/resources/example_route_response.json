@@ -1,0 +1,483 @@
+{
+    "athlete": {
+        "id": 42424242,
+        "username": "foobar",
+        "resource_state": 2,
+        "firstname": "Foo",
+        "lastname": "Bar",
+        "bio": null,
+        "city": null,
+        "state": null,
+        "country": null,
+        "sex": "M",
+        "premium": true,
+        "summit": true,
+        "created_at": "2014-03-22T12:54:16Z",
+        "updated_at": "2023-01-13T09:20:30Z",
+        "badge_type_id": 1,
+        "weight": 65.0,
+        "profile_medium": null,
+        "profile": null,
+        "friend": null,
+        "follower": null
+    },
+    "description": "",
+    "distance": 15115.193361202424,
+    "elevation_gain": 24.119343701388587,
+    "id": 23895346,
+    "id_str": "23895346",
+    "map": {
+        "id": "r23895346",
+        "summary_polyline": "{~e}H}gz_@jAWb@WfB_BTG\\DhBiChBwCTUJa@?_@I]BKfAy@dFiDpHqDF?Ld@dBq@rCmBRQnAu@tCgAjEsCbEyCfRsK~MyFfDkBLM`JteBNaAvFwWrCkMfF_UPi@bF{TLo@t@sIlOhAxAN`Dn@vKrC~E`BfDf@l@d@bAdBvAdBnNpIw@vLg@rJYbDBNdErK`MvZdB~DjA`CnAbBhCrElHdHf@p@xBtBdBjBhInOrFtJbApCKnJgA`GMtAYG}BOuACiDHcCN_B@aMw@eLc@cOu@k@?eQjDq@ReAb@{Cl@}@FmDx@iNnCoAP}AFwBo@y@I{AUgImCkE{AaEoAkCk@_E_@cNS_AQcHwBmF{A}Bi@oAc@_Bs@_AQqBSg@Q_@WuCwCyBeCFUCKeAuAgCsCKUmFcb@QaDOg@PSFQHaAG_@mBqFu@qDe@cDTKBMHGfASHM\\uAh@[A?|@c@FI@YSqD@_@f@gB\\y@p@wBt@wCZo@Pg@ZoBP[@WJa@HMZMcBcG?g@aAmCeA}Bo@y@IP}@gBg@s@sClBeBp@Me@G?cBv@mExBaG~D_@Yc@e@oDa\\_JlEwCx@",
+        "resource_state": 3,
+        "polyline": "{~e}H}gz_@jAWb@WfB_BTG\\DhBiChBwCTUJa@?_@I]BKfAy@dFiDpHqDF?Ld@dBq@rCmBRQnAu@tCgAjEsCbEyCfRsK~MyFfDkBLM`JteBNaAvFwWrCkMfF_UPi@bF{TLo@t@sIlOhAxAN`Dn@vKrC~E`BfDf@l@d@bAdBvAdBnNpIw@vLg@rJYbDBNdErK`MvZdB~DjA`CnAbBhCrElHdHf@p@xBtBdBjBhInOrFtJbApCKnJgA`GMtAYG}BOuACiDHcCN_B@aMw@eLc@cOu@k@?eQjDq@ReAb@{Cl@}@FmDx@iNnCoAP}AFwBo@y@I{AUgImCkE{AaEoAkCk@_E_@cNS_AQcHwBmF{A}Bi@oAc@_Bs@_AQqBSg@Q_@WuCwCyBeCFUCKeAuAgCsCKUmFcb@QaDOg@PSFQHaAG_@mBqFu@qDe@cDTKBMHGfASHM\\uAh@[A?|@c@FI@YSqD@_@f@gB\\y@p@wBt@wCZo@Pg@ZoBP[@WJa@HMZMcBcG?g@aAmCeA}Bo@y@IP}@gBg@s@sClBeBp@Me@G?cBv@mExBaG~D_@Yc@e@oDa\\_JlEwCx@"
+    },
+    "map_urls": {
+        "url": "https://d3o5xota0a1fcr.cloudfront.net/v6/maps/Q3LT7TUSJGLDPHNKMKCD4VRX4ZZWENILSWXXN7GSWMW7FWCC3CAC46GWXZ6ISCRDS5LUL666K3J2NXUJUC5SRFK3STRQ====",
+        "retina_url": "https://d3o5xota0a1fcr.cloudfront.net/v6/maps/ITVROAQQNZR62HQYXAJLIZAZMELM54C3OGMCXJ76YABIOJCGCNHBP5L4U5VQGRWKFKAJWEAZI7SED65RNRD2ACR5BFHA===="
+    },
+    "name": "15k, no traffic",
+    "private": false,
+    "resource_state": 3,
+    "starred": false,
+    "sub_type": 1,
+    "created_at": "2020-02-15T07:26:24Z",
+    "updated_at": "2023-01-25T07:03:47Z",
+    "timestamp": 1581751584,
+    "type": 2,
+    "estimated_moving_time": 4609,
+    "segments": [
+        {
+            "id": 5908898,
+            "resource_state": 2,
+            "name": "Paradijsweg",
+            "activity_type": "Run",
+            "distance": 1131.6,
+            "average_grade": -0.2,
+            "maximum_grade": 6.3,
+            "elevation_high": 16.0,
+            "elevation_low": 8.4,
+            "start_latlng": [
+                52.129719,
+                5.388209
+            ],
+            "end_latlng": [
+                52.120482,
+                5.394089
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "UT",
+            "country": "The Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 5909010,
+            "resource_state": 2,
+            "name": "nimmerdor treek",
+            "activity_type": "Run",
+            "distance": 1908.1,
+            "average_grade": -0.2,
+            "maximum_grade": 5.4,
+            "elevation_high": 17.8,
+            "elevation_low": 8.5,
+            "start_latlng": [
+                52.136221,
+                5.382968
+            ],
+            "end_latlng": [
+                52.120943,
+                5.393756
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Amersfoort",
+            "state": "UT",
+            "country": "The Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 6038825,
+            "resource_state": 2,
+            "name": "Treekerweg",
+            "activity_type": "Run",
+            "distance": 790.2,
+            "average_grade": 0.2,
+            "maximum_grade": 2.5,
+            "elevation_high": 9.9,
+            "elevation_low": 8.6,
+            "start_latlng": [
+                52.113625,
+                5.393466
+            ],
+            "end_latlng": [
+                52.10719,
+                5.391807
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 7845371,
+            "resource_state": 2,
+            "name": "Viaduct Nimmerdor A28 N-Z",
+            "activity_type": "Run",
+            "distance": 300.3,
+            "average_grade": 0.3,
+            "maximum_grade": 5.4,
+            "elevation_high": 14.7,
+            "elevation_low": 8.7,
+            "start_latlng": [
+                52.133993,
+                5.385814
+            ],
+            "end_latlng": [
+                52.131475,
+                5.387323
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "UT",
+            "country": "The Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 7845381,
+            "resource_state": 2,
+            "name": "Viaduct Nimmerdor A28 Z-N",
+            "activity_type": "Run",
+            "distance": 333.0,
+            "average_grade": -0.2,
+            "maximum_grade": 4.7,
+            "elevation_high": 15.2,
+            "elevation_low": 8.6,
+            "start_latlng": [
+                52.131352,
+                5.387419
+            ],
+            "end_latlng": [
+                52.134134,
+                5.385679
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "UT",
+            "country": "The Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 8566739,
+            "resource_state": 2,
+            "name": "Doornse Grindweg - fietspad",
+            "activity_type": "Run",
+            "distance": 2014.9,
+            "average_grade": -0.0,
+            "maximum_grade": 3.2,
+            "elevation_high": 18.0,
+            "elevation_low": 11.8,
+            "start_latlng": [
+                52.092348,
+                5.362292
+            ],
+            "end_latlng": [
+                52.110293,
+                5.36069
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Woudenberg",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 9800119,
+            "resource_state": 2,
+            "name": "Kerkweg",
+            "activity_type": "Run",
+            "distance": 628.9,
+            "average_grade": -0.9,
+            "maximum_grade": 2.9,
+            "elevation_high": 15.0,
+            "elevation_low": 8.5,
+            "start_latlng": [
+                52.127515,
+                5.366518
+            ],
+            "end_latlng": [
+                52.129971,
+                5.374385
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 11980735,
+            "resource_state": 2,
+            "name": "Treekerweg Paaltjes tot Paaltjes",
+            "activity_type": "Run",
+            "distance": 1844.2,
+            "average_grade": 0.1,
+            "maximum_grade": 5.0,
+            "elevation_high": 19.7,
+            "elevation_low": 10.8,
+            "start_latlng": [
+                52.102526,
+                5.388294
+            ],
+            "end_latlng": [
+                52.093437,
+                5.368515
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 15380426,
+            "resource_state": 2,
+            "name": "Trekerweg",
+            "activity_type": "Run",
+            "distance": 212.4,
+            "average_grade": 0.5,
+            "maximum_grade": 1.4,
+            "elevation_high": 17.0,
+            "elevation_low": 16.0,
+            "start_latlng": [
+                52.093129,
+                5.368144
+            ],
+            "end_latlng": [
+                52.091816,
+                5.36605
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 22491920,
+            "resource_state": 2,
+            "name": "Ooiervaarshorstlaan",
+            "activity_type": "Run",
+            "distance": 1149.7,
+            "average_grade": -0.5,
+            "maximum_grade": 2.6,
+            "elevation_high": 17.2,
+            "elevation_low": 7.9,
+            "start_latlng": [
+                52.118442,
+                5.378588
+            ],
+            "end_latlng": [
+                52.113753,
+                5.393267
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 23698584,
+            "resource_state": 2,
+            "name": "400m Slagboom Keesomstraat tot aan viadcut ",
+            "activity_type": "Run",
+            "distance": 386.3,
+            "average_grade": 0.1,
+            "maximum_grade": 1.5,
+            "elevation_high": 11.6,
+            "elevation_low": 11.0,
+            "start_latlng": [
+                52.137145,
+                5.382523
+            ],
+            "end_latlng": [
+                52.134375,
+                5.385398
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 30236892,
+            "resource_state": 2,
+            "name": "Sprinten naar het tankstation",
+            "activity_type": "Run",
+            "distance": 335.2,
+            "average_grade": -0.1,
+            "maximum_grade": 1.0,
+            "elevation_high": 12.1,
+            "elevation_low": 11.2,
+            "start_latlng": [
+                52.123585,
+                5.363975
+            ],
+            "end_latlng": [
+                52.126445,
+                5.365075
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 30818657,
+            "resource_state": 2,
+            "name": "Mountainbikers ontwijken",
+            "activity_type": "Run",
+            "distance": 260.1,
+            "average_grade": -0.1,
+            "maximum_grade": 2.6,
+            "elevation_high": 13.4,
+            "elevation_low": 12.6,
+            "start_latlng": [
+                52.0999,
+                5.377475
+            ],
+            "end_latlng": [
+                52.098253,
+                5.374693
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 31055810,
+            "resource_state": 2,
+            "name": "Wat een dooie boel hier",
+            "activity_type": "Run",
+            "distance": 179.1,
+            "average_grade": -0.2,
+            "maximum_grade": 0.9,
+            "elevation_high": 11.5,
+            "elevation_low": 10.9,
+            "start_latlng": [
+                52.12994,
+                5.375362
+            ],
+            "end_latlng": [
+                52.130797,
+                5.37817
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 31099653,
+            "resource_state": 2,
+            "name": "Zwaaien naar de horeca",
+            "activity_type": "Run",
+            "distance": 438.7,
+            "average_grade": 0.0,
+            "maximum_grade": 0.6,
+            "elevation_high": 12.9,
+            "elevation_low": 12.5,
+            "start_latlng": [
+                52.11288,
+                5.360848
+            ],
+            "end_latlng": [
+                52.11667,
+                5.362385
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        },
+        {
+            "id": 31263331,
+            "resource_state": 2,
+            "name": "Vals plat sprint",
+            "activity_type": "Run",
+            "distance": 389.7,
+            "average_grade": -0.3,
+            "maximum_grade": 1.2,
+            "elevation_high": 13.3,
+            "elevation_low": 11.9,
+            "start_latlng": [
+                52.117255,
+                5.36258
+            ],
+            "end_latlng": [
+                52.120722,
+                5.362687
+            ],
+            "elevation_profile": null,
+            "climb_category": 0,
+            "city": "Leusden",
+            "state": "Utrecht",
+            "country": "Netherlands",
+            "private": false,
+            "hazardous": false,
+            "starred": false
+        }
+    ]
+}

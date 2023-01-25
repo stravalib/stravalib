@@ -373,11 +373,13 @@ def test_activity_uploader(mock_strava_api, client):
 
 
 def test_get_route(mock_strava_api, client):
+    with open(os.path.join(RESOURCES_DIR, 'example_route_response.json'), 'r') as route_response_fp:
+        route_response = json.load(route_response_fp)
     mock_strava_api.get(
-        "/routes/{id}", status=200, response_update={"name": "test_route"}
+        "/routes/{id}", status=200, json=route_response
     )
     route = client.get_route(42)
-    assert route.name == "test_route"
+    assert route.name == "15k, no traffic"
 
 
 @pytest.mark.parametrize(
