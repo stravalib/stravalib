@@ -8,12 +8,11 @@ structures and for capturing additional information about the model attributes.
 """
 import logging
 from collections import namedtuple
-from datetime import date, datetime, timedelta, tzinfo
+from datetime import date, datetime
 from weakref import WeakKeyDictionary
 
 import arrow
 import pytz
-from pytz.exceptions import UnknownTimeZoneError
 
 from stravalib.unithelper import is_quantity_type
 
@@ -165,110 +164,3 @@ class TimestampAttribute(Attribute):
 
 
 LatLon = namedtuple("LatLon", ["lat", "lon"])
-
-
-class LocationAttribute(Attribute):
-    """ """
-
-    def __init__(self, resource_states=None):
-        super(LocationAttribute, self).__init__(
-            LatLon, resource_states=resource_states
-        )
-
-    def marshal(self, v):
-        """
-        Turn this value into format for wire (JSON).
-
-        :param v: The lat/lon.
-        :type v: LatLon
-        :return: Serialized format.
-        :rtype: str
-        """
-        return "{lat},{lon}".format(lat=v.lat, lon=v.lon) if v else None
-
-    def unmarshal(self, v):
-        """ """
-        if not isinstance(v, LatLon):
-            v = LatLon(lat=v[0], lon=v[1]) if v else None
-        return v
-
-
-class TimezoneAttribute(Attribute):
-    """ """
-
-    def __init__(self, resource_states=None):
-        super(TimezoneAttribute, self).__init__(
-            pytz.timezone, resource_states=resource_states
-        )
-
-    def unmarshal(self, v):
-        """
-        Convert a timestamp in format "America/Los_Angeles" or
-        "(GMT-08:00) America/Los_Angeles" to
-        a `pytz.timestamp` object.
-        """
-        if not isinstance(v, tzinfo):
-            if " " in v:
-                # (GMT-08:00) America/Los_Angeles
-                tzname = v.split(" ", 1)[1]
-            else:
-                # America/Los_Angeles
-                tzname = v
-            try:
-                v = pytz.timezone(tzname)
-            except UnknownTimeZoneError as e:
-                self.log.warning(
-                    f"Encountered unknown time zone {tzname}, returning None"
-                )
-                v = None
-        return v
-
-    def marshal(self, v):
-        """
-        Serialize time zone name.
-
-        :param v: The timezone.
-        :type v: tzdata
-        :return: The name of the time zone.
-        """
-        return str(v) if v else None
-
-
-class TimeIntervalAttribute(Attribute):
-    """
-    Handles time durations, assumes upstream int value in seconds.
-    """
-
-    def __init__(self, resource_states=None):
-        super(TimeIntervalAttribute, self).__init__(
-            int, resource_states=resource_states
-        )
-
-    def unmarshal(self, v):
-        """
-        Convert the value from parsed JSON structure to native python representation.
-
-        By default this will leave the value as-is since the JSON parsing routines
-        typically convert to native types. The exception may be date strings or other
-        more complex types, where subclasses will override this behavior.
-        """
-        if not isinstance(v, timedelta):
-            if isinstance(v, str) or isinstance(v, bytes):
-                h, m, s = v.split(":")
-                v = timedelta(seconds=int(h) * 3600 + int(m) * 60 + int(s))
-            else:
-                v = timedelta(seconds=v)
-        return v
-
-    def marshal(self, v):
-        """
-        Serialize native python timedelta object to seconds as int.
-
-        :param v: time interval.
-        :type v: timedelta
-        :return: time interval in seconds as int.
-        """
-        if isinstance(v, timedelta):
-            return v.seconds
-        else:
-            return str(v) if v else None
