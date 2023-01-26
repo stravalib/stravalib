@@ -17,7 +17,7 @@ from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
 from stravalib import unithelper as uh
-from stravalib.attributes import DETAILED, META, SUMMARY, Attribute
+from stravalib.attributes import Attribute
 from stravalib.exc import warn_method_deprecation
 from stravalib.field_conversions import enum_values, time_interval, timezone
 from stravalib.strava_model import (
@@ -292,81 +292,6 @@ class BoundClientEntity(BaseModel):
     # pydantic forward-referencing issues "resolved" by PEP-8 violations.
     # See e.g. https://github.com/pydantic/pydantic/issues/1873
     bound_client: Optional[Any] = None
-
-
-class ResourceStateEntity(BaseEntity):
-    """
-    Mixin for entities that include the resource_state attribute.
-    """
-
-    resource_state = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: The detail-level for this entity.
-
-
-class IdentifiableEntity(ResourceStateEntity):
-    """
-    Mixin for entities that include an ID attribute.
-    """
-
-    id = Attribute(
-        int, (META, SUMMARY, DETAILED)
-    )  #: The numeric ID for this entity.
-
-
-class BoundEntity(BaseEntity):
-    """
-    Base class for entities that support lazy loading additional data using a bound client.
-    """
-
-    bind_client = None  #: The :class:`stravalib.client.Client` that can be used to load related resources.
-
-    def __init__(self, bind_client=None, **kwargs):
-        """
-        Base entity initializer, which accepts a client parameter that creates a "bound" entity
-        which can perform additional lazy loading of content.
-
-        :param bind_client: The client instance to bind to this entity.
-        :type bind_client: :class:`stravalib.simple.Client`
-        """
-        self.bind_client = bind_client
-        super(BoundEntity, self).__init__(**kwargs)
-
-    @classmethod
-    def deserialize(cls, v, bind_client=None):
-        """
-        Creates a new object based on serialized (dict) struct.
-        """
-        if v is None:
-            return None
-        o = cls(bind_client=bind_client)
-        o.from_dict(v)
-        return o
-
-    def assert_bind_client(self):
-        if self.bind_client is None:
-            raise exc.UnboundEntity(
-                "Unable to fetch objects for unbound {0} entity.".format(
-                    self.__class__
-                )
-            )
-
-
-class LoadableEntity(BoundEntity, IdentifiableEntity):
-    """
-    Base class for entities that are bound and have an ID associated with them.
-
-    In theory these entities can be "expaned" by additional Client queries.  In practice this is not
-    implemented, since usefulness is limited due to resource-state limitations, etc.
-    """
-
-    def expand(self):
-        """
-        Expand this object with data from the bound client.
-
-        (THIS IS NOT IMPLEMENTED CURRENTLY.)
-        """
-        raise NotImplementedError()  # This is a little harder now due to resource states, etc.
 
 
 class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
