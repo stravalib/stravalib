@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
-from unittest import skip
 
 import pint
 import pytest
@@ -208,7 +207,6 @@ class ModelTest(TestBase):
     def setUp(self):
         super(ModelTest, self).setUp()
 
-    @skip
     def test_entity_collections(self):
         a = model.Athlete()
         d = {
@@ -248,7 +246,6 @@ class ModelTest(TestBase):
         split.moving_time = 3.1
         split.elapsed_time = 5.73
 
-    @skip
     def test_distance_units(self):
         # Gear
         g = model.Gear()

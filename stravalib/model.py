@@ -242,7 +242,7 @@ class Club(
 class Gear(
     DetailedGear, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
-    pass
+    _field_conversions = {'distance': uh.meters}
 
 
 class ActivityTotals(
