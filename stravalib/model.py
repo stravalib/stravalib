@@ -17,14 +17,7 @@ from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
 from stravalib import unithelper as uh
-from stravalib.attributes import (
-    DETAILED,
-    META,
-    SUMMARY,
-    Attribute,
-    LocationAttribute,
-    TimestampAttribute,
-)
+from stravalib.attributes import DETAILED, META, SUMMARY, Attribute
 from stravalib.exc import warn_method_deprecation
 from stravalib.field_conversions import enum_values, time_interval, timezone
 from stravalib.strava_model import (
@@ -376,6 +369,25 @@ class LoadableEntity(BoundEntity, IdentifiableEntity):
         raise NotImplementedError()  # This is a little harder now due to resource states, etc.
 
 
+class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+    """
+    Enables backward compatibility for legacy namedtuple
+    """
+
+    @root_validator
+    def check_valid_latlng(cls, values):
+        # Strava sometimes returns an empty list in case of activities without GPS
+        return values if values else None
+
+    @property
+    def lat(self):
+        return self.__root__[0]
+
+    @property
+    def lon(self):
+        return self.__root__[1]
+
+
 class Club(
     DetailedClub,
     DeprecatedSerializableMixin,
@@ -491,47 +503,31 @@ class ActivityPhotoMeta(PhotosSummary):
     _primary_extension = extend_types('primary', model_class=ActivityPhotoPrimary)
 
 
-class ActivityPhoto(LoadableEntity):
+class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     A full photo record attached to an activity.
-    TODO: this entity is entirely undocumented by Strava and there is no official endpoint to retrieve it
+    Warning: this entity is undocumented by Strava and there is no official endpoint to retrieve it
     """
 
-    athlete_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of athlete
-    activity_id = Attribute(int, (META, SUMMARY, DETAILED))  #: ID of activity
-    activity_name = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: Name of activity.
-    ref = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: ref eg. "https://www.instagram.com/accounts/login/"
+    athlete_id: Optional[int] = None
+    activity_id: Optional[int] = None
+    activity_name: Optional[str] = None
+    ref: Optional[str] = None
+    uid: Optional[str] = None
+    unique_id: Optional[str] = None
+    caption: Optional[str] = None
+    type: Optional[str] = None
+    uploaded_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    created_at_local: Optional[datetime] = None
+    location: Optional[LatLon] = None
+    urls: Optional[Dict] = None
+    sizes: Optional[Dict] = None
+    post_id: Optional[int] = None
+    default_photo: Optional[bool] = None
+    source: Optional[int] = None
 
-    uid = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: unique id for instagram photo
-    unique_id = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: unique id for strava photos
-
-    caption = Attribute(str, (META, SUMMARY, DETAILED))  #: caption on photo
-    type = Attribute(
-        str, (META, SUMMARY, DETAILED)
-    )  #: type of photo (currently only InstagramPhoto)
-    uploaded_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when was photo uploaded
-    created_at = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when was photo created
-    created_at_local = TimestampAttribute(
-        (SUMMARY, DETAILED)
-    )  #: :class:`datetime.datetime` when was photo created
-    location = LocationAttribute()  #: Start lat/lon of photo
-    urls = Attribute(dict, (META, SUMMARY, DETAILED))
-    sizes = Attribute(dict, (SUMMARY, DETAILED))
-    post_id = Attribute(int, (SUMMARY, DETAILED))
-    default_photo = Attribute(bool, (SUMMARY, DETAILED))
-    source = Attribute(int, (META, SUMMARY, DETAILED))
+    _naive_local = validator('created_at_local', allow_reuse=True)(naive_datetime)
 
     def __repr__(self):
         if self.source == 1:
@@ -636,25 +632,6 @@ class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, Deprec
     def elapsed_time(self):
         # for backward compatibility
         return self.pr_elapsed_time
-
-
-class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
-    """
-    Enables backward compatibility for legacy namedtuple
-    """
-
-    @root_validator
-    def check_valid_latlng(cls, values):
-        # Strava sometimes returns an empty list in case of activities without GPS
-        return values if values else None
-
-    @property
-    def lat(self):
-        return self.__root__[0]
-
-    @property
-    def lon(self):
-        return self.__root__[1]
 
 
 class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
