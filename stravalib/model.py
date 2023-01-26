@@ -869,15 +869,15 @@ class SubscriptionCallback(BackwardCompatibilityMixin, DeprecatedSerializableMix
         assert self.hub_verify_token == verify_token
 
 
-class SubscriptionUpdate(LoadableEntity):
+class SubscriptionUpdate(BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
     """
     Represents a Webhook Event Subscription Update.
     """
 
-    subscription_id = Attribute(int)
-    owner_id = Attribute(int)
-    object_id = Attribute(int)
-    object_type = Attribute(str)
-    aspect_type = Attribute(str)
-    event_time = TimestampAttribute()
-    updates = Attribute(dict)
+    subscription_id: Optional[int] = None
+    owner_id: Optional[int] = None
+    object_id: Optional[int] = None
+    object_type: Optional[str] = None
+    aspect_type: Optional[str] = None
+    event_time: Optional[datetime] = None
+    updates: Optional[Dict] = None

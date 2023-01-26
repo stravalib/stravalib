@@ -1554,7 +1554,7 @@ class Client(object):
         :return: The subscription update model object.
         :rtype: :class:`stravalib.model.SubscriptionUpdate`
         """
-        return model.SubscriptionUpdate.deserialize(raw, bind_client=self)
+        return model.SubscriptionUpdate.parse_obj({**raw, **{'bound_client': self}})
 
     # TODO can't find a api doc link here so just removed old link.
     def list_subscriptions(self, client_id, client_secret):
