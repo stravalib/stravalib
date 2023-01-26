@@ -49,28 +49,23 @@ class TestLegacyModelSerialization:
 
 
 @pytest.mark.parametrize(
-    "model_class,raw,expected_value,expected_warning",
+    "model_class,raw,expected_value",
     (
-        (Club, {"name": "foo"}, "foo", None),
-        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100), None),
+        (Club, {"name": "foo"}, "foo"),
+        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100)),
         (
             ActivityTotals,
             {"distance": 100.0},
             UnitConverter("meters")(100.0),
-            None,
         ),
-        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'), None)
+        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'))
     ),
 )
-def test_backward_compatibility_mixin(
-    model_class, raw, expected_value, expected_warning
+def test_backward_compatibility_mixin_field_conversions(
+    model_class, raw, expected_value
 ):
     obj = model_class.parse_obj(raw)
-    if expected_warning:
-        with pytest.warns(expected_warning):
-            assert getattr(obj, list(raw.keys())[0]) == expected_value
-    else:
-        assert getattr(obj, list(raw.keys())[0]) == expected_value
+    assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
 @pytest.mark.parametrize(
