@@ -6,10 +6,9 @@ Entity classes for representing the various Strava datatypes.
 from __future__ import annotations
 
 import logging
-import sys
 from datetime import datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Type, Union
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
 
 from pydantic import BaseModel, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -73,35 +72,6 @@ def lazy_property(fn):
             )
 
     return property(wrapper)
-
-
-def extend_types(
-        *args,
-        model_class: Union[Type[BaseModel], str]=None,
-        as_collection: bool=False,
-        **kwargs
-):
-    """
-    Returns a reusable pydantic validator for parsing optional nested
-    structures into a desired destination class `model_class`.
-    """
-
-    if model_class is None:
-        raise ValueError('This validator should be provided with a destination class')
-
-    def extender(serialized_value: Optional[Any]):
-        if isinstance(model_class, str):
-            klass = getattr(sys.modules[__name__], model_class)
-        else:
-            klass = model_class
-        if serialized_value is not None:
-            if as_collection:
-                return [klass.parse_obj(v) for v in serialized_value]
-            else:
-                return klass.parse_obj(serialized_value)
-        else:
-            return None
-    return validator(*args, **kwargs, allow_reuse=True, pre=True)(extender)
 
 
 # Custom validators for some edge cases:
@@ -264,33 +234,34 @@ class AthleteStats(
     profile. Non-public activities are not counted for these totals.
     """
 
+    # field overrides from superclass for type extensions:
+    recent_ride_totals: Optional[ActivityTotals] = None
+    recent_run_totals: Optional[ActivityTotals] = None
+    recent_swim_totals: Optional[ActivityTotals] = None
+    ytd_ride_totals: Optional[ActivityTotals] = None
+    ytd_run_totals: Optional[ActivityTotals] = None
+    ytd_swim_totals: Optional[ActivityTotals] = None
+    all_ride_totals: Optional[ActivityTotals] = None
+    all_run_totals: Optional[ActivityTotals] = None
+    all_swim_totals: Optional[ActivityTotals] = None
+
     _field_conversions = {
         "biggest_ride_distance": uh.meters,
         "biggest_climb_elevation_gain": uh.meters,
     }
 
-    _activity_total_extensions = extend_types(
-        "recent_ride_totals",
-        "recent_run_totals",
-        "recent_swim_totals",
-        "ytd_ride_totals",
-        "ytd_run_totals",
-        "ytd_swim_totals",
-        "all_ride_totals",
-        "all_run_totals",
-        "all_swim_totals",
-        model_class=ActivityTotals
-    )
-
 
 class Athlete(
     DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin, BoundClientEntity
 ):
+    # undocumented fields
     is_authenticated: Optional[bool] = None
     athlete_type: Optional[int] = None
 
-    _clubs_extension = extend_types('clubs', model_class=Club, as_collection=True)
-    _gear_extension = extend_types('bikes', 'shoes', model_class=Gear, as_collection=True)
+    # field overrides from superclass for type extensions:
+    clubs: Optional[List[Club]] = None
+    bikes: Optional[List[Gear]] = None
+    shoes: Optional[List[Gear]] = None
 
     @validator('athlete_type')
     def to_str_representation(cls, raw_type):
@@ -328,7 +299,8 @@ class Athlete(
         return self.is_authenticated
 
 class ActivityComment(Comment):
-    _athlete_extension = extend_types('athlete', model_class=Athlete)
+    # field overrides from superclass for type extensions:
+    athlete: Optional[Athlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
@@ -340,7 +312,8 @@ class ActivityPhotoMeta(PhotosSummary):
     The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
     """
 
-    _primary_extension = extend_types('primary', model_class=ActivityPhotoPrimary)
+    # field overrides from superclass for type extensions:
+    primary: Optional[ActivityPhotoPrimary] = None
 
 
 class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
@@ -399,7 +372,11 @@ class ActivityKudos(Athlete):
     pass
 
 
-class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+    # field overrides from superclass for type extensions:
+    activity: Optional[Activity] = None
+    athlete: Optional[Athlete] = None
+
     _field_conversions = {
         'elapsed_time': time_interval,
         'moving_time': time_interval,
@@ -410,9 +387,6 @@ class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     }
 
     _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
-
-    _activity_extension = extend_types('activity', model_class='Activity')
-    _athlete_extension = extend_types('athlete', model_class=Athlete)
 
 
 class Map(PolylineMap):
@@ -444,12 +418,14 @@ class SegmentExplorerResult(
     via the 'segment' property of this object.)
     """
 
+    # field overrides from superclass for type extensions:
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+
     _field_conversions = {
         'elev_difference', uh.meters,
         'distance', uh.meters
     }
-
-    _latlng_extensions = extend_types('start_latlng', 'end_latlng', model_class='LatLon')
 
     @lazy_property
     def segment(self):
@@ -479,6 +455,13 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     Represents a single Strava segment.
     """
 
+    # field overrides from superclass for type extensions:
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+    map: Optional[Map] = None
+    athlete_segment_stats: Optional[AthleteSegmentStats] = None
+    athlete_pr_effort: Optional[AthletePrEffort] = None
+
     _field_conversions = {
         'distance': uh.meters,
         'elevation_high': uh.meters,
@@ -487,11 +470,6 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     }
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
-
-    _latlng_extensions = extend_types('start_latlng', 'end_latlng', model_class=LatLon)
-    _map_extensions = extend_types('map', model_class=Map)
-    _segment_stat_extension = extend_types('athlete_segment_stats', model_class=AthleteSegmentStats)
-    _pr_effort_extension = extend_types('athlete_pr_effort', model_class=AthletePrEffort)
 
 
 class SegmentEffortAchievement(BaseModel):
@@ -522,6 +500,11 @@ class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSe
     Base class for a best effort or segment effort.
     """
 
+    # field overrides from superclass for type extensions:
+    segment: Optional[Segment] = None
+    activity: Optional[Activity] = None
+    athlete: Optional[Athlete] = None
+
     _field_conversions = {
         'moving_time': time_interval,
         'elapsed_time': time_interval,
@@ -529,10 +512,6 @@ class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSe
     }
 
     _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
-
-    _segment_extension = extend_types('segment', model_class=Segment)
-    _activity_extension = extend_types('activity', model_class='Activity')  # Prevents unresolved reference
-    _athlete_extension = extend_types('athlete', model_class=Athlete)
 
 
 class BestEffort(BaseEffort):
@@ -554,6 +533,23 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     Represents an activity (ride, run, etc.).
     """
 
+    # field overrides from superclass for type extensions:
+    athlete: Optional[Athlete] = None
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+    map: Optional[Map] = None
+    gear: Optional[Gear] = None
+    best_efforts: Optional[List[BestEffort]] = None
+    segment_efforts: Optional[List[SegmentEffort]] = None
+    splits_metric: Optional[List[Split]] = None
+    splits_standard: Optional[List[Split]] = None
+    photos: Optional[ActivityPhotoMeta] = None
+    laps: Optional[List[ActivityLap]] = None
+
+    # Added for backward compatibility
+    # TODO maybe deprecate?
+    TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
+
     _field_conversions = {
         'moving_time': time_interval,
         'elapsed_time': time_interval,
@@ -567,16 +563,6 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
     _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
-
-    _athlete_extension = extend_types('athlete', model_class=Athlete)
-    _latlng_extension = extend_types('start_latlng', 'end_latlng', model_class=LatLon)
-    _map_extension = extend_types('map', model_class=Map)
-    _gear_extension = extend_types('gear', model_class=Gear)
-    _best_effort_extension = extend_types('best_efforts', model_class=BestEffort, as_collection=True)
-    _segment_effort_extension = extend_types('segment_efforts', model_class=SegmentEffort, as_collection=True)
-    _splits_extension = extend_types('splits_metric', 'splits_standard', model_class=Split, as_collection=True)
-    _photos_extension = extend_types('photos', model_class=ActivityPhotoMeta)
-    _laps_extension = extend_types('laps', model_class=ActivityLap, as_collection=True)
 
     @lazy_property
     def comments(self):
@@ -596,10 +582,6 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
             self.id, only_instagram=False
         )
 
-    # Added for backward compatibility
-    # TODO maybe deprecate?
-    TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
-
 
 class DistributionBucket(TimedZoneRange):
     """
@@ -616,12 +598,11 @@ class BaseActivityZone(ActivityZone, BackwardCompatibilityMixin, DeprecatedSeria
     A collection of :class:`stravalib.model.DistributionBucket` objects.
     """
 
+    # field overrides from superclass for type extensions:
+    distribution_buckets: Optional[List[DistributionBucket]] = None
+
     # overriding the superclass type: it should also support pace as value
     type: Optional[Literal["heartrate", "power", "pace"]] = None
-
-    _distribution_extension = extend_types(
-        'distribution_buckets', model_class=DistributionBucket, as_collection=True
-    )
 
 
 class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
@@ -698,3 +679,8 @@ class SubscriptionUpdate(BackwardCompatibilityMixin, DeprecatedSerializableMixin
     aspect_type: Optional[str] = None
     event_time: Optional[datetime] = None
     updates: Optional[Dict] = None
+
+
+SegmentEffort.update_forward_refs()
+ActivityLap.update_forward_refs()
+BestEffort.update_forward_refs()

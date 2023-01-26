@@ -4,7 +4,7 @@ from typing import List, Optional
 import pint
 import pytest
 import pytz
-from pydantic import BaseModel, ValidationError, create_model
+from pydantic import BaseModel
 
 from stravalib import model
 from stravalib import unithelper as uh
@@ -16,10 +16,8 @@ from stravalib.model import (
     BaseEffort,
     BoundClientEntity,
     Club,
-    LatLon,
     Segment,
     SubscriptionCallback,
-    extend_types,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
@@ -134,35 +132,6 @@ class ExtA(A):
 class ExtLatLng(LatLng):
     def foo(self):
         return f'[{self[0], self[1]}]'
-
-
-@pytest.mark.parametrize(
-    'base_class,extender,raw_data,expected_foo_result,expected_exception',
-    (
-        (B, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, None),
-        (B, extend_types('a', model_class=ExtA), {'a': {}}, None, None),
-        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': {'x': 42}}, 42, ValidationError),
-        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}]}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA), {'a': [{'x': 42}]}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}, {'x': 21}]}, [42, 21], None),
-        (D, extend_types('a', model_class=LatLon), {'a': [1, 2]}, '[1,2]', None)  # edge case for __root__ fields
-    )
-)
-def test_type_extensions(base_class, extender, raw_data, expected_foo_result, expected_exception):
-    X = create_model('X', __base__=base_class, __validators__={'ext': extender})
-
-    if expected_exception:
-        with pytest.raises(expected_exception):
-            X.parse_obj(raw_data)
-    else:
-        x = X.parse_obj(raw_data)
-
-        if base_class == B:
-            assert x.a.foo() == expected_foo_result
-        elif base_class == C:  # a is a list
-            for a, expected_foo in zip(x.a, expected_foo_result):
-                assert a.foo() == expected_foo
 
 
 @pytest.mark.parametrize(
