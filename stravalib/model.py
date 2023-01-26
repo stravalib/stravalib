@@ -5,7 +5,6 @@ Entity classes for representing the various Strava datatypes.
 """
 from __future__ import annotations
 
-import abc
 import logging
 import sys
 from datetime import datetime
@@ -17,7 +16,6 @@ from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
 from stravalib import unithelper as uh
-from stravalib.attributes import Attribute
 from stravalib.exc import warn_method_deprecation
 from stravalib.field_conversions import enum_values, time_interval, timezone
 from stravalib.strava_model import (
@@ -119,95 +117,6 @@ def naive_datetime(value: Optional[Any]) -> Optional[datetime]:
         return dt.replace(tzinfo=None)
     else:
         return None
-
-class BaseEntity(metaclass=abc.ABCMeta):
-    """
-    A base class for all entities in the system, including objects that may not
-    be first-class entities in Strava.
-    """
-
-    def __init__(self, **kwargs):
-        self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
-        )
-        self.from_dict(kwargs)
-
-    def to_dict(self):
-        """
-        Create a dictionary based on the loaded attributes in this object (will not lazy load).
-
-        Note that the dictionary created by this method will most likely not match the dictionaries
-        that are passed to the `from_dict()` method.  This intended for serializing for local storage
-        debug/etc.
-
-        :rtype: Dict[str, Any]
-        """
-        d = {}
-        for cls in self.__class__.__mro__:
-            for attrname, attr in cls.__dict__.items():
-                if attrname not in d and isinstance(attr, Attribute):
-                    value = getattr(self, attrname)
-                    d[attrname] = attr.marshal(value)
-        return d
-
-    def from_dict(self, d):
-        """
-        Populates this object from specified dict.
-
-        Only defined attributes will be set; warnings will be logged for invalid attributes.
-        """
-        for (k, v) in d.items():
-            # Handle special keys such as `hub.challenge` in `SubscriptionCallback`
-            if "." in k:
-                k = k.replace(".", "_")
-            # Only set defined attributes.
-            if hasattr(self.__class__, k):
-                self.log.debug(
-                    "Setting attribute `{0}` [{1}] on entity {2} with value {3!r}".format(
-                        k,
-                        getattr(self.__class__, k).__class__.__name__,
-                        self,
-                        v,
-                    )
-                )
-                try:
-                    setattr(self, k, v)
-                except AttributeError as x:
-                    raise AttributeError(
-                        "Could not find attribute `{0}` on entity {1}, value: {2!r}.  (Original: {3!r})".format(
-                            k, self, v, x
-                        )
-                    )
-            else:
-                self.log.debug(
-                    "No such attribute {0} on entity {1}".format(k, self)
-                )
-
-    @classmethod
-    def deserialize(cls, v):
-        """
-        Creates a new object based on serialized (dict) struct.
-        """
-        o = cls()
-        o.from_dict(v)
-        return o
-
-    def __repr__(self):
-        attrs = []
-        if hasattr(self.__class__, "id"):
-            attrs.append("id={0}".format(self.id))
-        if hasattr(self.__class__, "name"):
-            attrs.append("name={0!r}".format(self.name))
-        if (
-            hasattr(self.__class__, "resource_state")
-            and self.resource_state is not None
-        ):
-            attrs.append("resource_state={0}".format(self.resource_state))
-
-        return "<{0}{1}>".format(
-            self.__class__.__name__, " " + " ".join(attrs) if attrs else ""
-        )
-
 
 class DeprecatedSerializableMixin(BaseModel):
     """

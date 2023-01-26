@@ -2,7 +2,7 @@ import datetime
 
 import requests
 
-from stravalib import attributes, model
+from stravalib import model
 from stravalib import unithelper as uh
 from stravalib.tests.functional import FunctionalTestBase
 
@@ -24,7 +24,7 @@ class ClientTest(FunctionalTestBase):
         activity = self.client.get_activity(96089609)
         self.assertEqual("El Dorado County, CA, USA", activity.location_city)
 
-        self.assertIsInstance(activity.start_latlng, attributes.LatLon)
+        self.assertIsInstance(activity.start_latlng, model.LatLon)
         self.assertAlmostEqual(
             -120.4357631, activity.start_latlng.lon, places=2
         )
