@@ -378,9 +378,15 @@ class Athlete(
     DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin, BoundClientEntity
 ):
     is_authenticated: Optional[bool] = None
+    athlete_type: Optional[int] = None
 
     _clubs_extension = extend_types('clubs', model_class=Club, as_collection=True)
     _gear_extension = extend_types('bikes', 'shoes', model_class=Gear, as_collection=True)
+
+    @validator('athlete_type')
+    def to_str_representation(cls, raw_type):
+        # Replaces legacy "ChoicesAttribute" class
+        return {0: "cyclist", 1: "runner"}.get(raw_type)
 
     @lazy_property
     def authenticated_athlete(self):
