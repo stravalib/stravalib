@@ -341,6 +341,7 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     source: Optional[int] = None
 
     _naive_local = validator('created_at_local', allow_reuse=True)(naive_datetime)
+    _check_latlng = validator('location', allow_reuse=True, pre=True)(check_valid_location)
 
     def __repr__(self):
         if self.source == 1:
@@ -426,6 +427,8 @@ class SegmentExplorerResult(
         'elev_difference', uh.meters,
         'distance', uh.meters
     }
+
+    _check_latlng = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
 
     @lazy_property
     def segment(self):
