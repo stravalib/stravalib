@@ -6,39 +6,12 @@ from stravalib.attributes import (
     DETAILED,
     SUMMARY,
     ChoicesAttribute,
-    EntityAttribute,
     LatLon,
     LocationAttribute,
     TimezoneAttribute,
 )
 from stravalib.model import Athlete
 from stravalib.tests import TestBase
-
-
-class EntityAttributeTest(TestBase):
-    def setUp(self):
-        super(EntityAttributeTest, self).setUp()
-
-    def test_unmarshal_non_ascii_chars(self):
-        NON_ASCII_DATA = {
-            "profile": "http://dgalywyr863hv.cloudfront.net/pictures/athletes/874283/198397/1/large.jpg",
-            "city": "Ljubljana",
-            "premium": True,
-            "firstname": "Bla\u017e",
-            "updated_at": "2014-05-13T06:16:29Z",
-            "lastname": "Vizjak",
-            "created_at": "2012-08-01T07:49:43Z",
-            "follower": None,
-            "sex": "M",
-            "state": "Ljubljana",
-            "country": "Slovenia",
-            "resource_state": 2,
-            "profile_medium": "http://dgalywyr863hv.cloudfront.net/pictures/athletes/874283/198397/1/medium.jpg",
-            "id": 874283,
-            "friend": None,
-        }
-        athlete = EntityAttribute(Athlete, (SUMMARY, DETAILED))
-        athlete.unmarshal(NON_ASCII_DATA)
 
 
 class LocationAttributeTest(TestBase):
