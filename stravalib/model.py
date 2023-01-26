@@ -853,14 +853,17 @@ class Subscription(BackwardCompatibilityMixin, DeprecatedSerializableMixin, Boun
     updated_at: Optional[datetime] = None
 
 
-class SubscriptionCallback(LoadableEntity):
+class SubscriptionCallback(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     Represents a Webhook Event Subscription Callback.
     """
 
-    hub_mode = Attribute(str)
-    hub_verify_token = Attribute(str)
-    hub_challenge = Attribute(str)
+    hub_mode: Optional[str] = None
+    hub_verify_token: Optional[str] = None
+    hub_challenge: Optional[str] = None
+
+    class Config:
+        alias_generator = lambda field_name: field_name.replace('hub_', 'hub.')
 
     def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
         assert self.hub_verify_token == verify_token

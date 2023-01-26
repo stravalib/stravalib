@@ -19,6 +19,7 @@ from stravalib.model import (
     Club,
     LatLon,
     Segment,
+    SubscriptionCallback,
     extend_types,
 )
 from stravalib.strava_model import LatLng
@@ -86,6 +87,17 @@ def test_backward_compatibility_mixin(
 def test_deserialization_edge_cases(model_class, raw, expected_value):
     obj = model_class.parse_obj(raw)
     assert getattr(obj, list(raw.keys())[0]) == expected_value
+
+
+def test_subscription_callback_field_names():
+    sub_callback_raw = {
+        "hub.mode": "subscribe",
+        "hub.verify_token": "STRAVA",
+        "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3",
+    }
+    sub_callback = SubscriptionCallback.parse_obj(sub_callback_raw)
+    assert sub_callback.hub_mode == 'subscribe'
+    assert sub_callback.hub_verify_token == 'STRAVA'
 
 
 # Below are some toy classes to test type extensions and attribute lookup:

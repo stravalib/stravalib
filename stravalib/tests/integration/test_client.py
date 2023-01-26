@@ -400,6 +400,22 @@ def test_create_subscription(mock_strava_api, client):
 
 
 @pytest.mark.parametrize(
+    'raw,expected_verify_token,expected_response,expected_exception',
+    (
+        ({'hub.verify_token': 'a', 'hub.challenge': 'b'}, 'a', {'hub.challenge': 'b'}, None),
+        ({'hub.verify_token': 'foo', 'hub.challenge': 'b'}, 'a', None, AssertionError),
+    )
+)
+def test_handle_subscription_callback(
+        client, raw, expected_verify_token, expected_response, expected_exception
+):
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            client.handle_subscription_callback(raw, expected_verify_token)
+    else:
+        assert client.handle_subscription_callback(raw, expected_verify_token) == expected_response
+
+@pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_segments",
     (
         (None, 0, 0),
