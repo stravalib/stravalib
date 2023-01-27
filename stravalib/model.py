@@ -198,6 +198,11 @@ class Club(
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
+    # Undocumented attributes:
+    profile: Optional[str] = None
+    description: Optional[str] = None
+    club_type: Optional[str] = None
+
     _field_conversions = {"activity_types": enum_values}
 
     @lazy_property
