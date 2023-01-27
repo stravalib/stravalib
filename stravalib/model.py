@@ -458,12 +458,17 @@ class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     on the units used in this object, just the binning of values).
     """
 
+    # Undocumented attributes:
+    average_heartrate: Optional[float] = None
+    average_grade_adjusted_speed: Optional[float] = None
+
     _field_conversions = {
         'elapsed_time': time_interval,
         'moving_time': time_interval,
         'distance': uh.meters,
         'elevation_difference': uh.meters,
-        'average_speed': uh.meters_per_second
+        'average_speed': uh.meters_per_second,
+        'average_grade_adjusted_speed': uh.meters_per_second
     }
 
 
