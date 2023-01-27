@@ -6,7 +6,7 @@ Entity classes for representing the various Strava datatypes.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from functools import wraps
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
 
@@ -267,14 +267,49 @@ class AthleteStats(
 class Athlete(
     DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin, BoundClientEntity
 ):
-    # undocumented fields
-    is_authenticated: Optional[bool] = None
-    athlete_type: Optional[int] = None
-
     # field overrides from superclass for type extensions:
     clubs: Optional[List[Club]] = None
     bikes: Optional[List[Bike]] = None
     shoes: Optional[List[Shoe]] = None
+
+    # Undocumented attributes:
+    is_authenticated: Optional[bool] = None
+    athlete_type: Optional[int] = None
+    friend: Optional[str] = None
+    follower: Optional[str] = None
+    approve_followers: Optional[bool] = None
+    badge_type_id: Optional[int] = None
+    mutual_friend_count: Optional[int] = None
+    date_preference: Optional[str] = None
+    email: Optional[str] = None
+    super_user: Optional[bool] = None
+    email_language: Optional[str] = None
+    max_heartrate: Optional[float] = None
+    username: Optional[str] = None
+    description: Optional[str] = None
+    instagram_username: Optional[str] = None
+    offer_in_app_payment: Optional[bool] = None
+    global_privacy: Optional[bool] = None
+    receive_newsletter: Optional[bool] = None
+    email_kom_lost: Optional[bool] = None
+    dateofbirth: Optional[date] = None
+    facebook_sharing_enabled: Optional[bool] = None
+    profile_original: Optional[str] = None
+    premium_expiration_date: Optional[int] = None
+    email_send_follower_notices: Optional[bool] = None
+    plan: Optional[str] = None
+    agreed_to_terms: Optional[str] = None
+    follower_request_count: Optional[int] = None
+    email_facebook_twitter_friend_joins: Optional[bool] = None
+    receive_kudos_emails: Optional[bool] = None
+    receive_follower_feed_emails: Optional[bool] = None
+    receive_comment_emails: Optional[bool] = None
+    sample_race_distance: Optional[int] = None
+    sample_race_time: Optional[int] = None
+    membership: Optional[str] = None
+    admin: Optional[bool] = None
+    owner: Optional[bool] = None
+    subscription_permissions: Optional[list] = None
 
     @validator('athlete_type')
     def to_str_representation(cls, raw_type):
