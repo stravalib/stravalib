@@ -652,6 +652,27 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     # TODO maybe deprecate?
     TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
 
+    # Undocumented attributes:
+    guid: Optional[str] = None
+    utc_offset: Optional[float] = None
+    location_city: Optional[str] = None
+    location_state: Optional[str] = None
+    location_country: Optional[str] = None
+    start_latitude: Optional[float] = None
+    start_longitude: Optional[float] = None
+    pr_count: Optional[int] = None
+    suffer_score: Optional[int] = None
+    has_heartrate: Optional[bool] = None
+    average_heartrate: Optional[float] = None
+    max_heartrate: Optional[int] = None
+    average_cadence: Optional[float] = None
+    average_temp: Optional[int] = None
+    instagram_primary_photo: Optional[str] = None
+    partner_logo_url: Optional[str] = None
+    partner_brand_tag: Optional[str] = None
+    from_accepted_tag: Optional[bool] = None
+    segment_leaderboard_opt_out: Optional[bool] = None
+
     _field_conversions = {
         'moving_time': time_interval,
         'elapsed_time': time_interval,
@@ -659,7 +680,9 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
         'distance': uh.meters,
         'total_elevation_gain': uh.meters,
         'average_speed': uh.meters_per_second,
-        'max_speed': uh.meters_per_second
+        'max_speed': uh.meters_per_second,
+        'type': enum_values,
+        'sport_type': enum_values
 
     }
 
