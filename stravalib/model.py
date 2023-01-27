@@ -364,6 +364,9 @@ class ActivityPhotoMeta(PhotosSummary):
     # field overrides from superclass for type extensions:
     primary: Optional[ActivityPhotoPrimary] = None
 
+    # Undocumented attributes:
+    use_primary_photo: Optional[bool] = None
+
 
 class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
