@@ -504,7 +504,18 @@ class AthleteSegmentStats(SummarySegmentEffort, BackwardCompatibilityMixin, Depr
     A structure being returned for segment stats for current athlete.
     """
 
-    _field_conversions = {'pr_elapsed_time': time_interval}
+    # Undocumented attributes:
+    effort_count: Optional[int] = None
+    pr_elapsed_time: Optional[int] = None
+    pr_date: Optional[date] = None
+
+    _field_conversions = {
+        'elapsed_time': time_interval,
+        'pr_elapsed_time': time_interval,
+        'distance': uh.meters
+    }
+
+    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
 
 
 class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
