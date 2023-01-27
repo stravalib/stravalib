@@ -2,7 +2,10 @@ import logging
 from datetime import timedelta
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, List, Sequence
+from typing import Any, Callable, List, Optional, Sequence
+
+import pytz
+from pytz.exceptions import UnknownTimeZoneError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,8 +38,26 @@ def enum_values(enums: Sequence[Enum]) -> List:
 
 
 @optional_input
-def time_interval(seconds: int):
+def time_interval(seconds: int) -> timedelta:
     """
     Replaces legacy TimeIntervalAttribute
     """
     return timedelta(seconds=seconds)
+
+
+@optional_input
+def timezone(tz: str) -> Optional[pytz.timezone]:
+    if " " in tz:
+        # (GMT-08:00) America/Los_Angeles
+        tzname = tz.split(" ", 1)[1]
+    else:
+        # America/Los_Angeles
+        tzname = tz
+    try:
+        tz = pytz.timezone(tzname)
+    except UnknownTimeZoneError as e:
+        LOGGER.warning(
+            f"Encountered unknown time zone {tzname}, returning None"
+        )
+        tz = None
+    return tz

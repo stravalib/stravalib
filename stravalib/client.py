@@ -4,6 +4,8 @@ Client
 Provides the main interface classes for the Strava version 3 REST API.
 """
 
+from __future__ import annotations
+
 import calendar
 import collections
 import functools
@@ -269,43 +271,8 @@ class Client(object):
         :rtype: :class:`stravalib.model.Athlete`
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.parse_obj(raw)
+        return model.Athlete.parse_obj({**raw, **{'bound_client': self}})
 
-    # TODO: this endpoint was removed so do we want to remove the URL altogether?
-    def get_athlete_friends(self, athlete_id=None, limit=None):
-        """
-        Gets friends for current (or specified) athlete.
-
-        https://developers.strava.com/docs/reference/#api-models-DetailedAthlete
-
-        :param: athlete_id
-        :type: athlete_id: int
-
-        :param limit: Maximum number of athletes to return (default unlimited).
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        if athlete_id is None:
-            result_fetcher = functools.partial(
-                self.protocol.get, "/athlete/friends"
-            )
-        else:
-            raise NotImplementedError(
-                "The /athletes/{id}/friends endpoint was removed by Strava.  "
-                "See https://developers.strava.com/docs/january-2018-update/"
-            )
-            # result_fetcher = functools.partial(self.protocol.get,
-            #                                    '/athletes/{id}/friends',
-            #                                    id=athlete_id)
-
-        return BatchedResultsIterator(
-            entity=model.Athlete,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-            limit=limit,
-        )
 
     def update_athlete(
         self, city=None, state=None, country=None, sex=None, weight=None
@@ -349,69 +316,8 @@ class Client(object):
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.parse_obj(raw_athlete)
+        return model.Athlete.parse_obj({**raw_athlete, **{'bound_client': self}})
 
-    def get_athlete_followers(self, athlete_id=None, limit=None):
-        """
-        Gets followers for current (or specified) athlete.
-
-        :param: athlete_id
-        :type athlete_id: int
-
-        :param limit: Maximum number of athletes to return (default unlimited).
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        if athlete_id is None:
-            result_fetcher = functools.partial(
-                self.protocol.get, "/athlete/followers"
-            )
-        else:
-            raise NotImplementedError(
-                "The /athletes/{id}/followers endpoint was removed by Strava.  "
-                "See https://developers.strava.com/docs/january-2018-update/"
-            )
-            # result_fetcher = functools.partial(self.protocol.get,
-            #                                    '/athletes/{id}/followers',
-            #                                    id=athlete_id)
-
-        return BatchedResultsIterator(
-            entity=model.Athlete,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-            limit=limit,
-        )
-
-    def get_both_following(self, athlete_id, limit=None):
-        """
-        Retrieve the athletes who both the authenticated user and the indicated
-         athlete are following.
-
-        This endpoint was removed by Strava in Jan 2018.
-
-        :param athlete_id: The ID of the other athlete (for follower intersection with current athlete)
-        :type athlete_id: int
-
-        :param limit: Maximum number of athletes to return. (default unlimited)
-        :type limit: int
-
-        :return: An iterator of :class:`stravalib.model.Athlete` objects.
-        :rtype: :class:`BatchedResultsIterator`
-        """
-        raise NotImplementedError(
-            "The /athletes/{id}/both-following endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
-        )
-        # result_fetcher = functools.partial(self.protocol.get,
-        #                                    '/athletes/{id}/both-following',
-        #                                    id=athlete_id)
-        #
-        # return BatchedResultsIterator(entity=model.Athlete,
-        #                               bind_client=self,
-        #                               result_fetcher=result_fetcher,
-        #                               limit=limit)
 
     # TODO: Can't find this in the api documentation either. Does it still work?
     def get_athlete_koms(self, athlete_id, limit=None):
@@ -473,8 +379,10 @@ class Client(object):
         :return: A list of :class:`stravalib.model.Club`
         :rtype: :py:class:`list`
         """
+
+        # TODO: This should return a BatchedResultsIterator or otherwise at most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
-        return [model.Club.parse_obj(raw) for raw in club_structs]
+        return [model.Club.parse_obj({**raw, **{'bound_client': self}}) for raw in club_structs]
 
     def join_club(self, club_id):
         """
@@ -508,7 +416,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Club`
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.parse_obj(raw)
+        return model.Club.parse_obj({**raw, **{"bound_client": self}})
 
     def get_club_members(self, club_id, limit=None):
         """
@@ -588,7 +496,7 @@ class Client(object):
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.deserialize(raw, bind_client=self)
+        return model.Activity.parse_obj({**raw, **{'bound_client': self}})
 
     def get_friend_activities(self, limit=None):
         """
@@ -677,7 +585,7 @@ class Client(object):
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.deserialize(raw_activity, bind_client=self)
+        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
 
     def update_activity(
         self,
@@ -768,7 +676,7 @@ class Client(object):
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.deserialize(raw_activity, bind_client=self)
+        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
 
     def upload_activity(
         self,
@@ -1084,7 +992,7 @@ class Client(object):
         :return: The specified effort on a segment.
         :rtype: :class:`stravalib.model.SegmentEffort`
         """
-        return model.SegmentEffort.deserialize(
+        return model.SegmentEffort.parse_obj(
             self.protocol.get("/segment_efforts/{id}", id=effort_id)
         )
 
@@ -1100,10 +1008,10 @@ class Client(object):
         :return: A segment object.
         :rtype: :class:`stravalib.model.Segment`
         """
-        return model.Segment.deserialize(
-            self.protocol.get("/segments/{id}", id=segment_id),
-            bind_client=self,
-        )
+        return model.Segment.parse_obj({
+            **self.protocol.get("/segments/{id}", id=segment_id),
+            **{'bound_client': self}
+        })
 
     def get_starred_segments(self, limit=None):
         """
@@ -1161,147 +1069,6 @@ class Client(object):
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
-        )
-
-    # TODO find the new equavilent link in the strava docs
-    def get_segment_leaderboard(
-        self,
-        segment_id,
-        gender=None,
-        age_group=None,
-        weight_class=None,
-        following=None,
-        club_id=None,
-        timeframe=None,
-        top_results_limit=None,
-        page=None,
-        context_entries=None,
-    ):
-        """
-        Gets the leaderboard for a segment.
-
-        Note that by default Strava will return the top 10 results, and if the current user has ridden
-        that segment, the current user's result along with the two results above in rank and the two
-        results below will be included.  The top X results can be configured by setting the top_results_limit
-        parameter; however, the other 5 results will be included if the current user has ridden that segment.
-        (i.e. if you specify top_results_limit=15, you will get a total of 20 entries back.)
-
-        :param segment_id: ID of the segment.
-        :type segment_id: int
-
-        :param gender: (optional) 'M' or 'F'
-        :type gender: str
-
-        :param age_group: (optional) '0_24', '25_34', '35_44', '45_54', '55_64', '65_plus'
-        :type age_group: str
-
-        :param weight_class: (optional) pounds '0_124', '125_149', '150_164', '165_179', '180_199', '200_plus'
-                             or kilograms '0_54', '55_64', '65_74', '75_84', '85_94', '95_plus'
-        :type weight_class: str
-
-        :param following: (optional) Limit to athletes current user is following.
-        :type following: bool
-
-        :param club_id: (optional) limit to specific club
-        :type club_id: int
-
-        :param timeframe: (optional)  'this_year', 'this_month', 'this_week', 'today'
-        :type timeframe: str
-
-        :param top_results_limit: (optional, strava default is 10 + 5 from end) How many of leading leaderboard entries to display.
-                            See description for why this is a little confusing.
-        :type top_results_limit: int
-
-        :param page: (optional, strava default is 1) Page number of leaderboard to return, sorted by highest ranking leaders
-        :type page: int
-
-        :param context_entries: (optional, strava default is 2, max is 15) number of entries surrounding requesting athlete to return
-        :type context_entries: int
-
-        :return: The SegmentLeaderboard for the specified page (default: 1)
-        :rtype: :class:`stravalib.model.SegmentLeaderboard`
-
-        """
-        params = {}
-        if gender is not None:
-            if gender.upper() not in ("M", "F"):
-                raise ValueError(
-                    "Invalid gender: {0}. Possible values: 'M' or 'F'".format(
-                        gender
-                    )
-                )
-            params["gender"] = gender
-
-        valid_age_groups = (
-            "0_24",
-            "25_34",
-            "35_44",
-            "45_54",
-            "55_64",
-            "65_plus",
-        )
-        if age_group is not None:
-            if not age_group in valid_age_groups:
-                raise ValueError(
-                    "Invalid age group: {0}.  Possible values: {1!r}".format(
-                        age_group, valid_age_groups
-                    )
-                )
-            params["age_group"] = age_group
-
-        valid_weight_classes = (
-            "0_124",
-            "125_149",
-            "150_164",
-            "165_179",
-            "180_199",
-            "200_plus",
-            "0_54",
-            "55_64",
-            "65_74",
-            "75_84",
-            "85_94",
-            "95_plus",
-        )
-        if weight_class is not None:
-            if not weight_class in valid_weight_classes:
-                raise ValueError(
-                    "Invalid weight class: {0}.  Possible values: {1!r}".format(
-                        weight_class, valid_weight_classes
-                    )
-                )
-            params["weight_class"] = weight_class
-
-        if following is not None:
-            params["following"] = int(following)
-
-        if club_id is not None:
-            params["club_id"] = club_id
-
-        if timeframe is not None:
-            valid_timeframes = "this_year", "this_month", "this_week", "today"
-            if not timeframe in valid_timeframes:
-                raise ValueError(
-                    "Invalid timeframe: {0}.  Possible values: {1!r}".format(
-                        timeframe, valid_timeframes
-                    )
-                )
-            params["date_range"] = timeframe
-
-        if top_results_limit is not None:
-            params["per_page"] = top_results_limit
-
-        if page is not None:
-            params["page"] = page
-
-        if context_entries is not None:
-            params["context_entries"] = context_entries
-
-        return model.SegmentLeaderboard.deserialize(
-            self.protocol.get(
-                "/segments/{id}/leaderboard", id=segment_id, **params
-            ),
-            bind_client=self,
         )
 
     def get_segment_efforts(
@@ -1436,7 +1203,7 @@ class Client(object):
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
-            model.SegmentExplorerResult.deserialize(v, bind_client=self)
+            model.SegmentExplorerResult.parse_obj({**v, **{'bound_client': self}})
             for v in raw["segments"]
         ]
 
@@ -1906,7 +1673,6 @@ class BatchedResultsIterator(object):
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:
             self._eof()
-
         raw_results = self.result_fetcher(
             page=self._page, per_page=self.per_page
         )
@@ -1914,8 +1680,9 @@ class BatchedResultsIterator(object):
         entities = []
         for raw in raw_results:
             try:
-                new_entity = self.entity.parse_obj(raw)
-                # TODO: try adding bind_client to entity
+                new_entity = self.entity.parse_obj(
+                    {**raw, **{'bound_client': self.bind_client}}
+                )
             except AttributeError:
                 # entity doesn't have a parse_obj() method, so must be of a legacy type
                 new_entity = self.entity.deserialize(
@@ -1980,6 +1747,7 @@ class ActivityUploader(object):
         self.client = client
         self.response = response
         self.update_from_response(response, raise_exc=raise_exc)
+
     @property
     def photo_metadata(self):
         """
@@ -1989,7 +1757,7 @@ class ActivityUploader(object):
         Note2: available only for partner apps (not for regular account)
         """
 
-        warn_attribute_unofficial('photo_metadata')
+        warn_attribute_unofficial("photo_metadata")
 
         return self._photo_metadata
 
@@ -2008,12 +1776,14 @@ class ActivityUploader(object):
         :type raise_exc: bool
         :raise stravalib.exc.ActivityUploadFailed: If the response indicates an error and raise_exc is True.
         """
-        self.upload_id = response.get('id')
-        self.external_id = response.get('external_id')
-        self.activity_id = response.get('activity_id')
-        self.status = response.get('status') or response.get('message')
+        self.upload_id = response.get("id")
+        self.external_id = response.get("external_id")
+        self.activity_id = response.get("activity_id")
+        self.status = response.get("status") or response.get("message")
         # undocumented field, it contains pre-signed uri to upload photo to
-        self._photo_metadata: Optional[List[Dict]] = response.get('photo_metadata')
+        self._photo_metadata: Optional[List[Dict]] = response.get(
+            "photo_metadata"
+        )
 
         if response.get("error"):
             self.error = response.get("error")
@@ -2106,7 +1876,7 @@ class ActivityUploader(object):
         :type timeout: float
         """
 
-        warn_method_unofficial('upload_photo')
+        warn_method_unofficial("upload_photo")
 
         try:
             if not isinstance(photo, bytes):
@@ -2115,23 +1885,33 @@ class ActivityUploader(object):
             self.poll()
 
             if self.is_processing:
-                raise ValueError('Activity upload not complete')
+                raise ValueError("Activity upload not complete")
 
             if not self.photo_metadata:
-                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+                raise ActivityPhotoUploadNotSupported(
+                    "Photo upload not supported"
+                )
 
             photos_data: List[Dict] = [
                 photo_data
                 for photo_data in self.photo_metadata
-                if photo_data and photo_data.get("method") == "PUT" and photo_data.get("header", {}).get("Content-Type") == "image/jpeg"
+                if photo_data
+                and photo_data.get("method") == "PUT"
+                and photo_data.get("header", {}).get("Content-Type")
+                == "image/jpeg"
             ]
 
             if not photos_data:
-                raise ActivityPhotoUploadNotSupported('Photo upload not supported')
+                raise ActivityPhotoUploadNotSupported(
+                    "Photo upload not supported"
+                )
 
             if photos_data:
                 response = self.client.protocol.rsession.put(
-                    url=photos_data[0]['uri'], data=photo, headers=photos_data[0]['header'], timeout=timeout
+                    url=photos_data[0]["uri"],
+                    data=photo,
+                    headers=photos_data[0]["header"],
+                    timeout=timeout,
                 )
                 response.raise_for_status()
         except Exception as error:
