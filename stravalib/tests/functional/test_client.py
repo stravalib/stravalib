@@ -2,9 +2,8 @@ import datetime
 
 import requests
 
-from stravalib import attributes, exc, model
+from stravalib import attributes, model
 from stravalib import unithelper as uh
-from stravalib.client import Client
 from stravalib.tests.functional import FunctionalTestBase
 
 
@@ -239,35 +238,6 @@ class ClientTest(FunctionalTestBase):
         self.assertEqual("XT Wings 2", g.model_name)
         self.assertEqual("", g.description)
 
-    def test_get_segment_leaderboard(self):
-        lb = self.client.get_segment_leaderboard(229781)
-        print(lb.effort_count)
-        print(lb.entry_count)
-        for i, e in enumerate(lb):
-            print("{0}: {1}".format(i, e))
-
-        self.assertEqual(10, len(lb.entries))  # 10 top results
-        self.assertIsInstance(lb.entries[0], model.SegmentLeaderboardEntry)
-        self.assertEqual(1, lb.entries[0].rank)
-        self.assertTrue(lb.effort_count > 8000)  # At time of writing 8206
-
-        # Check the relationships
-        athlete = lb[0].athlete
-        print(athlete)
-        self.assertEqual(
-            lb[0].athlete_name,
-            "{0} {1}".format(athlete.firstname, athlete.lastname),
-        )
-
-        effort = lb[0].effort
-        print(effort)
-        self.assertIsInstance(effort, model.SegmentEffort)
-        self.assertEqual("Hawk Hill", effort.name)
-
-        activity = lb[0].activity
-        self.assertIsInstance(activity, model.Activity)
-        # Can't assert much since #1 ranked activity will likely change in the future.
-
     def test_get_segment(self):
         segment = self.client.get_segment(229781)
         self.assertIsInstance(segment, model.Segment)
@@ -341,38 +311,6 @@ class ClientTest(FunctionalTestBase):
             segment.elevation_high - segment.elevation_low,
             places=0,
         )
-
-
-class AuthenticatedAthleteTest(FunctionalTestBase):
-    """
-    Tests the function is_authenticated_athlete in model.Athlete
-    """
-
-    def test_caching(self):
-        a = model.Athlete()
-        a._is_authenticated = "Not None"
-        self.assertEqual(a.is_authenticated_athlete(), "Not None")
-
-    def test_correct_athlete_returns_true(self):
-        a = self.client.get_athlete()
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_detailed_resource_state_means_true(self):
-        a = model.Athlete()
-        a.resource_state = attributes.DETAILED
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_correct_athlete_not_detailed_returns_true(self):
-        a = self.client.get_athlete()
-        a.resource_state = attributes.SUMMARY
-        # Now will have to do a look up for the authenticated athlete and check the ids match
-        self.assertTrue(a.is_authenticated_athlete())
-
-    def test_not_authenticated_athlete_is_false(self):
-        CAV_ID = 1353775
-        a = self.client.get_athlete(CAV_ID)
-        self.assertEqual(a.resource_state, attributes.SUMMARY)
-        self.assertFalse(a.is_authenticated_athlete())
 
 
 class AthleteStatsTest(FunctionalTestBase):

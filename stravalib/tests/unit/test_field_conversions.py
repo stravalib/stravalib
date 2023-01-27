@@ -1,8 +1,14 @@
 from enum import Enum
 
 import pytest
+import pytz
 
-from stravalib.field_conversions import enum_value, enum_values, optional_input
+from stravalib.field_conversions import (
+    enum_value,
+    enum_values,
+    optional_input,
+    timezone,
+)
 
 
 def test_optional_input():
@@ -26,3 +32,16 @@ def test_enum_value(arg, expected_value):
 
 def test_enum_values():
     assert enum_values([Foo.FOO, 42, Foo.BAR]) == ["foo", 42, "bar"]
+
+
+@pytest.mark.parametrize(
+    'arg,expected_value',
+    (
+        ('Factory', None),
+        ('(GMT+00:00) Factory', None),
+        ('Europe/Amsterdam', pytz.timezone('Europe/Amsterdam')),
+        ('(GMT+01:00) Europe/Amsterdam', pytz.timezone('Europe/Amsterdam'))
+    )
+)
+def test_timezone(arg, expected_value):
+    assert timezone(arg) == expected_value

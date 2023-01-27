@@ -44,7 +44,10 @@ class Quantity:
 
     def __eq__(self, other):
         # sloppy, but temporary (because deprecated)
-        return self.q == other.q
+        try:
+            return self.q == other.q
+        except AttributeError:
+            return self.q == other  # maybe other is a plain Pint Quantity?
 
     def __int__(self):
         return int(self.q.magnitude)
