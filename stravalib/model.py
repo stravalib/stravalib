@@ -553,11 +553,22 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
 
+    # Undocumented attributes:
+    start_latitude: Optional[float] = None
+    end_latitude: Optional[float] = None
+    start_longitude: Optional[float] = None
+    end_longitude: Optional[float] = None
+    starred: Optional[bool] = None
+    pr_time: Optional[int] = None
+    starred_date: Optional[datetime] = None
+    elevation_profile: Optional[str] = None
+
     _field_conversions = {
         'distance': uh.meters,
         'elevation_high': uh.meters,
         'elevation_low': uh.meters,
-        'total_elevation_gain': uh.meters
+        'total_elevation_gain': uh.meters,
+        'pr_time': time_interval
     }
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
