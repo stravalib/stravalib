@@ -352,7 +352,8 @@ class ActivityComment(Comment):
 
 
 class ActivityPhotoPrimary(Primary):
-    pass
+    # Undocumented attributes:
+    use_primary_photo: Optional[bool] = None
 
 
 class ActivityPhotoMeta(PhotosSummary):
