@@ -220,6 +220,14 @@ class Gear(
     _field_conversions = {'distance': uh.meters}
 
 
+class Bike(Gear):
+    pass
+
+
+class Shoe(Gear):
+    pass
+
+
 class ActivityTotals(
     ActivityTotal, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
@@ -265,8 +273,8 @@ class Athlete(
 
     # field overrides from superclass for type extensions:
     clubs: Optional[List[Club]] = None
-    bikes: Optional[List[Gear]] = None
-    shoes: Optional[List[Gear]] = None
+    bikes: Optional[List[Bike]] = None
+    shoes: Optional[List[Shoe]] = None
 
     @validator('athlete_type')
     def to_str_representation(cls, raw_type):
