@@ -10,7 +10,7 @@ from datetime import datetime
 from functools import wraps
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
@@ -170,7 +170,7 @@ class BoundClientEntity(BaseModel):
     # Using Any as type here to prevent catch-22 between circular import and
     # pydantic forward-referencing issues "resolved" by PEP-8 violations.
     # See e.g. https://github.com/pydantic/pydantic/issues/1873
-    bound_client: Optional[Any] = None
+    bound_client: Optional[Any] = Field(None, exclude=True)
 
 
 class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
