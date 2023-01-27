@@ -430,6 +430,12 @@ class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin, 
     activity: Optional[Activity] = None
     athlete: Optional[Athlete] = None
 
+    # Undocumented attributes:
+    average_watts: Optional[float] = None
+    average_heartrate: Optional[float] = None
+    max_heartrate: Optional[float] = None
+    device_watts: Optional[bool] = None
+
     _field_conversions = {
         'elapsed_time': time_interval,
         'moving_time': time_interval,
