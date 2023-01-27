@@ -519,7 +519,18 @@ class AthleteSegmentStats(SummarySegmentEffort, BackwardCompatibilityMixin, Depr
 
 
 class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
-    _field_conversions = {'pr_elapsed_time': time_interval}
+    # Undocumented attributes:
+    distance: Optional[float] = None
+    start_date: Optional[datetime] = None
+    start_date_local: Optional[datetime] = None
+    is_kom: Optional[bool] = None
+
+    _field_conversions = {
+        'pr_elapsed_time': time_interval,
+        'distance': uh.meters
+    }
+
+    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
 
     @property
     def elapsed_time(self):
