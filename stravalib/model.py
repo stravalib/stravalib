@@ -486,6 +486,9 @@ class SegmentExplorerResult(
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
 
+    # Undocumented attributes:
+    starred: Optional[bool] = None
+
     _field_conversions = {
         'elev_difference', uh.meters,
         'distance', uh.meters
