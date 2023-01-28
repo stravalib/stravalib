@@ -17,6 +17,7 @@
       ~ActivityUploader.poll
       ~ActivityUploader.raise_for_error
       ~ActivityUploader.update_from_response
+      ~ActivityUploader.upload_photo
       ~ActivityUploader.wait
 
 
@@ -30,4 +31,4 @@
       ~ActivityUploader.is_complete
       ~ActivityUploader.is_error
       ~ActivityUploader.is_processing
-
+      ~ActivityUploader.photo_metadata
