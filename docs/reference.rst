@@ -13,6 +13,7 @@ Below the main modules are listed.
 
   Client <reference/client>
   Model <reference/model>
+  Strava Model <reference/strava_model>
   Exceptions <reference/exceptions>
   Unit helper <reference/unithelper>
   Protocol <reference/protocol>
