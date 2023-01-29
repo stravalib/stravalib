@@ -11,15 +11,18 @@ accessible via the API.
 
 Constructor
 -----------
-.. autosummary::
+.. autoclass::
    :toctree: api/
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
    Client
 
 General methods and attributes
 -------------------------------
 
-.. autosummary::
+.. autoclass::
    :toctree: api/
 
    Client.authorization_url
