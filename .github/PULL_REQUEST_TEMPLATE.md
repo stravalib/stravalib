@@ -33,9 +33,9 @@ tests to support whatever fix of feature you're implementing.
 - [ ] No, i'd like some help with tests
 - [ ] This change doesn't require tests
 
-## Do all of the CI tests run successfully on this pr?
+## Did you include your contribution to the change log?
 
-- [ ] Check this when your PR has a green check.
+- [ ] Yes, `changelog.md` is up-to-date.
 
 *If you are having a hard time getting the tests to run correctly feel free to
 ping one of the maintainers here!*
@@ -47,4 +47,3 @@ you can use the pull request release template:
 [https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md](https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md). Be sure to modify
 the text "branch-name-here" in the above url to apply the release template.
 -->
-
