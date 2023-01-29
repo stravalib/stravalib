@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+* Add: pydantic_autodoc to sphinx build and reconfigure api structure - p1 (@lwasser, #326)
 
 ## v1.2.0
 
