@@ -78,11 +78,12 @@ This model reflects the officially published API specification by Strava and is 
 the module `strava_model.py`. This file should never be edited  manually. Instead, the stravalib bot will suggest changes to the model through pull requests that can then be merged by stravalib maintainers.
 
 The module `model.py` contains classes that inherit from the
-official Strava domain model in `strava_model.py`. This module, supports custom typing, unit conversion, (de-)serialization behavior, and support for
-undocumented Strava features, .
+official Strava domain model in `strava_model.py`. This module supports custom typing, unit conversion, (de-)serialization behavior, and support for
+undocumented Strava features.
 
-The module `protocol.py` manages the low-level HTTP traffic (including rate limiting)
-with Strava and is used by methods in `client.py` to de-serialize raw response data into
+The module `protocol.py` manages the sending of HTTP requests
+to Strava and handling the received responses (including rate limiting).
+It is used by methods in `client.py` to de-serialize raw response data into
 the domain entities in `model.py`.
 
 
