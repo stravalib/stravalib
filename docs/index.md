@@ -86,10 +86,9 @@ There are numerous reasons to use stravalib in your workflows:
 
 ```{toctree}
 :hidden:
-:caption: Take me home!
 :maxdepth: 2
 
-Home <self>
+🏠 Home <self>
 ```
 
 ```{toctree}
@@ -120,5 +119,5 @@ Change Log <contributing/documentation-changelog>
 :caption: API Documentation
 :maxdepth: 2
 
-API Reference Summary <reference>
+API (Function and Class) Reference <reference>
 ```
