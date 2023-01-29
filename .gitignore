@@ -17,7 +17,11 @@ examples/strava-oauth/settings.cfg
 # Code cov
 .coverage
 
-# so people don't mistakenly delete and submit a pr with these
+# So people don't mistakenly delete and submit a pr with these
 stravalib/tests/test.ini-example
 stravalib/tests/test.ini
+# We have this dir committed now to our repo. but may be able to remove it as
+# it's autgenerated when you build.
 stravalib/docs/api
+
+access_token.pickle

@@ -5,6 +5,7 @@
 * Add: Upload photo to activity (@gitexel, #318)
 * Add: Support uploading `activity_file` object with type `bytes` (@gitexel, #308)
 * Add: Pre-commit hook + instructions and configure precommit.ci bot (@lwasser, #293)
+* Fix: update api docs to match new Pydantic structure & add autodoc-pydantic to config - part 1 (@lwasser, #326)
 
 ## v1.1.0
 
