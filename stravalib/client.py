@@ -804,16 +804,15 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Activities-getZonesByActivityId
 
-        :param activity_id: The activity for which to zones.
+        :param activity_id: The activity for which to get zones.
         :type activity_id: int
 
-        :return: An list of :class:`stravalib.model.ActivityComment` objects.
+        :return: A list of :class:`stravalib.model.BaseActivityZone` objects.
         :rtype: :py:class:`list`
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
-        # We use a factory to give us the correct zone based on type.
         return [
-            model.BaseActivityZone.deserialize(z, bind_client=self)
+            model.BaseActivityZone.parse_obj({**z, **{'bound_client': self}})
             for z in zones
         ]
 
@@ -1229,7 +1228,7 @@ class Client(object):
         :param activity_id: The ID of activity.
         :type activity_id: int
 
-        :param types: (optional) A list of the the types of streams to fetch.
+        :param types: (optional) A list of the types of streams to fetch.
         :type types: list
 
         :param resolution: (optional, default is 'all') indicates desired number
@@ -1457,7 +1456,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Route`
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
-        return model.Route.deserialize(raw, bind_client=self)
+        return model.Route.parse_obj({**raw, **{'bound_client': self}})
 
     def get_route_streams(self, route_id):
         """
@@ -1531,7 +1530,8 @@ class Client(object):
             verify_token=verify_token,
         )
         raw = self.protocol.post("/push_subscriptions", **params)
-        return model.Subscription.deserialize(raw, bind_client=self)
+        return model.Subscription.parse_obj({**raw, **{'bound_client': self}})
+
 
     def handle_subscription_callback(
         self, raw, verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT
@@ -1554,7 +1554,7 @@ class Client(object):
         :return: The subscription update model object.
         :rtype: :class:`stravalib.model.SubscriptionUpdate`
         """
-        return model.SubscriptionUpdate.deserialize(raw, bind_client=self)
+        return model.SubscriptionUpdate.parse_obj({**raw, **{'bound_client': self}})
 
     # TODO can't find a api doc link here so just removed old link.
     def list_subscriptions(self, client_id, client_secret):
