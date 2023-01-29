@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
-from unittest import skip
 
 import pint
 import pytest
 import pytz
-from pydantic import BaseModel, ValidationError, create_model
+from pydantic import BaseModel
 
 from stravalib import model
 from stravalib import unithelper as uh
@@ -17,9 +16,8 @@ from stravalib.model import (
     BaseEffort,
     BoundClientEntity,
     Club,
-    LatLon,
     Segment,
-    extend_types,
+    SubscriptionCallback,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
@@ -48,28 +46,23 @@ class TestLegacyModelSerialization:
 
 
 @pytest.mark.parametrize(
-    "model_class,raw,expected_value,expected_warning",
+    "model_class,raw,expected_value",
     (
-        (Club, {"name": "foo"}, "foo", None),
-        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100), None),
+        (Club, {"name": "foo"}, "foo"),
+        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100)),
         (
             ActivityTotals,
             {"distance": 100.0},
             UnitConverter("meters")(100.0),
-            None,
         ),
-        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'), None)
+        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'))
     ),
 )
-def test_backward_compatibility_mixin(
-    model_class, raw, expected_value, expected_warning
+def test_backward_compatibility_mixin_field_conversions(
+    model_class, raw, expected_value
 ):
     obj = model_class.parse_obj(raw)
-    if expected_warning:
-        with pytest.warns(expected_warning):
-            assert getattr(obj, list(raw.keys())[0]) == expected_value
-    else:
-        assert getattr(obj, list(raw.keys())[0]) == expected_value
+    assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
 @pytest.mark.parametrize(
@@ -86,6 +79,17 @@ def test_backward_compatibility_mixin(
 def test_deserialization_edge_cases(model_class, raw, expected_value):
     obj = model_class.parse_obj(raw)
     assert getattr(obj, list(raw.keys())[0]) == expected_value
+
+
+def test_subscription_callback_field_names():
+    sub_callback_raw = {
+        "hub.mode": "subscribe",
+        "hub.verify_token": "STRAVA",
+        "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3",
+    }
+    sub_callback = SubscriptionCallback.parse_obj(sub_callback_raw)
+    assert sub_callback.hub_mode == 'subscribe'
+    assert sub_callback.hub_verify_token == 'STRAVA'
 
 
 # Below are some toy classes to test type extensions and attribute lookup:
@@ -131,35 +135,6 @@ class ExtLatLng(LatLng):
 
 
 @pytest.mark.parametrize(
-    'base_class,extender,raw_data,expected_foo_result,expected_exception',
-    (
-        (B, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, None),
-        (B, extend_types('a', model_class=ExtA), {'a': {}}, None, None),
-        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': {'x': 42}}, 42, ValidationError),
-        (B, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}]}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA), {'a': {'x': 42}}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA), {'a': [{'x': 42}]}, 42, ValidationError),
-        (C, extend_types('a', model_class=ExtA, as_collection=True), {'a': [{'x': 42}, {'x': 21}]}, [42, 21], None),
-        (D, extend_types('a', model_class=LatLon), {'a': [1, 2]}, '[1,2]', None)  # edge case for __root__ fields
-    )
-)
-def test_type_extensions(base_class, extender, raw_data, expected_foo_result, expected_exception):
-    X = create_model('X', __base__=base_class, __validators__={'ext': extender})
-
-    if expected_exception:
-        with pytest.raises(expected_exception):
-            X.parse_obj(raw_data)
-    else:
-        x = X.parse_obj(raw_data)
-
-        if base_class == B:
-            assert x.a.foo() == expected_foo_result
-        elif base_class == C:  # a is a list
-            for a, expected_foo in zip(x.a, expected_foo_result):
-                assert a.foo() == expected_foo
-
-
-@pytest.mark.parametrize(
     'lookup_expression,expected_result,expected_bound_client',
     (
         (A().x, None, False),
@@ -201,7 +176,6 @@ class ModelTest(TestBase):
     def setUp(self):
         super(ModelTest, self).setUp()
 
-    @skip
     def test_entity_collections(self):
         a = model.Athlete()
         d = {
@@ -241,7 +215,6 @@ class ModelTest(TestBase):
         split.moving_time = 3.1
         split.elapsed_time = 5.73
 
-    @skip
     def test_distance_units(self):
         # Gear
         g = model.Gear()
@@ -292,7 +265,7 @@ class ModelTest(TestBase):
             "created_at": "2015-04-29T18:11:09.400558047-07:00",
             "updated_at": "2015-04-29T18:11:09.400558047-07:00",
         }
-        sub = model.Subscription.deserialize(d)
+        sub = model.Subscription.parse_obj(d)
         self.assertEqual(d["id"], sub.id)
 
     def test_subscription_update_deser(self):

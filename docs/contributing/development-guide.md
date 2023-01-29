@@ -67,6 +67,26 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
+## Architecture Overview
+
+![Stravalib Architecture](../images/stravalib_architecture.png)
+
+Stravalib contains the following main components:
+
+At the core, a (pydantic) domain model is generated and updated by a bot via pull requests.
+This model reflects the officially published API specification by Strava and is stored in
+the module `strava_model.py`. This file should never be edited  manually. Instead, the stravalib bot will suggest changes to the model through pull requests that can then be merged by stravalib maintainers.
+
+The module `model.py` contains classes that inherit from the
+official Strava domain model in `strava_model.py`. This module supports custom typing, unit conversion, (de-)serialization behavior, and support for
+undocumented Strava features.
+
+The module `protocol.py` manages the sending of HTTP requests
+to Strava and handling the received responses (including rate limiting).
+It is used by methods in `client.py` to de-serialize raw response data into
+the domain entities in `model.py`.
+
+
 ## Code style and linting
 
 We use the following tools to ensure consistent code format that follows

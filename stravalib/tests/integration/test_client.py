@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 from unittest import mock
 
@@ -55,6 +56,28 @@ def test_get_club_activities(mock_strava_api, client):
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
     assert activities[0].distance == meters(1000)
+
+
+def test_get_activity_zones(mock_strava_api, client):
+    # Unfortunately, there is no example response for this endpoint in swagger.json
+    with open(os.path.join(RESOURCES_DIR, 'example_zone_response.json'), 'r') as zone_response_fp:
+        zone_response = json.load(zone_response_fp)
+    mock_strava_api.get('/activities/{id}/zones', json=zone_response)
+    activity_zones = client.get_activity_zones(42)
+    assert len(activity_zones) == 2
+    assert activity_zones[0].type == 'heartrate'
+    assert activity_zones[0].sensor_based
+
+
+def test_get_activity_streams(mock_strava_api, client):
+    # TODO: parameterize test to cover all branching
+    mock_strava_api.get(
+        '/activities/{id}/streams',
+        response_update={'data': [1, 2, 3]}
+    )
+    # the example in swagger.json returns a distance stream
+    streams = client.get_activity_streams(42)
+    assert streams['distance'].data == [1, 2, 3]
 
 
 @pytest.mark.parametrize(
@@ -350,12 +373,47 @@ def test_activity_uploader(mock_strava_api, client):
 
 
 def test_get_route(mock_strava_api, client):
+    with open(os.path.join(RESOURCES_DIR, 'example_route_response.json'), 'r') as route_response_fp:
+        route_response = json.load(route_response_fp)
     mock_strava_api.get(
-        "/routes/{id}", status=200, response_update={"name": "test_route"}
+        "/routes/{id}", status=200, json=route_response
     )
     route = client.get_route(42)
-    assert route.name == "test_route"
+    assert route.name == "15k, no traffic"
 
+
+@responses.activate
+def test_create_subscription(mock_strava_api, client):
+    responses.post(
+        'https://www.strava.com/api/v3/push_subscriptions',
+        json={
+            'application_id': 42,
+            'object_type': 'activity',
+            'aspect_type': 'create',
+            'callback_url': 'https://foobar.com',
+            'created_at': 1674660406
+        },
+        status=200
+    )
+    created_subscription = client.create_subscription(42, 42, 'https://foobar.com')
+    assert created_subscription.application_id == 42
+
+
+@pytest.mark.parametrize(
+    'raw,expected_verify_token,expected_response,expected_exception',
+    (
+        ({'hub.verify_token': 'a', 'hub.challenge': 'b'}, 'a', {'hub.challenge': 'b'}, None),
+        ({'hub.verify_token': 'foo', 'hub.challenge': 'b'}, 'a', None, AssertionError),
+    )
+)
+def test_handle_subscription_callback(
+        client, raw, expected_verify_token, expected_response, expected_exception
+):
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            client.handle_subscription_callback(raw, expected_verify_token)
+    else:
+        assert client.handle_subscription_callback(raw, expected_verify_token) == expected_response
 
 @pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_segments",
