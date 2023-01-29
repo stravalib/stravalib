@@ -32,12 +32,9 @@
       ~Client.get_activity_zones
       ~Client.get_athlete
       ~Client.get_athlete_clubs
-      ~Client.get_athlete_followers
-      ~Client.get_athlete_friends
       ~Client.get_athlete_koms
       ~Client.get_athlete_starred_segments
       ~Client.get_athlete_stats
-      ~Client.get_both_following
       ~Client.get_club
       ~Client.get_club_activities
       ~Client.get_club_members
@@ -51,7 +48,6 @@
       ~Client.get_segment
       ~Client.get_segment_effort
       ~Client.get_segment_efforts
-      ~Client.get_segment_leaderboard
       ~Client.get_segment_streams
       ~Client.get_starred_segments
       ~Client.handle_subscription_callback
