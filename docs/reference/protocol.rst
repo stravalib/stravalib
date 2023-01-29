@@ -11,11 +11,3 @@ process.
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-.. Summary Classes
-.. -------------------------------
-.. .. autosummary::
-..    :toctree: api/
-
-..    ApiV3
