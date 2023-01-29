@@ -16,6 +16,8 @@ pytest-cov
 
 # Docs
 furo
+# Support pydantic autodoc
+autodoc_pydantic
 # Support markdown w full rst functionality
 myst-nb
 sphinx-autobuild
