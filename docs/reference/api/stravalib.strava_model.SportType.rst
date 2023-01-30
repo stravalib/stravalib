@@ -5,18 +5,18 @@
 
 .. autoclass:: SportType
 
-
+   
    .. automethod:: __init__
 
+   
+   
 
-
-
-
-
+   
+   
    .. rubric:: Attributes
 
    .. autosummary::
-
+   
       ~SportType.AlpineSki
       ~SportType.BackcountrySki
       ~SportType.Canoeing
@@ -58,3 +58,5 @@
       ~SportType.Windsurf
       ~SportType.Workout
       ~SportType.Yoga
+   
+   

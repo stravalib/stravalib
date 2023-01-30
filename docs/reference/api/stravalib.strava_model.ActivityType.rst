@@ -5,18 +5,18 @@
 
 .. autoclass:: ActivityType
 
-
+   
    .. automethod:: __init__
 
+   
+   
 
-
-
-
-
+   
+   
    .. rubric:: Attributes
 
    .. autosummary::
-
+   
       ~ActivityType.AlpineSki
       ~ActivityType.BackcountrySki
       ~ActivityType.Canoeing
@@ -54,3 +54,5 @@
       ~ActivityType.Windsurf
       ~ActivityType.Workout
       ~ActivityType.Yoga
+   
+   
