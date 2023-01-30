@@ -5,12 +5,18 @@
 
 .. autoclass:: DefaultRateLimiter
 
-
+   
    .. automethod:: __init__
 
-
+   
    .. rubric:: Methods
 
    .. autosummary::
-
+   
       ~DefaultRateLimiter.__init__
+   
+   
+
+   
+   
+   

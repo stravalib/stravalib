@@ -17,7 +17,5 @@ Below the main modules are listed.
    Unit helper <reference/unithelper>
    Protocol <reference/protocol>
    Limiter (Util Submodule) <reference/utilities>
-   # TODO: create two files below
    Field Conversions <reference/field-conversions>
-   Strava Model <reference/strava-model>
    Exceptions <reference/exceptions>
