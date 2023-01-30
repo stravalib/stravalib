@@ -9,6 +9,7 @@ The `strava-model` module provides... stuff and lots of it
 
 Summary Classes
 ----------------
+
 .. autosummary::
    :toctree: api/
 
