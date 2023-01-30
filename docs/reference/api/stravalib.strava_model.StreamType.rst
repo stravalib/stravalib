@@ -5,18 +5,18 @@
 
 .. autoclass:: StreamType
 
-
+   
    .. automethod:: __init__
 
+   
+   
 
-
-
-
-
+   
+   
    .. rubric:: Attributes
 
    .. autosummary::
-
+   
       ~StreamType.time
       ~StreamType.distance
       ~StreamType.latlng
@@ -28,3 +28,5 @@
       ~StreamType.temp
       ~StreamType.moving
       ~StreamType.grade_smooth
+   
+   

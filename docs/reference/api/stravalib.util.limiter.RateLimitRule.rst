@@ -5,12 +5,18 @@
 
 .. autoclass:: RateLimitRule
 
-
+   
    .. automethod:: __init__
 
-
+   
    .. rubric:: Methods
 
    .. autosummary::
-
+   
       ~RateLimitRule.__init__
+   
+   
+
+   
+   
+   
