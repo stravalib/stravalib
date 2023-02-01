@@ -271,8 +271,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Athlete`
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.parse_obj({**raw, **{'bound_client': self}})
-
+        return model.Athlete.parse_obj({**raw, **{"bound_client": self}})
 
     def update_athlete(
         self, city=None, state=None, country=None, sex=None, weight=None
@@ -316,8 +315,9 @@ class Client(object):
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.parse_obj({**raw_athlete, **{'bound_client': self}})
-
+        return model.Athlete.parse_obj(
+            {**raw_athlete, **{"bound_client": self}}
+        )
 
     # TODO: Can't find this in the api documentation either. Does it still work?
     def get_athlete_koms(self, athlete_id, limit=None):
@@ -382,7 +382,10 @@ class Client(object):
 
         # TODO: This should return a BatchedResultsIterator or otherwise at most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
-        return [model.Club.parse_obj({**raw, **{'bound_client': self}}) for raw in club_structs]
+        return [
+            model.Club.parse_obj({**raw, **{"bound_client": self}})
+            for raw in club_structs
+        ]
 
     def join_club(self, club_id):
         """
@@ -496,7 +499,7 @@ class Client(object):
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.parse_obj({**raw, **{'bound_client': self}})
+        return model.Activity.parse_obj({**raw, **{"bound_client": self}})
 
     def get_friend_activities(self, limit=None):
         """
@@ -585,7 +588,9 @@ class Client(object):
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
+        return model.Activity.parse_obj(
+            {**raw_activity, **{"bound_client": self}}
+        )
 
     def update_activity(
         self,
@@ -605,33 +610,44 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
 
-        :param activity_id: The ID of the activity to update.
-        :type activity_id: int
+        Parameters
+        ----------
 
-        :param name: The name of the activity.
-        :param activity_type: The activity type (case-insensitive).
-                              Possible values: ride, run, swim, workout, hike,
-                              walk, nordicski, alpineski, backcountryski,
-                              iceskate, inlineskate, kitesurf, rollerski,
-                              windsurf, workout, snowboard, snowshoe
-        :param private: Whether the activity is private.
+        activity_id : int
+            The ID of the activity to update.
+        name : str
+            The name of the activity.
+        activity_type : str
+            The activity type (case-insensitive).
+            Possible values: ride, run, swim, workout, hike,
+            walk, nordicski, alpineski, backcountryski,
+            iceskate, inlineskate, kitesurf, rollerski,
+            windsurf, workout, snowboard, snowshoe
+        private : bool
+            Whether the activity is private.
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+            removed in the future.
+        commute : bool
+            Whether the activity is a commute.
+        trainer : bool
+            Whether this is a trainer activity.
+        gear_id : int
+            Alpha-numeric ID of gear (bike, shoes) used on this activity.
+        description : str
+            Description for the activity.
+        device_name : str
+            Device name for the activity
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+            removed in the future.
+        hide_from_home : bool
+            Whether the activity is muted (hidden from Home and Club feeds).
 
-                        .. deprecated:: 1.0
-                        This param is not supported by the Strava API and may be
-                        removed in the future.
-        :param commute: Whether the activity is a commute.
-        :param trainer: Whether this is a trainer activity.
-        :param gear_id: Alpha-numeric ID of gear (bike, shoes) used on this activity.
-        :param description: Description for the activity.
-        :param device_name: Device name for the activity
-
-                            .. deprecated:: 1.0
-                            This param is not supported by the Strava API and may be
-                            removed in the future.
-        :param hide_from_home: Whether the activity is muted (hidden from Home and Club feeds).
-
-        :return: The updated activity.
-        :rtype: :class:`stravalib.model.Activity`
+        Returns
+        -------
+        stravalib.model.Activity
+            The updated activity
         """
 
         # Convert the kwargs into a params dict
@@ -676,7 +692,9 @@ class Client(object):
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.parse_obj({**raw_activity, **{'bound_client': self}})
+        return model.Activity.parse_obj(
+            {**raw_activity, **{"bound_client": self}}
+        )
 
     def upload_activity(
         self,
@@ -812,7 +830,7 @@ class Client(object):
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
         return [
-            model.BaseActivityZone.parse_obj({**z, **{'bound_client': self}})
+            model.BaseActivityZone.parse_obj({**z, **{"bound_client": self}})
             for z in zones
         ]
 
@@ -1007,10 +1025,12 @@ class Client(object):
         :return: A segment object.
         :rtype: :class:`stravalib.model.Segment`
         """
-        return model.Segment.parse_obj({
-            **self.protocol.get("/segments/{id}", id=segment_id),
-            **{'bound_client': self}
-        })
+        return model.Segment.parse_obj(
+            {
+                **self.protocol.get("/segments/{id}", id=segment_id),
+                **{"bound_client": self},
+            }
+        )
 
     def get_starred_segments(self, limit=None):
         """
@@ -1202,7 +1222,9 @@ class Client(object):
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
-            model.SegmentExplorerResult.parse_obj({**v, **{'bound_client': self}})
+            model.SegmentExplorerResult.parse_obj(
+                {**v, **{"bound_client": self}}
+            )
             for v in raw["segments"]
         ]
 
@@ -1456,7 +1478,7 @@ class Client(object):
         :rtype: :class:`stravalib.model.Route`
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
-        return model.Route.parse_obj({**raw, **{'bound_client': self}})
+        return model.Route.parse_obj({**raw, **{"bound_client": self}})
 
     def get_route_streams(self, route_id):
         """
@@ -1530,8 +1552,7 @@ class Client(object):
             verify_token=verify_token,
         )
         raw = self.protocol.post("/push_subscriptions", **params)
-        return model.Subscription.parse_obj({**raw, **{'bound_client': self}})
-
+        return model.Subscription.parse_obj({**raw, **{"bound_client": self}})
 
     def handle_subscription_callback(
         self, raw, verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT
@@ -1554,7 +1575,9 @@ class Client(object):
         :return: The subscription update model object.
         :rtype: :class:`stravalib.model.SubscriptionUpdate`
         """
-        return model.SubscriptionUpdate.parse_obj({**raw, **{'bound_client': self}})
+        return model.SubscriptionUpdate.parse_obj(
+            {**raw, **{"bound_client": self}}
+        )
 
     # TODO can't find a api doc link here so just removed old link.
     def list_subscriptions(self, client_id, client_secret):
@@ -1681,7 +1704,7 @@ class BatchedResultsIterator(object):
         for raw in raw_results:
             try:
                 new_entity = self.entity.parse_obj(
-                    {**raw, **{'bound_client': self.bind_client}}
+                    {**raw, **{"bound_client": self.bind_client}}
                 )
             except AttributeError:
                 # entity doesn't have a parse_obj() method, so must be of a legacy type

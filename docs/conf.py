@@ -52,6 +52,7 @@ else:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.napoleon", # Numpy style doc support
     "sphinxcontrib.autodoc_pydantic",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",

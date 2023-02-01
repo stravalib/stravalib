@@ -9,7 +9,7 @@ Below the main modules are listed.
    Note that only public facing methods are documented here.
 
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 2
 
    Client <reference/client>
    Model <reference/model>

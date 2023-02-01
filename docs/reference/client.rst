@@ -9,20 +9,20 @@ to create an access token to authenticate and access most of the Strava data
 accessible via the API.
 
 
-Constructor
------------
-.. autoclass::
+Main Classes
+-------------
+.. autosummary::
    :toctree: api/
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
    Client
+   BatchedResultsIterator
+   ActivityUploader
+
 
 General methods and attributes
 -------------------------------
 
-.. autoclass::
+.. autosummary::
    :toctree: api/
 
    Client.authorization_url

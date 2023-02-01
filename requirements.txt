@@ -24,5 +24,6 @@ sphinx-autobuild
 sphinx-inline-tabs
 sphinx_copybutton
 sphinx_design
+
 # Support for social / adds meta tags
 sphinxext-opengraph
