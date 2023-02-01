@@ -96,6 +96,7 @@ There are numerous reasons to use stravalib in your workflows:
 :caption: Get Started
 
 Get Started <get-started/index>
+Overview <get-started/overview>
 Authentication <get-started/authenticate-with-strava>
 Activities <get-started/activities>
 Athletes <get-started/athletes>
