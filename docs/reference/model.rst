@@ -1,9 +1,6 @@
-====================================
-Model Module: Functions and Classes
-====================================
-.. currentmodule:: stravalib.model
+.. automodule::
 
-The ``Model`` does special things
+   stravalib.model
 
 Summary Functions
 -------------------------------
@@ -54,29 +51,3 @@ Summary Classes
    Subscription
    SubscriptionCallback
    SubscriptionUpdate
-
-
-   .. SubscriptionUpdate
-   .. ActivityTotal
-   .. ActivityType
-   .. ActivityTotal
-   .. ActivityType
-   .. BaseStream
-   .. CadenceStream
-   .. DistanceStream
-   .. Error
-   .. Fault
-   .. HeartrateStream
-   .. LatLng
-   .. LatLngStream
-   .. MembershipApplication
-   .. MetaActivity
-   .. MetaAthlete
-   .. MetaClub
-   .. MovingStream
-
-
-.. .. automodule:: stravalib.model
-..    :members:
-..    :undoc-members:
-..    :show-inheritance:
