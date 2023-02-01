@@ -1,6 +1,5 @@
-.. automodule::
+.. automodule:: stravalib.model
 
-   stravalib.model
 
 Summary Functions
 -------------------------------
@@ -51,3 +50,4 @@ Summary Classes
    Subscription
    SubscriptionCallback
    SubscriptionUpdate
+
