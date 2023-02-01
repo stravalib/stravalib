@@ -4,7 +4,7 @@ Field Conversions Module
 .. currentmodule:: stravalib.field_conversions
 
 The `field_conversions` module provides helper utility
-to convert various units.
+functions to convert fields to (rich) types, e.g., `int` → `timedelta`.
 
 Summary Functions
 ------------------
