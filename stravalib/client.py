@@ -281,30 +281,39 @@ class Client(object):
 
         https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
 
-        :param city: City the athlete lives in
+        Parameters
+        -----------
+        city : str
+            City the athlete lives in
 
-                     .. deprecated:: 1.0
-                     This param is not supported by the Strava API and may be
-                     removed in the future.
-        :param state: State the athlete lives in
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+            removed in the future.
+        state : str
+            State the athlete lives in
 
-                      .. deprecated:: 1.0
-                      This param is not supported by the Strava API and may be
-                      removed in the future.
-        :param country: Country the athlete lives in
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+            removed in the future.
+        country : str
+            Country the athlete lives in
 
-                        .. deprecated:: 1.0
-                        This param is not supported by the Strava API and may be
-                        removed in the future.
-        :param sex: Sex of the athlete
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+             removed in the future.
+        sex : str
+            Sex of the athlete
 
-                    .. deprecated:: 1.0
-                    This param is not supported by the Strava API and may be
-                    removed in the future.
-        :param weight: Weight of the athlete in kg (float)
+            .. deprecated:: 1.0
+            This param is not supported by the Strava API and may be
+            removed in the future.
+        weight : float
+            Weight of the athlete in kg (float)
 
-        :return: The updated athlete
-        :rtype: :class:`stravalib.model.Athlete`
+        Returns
+        --------
+        :class:`stravalib.model.Athlete`
+            The updated athlete object
         """
         params = {"city": city, "state": state, "country": country, "sex": sex}
         params = {k: v for (k, v) in params.items() if v is not None}
