@@ -1,4 +1,5 @@
 .. automodule:: stravalib.model
+    :inherited-members: BaseModel
 
 
 Summary Functions
@@ -50,4 +51,3 @@ Summary Classes
    Subscription
    SubscriptionCallback
    SubscriptionUpdate
-
