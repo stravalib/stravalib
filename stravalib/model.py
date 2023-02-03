@@ -3,11 +3,13 @@
 Model Functions and Classes
 ==============================
 This module contains entity classes for representing the various Strava
-datatypes. These classes include objects that store data for for entities such
-as Activities, Gear and more. When called the Client object is bound to each
-entity object so support authentication and API calls that collect data.
-
+datatypes, such as Activity, Gear, and more. These entities inherit
+fields from superclasses in `strava_model.py`, which is generated from
+the official Strava API specification. The classes in this module add
+behavior such as type enrichment, unit conversion, and lazy loading
+related entities from the API.
 """
+
 from __future__ import annotations
 
 import logging
