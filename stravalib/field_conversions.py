@@ -36,6 +36,7 @@ def enum_value(v: Enum) -> Any:
 def enum_values(enums: Sequence[Enum]) -> List:
     # Pydantic (1.x) has config for using enum values, but unfortunately
     # it doesn't work for lists of enums.
+    # See https://github.com/pydantic/pydantic/issues/5005
     return [enum_value(e) for e in enums]
 
 
