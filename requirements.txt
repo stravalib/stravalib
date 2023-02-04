@@ -15,10 +15,10 @@ pytest
 pytest-cov
 
 # Docs
-furo
+pydata-sphinx-theme
 # Support pydantic autodoc
 autodoc_pydantic
-# Support markdown w full rst functionality
+sphinx_remove_toctrees
 myst-nb
 sphinx-autobuild
 sphinx-inline-tabs
