@@ -1,5 +1,29 @@
 # Get Started Using Stravalib
 
+```{toctree}
+:hidden:
+:caption: Get Started
+
+Install Stravalib <self>
+Overview <overview>
+Authentication <authenticate-with-strava>
+Activities <activities>
+Athletes <athletes>
+
+```
+
+```{toctree}
+:hidden:
+:caption: Contributing
+:maxdepth: 2
+
+Contributing Guide <../contributing/how-to-contribute>
+Development Guide <../contributing/development-guide>
+Build & Release Guide <../contributing/build-release-guide>
+New Contributor Resources <../contributing/resources-for-new-contributors>
+Change Log <../contributing/documentation-changelog>
+```
+
 ## Install stravalib
 
 The package is available on PyPI to be installed using `pip`.
@@ -52,8 +76,3 @@ The API also gives you access to your athlete account information including
 friends, followers and more. Learn how to work with that data here.
 :::
 ::::
-
-
-
-
-
