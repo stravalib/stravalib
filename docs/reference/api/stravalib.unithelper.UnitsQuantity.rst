@@ -5,25 +5,24 @@
 
 .. autoclass:: UnitsQuantity
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~UnitsQuantity.__init__
-   
-   
 
-   
-   
+      ~UnitsQuantity.__init__
+
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~UnitsQuantity.num
       ~UnitsQuantity.unit
-   
-   
+
