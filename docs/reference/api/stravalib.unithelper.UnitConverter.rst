@@ -5,18 +5,17 @@
 
 .. autoclass:: UnitConverter
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~UnitConverter.__init__
-   
-   
 
-   
-   
-   
+      ~UnitConverter.__init__
+
+
+
+
+

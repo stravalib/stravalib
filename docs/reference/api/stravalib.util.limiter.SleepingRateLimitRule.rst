@@ -5,18 +5,17 @@
 
 .. autoclass:: SleepingRateLimitRule
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~SleepingRateLimitRule.__init__
-   
-   
 
-   
-   
-   
+      ~SleepingRateLimitRule.__init__
+
+
+
+
+
