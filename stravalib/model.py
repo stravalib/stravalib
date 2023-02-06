@@ -23,7 +23,7 @@ from pydantic.datetime_parse import parse_datetime
 from stravalib import exc
 from stravalib import unithelper as uh
 from stravalib.exc import warn_method_deprecation
-from stravalib.field_conversions import enum_values, time_interval, timezone
+from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
@@ -143,15 +143,22 @@ class BackwardCompatibilityMixin:
     """
     Mixin that intercepts attribute lookup and raises warnings or modifies return values
     based on what is defined in the following class attributes:
+
+    * _field_conversions
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
-    * _field_conversions
     """
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
         if attr in ["_field_conversions", "bound_client"] or attr.startswith('_'):
             return value
+        try:
+            if attr in self._field_conversions:
+                return self._field_conversions[attr](value)
+        except AttributeError:
+            # Current model class has no field conversions defined
+            pass
         try:
             value.bound_client = self.bound_client
             return value
@@ -163,12 +170,6 @@ class BackwardCompatibilityMixin:
             return value
         except (AttributeError, ValueError, TypeError):
             # TypeError if v is not iterable
-            pass
-        try:
-            if attr in self._field_conversions:
-                return self._field_conversions[attr](value)
-        except AttributeError:
-            # Current model class has no field conversions defined
             pass
         return value
 
@@ -688,9 +689,8 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
         'total_elevation_gain': uh.meters,
         'average_speed': uh.meters_per_second,
         'max_speed': uh.meters_per_second,
-        'type': enum_values,
-        'sport_type': enum_values
-
+        'type': enum_value,
+        'sport_type': enum_value
     }
 
     _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
