@@ -55,7 +55,9 @@ class TestLegacyModelSerialization:
             {"distance": 100.0},
             UnitConverter("meters")(100.0),
         ),
-        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam'))
+        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam')),
+        (Club, {'activity_types': ['Run', 'Ride']}, ['Run', 'Ride']),
+        (Activity, {'sport_type': 'Run'}, 'Run')
     ),
 )
 def test_backward_compatibility_mixin_field_conversions(
