@@ -1982,11 +1982,11 @@
         ],
         "responses": {
           "200": {
-            "description": "A list of summary athlete representations.",
+            "description": "A list of club athlete representations.",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "https://developers.strava.com/swagger/athlete.json#/SummaryAthlete"
+                "$ref": "https://developers.strava.com/swagger/athlete.json#/ClubAthlete"
               }
             },
             "examples": {
@@ -2093,7 +2093,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "https://developers.strava.com/swagger/activity.json#/SummaryActivity"
+                "$ref": "https://developers.strava.com/swagger/activity.json#/ClubActivity"
               }
             },
             "examples": {

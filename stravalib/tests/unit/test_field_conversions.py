@@ -1,5 +1,3 @@
-from enum import Enum
-
 import pytest
 import pytz
 
@@ -9,6 +7,7 @@ from stravalib.field_conversions import (
     optional_input,
     timezone,
 )
+from stravalib.strava_model import ActivityType, SportType
 
 
 def test_optional_input():
@@ -20,18 +19,12 @@ def test_optional_input():
     assert foo(None) is None
 
 
-class Foo(Enum):
-    FOO = "foo"
-    BAR = "bar"
-
-
-@pytest.mark.parametrize("arg,expected_value", ((Foo.FOO, "foo"), (42, 42)))
-def test_enum_value(arg, expected_value):
-    assert enum_value(arg) == expected_value
+def test_enum_value():
+    assert enum_value(ActivityType(__root__='Run')) == 'Run'
 
 
 def test_enum_values():
-    assert enum_values([Foo.FOO, 42, Foo.BAR]) == ["foo", 42, "bar"]
+    assert enum_values([ActivityType(__root__='Run'), SportType(__root__='Ride')]) == ["Run", "Ride"]
 
 
 @pytest.mark.parametrize(

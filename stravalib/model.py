@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, get_args
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -658,7 +658,7 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
 
     # Added for backward compatibility
     # TODO maybe deprecate?
-    TYPES: ClassVar[Tuple] = tuple(t.value for t in ActivityType)
+    TYPES: ClassVar[Tuple] = get_args(ActivityType.__fields__['__root__'].type_)
 
     # Undocumented attributes:
     guid: Optional[str] = None
