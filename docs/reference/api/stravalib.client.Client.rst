@@ -73,4 +73,3 @@
    .. autosummary::
 
       ~Client.access_token
-
