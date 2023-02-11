@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, get_args
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union, get_args
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -83,9 +83,13 @@ def lazy_property(fn):
 
 # Custom validators for some edge cases:
 
-def check_valid_location(location: Optional[List[float]]) -> Optional[List[float]]:
-    # location for activities without GPS may be returned as empty list
-    return location if location else None
+def check_valid_location(location: Optional[Union[List[float], str]]) -> Optional[List[float]]:
+    # legacy serialized form is str, so in case of attempting to de-serialize from local storage:
+    try:
+        return [float(l) for l in location.split(',')]
+    except AttributeError:
+        # location for activities without GPS may be returned as empty list by Strava
+        return location if location else None
 
 
 def naive_datetime(value: Optional[Any]) -> Optional[datetime]:

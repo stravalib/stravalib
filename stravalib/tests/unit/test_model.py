@@ -11,12 +11,15 @@ from stravalib import unithelper as uh
 from stravalib.model import (
     Activity,
     ActivityLap,
+    ActivityPhoto,
     ActivityTotals,
     BackwardCompatibilityMixin,
     BaseEffort,
     BoundClientEntity,
     Club,
+    LatLon,
     Segment,
+    SegmentExplorerResult,
     SubscriptionCallback,
 )
 from stravalib.strava_model import LatLng
@@ -70,8 +73,11 @@ def test_backward_compatibility_mixin_field_conversions(
 @pytest.mark.parametrize(
     'model_class,raw,expected_value',
     (
+        (Activity, {'start_latlng': "5.4,4.3"}, LatLon(__root__=[5.4, 4.3])),
         (Activity, {'start_latlng': []}, None),
         (Segment, {'start_latlng': []}, None),
+        (SegmentExplorerResult, {'start_latlng': []}, None),
+        (ActivityPhoto, {'location': []}, None),
         (Activity, {'timezone': 'foobar'}, None),
         (Activity, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
         (BaseEffort, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
