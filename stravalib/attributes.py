@@ -182,7 +182,11 @@ class LocationAttribute(Attribute):
         """
         """
         if not isinstance(v, LatLon):
-            v = LatLon(lat=v[0], lon=v[1]) if v else None
+            if type(v) == str:
+                lat, lon = v.split(',')
+                v = LatLon(lat=lat, lon=lon)
+            else:
+                v = LatLon(lat=v[0], lon=v[1]) if v else None
         return v
 
 
