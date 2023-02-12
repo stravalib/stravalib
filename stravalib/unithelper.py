@@ -7,9 +7,11 @@ from numbers import Number
 from typing import Any, Protocol, Union, runtime_checkable
 
 import pint
+from pint import UnitRegistry
 
 from stravalib.exc import warn_units_deprecated
 
+ureg = UnitRegistry()
 
 @runtime_checkable
 class UnitsQuantity(Protocol):
@@ -22,44 +24,32 @@ class UnitsQuantity(Protocol):
     unit: str
 
 
-class Quantity:
+class Quantity(pint.Quantity):
     """
-    Wraps `pint.Quantity`. Subclassing didn't work because pint has some heavily
-    customized attribute lookup
+    Extension of `pint.Quantity` for temporary backward compatibility with
+    the legacy `units` package.
     """
-
-    def __init__(self, q: pint.Quantity):
-        self.q = q
 
     @property
     def num(self):
         warn_units_deprecated()
-        return self.q.magnitude
+        return self.magnitude
 
     @property
     def unit(self):
         warn_units_deprecated()
-        return str(self.q.units)
+        return str(self.units)
 
     def __int__(self):
-        return int(self.q.magnitude)
+        return int(self.magnitude)
 
     def __float__(self):
-        return float(self.q.magnitude)
-
-    def __getattr__(self, item):
-        return getattr(self.q, item)
-
-    def __str__(self):
-        return str(self.q)
-
-    def __repr__(self):
-        return repr(self.q)
+        return float(self.magnitude)
 
 
 class UnitConverter:
     def __init__(self, unit: str):
-        self.unit = pint.Unit(unit)
+        self.unit = getattr(ureg, unit)
 
     def __call__(self, q: Union[Number, pint.Quantity, UnitsQuantity]):
         if isinstance(q, Number):
@@ -71,9 +61,11 @@ class UnitConverter:
             except AttributeError:
                 # unexpected type of quantity, maybe it's a legacy `units` Quantity
                 warn_units_deprecated()
-                converted_q = (pint.Unit(str(q.unit)) * q.num).to(self.unit)
+                converted_q = (getattr(ureg, str(q.unit)) * q.num).to(self.unit)
 
-        return Quantity(converted_q)  # adds legacy `units` behavior
+        converted_q.__class__ = Quantity  # adds legacy `units` behavior
+        converted_q._REGISTRY = ureg
+        return converted_q
 
 
 def is_quantity_type(obj: Any):
