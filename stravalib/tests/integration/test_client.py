@@ -6,6 +6,7 @@ import pytest
 import responses
 from responses import matchers
 
+import stravalib.unithelper as uh
 from stravalib.client import ActivityUploader
 from stravalib.exc import ActivityPhotoUploadFailed
 from stravalib.tests import RESOURCES_DIR
@@ -314,6 +315,19 @@ def test_get_activities(mock_strava_api, client, limit, n_raw_results, expected_
     assert len(activity_list) == expected_n_activities
     if expected_n_activities > 0:
         assert activity_list[0].name == 'test_activity'
+
+
+def test_get_activities_quantity_addition(mock_strava_api, client):
+    mock_strava_api.get(
+        '/athlete/activities',
+        response_update={'distance': 1000.0},
+        n_results=2
+    )
+    act_list = list(client.get_activities(limit=2))
+    total_d = uh.meters(0)
+    total_d += act_list[0].distance
+    total_d += act_list[1].distance
+    assert total_d == uh.meters(2000.)
 
 
 def test_get_activities_paged(mock_strava_api, client):

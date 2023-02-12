@@ -7,11 +7,10 @@ from numbers import Number
 from typing import Any, Protocol, Union, runtime_checkable
 
 import pint
-from pint import UnitRegistry
 
 from stravalib.exc import warn_units_deprecated
+from stravalib.unit_registry import Q_
 
-ureg = UnitRegistry()
 
 @runtime_checkable
 class UnitsQuantity(Protocol):
@@ -24,7 +23,7 @@ class UnitsQuantity(Protocol):
     unit: str
 
 
-class Quantity(pint.Quantity):
+class Quantity(Q_):
     """
     Extension of `pint.Quantity` for temporary backward compatibility with
     the legacy `units` package.
@@ -49,22 +48,20 @@ class Quantity(pint.Quantity):
 
 class UnitConverter:
     def __init__(self, unit: str):
-        self.unit = getattr(ureg, unit)
+        self.unit = unit
 
     def __call__(self, q: Union[Number, pint.Quantity, UnitsQuantity]):
         if isinstance(q, Number):
             # provided quantity is unitless, so mimick legacy `units` behavior:
-            converted_q = self.unit * q
+            converted_q = Quantity(q, self.unit)
         else:
             try:
                 converted_q = q.to(self.unit)
             except AttributeError:
                 # unexpected type of quantity, maybe it's a legacy `units` Quantity
                 warn_units_deprecated()
-                converted_q = (getattr(ureg, str(q.unit)) * q.num).to(self.unit)
+                converted_q = Quantity(q.num, q.unit).to(self.unit)
 
-        converted_q.__class__ = Quantity  # adds legacy `units` behavior
-        converted_q._REGISTRY = ureg
         return converted_q
 
 
