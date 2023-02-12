@@ -7,6 +7,7 @@
 * Add: Pre-commit hook + instructions and configure precommit.ci bot (@lwasser, #293)
 * Fix: Setuptools_scm bug when installing stravalib remotely via GitHub (@lwasser, #331)
 * Fix: fix LatLon unmarshal from string type (@oliverkurth, #334)
+* Fix: allows arithmetic and comparison between multiple quantities (jsamoocha, #335)
 
 ## v1.1.0
 
