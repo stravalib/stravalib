@@ -1,11 +1,12 @@
 import logging
 from datetime import timedelta
-from enum import Enum
 from functools import wraps
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any, Callable, List, Optional, Sequence, Union
 
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
+
+from stravalib.strava_model import ActivityType, SportType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,9 +23,9 @@ def optional_input(field_conversion_fn: Callable) -> Callable:
 
 
 @optional_input
-def enum_value(v: Enum) -> Any:
+def enum_value(v: Union[ActivityType, SportType]) -> str:
     try:
-        return v.value
+        return v.__root__
     except AttributeError:
         LOGGER.warning(
             f"{v} is not an enum, returning itself instead of its value"
@@ -33,7 +34,7 @@ def enum_value(v: Enum) -> Any:
 
 
 @optional_input
-def enum_values(enums: Sequence[Enum]) -> List:
+def enum_values(enums: Sequence[Union[ActivityType, SportType]]) -> List:
     # Pydantic (1.x) has config for using enum values, but unfortunately
     # it doesn't work for lists of enums.
     # See https://github.com/pydantic/pydantic/issues/5005

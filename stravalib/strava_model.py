@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
 from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field, conint
@@ -41,48 +40,49 @@ class ActivityTotal(BaseModel):
     """
 
 
-class ActivityType(Enum):
+class ActivityType(BaseModel):
+    __root__: Literal[
+        "AlpineSki",
+        "BackcountrySki",
+        "Canoeing",
+        "Crossfit",
+        "EBikeRide",
+        "Elliptical",
+        "Golf",
+        "Handcycle",
+        "Hike",
+        "IceSkate",
+        "InlineSkate",
+        "Kayaking",
+        "Kitesurf",
+        "NordicSki",
+        "Ride",
+        "RockClimbing",
+        "RollerSki",
+        "Rowing",
+        "Run",
+        "Sail",
+        "Skateboard",
+        "Snowboard",
+        "Snowshoe",
+        "Soccer",
+        "StairStepper",
+        "StandUpPaddling",
+        "Surfing",
+        "Swim",
+        "Velomobile",
+        "VirtualRide",
+        "VirtualRun",
+        "Walk",
+        "WeightTraining",
+        "Wheelchair",
+        "Windsurf",
+        "Workout",
+        "Yoga",
+    ]
     """
     An enumeration of the types an activity may have. Note that this enumeration does not include new sport types (e.g. MountainBikeRide, EMountainBikeRide), activities with these sport types will have the corresponding activity type (e.g. Ride for MountainBikeRide, EBikeRide for EMountainBikeRide)
     """
-
-    AlpineSki = "AlpineSki"
-    BackcountrySki = "BackcountrySki"
-    Canoeing = "Canoeing"
-    Crossfit = "Crossfit"
-    EBikeRide = "EBikeRide"
-    Elliptical = "Elliptical"
-    Golf = "Golf"
-    Handcycle = "Handcycle"
-    Hike = "Hike"
-    IceSkate = "IceSkate"
-    InlineSkate = "InlineSkate"
-    Kayaking = "Kayaking"
-    Kitesurf = "Kitesurf"
-    NordicSki = "NordicSki"
-    Ride = "Ride"
-    RockClimbing = "RockClimbing"
-    RollerSki = "RollerSki"
-    Rowing = "Rowing"
-    Run = "Run"
-    Sail = "Sail"
-    Skateboard = "Skateboard"
-    Snowboard = "Snowboard"
-    Snowshoe = "Snowshoe"
-    Soccer = "Soccer"
-    StairStepper = "StairStepper"
-    StandUpPaddling = "StandUpPaddling"
-    Surfing = "Surfing"
-    Swim = "Swim"
-    Velomobile = "Velomobile"
-    VirtualRide = "VirtualRide"
-    VirtualRun = "VirtualRun"
-    Walk = "Walk"
-    WeightTraining = "WeightTraining"
-    Wheelchair = "Wheelchair"
-    Windsurf = "Windsurf"
-    Workout = "Workout"
-    Yoga = "Yoga"
 
 
 class BaseStream(BaseModel):
@@ -104,6 +104,33 @@ class CadenceStream(BaseStream):
     data: Optional[List[int]] = None
     """
     The sequence of cadence values for this stream, in rotations per minute
+    """
+
+
+class ClubAthlete(BaseModel):
+    admin: Optional[bool] = None
+    """
+    Whether the athlete is a club admin.
+    """
+    firstname: Optional[str] = None
+    """
+    The athlete's first name.
+    """
+    lastname: Optional[str] = None
+    """
+    The athlete's last initial.
+    """
+    member: Optional[str] = None
+    """
+    The athlete's member status.
+    """
+    owner: Optional[bool] = None
+    """
+    Whether the athlete is club owner.
+    """
+    resource_state: Optional[int] = None
+    """
+    Resource state, indicates level of detail. Possible values: 1 -> "meta", 2 -> "summary", 3 -> "detail"
     """
 
 
@@ -302,70 +329,81 @@ class Split(BaseModel):
     """
 
 
-class SportType(Enum):
+class SportType(BaseModel):
+    __root__: Literal[
+        "AlpineSki",
+        "BackcountrySki",
+        "Badminton",
+        "Canoeing",
+        "Crossfit",
+        "EBikeRide",
+        "Elliptical",
+        "EMountainBikeRide",
+        "Golf",
+        "GravelRide",
+        "Handcycle",
+        "HighIntensityIntervalTraining",
+        "Hike",
+        "IceSkate",
+        "InlineSkate",
+        "Kayaking",
+        "Kitesurf",
+        "MountainBikeRide",
+        "NordicSki",
+        "Pickleball",
+        "Pilates",
+        "Racquetball",
+        "Ride",
+        "RockClimbing",
+        "RollerSki",
+        "Rowing",
+        "Run",
+        "Sail",
+        "Skateboard",
+        "Snowboard",
+        "Snowshoe",
+        "Soccer",
+        "Squash",
+        "StairStepper",
+        "StandUpPaddling",
+        "Surfing",
+        "Swim",
+        "TableTennis",
+        "Tennis",
+        "TrailRun",
+        "Velomobile",
+        "VirtualRide",
+        "VirtualRow",
+        "VirtualRun",
+        "Walk",
+        "WeightTraining",
+        "Wheelchair",
+        "Windsurf",
+        "Workout",
+        "Yoga",
+    ]
     """
     An enumeration of the sport types an activity may have. Distinct from ActivityType in that it has new types (e.g. MountainBikeRide)
     """
 
-    AlpineSki = "AlpineSki"
-    BackcountrySki = "BackcountrySki"
-    Canoeing = "Canoeing"
-    Crossfit = "Crossfit"
-    EBikeRide = "EBikeRide"
-    Elliptical = "Elliptical"
-    EMountainBikeRide = "EMountainBikeRide"
-    Golf = "Golf"
-    GravelRide = "GravelRide"
-    Handcycle = "Handcycle"
-    Hike = "Hike"
-    IceSkate = "IceSkate"
-    InlineSkate = "InlineSkate"
-    Kayaking = "Kayaking"
-    Kitesurf = "Kitesurf"
-    MountainBikeRide = "MountainBikeRide"
-    NordicSki = "NordicSki"
-    Ride = "Ride"
-    RockClimbing = "RockClimbing"
-    RollerSki = "RollerSki"
-    Rowing = "Rowing"
-    Run = "Run"
-    Sail = "Sail"
-    Skateboard = "Skateboard"
-    Snowboard = "Snowboard"
-    Snowshoe = "Snowshoe"
-    Soccer = "Soccer"
-    StairStepper = "StairStepper"
-    StandUpPaddling = "StandUpPaddling"
-    Surfing = "Surfing"
-    Swim = "Swim"
-    TrailRun = "TrailRun"
-    Velomobile = "Velomobile"
-    VirtualRide = "VirtualRide"
-    VirtualRun = "VirtualRun"
-    Walk = "Walk"
-    WeightTraining = "WeightTraining"
-    Wheelchair = "Wheelchair"
-    Windsurf = "Windsurf"
-    Workout = "Workout"
-    Yoga = "Yoga"
 
-
-class StreamType(Enum):
+class StreamType(BaseModel):
+    __root__: Literal[
+        "time",
+        "distance",
+        "latlng",
+        "altitude",
+        "velocity_smooth",
+        "heartrate",
+        "cadence",
+        "watts",
+        "temp",
+        "moving",
+        "grade_smooth",
+    ]
     """
     An enumeration of the supported types of streams.
     """
-
-    time = "time"
-    distance = "distance"
-    latlng = "latlng"
-    altitude = "altitude"
-    velocity_smooth = "velocity_smooth"
-    heartrate = "heartrate"
-    cadence = "cadence"
-    watts = "watts"
-    temp = "temp"
-    moving = "moving"
-    grade_smooth = "grade_smooth"
 
 
 class SummaryActivity(MetaActivity):
@@ -612,9 +650,7 @@ class SummaryClub(MetaClub):
     """
     URL to a 60x60 pixel profile picture.
     """
-    sport_type: Optional[
-        Literal["cycling", "running", "triathlon", "other"]
-    ] = None
+    sport_type: Optional[Literal["cycling", "running", "triathlon", "other"]] = None
     """
     Deprecated. Prefer to use activity_types.
     """
@@ -851,6 +887,39 @@ class AltitudeStream(BaseStream):
     """
 
 
+class ClubActivity(BaseModel):
+    athlete: Optional[MetaAthlete] = None
+    distance: Optional[float] = None
+    """
+    The activity's distance, in meters
+    """
+    elapsed_time: Optional[int] = None
+    """
+    The activity's elapsed time, in seconds
+    """
+    moving_time: Optional[int] = None
+    """
+    The activity's moving time, in seconds
+    """
+    name: Optional[str] = None
+    """
+    The name of the activity
+    """
+    sport_type: Optional[SportType] = None
+    total_elevation_gain: Optional[float] = None
+    """
+    The activity's total elevation gain.
+    """
+    type: Optional[ActivityType] = None
+    """
+    Deprecated. Prefer to use sport_type
+    """
+    workout_type: Optional[int] = None
+    """
+    The activity's workout type
+    """
+
+
 class ClubAnnouncement(BaseModel):
     athlete: Optional[SummaryAthlete] = None
     club_id: Optional[int] = None
@@ -973,9 +1042,7 @@ class ExplorerSegment(BaseModel):
     """
     The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category. If climb_category = 5, climb_category_desc = HC. If climb_category = 2, climb_category_desc = 3.
     """
-    climb_category_desc: Optional[
-        Literal["NC", "4", "3", "2", "1", "HC"]
-    ] = None
+    climb_category_desc: Optional[Literal["NC", "4", "3", "2", "1", "HC"]] = None
     """
     The description for the category of the climb
     """
