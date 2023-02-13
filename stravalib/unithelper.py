@@ -77,14 +77,14 @@ def is_quantity_type(obj: Any):
 
 meter = meters = UnitConverter('m')
 second = seconds = UnitConverter('s')
-hour = hours = UnitConverter('h')
+hour = hours = UnitConverter('hour')
 foot = feet = UnitConverter('ft')
 mile = miles = UnitConverter('mi')
 kilometer = kilometers = UnitConverter('km')
 
 meters_per_second = UnitConverter('m/s')
-miles_per_hour = mph = UnitConverter('mi/h')
-kilometers_per_hour = kph = UnitConverter('km/h')
+miles_per_hour = mph = UnitConverter('mi/hour')
+kilometers_per_hour = kph = UnitConverter('km/hour')
 kilogram = kilograms = kg = kgs = UnitConverter('kg')
 pound = pounds = lb = lbs = UnitConverter('lb')
 
