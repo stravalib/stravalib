@@ -1,4 +1,6 @@
 from stravalib.client import Client
 
-# Make version number available via the API
-from ._version import __version__
+try:
+    from ._version_generated import __version__
+except ImportError:
+    __version__ = "unreleased"

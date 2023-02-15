@@ -9,6 +9,8 @@ version_scheme =  "post-release"
 # (so there isn't a + in the version)
 local_scheme = "no-local-version"
 write_to =  "stravalib/_version_generated.py"
+write_to_template = '__version__ = "v{version}"'
+
 
 [project]
 name = "stravalib"
