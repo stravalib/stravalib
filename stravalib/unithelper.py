@@ -9,6 +9,7 @@ from typing import Any, Protocol, Union, runtime_checkable
 import pint
 
 from stravalib.exc import warn_units_deprecated
+from stravalib.unit_registry import Q_
 
 
 @runtime_checkable
@@ -22,58 +23,46 @@ class UnitsQuantity(Protocol):
     unit: str
 
 
-class Quantity:
+class Quantity(Q_):
     """
-    Wraps `pint.Quantity`. Subclassing didn't work because pint has some heavily
-    customized attribute lookup
+    Extension of `pint.Quantity` for temporary backward compatibility with
+    the legacy `units` package.
     """
-
-    def __init__(self, q: pint.Quantity):
-        self.q = q
 
     @property
     def num(self):
         warn_units_deprecated()
-        return self.q.magnitude
+        return self.magnitude
 
     @property
     def unit(self):
         warn_units_deprecated()
-        return str(self.q.units)
+        return str(self.units)
 
     def __int__(self):
-        return int(self.q.magnitude)
+        return int(self.magnitude)
 
     def __float__(self):
-        return float(self.q.magnitude)
-
-    def __getattr__(self, item):
-        return getattr(self.q, item)
-
-    def __str__(self):
-        return str(self.q)
-
-    def __repr__(self):
-        return repr(self.q)
+        return float(self.magnitude)
 
 
 class UnitConverter:
     def __init__(self, unit: str):
-        self.unit = pint.Unit(unit)
+        self.unit = unit
 
     def __call__(self, q: Union[Number, pint.Quantity, UnitsQuantity]):
         if isinstance(q, Number):
             # provided quantity is unitless, so mimick legacy `units` behavior:
-            converted_q = self.unit * q
+            converted_q = Quantity(q, self.unit)
         else:
             try:
                 converted_q = q.to(self.unit)
             except AttributeError:
                 # unexpected type of quantity, maybe it's a legacy `units` Quantity
                 warn_units_deprecated()
-                converted_q = (pint.Unit(str(q.unit)) * q.num).to(self.unit)
+                converted_q = Quantity(q.num, q.unit).to(self.unit)
 
-        return Quantity(converted_q)  # adds legacy `units` behavior
+        return converted_q
 
 
 def is_quantity_type(obj: Any):
@@ -88,14 +77,14 @@ def is_quantity_type(obj: Any):
 
 meter = meters = UnitConverter('m')
 second = seconds = UnitConverter('s')
-hour = hours = UnitConverter('h')
+hour = hours = UnitConverter('hour')
 foot = feet = UnitConverter('ft')
 mile = miles = UnitConverter('mi')
 kilometer = kilometers = UnitConverter('km')
 
 meters_per_second = UnitConverter('m/s')
-miles_per_hour = mph = UnitConverter('mi/h')
-kilometers_per_hour = kph = UnitConverter('km/h')
+miles_per_hour = mph = UnitConverter('mi/hour')
+kilometers_per_hour = kph = UnitConverter('km/hour')
 kilogram = kilograms = kg = kgs = UnitConverter('kg')
 pound = pounds = lb = lbs = UnitConverter('lb')
 
