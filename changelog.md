@@ -1,7 +1,21 @@
 # Change Log
 
-## Unreleased
-* Add: pydantic_autodoc to sphinx build and reconfigure api structure - p1 (@lwasser, #326)
+## v1.3.0rc0
+
+### Added
+* Adds Strava API changes, and datamodel-code-generator bug fix (@jsamoocha, #333)
+* Add: Replace full legacy model with extensions from the generated pydantic model (@jsamoocha, #324)
+* Add: Add support for  lazy loading related entities (@jsamoocha, #322)
+* Add: Add support for nested model attributes(@jsamoocha, #316)
+* Add: replaces implementations for the classes Club, Gear, ActivityTotals, AthleteStats, and Athlete by the generated Pydantic model & backwards compatibility (@jsamoocha, #315)
+* Add: Workflow for updating strava model when the API changes (@jsamoocha, #302)
+* Add: `pydantic_autodoc` to sphinx build and reconfigure api structure - p1 (@lwasser, #326)
+
+### Fixed
+Fix: Corrects attribute lookup for enum values (@jsamoocha,#329)
+
+### Contributors to this release
+@jsamoocha, @lwasser, @oliverkurth
 
 ## v1.2.0
 
@@ -14,7 +28,7 @@
 * Fix: Internal warnings should be ignored in tests (@jsamoocha, #319)
 * Fix: `setuptools_scm` bug when installing stravalib remotely via GitHub (@lwasser, #331)
 * Fix: fix LatLon unmarshal from string type (@oliverkurth, #334)
-* Fix: allows arithmetic and comparison between multiple quantities (jsamoocha, #335)
+* Fix: allows arithmetic and comparison between multiple quantities (@jsamoocha, #335)
 
 ### Contributors to this release
 @oliverkurth, @gitexel, @jsamoocha, @lwasser
