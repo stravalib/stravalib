@@ -12,7 +12,17 @@
 * Add: `pydantic_autodoc` to sphinx build and reconfigure api structure - p1 (@lwasser, #326)
 
 ### Fixed
-Fix: Corrects attribute lookup for enum values (@jsamoocha,#329)
+* Fix: Corrects attribute lookup for enum values (@jsamoocha,#329)
+
+### Deprecated
+* The `BaseEntity` methods `deserialize()`, `from_dict()`, and `to_dict()` are deprecated and will raise a `DeprecationWarning` when they're used. They should be replaced by the pydantic methods `parse_obj()` and `dict()` or `json()`.
+
+### Removed
+* The complete `attributes` module
+* All the abstract entity types (e.g. `IdentifiableEntity`, `LoadableEntity`) from the `model` module
+* Constants used for activity types such as `Activity.RIDE`
+* `HeartrateActivityZone`, `PowerActivityZone`, `PaceActivityZone` as subtypes of `BaseActivityZone` (the latter is retained)
+* Everything related to segment leaderboards as this is not supported by Strava anymore
 
 ### Contributors to this release
 @jsamoocha, @lwasser, @oliverkurth
