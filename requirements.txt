@@ -15,7 +15,8 @@ pytest
 pytest-cov
 
 # Docs
-pydata-sphinx-theme
+# Pinning to avoid a current bug in 0.13
+pydata-sphinx-theme==0.12.0
 # Support pydantic autodoc
 autodoc_pydantic
 sphinx_remove_toctrees
