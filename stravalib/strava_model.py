@@ -650,7 +650,9 @@ class SummaryClub(MetaClub):
     """
     URL to a 60x60 pixel profile picture.
     """
-    sport_type: Optional[Literal["cycling", "running", "triathlon", "other"]] = None
+    sport_type: Optional[
+        Literal["cycling", "running", "triathlon", "other"]
+    ] = None
     """
     Deprecated. Prefer to use activity_types.
     """
@@ -1042,7 +1044,9 @@ class ExplorerSegment(BaseModel):
     """
     The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category. If climb_category = 5, climb_category_desc = HC. If climb_category = 2, climb_category_desc = 3.
     """
-    climb_category_desc: Optional[Literal["NC", "4", "3", "2", "1", "HC"]] = None
+    climb_category_desc: Optional[
+        Literal["NC", "4", "3", "2", "1", "HC"]
+    ] = None
     """
     The description for the category of the climb
     """
