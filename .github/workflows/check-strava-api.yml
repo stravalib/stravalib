@@ -29,3 +29,5 @@ jobs:
           body: |
             There were changes in the Strava API:
             [Please edit this comment to indicate what has changed]
+
+            - [ ] The changelog is updated (only when necessary)
