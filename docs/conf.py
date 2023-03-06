@@ -52,6 +52,9 @@ else:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.napoleon", # Numpy style doc support
+    "sphinx_remove_toctrees", # Remove api generated stubs from doctree
+    "sphinxcontrib.autodoc_pydantic",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.ifconfig",
@@ -63,6 +66,13 @@ extensions = [
     "sphinxext.opengraph",
     "sphinx_inline_tabs",
 ]
+
+remove_from_toctrees = ["docs/reference/api/*"]
+
+# https://autodoc-pydantic.readthedocs.io/en/stable/users/installation.html
+autodoc_pydantic_model_show_json = True
+autodoc_pydantic_settings_show_json = False
+autosummary_generate = True
 
 # Colon fence for card support in md
 myst_enable_extensions = ["colon_fence"]
@@ -93,16 +103,27 @@ pygments_style = "sphinx"
 # The title in the left hand corner of the docs
 html_title = "Stravalib Docs"
 # Theme and css
-html_theme = "furo"
+html_theme = "pydata_sphinx_theme"
 # Add edit button to furo theme
+
+# Link to our repo for easy PR/ editing
 html_theme_options = {
-    "source_repository": "https://github.com/stravalib/stravalib/",
-    "source_branch": "master",
-    "source_directory": "docs/",
+    "header_links_before_dropdown": 4,
+    "use_edit_page_button": True,
+    "show_toc_level": 1,
+    #"navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
+    "github_url": "https://github.com/stravalib/stravalib",
+    "footer_items": ["copyright"],
+}
+
+html_context = {
+    "github_user": "stravalib",
+    "github_repo": "stravalib",
+    "github_version": "master",
 }
 
 html_static_path = ["_static"]
-html_css_files = ["stravalib.css"]
+#html_css_files = ["stravalib.css"]
 
 # Short title for the navigation bar.
 html_short_title = "Stravalib Python Package Documentation"
@@ -123,40 +144,8 @@ linkcheck_ignore = [r"https://www.instagram.com/accounts/login/"]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-# Add any extra paths that contain custom files (such as robots.txt or
-# .htaccess) here, relative to this directory. These files are copied
-# directly to the root of the documentation.
-# html_extra_path = []
-
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-# html_last_updated_fmt = '%b %d, %Y'
-
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-# html_use_smartypants = True
-
-# Custom sidebar templates, maps document names to template names.
-# html_sidebars = {}
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-# html_additional_pages = {}
-
-# If false, no module index is generated.
-# html_domain_indices = True
-
-# If false, no index is generated.
-# html_use_index = True
-
-# If true, the index is split into individual pages for each letter.
-# html_split_index = False
-
-# If true, links to the reST sources are added to the pages.
-# html_show_sourcelink = True
-
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 html_show_copyright = True

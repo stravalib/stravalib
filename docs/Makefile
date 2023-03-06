@@ -33,6 +33,7 @@ clean:
 	rm -rf $(BUILDDIR)/html/*
 	rm -rf $(BUILDDIR)/doctrees
 	rm -rf $(BUILDDIR)/linkcheck
+	rm -rf reference/api
 	rm -rf .ipynb_checkpoints
 
 html:

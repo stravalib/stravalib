@@ -86,10 +86,9 @@ There are numerous reasons to use stravalib in your workflows:
 
 ```{toctree}
 :hidden:
-:caption: Take me home!
 :maxdepth: 2
 
-Home <self>
+🏠 Home <self>
 ```
 
 ```{toctree}
@@ -97,22 +96,7 @@ Home <self>
 :caption: Get Started
 
 Get Started <get-started/index>
-Authentication <get-started/authenticate-with-strava>
-Activities <get-started/activities>
-Athletes <get-started/athletes>
 
-```
-
-```{toctree}
-:hidden:
-:caption: Contributing
-:maxdepth: 2
-
-Contributing Guide <contributing/how-to-contribute>
-Development Guide <contributing/development-guide>
-Build & Release Guide <contributing/build-release-guide>
-New Contributor Resources <contributing/resources-for-new-contributors>
-Change Log <contributing/documentation-changelog>
 ```
 
 ```{toctree}
@@ -120,5 +104,5 @@ Change Log <contributing/documentation-changelog>
 :caption: API Documentation
 :maxdepth: 2
 
-API Reference Summary <reference>
+Code/API Reference <reference>
 ```

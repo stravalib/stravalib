@@ -32,3 +32,4 @@
       ~ActivityUploader.is_error
       ~ActivityUploader.is_processing
       ~ActivityUploader.photo_metadata
+

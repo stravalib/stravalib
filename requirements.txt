@@ -15,12 +15,16 @@ pytest
 pytest-cov
 
 # Docs
-furo
-# Support markdown w full rst functionality
+# Pinning to avoid a current bug in 0.13
+pydata-sphinx-theme==0.12.0
+# Support pydantic autodoc
+autodoc_pydantic
+sphinx_remove_toctrees
 myst-nb
 sphinx-autobuild
 sphinx-inline-tabs
 sphinx_copybutton
 sphinx_design
+
 # Support for social / adds meta tags
 sphinxext-opengraph
