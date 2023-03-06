@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch Latest API
+      - name: Fetch API
+        run: curl https://developers.strava.com/swagger/swagger.json > stravalib/tests/resources/strava_swagger.json
+      - name: Fetch API Schema
         uses: stravalib/strava_swagger2pydantic@v1
         with:
           model_file: 'stravalib/strava_model.py'
@@ -27,3 +29,5 @@ jobs:
           body: |
             There were changes in the Strava API:
             [Please edit this comment to indicate what has changed]
+
+            - [ ] The changelog is updated (only when necessary)
