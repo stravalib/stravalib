@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+* Add: Adds RPE to activity model (@jsamoocha, #355)
+
 ## v1.3.0rc0
 
 ### Added
