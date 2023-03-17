@@ -684,6 +684,7 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     partner_brand_tag: Optional[str] = None
     from_accepted_tag: Optional[bool] = None
     segment_leaderboard_opt_out: Optional[bool] = None
+    perceived_exertion: Optional[int] = None
 
     _field_conversions = {
         'moving_time': time_interval,
