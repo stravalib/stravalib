@@ -1913,8 +1913,12 @@ class ActivityUploader(object):
     def photo_metadata(self):
         """photo metadata for the activity upload response, if any.
         it contains a pre-signed uri for uploading the photo.
-        Note1: This is only available after the upload has completed.
-        Note2: available only for partner apps (not for regular account)
+
+        Notes
+        -----
+        * This is only available after the upload has completed.
+        * This metadata is only available for partner apps. If you have a
+        regular / non partner related Strava app / account it will not work.
 
         """
 
