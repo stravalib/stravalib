@@ -180,21 +180,21 @@ class Client(object):
 
     def refresh_access_token(self, client_id, client_secret, refresh_token):
         """Exchanges the previous refresh token for a short-lived access token and a new
-        refresh token (used to obtain the next access token later on).
+                refresh token (used to obtain the next access token later on).
 
-        Parameters
-        ----------
-        client_id : int
-            The numeric developer client id.
-        client_secret : str
-            The developer client secret
-        refresh_token : str
-            The refresh token obtained from a previous authorization request
+                Parameters
+                ----------
+                client_id : int
+                    The numeric developer client id.
+                client_secret : str
+                    The developer client secret
+                refresh_token : str
+                    The refresh token obtained from a previous authorization request
 
-        Returns
-        -------
-Dictionary containing the access_token, refresh_token
-        and expires_at (number of seconds since Epoch when the provided access token will expire)
+                Returns
+                -------
+        Dictionary containing the access_token, refresh_token
+                and expires_at (number of seconds since Epoch when the provided access token will expire)
 
         """
         return self.protocol.refresh_access_token(
@@ -537,7 +537,9 @@ Dictionary containing the access_token, refresh_token
             limit=limit,
         )
 
-    def get_activity(self, activity_id:int, include_all_efforts: bool=False):
+    def get_activity(
+        self, activity_id: int, include_all_efforts: bool = False
+    ):
         """Gets specified activity.
 
         Will be detail-level if owned by authenticated user; otherwise
@@ -567,7 +569,7 @@ Dictionary containing the access_token, refresh_token
         return model.Activity.parse_obj({**raw, **{"bound_client": self}})
 
     # TODO: can we remove commented out code in this function?
-    def get_friend_activities(self, limit:int=None):
+    def get_friend_activities(self, limit: int = None):
         """DEPRECATED This endpoint was removed by Strava in Jan 2018.
 
         Parameters
@@ -593,11 +595,11 @@ Dictionary containing the access_token, refresh_token
 
     def create_activity(
         self,
-        name:str,
-        activity_type:str,
-        start_date_local:datetime.datetime,
-        elapsed_time:datetime.timedelta,
-        description: str=None,
+        name: str,
+        activity_type: str,
+        start_date_local: datetime.datetime,
+        elapsed_time: datetime.timedelta,
+        description: str = None,
         distance=None,
     ):
         """Create a new manual activity.

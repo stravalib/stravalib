@@ -15,7 +15,17 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union, get_args
+from typing import (
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    get_args,
+)
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -23,7 +33,12 @@ from pydantic.datetime_parse import parse_datetime
 from stravalib import exc
 from stravalib import unithelper as uh
 from stravalib.exc import warn_method_deprecation
-from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
+from stravalib.field_conversions import (
+    enum_value,
+    enum_values,
+    time_interval,
+    timezone,
+)
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
@@ -62,6 +77,7 @@ def lazy_property(fn):
     argument a reference to self, and uses one of the (bound) client
     methods to retrieve an entity (collection) by self.id.
     """
+
     @wraps(fn)
     def wrapper(obj):
         try:
@@ -70,7 +86,9 @@ def lazy_property(fn):
                     f"Unable to fetch objects for unbound {obj.__class__} entity."
                 )
             if obj.id is None:
-                LOGGER.warning(f'Cannot retrieve {obj.__class__}.{fn.__name__}, self.id is None')
+                LOGGER.warning(
+                    f"Cannot retrieve {obj.__class__}.{fn.__name__}, self.id is None"
+                )
                 return None
             return fn(obj)
         except AttributeError as e:
@@ -83,10 +101,13 @@ def lazy_property(fn):
 
 # Custom validators for some edge cases:
 
-def check_valid_location(location: Optional[Union[List[float], str]]) -> Optional[List[float]]:
+
+def check_valid_location(
+    location: Optional[Union[List[float], str]]
+) -> Optional[List[float]]:
     # legacy serialized form is str, so in case of attempting to de-serialize from local storage:
     try:
-        return [float(l) for l in location.split(',')]
+        return [float(l) for l in location.split(",")]
     except AttributeError:
         # location for activities without GPS may be returned as empty list by Strava
         return location if location else None
@@ -98,6 +119,7 @@ def naive_datetime(value: Optional[Any]) -> Optional[datetime]:
         return dt.replace(tzinfo=None)
     else:
         return None
+
 
 class DeprecatedSerializableMixin(BaseModel):
     """
@@ -155,7 +177,9 @@ class BackwardCompatibilityMixin:
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
-        if attr in ["_field_conversions", "bound_client"] or attr.startswith('_'):
+        if attr in ["_field_conversions", "bound_client"] or attr.startswith(
+            "_"
+        ):
             return value
         try:
             if attr in self._field_conversions:
@@ -229,7 +253,7 @@ class Club(
 class Gear(
     DetailedGear, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
-    _field_conversions = {'distance': uh.meters}
+    _field_conversions = {"distance": uh.meters}
 
 
 class Bike(Gear):
@@ -247,7 +271,7 @@ class ActivityTotals(
         "elapsed_time": time_interval,
         "moving_time": time_interval,
         "distance": uh.meters,
-        "elevation_gain": uh.meters
+        "elevation_gain": uh.meters,
     }
 
 
@@ -277,7 +301,10 @@ class AthleteStats(
 
 
 class Athlete(
-    DetailedAthlete, DeprecatedSerializableMixin, BackwardCompatibilityMixin, BoundClientEntity
+    DetailedAthlete,
+    DeprecatedSerializableMixin,
+    BackwardCompatibilityMixin,
+    BoundClientEntity,
 ):
     # field overrides from superclass for type extensions:
     clubs: Optional[List[Club]] = None
@@ -323,7 +350,7 @@ class Athlete(
     owner: Optional[bool] = None
     subscription_permissions: Optional[list] = None
 
-    @validator('athlete_type')
+    @validator("athlete_type")
     def to_str_representation(cls, raw_type):
         # Replaces legacy "ChoicesAttribute" class
         return {0: "cyclist", 1: "runner"}.get(raw_type)
@@ -335,16 +362,22 @@ class Athlete(
     @lazy_property
     def stats(self):
         """
-        :return: Associated :class:`stravalib.model.AthleteStats`
+        Returns
+        -------
+        Associated :class:`stravalib.model.AthleteStats`
         """
         if not self.is_authenticated_athlete():
-            raise exc.NotAuthenticatedAthlete("Statistics are only available for the authenticated athlete")
+            raise exc.NotAuthenticatedAthlete(
+                "Statistics are only available for the authenticated athlete"
+            )
         return self.bound_client.get_athlete_stats(self.id)
-
 
     def is_authenticated_athlete(self):
         """
-        :return: Boolean as to whether the athlete is the authenticated athlete.
+        Returns
+        -------
+        bool
+            Whether the athlete is the authenticated athlete (or not).
         """
 
         if self.is_authenticated is None:
@@ -358,8 +391,9 @@ class Athlete(
 
         return self.is_authenticated
 
+
 class ActivityComment(Comment):
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     athlete: Optional[Athlete] = None
 
 
@@ -370,7 +404,8 @@ class ActivityPhotoPrimary(Primary):
 
 class ActivityPhotoMeta(PhotosSummary):
     """
-    The photos structure returned with the activity, not to be confused with the full loaded photos for an activity.
+    The photos structure returned with the activity, not to be confused with
+    the full loaded photos for an activity.
     """
 
     # field overrides from superclass for type extensions:
@@ -383,7 +418,8 @@ class ActivityPhotoMeta(PhotosSummary):
 class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     A full photo record attached to an activity.
-    Warning: this entity is undocumented by Strava and there is no official endpoint to retrieve it
+    Warning: this entity is undocumented by Strava and there is no official
+    endpoint to retrieve it
     """
 
     athlete_id: Optional[int] = None
@@ -404,8 +440,12 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     default_photo: Optional[bool] = None
     source: Optional[int] = None
 
-    _naive_local = validator('created_at_local', allow_reuse=True)(naive_datetime)
-    _check_latlng = validator('location', allow_reuse=True, pre=True)(check_valid_location)
+    _naive_local = validator("created_at_local", allow_reuse=True)(
+        naive_datetime
+    )
+    _check_latlng = validator("location", allow_reuse=True, pre=True)(
+        check_valid_location
+    )
 
     def __repr__(self):
         if self.source == 1:
@@ -437,8 +477,13 @@ class ActivityKudos(Athlete):
     pass
 
 
-class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
-    # field overrides from superclass for type extensions:
+class ActivityLap(
+    Lap,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
+    # Field overrides from superclass for type extensions:
     activity: Optional[Activity] = None
     athlete: Optional[Athlete] = None
 
@@ -449,15 +494,17 @@ class ActivityLap(Lap, BackwardCompatibilityMixin, DeprecatedSerializableMixin, 
     device_watts: Optional[bool] = None
 
     _field_conversions = {
-        'elapsed_time': time_interval,
-        'moving_time': time_interval,
-        'distance': uh.meters,
-        'total_elevation_gain': uh.meters,
-        'average_speed': uh.meters_per_second,
-        'max_speed': uh.meters_per_second
+        "elapsed_time": time_interval,
+        "moving_time": time_interval,
+        "distance": uh.meters,
+        "total_elevation_gain": uh.meters,
+        "average_speed": uh.meters_per_second,
+        "max_speed": uh.meters_per_second,
     }
 
-    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
+    _naive_local = validator("start_date_local", allow_reuse=True)(
+        naive_datetime
+    )
 
 
 class Map(PolylineMap):
@@ -475,17 +522,20 @@ class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     average_grade_adjusted_speed: Optional[float] = None
 
     _field_conversions = {
-        'elapsed_time': time_interval,
-        'moving_time': time_interval,
-        'distance': uh.meters,
-        'elevation_difference': uh.meters,
-        'average_speed': uh.meters_per_second,
-        'average_grade_adjusted_speed': uh.meters_per_second
+        "elapsed_time": time_interval,
+        "moving_time": time_interval,
+        "distance": uh.meters,
+        "elevation_difference": uh.meters,
+        "average_speed": uh.meters_per_second,
+        "average_grade_adjusted_speed": uh.meters_per_second,
     }
 
 
 class SegmentExplorerResult(
-    ExplorerSegment, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
+    ExplorerSegment,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
 ):
     """
     Represents a segment result from the segment explorer feature.
@@ -494,19 +544,18 @@ class SegmentExplorerResult(
     via the 'segment' property of this object.)
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
 
     # Undocumented attributes:
     starred: Optional[bool] = None
 
-    _field_conversions = {
-        'elev_difference', uh.meters,
-        'distance', uh.meters
-    }
+    _field_conversions = {"elev_difference", uh.meters, "distance", uh.meters}
 
-    _check_latlng = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
+    _check_latlng = validator(
+        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    )(check_valid_location)
 
     @lazy_property
     def segment(self):
@@ -514,7 +563,11 @@ class SegmentExplorerResult(
         return self.bound_client.get_segment(self.id)
 
 
-class AthleteSegmentStats(SummarySegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class AthleteSegmentStats(
+    SummarySegmentEffort,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+):
     """
     A structure being returned for segment stats for current athlete.
     """
@@ -525,15 +578,21 @@ class AthleteSegmentStats(SummarySegmentEffort, BackwardCompatibilityMixin, Depr
     pr_date: Optional[date] = None
 
     _field_conversions = {
-        'elapsed_time': time_interval,
-        'pr_elapsed_time': time_interval,
-        'distance': uh.meters
+        "elapsed_time": time_interval,
+        "pr_elapsed_time": time_interval,
+        "distance": uh.meters,
     }
 
-    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
+    _naive_local = validator("start_date_local", allow_reuse=True)(
+        naive_datetime
+    )
 
 
-class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class AthletePrEffort(
+    SummaryPRSegmentEffort,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+):
     # Undocumented attributes:
     distance: Optional[float] = None
     start_date: Optional[datetime] = None
@@ -541,19 +600,26 @@ class AthletePrEffort(SummaryPRSegmentEffort, BackwardCompatibilityMixin, Deprec
     is_kom: Optional[bool] = None
 
     _field_conversions = {
-        'pr_elapsed_time': time_interval,
-        'distance': uh.meters
+        "pr_elapsed_time": time_interval,
+        "distance": uh.meters,
     }
 
-    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
+    _naive_local = validator("start_date_local", allow_reuse=True)(
+        naive_datetime
+    )
 
     @property
     def elapsed_time(self):
-        # for backward compatibility
+        # For backward compatibility
         return self.pr_elapsed_time
 
 
-class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class Segment(
+    DetailedSegment,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
     """
     Represents a single Strava segment.
     """
@@ -576,14 +642,16 @@ class Segment(DetailedSegment, BackwardCompatibilityMixin, DeprecatedSerializabl
     elevation_profile: Optional[str] = None
 
     _field_conversions = {
-        'distance': uh.meters,
-        'elevation_high': uh.meters,
-        'elevation_low': uh.meters,
-        'total_elevation_gain': uh.meters,
-        'pr_time': time_interval
+        "distance": uh.meters,
+        "elevation_high": uh.meters,
+        "elevation_low": uh.meters,
+        "total_elevation_gain": uh.meters,
+        "pr_time": time_interval,
     }
 
-    _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
+    _latlng_check = validator(
+        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    )(check_valid_location)
 
 
 class SegmentEffortAchievement(BaseModel):
@@ -609,7 +677,12 @@ class SegmentEffortAchievement(BaseModel):
     effort_count: Optional[int] = None
 
 
-class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class BaseEffort(
+    DetailedSegmentEffort,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
     """
     Base class for a best effort or segment effort.
     """
@@ -620,12 +693,14 @@ class BaseEffort(DetailedSegmentEffort, BackwardCompatibilityMixin, DeprecatedSe
     athlete: Optional[Athlete] = None
 
     _field_conversions = {
-        'moving_time': time_interval,
-        'elapsed_time': time_interval,
-        'distance': uh.meters
+        "moving_time": time_interval,
+        "elapsed_time": time_interval,
+        "distance": uh.meters,
     }
 
-    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
+    _naive_local = validator("start_date_local", allow_reuse=True)(
+        naive_datetime
+    )
 
 
 class BestEffort(BaseEffort):
@@ -642,7 +717,12 @@ class SegmentEffort(BaseEffort):
     achievements: Optional[List[SegmentEffortAchievement]] = None
 
 
-class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class Activity(
+    DetailedActivity,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
     """
     Represents an activity (ride, run, etc.).
     """
@@ -662,7 +742,9 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
 
     # Added for backward compatibility
     # TODO maybe deprecate?
-    TYPES: ClassVar[Tuple] = get_args(ActivityType.__fields__['__root__'].type_)
+    TYPES: ClassVar[Tuple] = get_args(
+        ActivityType.__fields__["__root__"].type_
+    )
 
     # Undocumented attributes:
     guid: Optional[str] = None
@@ -687,19 +769,23 @@ class Activity(DetailedActivity, BackwardCompatibilityMixin, DeprecatedSerializa
     perceived_exertion: Optional[int] = None
 
     _field_conversions = {
-        'moving_time': time_interval,
-        'elapsed_time': time_interval,
-        'timezone': timezone,
-        'distance': uh.meters,
-        'total_elevation_gain': uh.meters,
-        'average_speed': uh.meters_per_second,
-        'max_speed': uh.meters_per_second,
-        'type': enum_value,
-        'sport_type': enum_value
+        "moving_time": time_interval,
+        "elapsed_time": time_interval,
+        "timezone": timezone,
+        "distance": uh.meters,
+        "total_elevation_gain": uh.meters,
+        "average_speed": uh.meters_per_second,
+        "max_speed": uh.meters_per_second,
+        "type": enum_value,
+        "sport_type": enum_value,
     }
 
-    _latlng_check = validator('start_latlng', 'end_latlng', allow_reuse=True, pre=True)(check_valid_location)
-    _naive_local = validator('start_date_local', allow_reuse=True)(naive_datetime)
+    _latlng_check = validator(
+        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    )(check_valid_location)
+    _naive_local = validator("start_date_local", allow_reuse=True)(
+        naive_datetime
+    )
 
     @lazy_property
     def comments(self):
@@ -725,10 +811,15 @@ class DistributionBucket(TimedZoneRange):
     A single distribution bucket object, used for activity zones.
     """
 
-    _field_conversions = {'time': uh.seconds}
+    _field_conversions = {"time": uh.seconds}
 
 
-class BaseActivityZone(ActivityZone, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class BaseActivityZone(
+    ActivityZone,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
     """
     Base class for activity zones.
 
@@ -742,7 +833,9 @@ class BaseActivityZone(ActivityZone, BackwardCompatibilityMixin, DeprecatedSeria
     type: Optional[Literal["heartrate", "power", "pace"]] = None
 
 
-class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class Stream(
+    BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin
+):
     """
     Stream of readings from the activity, effort or segment.
     """
@@ -754,7 +847,12 @@ class Stream(BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin
     data: Optional[List[Any]] = None
 
 
-class Route(Route, BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class Route(
+    Route,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+    BoundClientEntity,
+):
     """
     Represents a Route.
     """
@@ -764,13 +862,12 @@ class Route(Route, BackwardCompatibilityMixin, DeprecatedSerializableMixin, Boun
     map: Optional[Map] = None
     segments: Optional[List[Segment]]
 
-    _field_conversions = {
-        'distance': uh.meters,
-        'elevation_gain': uh.meters
-    }
+    _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
 
-class Subscription(BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class Subscription(
+    BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
+):
     """
     Represents a Webhook Event Subscription.
     """
@@ -788,7 +885,9 @@ class Subscription(BackwardCompatibilityMixin, DeprecatedSerializableMixin, Boun
     updated_at: Optional[datetime] = None
 
 
-class SubscriptionCallback(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class SubscriptionCallback(
+    BackwardCompatibilityMixin, DeprecatedSerializableMixin
+):
     """
     Represents a Webhook Event Subscription Callback.
     """
@@ -798,13 +897,15 @@ class SubscriptionCallback(BackwardCompatibilityMixin, DeprecatedSerializableMix
     hub_challenge: Optional[str] = None
 
     class Config:
-        alias_generator = lambda field_name: field_name.replace('hub_', 'hub.')
+        alias_generator = lambda field_name: field_name.replace("hub_", "hub.")
 
     def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
         assert self.hub_verify_token == verify_token
 
 
-class SubscriptionUpdate(BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity):
+class SubscriptionUpdate(
+    BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
+):
     """
     Represents a Webhook Event Subscription Update.
     """

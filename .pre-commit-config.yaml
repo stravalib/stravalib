@@ -12,12 +12,12 @@
 # - Register git hooks: pre-commit install --install-hooks
 
 ci:
-    autofix_prs: false
-    skip: [flake8, end-of-file-fixer]
-    #autofix_commit_msg: |
-        #'[pre-commit.ci 🤖] Apply code format tools to PR'
-    # Update hook versions every quarter (so we don't get hit with weekly update pr's)
-    autoupdate_schedule: quarterly
+  autofix_prs: false
+  skip: [flake8, end-of-file-fixer]
+  #autofix_commit_msg: |
+  #'[pre-commit.ci 🤖] Apply code format tools to PR'
+  # Update hook versions every quarter (so we don't get hit with weekly update pr's)
+  autoupdate_schedule: quarterly
 
 repos:
   - repo: https://github.com/PyCQA/isort
@@ -45,8 +45,8 @@ repos:
       - id: flake8
 
   # Black for auto code formatting
-#  - repo: https://github.com/psf/black
-#    rev: 22.12.0
-#    hooks:
-#     - id: black
-#       language_version: python3.8
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3.8
