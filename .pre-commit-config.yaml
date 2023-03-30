@@ -14,10 +14,11 @@
 ci:
   autofix_prs: false
   skip: [flake8, end-of-file-fixer]
-  #autofix_commit_msg: |
-  #'[pre-commit.ci 🤖] Apply code format tools to PR'
+  autofix_commit_msg: |
+    '[pre-commit.ci 🤖] Apply code format tools to PR'
   # Update hook versions every quarter (so we don't get hit with weekly update pr's)
-  autoupdate_schedule: quarterly
+  autoupdate_schedule: weekly
+  autoupdate_branch: ""
 
 repos:
   - repo: https://github.com/PyCQA/isort
