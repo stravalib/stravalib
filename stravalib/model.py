@@ -105,11 +105,33 @@ def lazy_property(fn):
 def check_valid_location(
     location: Optional[Union[List[float], str]]
 ) -> Optional[List[float]]:
-    # legacy serialized form is str, so in case of attempting to de-serialize from local storage:
+    """
+    Parameters
+    ----------
+    location : list of float
+        Either a list of x,y floating point values or strings or None
+        (The legacy serialized format is str)
+
+    Returns
+    --------
+    list or None
+        Either returns a list of floating point values representing location
+        x,y data or None if empty list is returned from the API.
+
+    Raises
+    ------
+    AttributeError
+        If empty list is returned, raises AttributeError
+
+    """
+
+    # Legacy serialized form is str, so in case of attempting to de-serialize
+    # from local storage:
     try:
         return [float(l) for l in location.split(",")]
     except AttributeError:
-        # location for activities without GPS may be returned as empty list by Strava
+        # Location for activities without GPS may be returned as empty list by
+        # Strava
         return location if location else None
 
 

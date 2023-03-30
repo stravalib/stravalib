@@ -34,14 +34,8 @@ from stravalib.util import limiter
 class Client(object):
     """Main client class for interacting with the exposed Strava v3 API methods.
 
-    This class can be instantiated without an access_token when performing authentication;
-    however, most methods will require a valid access token.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
+    This class can be instantiated without an access_token when performing
+    authentication; however, most methods will require a valid access token.
 
     """
 
@@ -58,8 +52,8 @@ class Client(object):
         Parameters
         ----------
         access_token : str
-            The token that provides access to a specific Strava account. If empty, assume that this
-            account is not yet authenticated.
+            The token that provides access to a specific Strava account. If
+            empty, assume that this account is not yet authenticated.
         rate_limit_requests : bool
             Whether to apply a rate limiter to the requests. (default True)
         rate_limiter : callable
@@ -79,7 +73,8 @@ class Client(object):
                 rate_limiter = limiter.DefaultRateLimiter()
         elif rate_limiter:
             raise ValueError(
-                "Cannot specify rate_limiter object when rate_limit_requests is False"
+                "Cannot specify rate_limiter object when rate_limit_requests is"
+                " False"
             )
 
         self.protocol = ApiV3(
@@ -94,12 +89,12 @@ class Client(object):
         return self.protocol.access_token
 
     @access_token.setter
-    def access_token(self, v):
+    def access_token(self, token_value):
         """Set the currently configured authorization token.
 
         Parameters
         ----------
-        v : int
+        token_value : int
              User's access token for authentication.
 
 
@@ -107,7 +102,7 @@ class Client(object):
         -------
 
         """
-        self.protocol.access_token = v
+        self.protocol.access_token = token_value
 
     def authorization_url(
         self,
@@ -117,7 +112,8 @@ class Client(object):
         scope=None,
         state=None,
     ):
-        """Get the URL needed to authorize your application to access a Strava user's information.
+        """Get the URL needed to authorize your application to access a Strava
+        user's information.
 
         See https://developers.strava.com/docs/authentication/
 
@@ -126,16 +122,20 @@ class Client(object):
         client_id : int
             The numeric developer client id.
         redirect_uri : str
-            The URL that Strava will redirect to after successful (or failed) authorization.
+            The URL that Strava will redirect to after successful (or failed)
+            authorization.
         approval_prompt : str, default='auto'
-            Whether to prompt for approval even if approval already granted to app.
+            Whether to prompt for approval even if approval already granted to
+            app.
             Choices are 'auto' or 'force'.
         scope : list[str], default = None
             The access scope required.  Omit to imply "read" and "activity:read"
-            Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
-            'activity:read_all', 'activity:write'.
+            Valid values are 'read', 'read_all', 'profile:read_all',
+            'profile:write', 'activity:read', 'activity:read_all',
+            'activity:write'.
         state : str, default=None
-            An arbitrary variable that will be returned to your application in the redirect URI.
+            An arbitrary variable that will be returned to your application in
+            the redirect URI.
 
         Returns
         -------
@@ -153,8 +153,9 @@ class Client(object):
         )
 
     def exchange_code_for_token(self, client_id, client_secret, code):
-        """Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a short-lived access token and a refresh token (used to obtain the next access token later on).
+        """Exchange the temporary authorization code (returned with redirect
+        from strava authorization URL)  for a short-lived access token and a
+        refresh token (used to obtain the next access token later on).
 
         Parameters
         ----------
@@ -179,22 +180,24 @@ class Client(object):
         )
 
     def refresh_access_token(self, client_id, client_secret, refresh_token):
-        """Exchanges the previous refresh token for a short-lived access token and a new
-                refresh token (used to obtain the next access token later on).
+        """Exchanges the previous refresh token for a short-lived access token
+        and a new refresh token (used to obtain the next access token later on).
 
-                Parameters
-                ----------
-                client_id : int
-                    The numeric developer client id.
-                client_secret : str
-                    The developer client secret
-                refresh_token : str
-                    The refresh token obtained from a previous authorization request
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        client_secret : str
+            The developer client secret
+        refresh_token : str
+            The refresh token obtained from a previous authorization request
 
-                Returns
-                -------
-        Dictionary containing the access_token, refresh_token
-                and expires_at (number of seconds since Epoch when the provided access token will expire)
+        Returns
+        -------
+        dict:
+            Dictionary containing the access_token, refresh_token and expires_at
+            (number of seconds since Epoch when the provided access
+            token will expire)
 
         """
         return self.protocol.refresh_access_token(
@@ -204,8 +207,8 @@ class Client(object):
         )
 
     def deauthorize(self):
-        """Deauthorize the application. This causes the application to be removed
-        from the athlete's "My Apps" settings page.
+        """Deauthorize the application. This causes the application to be
+        removed from the athlete's "My Apps" settings page.
 
         https://developers.strava.com/docs/authentication/#deauthorization
 
@@ -219,8 +222,8 @@ class Client(object):
         Parameters
         ----------
         activity_datetime : str
-            A string which may contain tzinfo (offset) or a datetime object (naive datetime will
-            be considered to be UTC).
+            A string which may contain tzinfo (offset) or a datetime object
+            (naive datetime will be considered to be UTC).
 
         Returns
         -------
@@ -418,7 +421,8 @@ class Client(object):
 
         """
 
-        # TODO: This should return a BatchedResultsIterator or otherwise at most 30 clubs are returned!
+        # TODO: This should return a BatchedResultsIterator or otherwise at
+        # most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
         return [
             model.Club.parse_obj({**raw, **{"bound_client": self}})
@@ -568,7 +572,7 @@ class Client(object):
         )
         return model.Activity.parse_obj({**raw, **{"bound_client": self}})
 
-    # TODO: can we remove commented out code in this function?
+    # TODO: REMOVE from API altogether given deprecation of end point
     def get_friend_activities(self, limit: int = None):
         """DEPRECATED This endpoint was removed by Strava in Jan 2018.
 
@@ -588,18 +592,13 @@ class Client(object):
             "See https://developers.strava.com/docs/january-2018-update/"
         )
 
-        # result_fetcher = functools.partial(self.protocol.get, '/activities/following')
-        #
-        # return BatchedResultsIterator(entity=model.Activity, bind_client=self,
-        #                               result_fetcher=result_fetcher, limit=limit)
-
     def create_activity(
         self,
-        name: str,
-        activity_type: str,
-        start_date_local: datetime.datetime,
-        elapsed_time: datetime.timedelta,
-        description: str = None,
+        name,
+        activity_type,
+        start_date_local,
+        elapsed_time,
+        description=None,
         distance=None,
     ):
         """Create a new manual activity.
@@ -614,9 +613,9 @@ class Client(object):
         activity_type : str
             The activity type (case-insensitive).
             Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf, rollerski,
-            windsurf, workout, snowboard, snowshoe
-        start_date_local : class:`datetime.datetime` or string in ISO8601 format.
+            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            rollerski, windsurf, workout, snowboard, snowshoe
+        start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
             The time in seconds or a :class:`datetime.timedelta` object.
@@ -686,10 +685,9 @@ class Client(object):
             The name of the activity.
         activity_type : str, default=None
             The activity type (case-insensitive).
-            Possible values: ride, run, swim, workout, hike,
-            walk, nordicski, alpineski, backcountryski,
-            iceskate, inlineskate, kitesurf, rollerski,
-            windsurf, workout, snowboard, snowshoe
+            Possible values: ride, run, swim, workout, hike, walk, nordicski,
+            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            rollerski, windsurf, workout, snowboard, snowshoe
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -776,7 +774,8 @@ class Client(object):
         trainer=None,
         commute=None,
     ):
-        """Uploads a GPS file (tcx, gpx) to create a new activity for current athlete.
+        """Uploads a GPS file (tcx, gpx) to create a new activity for current
+        athlete.
 
         https://developers.strava.com/docs/reference/#api-Uploads-createUpload
 
@@ -785,9 +784,11 @@ class Client(object):
         activity_file : TextIOWrapper, str or bytes
             The file object to upload or file contents.
         data_type : str
-            File format for upload. Possible values: fit, fit.gz, tcx, tcx.gz, gpx, gpx.gz
+            File format for upload. Possible values: fit, fit.gz, tcx, tcx.gz,
+            gpx, gpx.gz
         name : str, optional, default=None
-            If not provided, will be populated using start date and location, if available
+            If not provided, will be populated using start date and location,
+            if available
         description : str, optional, default=None
             The description for the activity
         activity_type : str, optional
@@ -795,7 +796,8 @@ class Client(object):
             possible values: ride, run, swim, workout, hike, walk,
             nordicski, alpineski, backcountryski, iceskate, inlineskate,
             kitesurf, rollerski, windsurf, workout, snowboard, snowshoe
-            Type detected from file overrides, uses athlete's default type if not specified
+            Type detected from file overrides, uses athlete's default type if
+            not specified
             WARNING - This param is supported (as of 2022-11-15), but not
             documented and may be removed in the future.
         private : bool, optional, default=None
@@ -913,7 +915,7 @@ class Client(object):
         activity_id : int
             The activity for which to fetch comments.
         markdown : bool
-            Whether to include markdown in comments (default is false/filterout).
+            Whether to include markdown in comments (default is false/filterout)
         limit : int
             Max rows to return (default unlimited).
 
@@ -1038,7 +1040,7 @@ class Client(object):
             result_fetcher=result_fetcher,
         )
 
-    # TODO this also has commented code
+    # TODO remove this method given deprecation of end point
     def get_related_activities(self, activity_id, limit=None):
         """Deprecated. This endpoint was removed by strava in Jan 2018.
 
@@ -1059,15 +1061,6 @@ class Client(object):
             "The /activities/{id}/related endpoint was removed by Strava.  "
             "See https://developers.strava.com/docs/january-2018-update/"
         )
-
-        # result_fetcher = functools.partial(self.protocol.get,
-        #                                    '/activities/{id}/related',
-        #                                    id=activity_id)
-        #
-        # return BatchedResultsIterator(entity=model.Activity,
-        #                               bind_client=self,
-        #                               result_fetcher=result_fetcher,
-        #                               limit=limit)
 
     def get_gear(self, gear_id):
         """Get details for an item of gear.
@@ -1181,7 +1174,8 @@ class Client(object):
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+            An iterator of :class:`stravalib.model.Segment` starred by
+            authenticated user.
 
         """
         result_fetcher = functools.partial(
@@ -1212,11 +1206,11 @@ class Client(object):
         If no filtering parameters is provided all efforts for the segment
         will be returned.
 
-        Date range filtering is accomplished using an inclusive start and end time,
-        thus start_date_local and end_date_local must be sent together. For open
-        ended ranges pick dates significantly in the past or future. The
-        filtering is done over local time for the segment, so there is no need
-        for timezone conversion. For example, all efforts on Jan. 1st, 2014
+        Date range filtering is accomplished using an inclusive start and end
+        time, thus start_date_local and end_date_local must be sent together.
+        For open ended ranges pick dates significantly in the past or future.
+        The filtering is done over local time for the segment, so there is no
+        need for timezone conversion. For example, all efforts on Jan. 1st, 2014
         for a segment in San Francisco, CA can be fetched using
         2014-01-01T00:00:00Z and 2014-01-01T23:59:59Z.
 
@@ -1289,7 +1283,8 @@ class Client(object):
         Parameters
         ----------
         bounds : list of 4 floats or list of 2 (lat,lon) tuples
-            list of bounding box corners lat/lon [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
+            list of bounding box corners lat/lon
+            [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
         activity_type : str
             optional, default is riding)  'running' or 'riding'
         min_cat : int, optional, default=None
@@ -1370,7 +1365,8 @@ class Client(object):
         Returns
         -------
         py:class:`dict`
-            An dictionary of :class:`stravalib.model.Stream` from the activity or None if there are no streams.
+            An dictionary of :class:`stravalib.model.Stream` from the activity
+            or None if there are no streams.
 
         """
 
@@ -1674,6 +1670,7 @@ class Client(object):
         raw = self.protocol.post("/push_subscriptions", **params)
         return model.Subscription.parse_obj({**raw, **{"bound_client": self}})
 
+    # TODO: UPDATE - this method uses (de)serialize which is deprecated
     def handle_subscription_callback(
         self, raw, verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT
     ):
@@ -1681,7 +1678,8 @@ class Client(object):
 
         Parameters
         ----------
-        raw :
+        raw : dict
+            The raw JSON response which will be serialized to a Python dict.
         verify_token : default=model.Subscription.VERIFY_TOKEN_DEFAULT
 
         Returns
@@ -1701,8 +1699,8 @@ class Client(object):
 
         Parameters
         ----------
-        raw :
-
+        raw : dict
+            The raw json response deserialized into a dict.
 
         Returns
         -------
@@ -1845,7 +1843,8 @@ class BatchedResultsIterator(object):
                     {**raw, **{"bound_client": self.bind_client}}
                 )
             except AttributeError:
-                # entity doesn't have a parse_obj() method, so must be of a legacy type
+                # Entity doesn't have a parse_obj() method, so must be of a
+                # legacy type
                 new_entity = self.entity.deserialize(
                     raw, bind_client=self.bind_client
                 )
@@ -1928,15 +1927,15 @@ class ActivityUploader(object):
 
         return self._photo_metadata
 
-    # TODO: what is value here? perhaps an int representing a photo id?
     @photo_metadata.setter
     def photo_metadata(self, value):
         """
 
         Parameters
         ----------
-        value :
-
+        value : list of dictionaries or none
+            Contains an optional list of dictionaries with photo metadata or a
+            value of `None`.
 
         Returns
         -------
@@ -1969,7 +1968,7 @@ class ActivityUploader(object):
         self.external_id = response.get("external_id")
         self.activity_id = response.get("activity_id")
         self.status = response.get("status") or response.get("message")
-        # undocumented field, it contains pre-signed uri to upload photo to
+        # Undocumented field, it contains pre-signed uri to upload photo to
         self._photo_metadata: Optional[List[Dict]] = response.get(
             "photo_metadata"
         )
@@ -2003,7 +2002,8 @@ class ActivityUploader(object):
 
     def raise_for_error(self):
         """ """
-        # FIXME: We need better handling of the actual responses, once those are more accurately documented.
+        # FIXME: We need better handling of the actual responses, once those are
+        # more accurately documented.
         if self.error:
             raise exc.ActivityUploadFailed(self.error)
         elif self.status == "The created activity has been deleted.":
@@ -2066,19 +2066,22 @@ class ActivityUploader(object):
     def upload_photo(self, photo, timeout=None):
         """Uploads a photo to the activity.
 
-        NOTE1: In order to upload a photo, the activity must be uploaded and
-        processed.
-
-        NOTE2: The ability to add photos to activity is currently limited to
-        partner apps & devices such as Zwift, Peloton, Tempo Move, etc...
-        Given that the ability isn't in the public API, neither are the docs
-
         Parameters
         ----------
         photo : bytes
             The file-like object to upload.
         timeout : float, default=None
             The max seconds to wait. Will raise TimeoutExceeded
+
+        Notes
+        -----
+        In order to upload a photo, the activity must be uploaded and
+        processed.
+
+        The ability to add photos to activity is currently limited to
+        partner apps & devices such as Zwift, Peloton, Tempo Move, etc...
+        Given that the ability isn't in the public API, neither are the docs
+
 
         """
 
