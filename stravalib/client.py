@@ -139,7 +139,9 @@ class Client(object):
 
         Returns
         -------
-
+        str:
+            A string containing the url required to authorize with the Strava
+            API.
 
         """
         return self.protocol.authorization_url(
@@ -165,6 +167,10 @@ class Client(object):
 
         Returns
         -------
+        dict
+            Dictionary containing the access_token, refresh_token and
+            expires_at (number of seconds since Epoch when the provided access
+            token will expire)
 
 
         """
@@ -203,17 +209,12 @@ Dictionary containing the access_token, refresh_token
 
         https://developers.strava.com/docs/authentication/#deauthorization
 
-        Parameters
-        ----------
-
-        Returns
-        -------
-
         """
         self.protocol.post("oauth/deauthorize")
 
     def _utc_datetime_to_epoch(self, activity_datetime):
-        """Convert the specified datetime value to a unix epoch timestamp (seconds since epoch).
+        """Convert the specified datetime value to a unix epoch timestamp
+        (seconds since epoch).
 
         Parameters
         ----------
@@ -223,6 +224,7 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        datetime value in univ epoch time stamp format (seconds since epoch)
 
 
         """
@@ -343,7 +345,6 @@ Dictionary containing the access_token, refresh_token
             {**raw_athlete, **{"bound_client": self}}
         )
 
-    # TODO: Can't find this in the api documentation either. Does it still work?
     def get_athlete_koms(self, athlete_id, limit=None):
         """Gets Q/KOMs/CRs for specified athlete.
 
@@ -436,6 +437,8 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        No actual return. This implements a post action that allows the athlete
+        to join a club via an API.
 
         """
         self.protocol.post("clubs/{id}/join", id=club_id)
@@ -452,6 +455,8 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        No actual return. This implements a post action that allows the athlete
+        to leave a club via an API.
 
         """
         self.protocol.post("clubs/{id}/leave", id=club_id)
@@ -468,6 +473,7 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        class: `model.Club` object containing the club data.
 
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
@@ -549,6 +555,8 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        class: `model.Activity`
+            An Activity object containing the requested activity data.
 
         """
         raw = self.protocol.get(
@@ -558,6 +566,7 @@ Dictionary containing the access_token, refresh_token
         )
         return model.Activity.parse_obj({**raw, **{"bound_client": self}})
 
+    # TODO: can we remove commented out code in this function?
     def get_friend_activities(self, limit:int=None):
         """DEPRECATED This endpoint was removed by Strava in Jan 2018.
 
@@ -855,7 +864,6 @@ Dictionary containing the access_token, refresh_token
 
         return ActivityUploader(self, response=initial_response)
 
-    # TODO: I don't think this is the correct link but can't find it in the docs
     def delete_activity(self, activity_id):
         """Deletes the specified activity.
 
@@ -956,7 +964,6 @@ Dictionary containing the access_token, refresh_token
             limit=limit,
         )
 
-    # TODO not sure this is the correct api doc link - couldn't find "photos"
     def get_activity_photos(
         self, activity_id, size=None, only_instagram=False
     ):
@@ -1029,6 +1036,7 @@ Dictionary containing the access_token, refresh_token
             result_fetcher=result_fetcher,
         )
 
+    # TODO this also has commented code
     def get_related_activities(self, activity_id, limit=None):
         """Deprecated. This endpoint was removed by strava in Jan 2018.
 
@@ -1364,7 +1372,7 @@ Dictionary containing the access_token, refresh_token
 
         """
 
-        # stream are comma seperated list
+        # Stream is a comma separated list
         if types is not None:
             types = ",".join(types)
 
@@ -1433,7 +1441,7 @@ Dictionary containing the access_token, refresh_token
 
         """
 
-        # stream are comma seperated list
+        # Stream are comma separated lists
         if types is not None:
             types = ",".join(types)
 
@@ -1499,7 +1507,7 @@ Dictionary containing the access_token, refresh_token
 
         """
 
-        # stream are comma seperated list
+        # Stream are comma separated lists
         if types is not None:
             types = ",".join(types)
 
@@ -1562,7 +1570,8 @@ Dictionary containing the access_token, refresh_token
     def get_route(self, route_id):
         """Gets specified route.
 
-        Will be detail-level if owned by authenticated user; otherwise summary-level.
+        Will be detail-level if owned by authenticated user; otherwise
+        summary-level.
 
         https://developers.strava.com/docs/reference/#api-Routes-getRouteById
 
@@ -1573,6 +1582,8 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        class: `model.Route`
+            A model.Route object containing the route data.
 
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
@@ -1641,14 +1652,15 @@ Dictionary containing the access_token, refresh_token
         -------
         class:`stravalib.model.Subscription`
 
-        Notes:
+        Notes
+        -----
 
         `verify_token` is set to a default in the event that the author
         doesn't want to specify one.
 
         The application must have permission to make use of the webhook API.
         Access can be requested by contacting developers -at- strava.com.
-         An instance of :class:`stravalib.model.Subscription`.
+        An instance of :class:`stravalib.model.Subscription`.
 
         """
         params = dict(
@@ -1681,6 +1693,7 @@ Dictionary containing the access_token, refresh_token
         response_raw = {"hub.challenge": callback.hub_challenge}
         return response_raw
 
+    # TODO: i'm not sure what raw's "type" is here
     def handle_subscription_update(self, raw):
         """Converts a raw subscription update into a model.
 
@@ -1700,7 +1713,8 @@ Dictionary containing the access_token, refresh_token
         )
 
     def list_subscriptions(self, client_id, client_secret):
-        """List current webhook event subscriptions in place for the current application.
+        """List current webhook event subscriptions in place for the current
+        application.
 
         Parameters
         ----------
@@ -1742,6 +1756,7 @@ Dictionary containing the access_token, refresh_token
 
         Returns
         -------
+        Deletes the specific subscription using the subscription ID
 
         """
         self.protocol.delete(
@@ -1777,13 +1792,11 @@ class BatchedResultsIterator(object):
             The class for the model entity.
         result_fetcher: callable
             The callable that will return another batch of results.
-
         bind_client: :class:`stravalib.client.Client`
             The client object to pass to the entities for supporting further
             fetching of objects.
         limit: int
             The maximum number of rides to return.
-
         per_page: int
             How many rows to fetch per page (default is 200).
         """
@@ -1909,6 +1922,7 @@ class ActivityUploader(object):
 
         return self._photo_metadata
 
+    # TODO: what is value here? perhaps an int representing a photo id?
     @photo_metadata.setter
     def photo_metadata(self, value):
         """
@@ -1920,6 +1934,7 @@ class ActivityUploader(object):
 
         Returns
         -------
+        Updates the `_photo_metadata` value in the object
 
         """
         self._photo_metadata = value
@@ -1956,7 +1971,8 @@ class ActivityUploader(object):
         if response.get("error"):
             self.error = response.get("error")
         elif response.get("errors"):
-            # This appears to be an undocumented API; ths is a bit of a hack for now.
+            # This appears to be an undocumented API; ths is a bit of a hack
+            # for now.
             self.error = str(response.get("errors"))
         else:
             self.error = None
@@ -1990,13 +2006,9 @@ class ActivityUploader(object):
     def poll(self):
         """Update internal state from polling strava.com.
 
-        :raise stravalib.exc.ActivityUploadFailed: If the poll returns an error.
-
-        Parameters
-        ----------
-
-        Returns
+        Raises
         -------
+        class: `stravalib.exc.ActivityUploadFailed` If poll returns an error.
 
         """
         response = self.client.protocol.get(
@@ -2010,16 +2022,17 @@ class ActivityUploader(object):
     def wait(self, timeout=None, poll_interval=1.0):
         """Wait for the upload to complete or to err out.
 
-        Will return the resulting Activity or raise an exception if the upload fails.
+        Will return the resulting Activity or raise an exception if the
+        upload fails.
 
         Parameters
         ----------
         timeout : float, default=None
             The max seconds to wait. Will raise TimeoutExceeded
             exception if this time passes without success or error response.
-        poll_interval : float
+        poll_interval : float, default=1.0 (seconds)
             How long to wait between upload checks.  Strava
-            recommends 1s minimum. (default 1.0s)
+            recommends 1s minimum.
 
         Returns
         -------
