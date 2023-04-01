@@ -13,7 +13,7 @@
 
 ci:
     autofix_prs: false
-    skip: [flake8, end-of-file-fixer]
+    skip: [flake8]
     autofix_commit_msg: |
       '[pre-commit.ci 🤖] Apply code format tools to PR'
     autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
@@ -23,12 +23,6 @@ ci:
 
 default_stages: [commit]
 repos:
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        files: \.py$
-
   # Misc commit checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -54,3 +48,9 @@ repos:
       - id: black
         language_version: python3.10
         args: ["--target-version", "py310"]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: \.py$
