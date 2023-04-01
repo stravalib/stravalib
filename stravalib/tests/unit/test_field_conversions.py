@@ -20,21 +20,23 @@ def test_optional_input():
 
 
 def test_enum_value():
-    assert enum_value(ActivityType(__root__='Run')) == 'Run'
+    assert enum_value(ActivityType(__root__="Run")) == "Run"
 
 
 def test_enum_values():
-    assert enum_values([ActivityType(__root__='Run'), SportType(__root__='Ride')]) == ["Run", "Ride"]
+    assert enum_values(
+        [ActivityType(__root__="Run"), SportType(__root__="Ride")]
+    ) == ["Run", "Ride"]
 
 
 @pytest.mark.parametrize(
-    'arg,expected_value',
+    "arg,expected_value",
     (
-        ('Factory', None),
-        ('(GMT+00:00) Factory', None),
-        ('Europe/Amsterdam', pytz.timezone('Europe/Amsterdam')),
-        ('(GMT+01:00) Europe/Amsterdam', pytz.timezone('Europe/Amsterdam'))
-    )
+        ("Factory", None),
+        ("(GMT+00:00) Factory", None),
+        ("Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
+        ("(GMT+01:00) Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
+    ),
 )
 def test_timezone(arg, expected_value):
     assert timezone(arg) == expected_value

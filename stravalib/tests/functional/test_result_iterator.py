@@ -64,6 +64,7 @@ class ResultIteratorTest(FunctionalTestBase):
 
     def test_empty(self):
         """Test iterating over empty results."""
+
         # Specify two thing that we happen to know will return 0 results
         def pretend_fetcher(page, per_page):
             return []

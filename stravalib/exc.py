@@ -143,18 +143,18 @@ def warn_param_unofficial(param_name: str):
 def warn_attribute_unofficial(attr_name: str):
     warnings.warn(
         f'The "{attr_name}" parameter is undocumented in the Strava API. Its use '
-        'may lead to unexpected behavior or errors in the future.',
+        "may lead to unexpected behavior or errors in the future.",
         FutureWarning,
-        stacklevel=3
+        stacklevel=3,
     )
 
 
 def warn_method_unofficial(method_name: str):
     warnings.warn(
         f'The "{method_name}" method is undocumented in the Strava API. Its use '
-        'may lead to unexpected behavior or errors in the future.',
+        "may lead to unexpected behavior or errors in the future.",
         FutureWarning,
-        stacklevel=3
+        stacklevel=3,
     )
 
 

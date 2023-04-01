@@ -46,14 +46,22 @@ def test_get_activity(
 
 
 def test_get_activity_laps(mock_strava_api, client):
-    mock_strava_api.get('/activities/{id}/laps', response_update={'distance': 1000}, n_results=2)
+    mock_strava_api.get(
+        "/activities/{id}/laps",
+        response_update={"distance": 1000},
+        n_results=2,
+    )
     laps = list(client.get_activity_laps(42))
     assert len(laps) == 2
     assert laps[0].distance == meters(1000)
 
 
 def test_get_club_activities(mock_strava_api, client):
-    mock_strava_api.get('/clubs/{id}/activities', response_update={'distance': 1000}, n_results=2)
+    mock_strava_api.get(
+        "/clubs/{id}/activities",
+        response_update={"distance": 1000},
+        n_results=2,
+    )
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
     assert activities[0].distance == meters(1000)
@@ -61,24 +69,25 @@ def test_get_club_activities(mock_strava_api, client):
 
 def test_get_activity_zones(mock_strava_api, client):
     # Unfortunately, there is no example response for this endpoint in swagger.json
-    with open(os.path.join(RESOURCES_DIR, 'example_zone_response.json'), 'r') as zone_response_fp:
+    with open(
+        os.path.join(RESOURCES_DIR, "example_zone_response.json"), "r"
+    ) as zone_response_fp:
         zone_response = json.load(zone_response_fp)
-    mock_strava_api.get('/activities/{id}/zones', json=zone_response)
+    mock_strava_api.get("/activities/{id}/zones", json=zone_response)
     activity_zones = client.get_activity_zones(42)
     assert len(activity_zones) == 2
-    assert activity_zones[0].type == 'heartrate'
+    assert activity_zones[0].type == "heartrate"
     assert activity_zones[0].sensor_based
 
 
 def test_get_activity_streams(mock_strava_api, client):
     # TODO: parameterize test to cover all branching
     mock_strava_api.get(
-        '/activities/{id}/streams',
-        response_update={'data': [1, 2, 3]}
+        "/activities/{id}/streams", response_update={"data": [1, 2, 3]}
     )
     # the example in swagger.json returns a distance stream
     streams = client.get_activity_streams(42)
-    assert streams['distance'].data == [1, 2, 3]
+    assert streams["distance"].data == [1, 2, 3]
 
 
 @pytest.mark.parametrize(
@@ -374,11 +383,11 @@ def test_activity_uploader(mock_strava_api, client):
 
 
 def test_get_route(mock_strava_api, client):
-    with open(os.path.join(RESOURCES_DIR, 'example_route_response.json'), 'r') as route_response_fp:
+    with open(
+        os.path.join(RESOURCES_DIR, "example_route_response.json"), "r"
+    ) as route_response_fp:
         route_response = json.load(route_response_fp)
-    mock_strava_api.get(
-        "/routes/{id}", status=200, json=route_response
-    )
+    mock_strava_api.get("/routes/{id}", status=200, json=route_response)
     route = client.get_route(42)
     assert route.name == "15k, no traffic"
 
@@ -386,35 +395,51 @@ def test_get_route(mock_strava_api, client):
 @responses.activate
 def test_create_subscription(mock_strava_api, client):
     responses.post(
-        'https://www.strava.com/api/v3/push_subscriptions',
+        "https://www.strava.com/api/v3/push_subscriptions",
         json={
-            'application_id': 42,
-            'object_type': 'activity',
-            'aspect_type': 'create',
-            'callback_url': 'https://foobar.com',
-            'created_at': 1674660406
+            "application_id": 42,
+            "object_type": "activity",
+            "aspect_type": "create",
+            "callback_url": "https://foobar.com",
+            "created_at": 1674660406,
         },
-        status=200
+        status=200,
     )
-    created_subscription = client.create_subscription(42, 42, 'https://foobar.com')
+    created_subscription = client.create_subscription(
+        42, 42, "https://foobar.com"
+    )
     assert created_subscription.application_id == 42
 
 
 @pytest.mark.parametrize(
-    'raw,expected_verify_token,expected_response,expected_exception',
+    "raw,expected_verify_token,expected_response,expected_exception",
     (
-        ({'hub.verify_token': 'a', 'hub.challenge': 'b'}, 'a', {'hub.challenge': 'b'}, None),
-        ({'hub.verify_token': 'foo', 'hub.challenge': 'b'}, 'a', None, AssertionError),
-    )
+        (
+            {"hub.verify_token": "a", "hub.challenge": "b"},
+            "a",
+            {"hub.challenge": "b"},
+            None,
+        ),
+        (
+            {"hub.verify_token": "foo", "hub.challenge": "b"},
+            "a",
+            None,
+            AssertionError,
+        ),
+    ),
 )
 def test_handle_subscription_callback(
-        client, raw, expected_verify_token, expected_response, expected_exception
+    client, raw, expected_verify_token, expected_response, expected_exception
 ):
     if expected_exception:
         with pytest.raises(expected_exception):
             client.handle_subscription_callback(raw, expected_verify_token)
     else:
-        assert client.handle_subscription_callback(raw, expected_verify_token) == expected_response
+        assert (
+            client.handle_subscription_callback(raw, expected_verify_token)
+            == expected_response
+        )
+
 
 @pytest.mark.parametrize(
     "limit,n_raw_results,expected_n_segments",
@@ -459,15 +484,17 @@ def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
         assert clubs[0].name == "foo"
 
 
-@pytest.mark.parametrize('n_members', (0, 2))
+@pytest.mark.parametrize("n_members", (0, 2))
 def test_get_club_members(mock_strava_api, client, n_members):
     mock_strava_api.get(
-        '/clubs/{id}/members', response_update={'lastname': 'Doe'}, n_results=n_members
+        "/clubs/{id}/members",
+        response_update={"lastname": "Doe"},
+        n_results=n_members,
     )
     members = list(client.get_club_members(42))
     assert len(members) == n_members
     if members:
-        assert members[0].lastname == 'Doe'
+        assert members[0].lastname == "Doe"
 
 
 @pytest.mark.parametrize(
@@ -550,25 +577,27 @@ def test_get_activities(
 
 def test_get_activities_quantity_addition(mock_strava_api, client):
     mock_strava_api.get(
-        '/athlete/activities',
-        response_update={'distance': 1000.0},
-        n_results=2
+        "/athlete/activities",
+        response_update={"distance": 1000.0},
+        n_results=2,
     )
     act_list = list(client.get_activities(limit=2))
     total_d = uh.meters(0)
     total_d += act_list[0].distance
     total_d += act_list[1].distance
-    assert total_d == uh.meters(2000.)
+    assert total_d == uh.meters(2000.0)
 
 
 def test_get_segment(mock_strava_api, client):
-    mock_strava_api.get('/segments/{id}', response_update={'name': 'foo'})
+    mock_strava_api.get("/segments/{id}", response_update={"name": "foo"})
     segment = client.get_segment(42)
-    assert segment.name == 'foo'
+    assert segment.name == "foo"
 
 
 def test_get_segment_effort(mock_strava_api, client):
-    mock_strava_api.get('/segment_efforts/{id}', response_update={'max_heartrate': 170})
+    mock_strava_api.get(
+        "/segment_efforts/{id}", response_update={"max_heartrate": 170}
+    )
     effort = client.get_segment_effort(42)
     assert effort.max_heartrate == 170
 
@@ -591,16 +620,16 @@ def test_get_activities_paged(mock_strava_api, client):
 @responses.activate
 def test_upload_activity_photo_works(client):
     """
-        Test uploading an activity with a photo.
+    Test uploading an activity with a photo.
 
-        """
+    """
 
-    strava_pre_signed_uri = 'https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg'
-    photo_bytes = b'photo_data'
+    strava_pre_signed_uri = "https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg"
+    photo_bytes = b"photo_data"
     photo_metadata_header = {
         "Content-Type": "image/jpeg",
-        "Expect": '100-continue',
-        'Host': 'strava-photo-uploads-prod.s3-accelerate.amazonaws.com',
+        "Expect": "100-continue",
+        "Host": "strava-photo-uploads-prod.s3-accelerate.amazonaws.com",
     }
     activity_upload_response = {
         "id": 12345,
@@ -608,14 +637,18 @@ def test_upload_activity_photo_works(client):
         "error": None,
         "status": "Your activity is ready.",
         "activity_id": 12345,
-        "photo_metadata": [{
-            "uri": strava_pre_signed_uri,
-            "header": photo_metadata_header,
-            "method": "PUT",
-            "max_size": 1600,
-        }]
+        "photo_metadata": [
+            {
+                "uri": strava_pre_signed_uri,
+                "header": photo_metadata_header,
+                "method": "PUT",
+                "max_size": 1600,
+            }
+        ],
     }
-    with responses.RequestsMock(assert_all_requests_are_fired=True) as _responses:
+    with responses.RequestsMock(
+        assert_all_requests_are_fired=True
+    ) as _responses:
         _responses.add(
             responses.PUT,
             "https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg",
@@ -626,10 +659,12 @@ def test_upload_activity_photo_works(client):
             responses.GET,
             "https://www.strava.com/api/v3/uploads/12345",
             status=200,
-            json=activity_upload_response
+            json=activity_upload_response,
         )
 
-        activity_uploader = ActivityUploader(client, response=activity_upload_response)
+        activity_uploader = ActivityUploader(
+            client, response=activity_upload_response
+        )
 
         activity_uploader.upload_photo(photo=photo_bytes)
 
@@ -638,12 +673,12 @@ def test_upload_activity_photo_fail_type_error(client):
     activity_uploader = ActivityUploader(client, response={})
 
     with pytest.raises(ActivityPhotoUploadFailed) as error:
-        activity_uploader.upload_photo(photo='photo_str')
+        activity_uploader.upload_photo(photo="photo_str")
 
-    assert str(error.value) == 'Photo must be bytes type'
+    assert str(error.value) == "Photo must be bytes type"
 
 
-@mock.patch('stravalib.client.ActivityUploader.poll')
+@mock.patch("stravalib.client.ActivityUploader.poll")
 def test_upload_activity_photo_fail_activity_upload_not_complete(client):
     activity_upload_response = {
         "id": 1234578,
@@ -651,20 +686,25 @@ def test_upload_activity_photo_fail_activity_upload_not_complete(client):
         "error": None,
         "status": "Your activity is being processed.",
     }
-    activity_uploader = ActivityUploader(client, response=activity_upload_response)
+    activity_uploader = ActivityUploader(
+        client, response=activity_upload_response
+    )
 
     with pytest.raises(ActivityPhotoUploadFailed) as error:
-        activity_uploader.upload_photo(photo=b'photo_bytes')
+        activity_uploader.upload_photo(photo=b"photo_bytes")
 
-    assert str(error.value) == 'Activity upload not complete'
+    assert str(error.value) == "Activity upload not complete"
 
 
-@pytest.mark.parametrize('photo_metadata', (
+@pytest.mark.parametrize(
+    "photo_metadata",
+    (
         None,
         [],
         [{}],
-))
-@mock.patch('stravalib.client.ActivityUploader.poll')
+    ),
+)
+@mock.patch("stravalib.client.ActivityUploader.poll")
 def test_upload_activity_photo_fail_not_supported(client, photo_metadata):
     activity_upload_response = {
         "id": 1234578,
@@ -672,15 +712,18 @@ def test_upload_activity_photo_fail_not_supported(client, photo_metadata):
         "error": None,
         "status": "Your activity is ready.",
         "activity_id": 1234578,
-        "photo_metadata": photo_metadata
+        "photo_metadata": photo_metadata,
     }
 
-    activity_uploader = ActivityUploader(client, response=activity_upload_response)
+    activity_uploader = ActivityUploader(
+        client, response=activity_upload_response
+    )
 
     with pytest.raises(ActivityPhotoUploadFailed) as error:
-        activity_uploader.upload_photo(photo=b'photo_bytes')
+        activity_uploader.upload_photo(photo=b"photo_bytes")
 
-    assert str(error.value) == 'Photo upload not supported'
+    assert str(error.value) == "Photo upload not supported"
+
 
 def test_get_activity_comments(mock_strava_api, client):
     mock_strava_api.get(
@@ -699,10 +742,11 @@ def test_explore_segments(mock_strava_api, client):
     # TODO parameterize test with multiple inputs
     # It is hard to patch the response for this one, since the
     # endpoint returns a nested list of segments.
-    mock_strava_api.get('/segments/explore')
+    mock_strava_api.get("/segments/explore")
     segment_list = client.explore_segments((1, 2, 3, 4))
     assert len(segment_list) == 1
-    assert segment_list[0].name == 'Hawk Hill'
+    assert segment_list[0].name == "Hawk Hill"
+
 
 def test_get_activity_kudos(mock_strava_api, client):
     mock_strava_api.get(
@@ -717,7 +761,7 @@ def test_get_activity_kudos(mock_strava_api, client):
 
 class TestIsAuthenticatedAthlete:
     def test_default(self, mock_strava_api, client):
-        mock_strava_api.get('/athlete', response_update={'id': 42})
+        mock_strava_api.get("/athlete", response_update={"id": 42})
         athlete = client.get_athlete()
         assert athlete.is_authenticated_athlete()
 
@@ -725,9 +769,16 @@ class TestIsAuthenticatedAthlete:
         athlete = Athlete(is_authenticated=True)
         assert athlete.is_authenticated_athlete()
 
-    @pytest.mark.parametrize('match_id,expected_result', ((False, False), (True, True)))
-    def test_from_summary(self, mock_strava_api, client, match_id, expected_result):
-        mock_strava_api.get('/clubs/{id}/members', response_update={'id': 42 if match_id else 21})
-        mock_strava_api.get('/athlete', response_update={'id': 42})
+    @pytest.mark.parametrize(
+        "match_id,expected_result", ((False, False), (True, True))
+    )
+    def test_from_summary(
+        self, mock_strava_api, client, match_id, expected_result
+    ):
+        mock_strava_api.get(
+            "/clubs/{id}/members",
+            response_update={"id": 42 if match_id else 21},
+        )
+        mock_strava_api.get("/athlete", response_update={"id": 42})
         club_members = list(client.get_club_members(99))
         assert club_members[0].is_authenticated_athlete() == expected_result

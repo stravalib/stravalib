@@ -52,7 +52,6 @@ class StravaAuthHTTPServer(HTTPServer):
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-
         request_path = self.path
 
         parsed_path = urlparse.urlparse(request_path)
@@ -99,7 +98,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def main(port, client_id, client_secret):
-
     logging.basicConfig(
         level=logging.INFO, format="%(levelname)-8s %(message)s"
     )
@@ -117,7 +115,6 @@ def main(port, client_id, client_secret):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Run a local web server to receive authorization responses from Strava."
     )

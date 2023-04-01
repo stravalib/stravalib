@@ -66,7 +66,8 @@ def test_is_quantity_type(obj, expected_result, expected_warning):
 
 def test_legacy_accessors():
     assert uh.meters(10).num == 10
-    assert uh.meters(10).unit == 'meter'
+    assert uh.meters(10).unit == "meter"
+
 
 def test_arithmetic_comparison_support():
     assert int(uh.meters(2.1)) == 2
