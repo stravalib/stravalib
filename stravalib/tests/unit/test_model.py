@@ -58,9 +58,13 @@ class TestLegacyModelSerialization:
             {"distance": 100.0},
             UnitConverter("meters")(100.0),
         ),
-        (Activity, {'timezone': 'Europe/Amsterdam'}, pytz.timezone('Europe/Amsterdam')),
-        (Club, {'activity_types': ['Run', 'Ride']}, ['Run', 'Ride']),
-        (Activity, {'sport_type': 'Run'}, 'Run')
+        (
+            Activity,
+            {"timezone": "Europe/Amsterdam"},
+            pytz.timezone("Europe/Amsterdam"),
+        ),
+        (Club, {"activity_types": ["Run", "Ride"]}, ["Run", "Ride"]),
+        (Activity, {"sport_type": "Run"}, "Run"),
     ),
 )
 def test_backward_compatibility_mixin_field_conversions(
@@ -71,18 +75,30 @@ def test_backward_compatibility_mixin_field_conversions(
 
 
 @pytest.mark.parametrize(
-    'model_class,raw,expected_value',
+    "model_class,raw,expected_value",
     (
-        (Activity, {'start_latlng': "5.4,4.3"}, LatLon(__root__=[5.4, 4.3])),
-        (Activity, {'start_latlng': []}, None),
-        (Segment, {'start_latlng': []}, None),
-        (SegmentExplorerResult, {'start_latlng': []}, None),
-        (ActivityPhoto, {'location': []}, None),
-        (Activity, {'timezone': 'foobar'}, None),
-        (Activity, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
-        (BaseEffort, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7)),
-        (ActivityLap, {'start_date_local': '2023-01-17T11:06:07Z'}, datetime(2023, 1, 17, 11, 6, 7))
-    )
+        (Activity, {"start_latlng": "5.4,4.3"}, LatLon(__root__=[5.4, 4.3])),
+        (Activity, {"start_latlng": []}, None),
+        (Segment, {"start_latlng": []}, None),
+        (SegmentExplorerResult, {"start_latlng": []}, None),
+        (ActivityPhoto, {"location": []}, None),
+        (Activity, {"timezone": "foobar"}, None),
+        (
+            Activity,
+            {"start_date_local": "2023-01-17T11:06:07Z"},
+            datetime(2023, 1, 17, 11, 6, 7),
+        ),
+        (
+            BaseEffort,
+            {"start_date_local": "2023-01-17T11:06:07Z"},
+            datetime(2023, 1, 17, 11, 6, 7),
+        ),
+        (
+            ActivityLap,
+            {"start_date_local": "2023-01-17T11:06:07Z"},
+            datetime(2023, 1, 17, 11, 6, 7),
+        ),
+    ),
 )
 def test_deserialization_edge_cases(model_class, raw, expected_value):
     obj = model_class.parse_obj(raw)
@@ -96,8 +112,8 @@ def test_subscription_callback_field_names():
         "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3",
     }
     sub_callback = SubscriptionCallback.parse_obj(sub_callback_raw)
-    assert sub_callback.hub_mode == 'subscribe'
-    assert sub_callback.hub_verify_token == 'STRAVA'
+    assert sub_callback.hub_mode == "subscribe"
+    assert sub_callback.hub_verify_token == "STRAVA"
 
 
 # Below are some toy classes to test type extensions and attribute lookup:
@@ -106,11 +122,12 @@ class A(BaseModel, BackwardCompatibilityMixin):
 
 
 class ConversionA(A, BackwardCompatibilityMixin):
-    _field_conversions = {'x': uh.meters}
+    _field_conversions = {"x": uh.meters}
 
 
 class BoundA(A, BoundClientEntity):
     pass
+
 
 class B(BaseModel, BackwardCompatibilityMixin):
     a: Optional[A] = None
@@ -119,6 +136,7 @@ class B(BaseModel, BackwardCompatibilityMixin):
 
 class BoundB(B, BoundClientEntity):
     pass
+
 
 class C(BaseModel, BackwardCompatibilityMixin):
     a: Optional[List[A]] = None
@@ -132,6 +150,7 @@ class BoundC(C, BoundClientEntity):
 class D(BaseModel, BackwardCompatibilityMixin):
     a: Optional[LatLng] = None
 
+
 class ExtA(A):
     def foo(self):
         return self.x
@@ -139,37 +158,63 @@ class ExtA(A):
 
 class ExtLatLng(LatLng):
     def foo(self):
-        return f'[{self[0], self[1]}]'
+        return f"[{self[0], self[1]}]"
 
 
 @pytest.mark.parametrize(
-    'lookup_expression,expected_result,expected_bound_client',
+    "lookup_expression,expected_result,expected_bound_client",
     (
         (A().x, None, False),
         (B().a, None, False),
         (A(x=1).x, 1, False),
         (B(a=A(x=1)).a, A(x=1), False),
         (C(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
-        (ConversionA(x=1).x, pint.Quantity('1 meter'), False),
+        (ConversionA(x=1).x, pint.Quantity("1 meter"), False),
         (BoundA(x=1).x, 1, False),
         (B(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
-        (B(bound_a=BoundA(x=1, bound_client=1)).bound_a, BoundA(x=1, bound_client=1), True),
+        (
+            B(bound_a=BoundA(x=1, bound_client=1)).bound_a,
+            BoundA(x=1, bound_client=1),
+            True,
+        ),
         (BoundB(a=A(x=1)).a, A(x=1), False),
         (BoundB(a=A(x=1), bound_client=1).a, A(x=1), False),
         (BoundB(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
-        (BoundB(bound_a=BoundA(x=1), bound_client=1).bound_a, BoundA(x=1, bound_client=1), True),
+        (
+            BoundB(bound_a=BoundA(x=1), bound_client=1).bound_a,
+            BoundA(x=1, bound_client=1),
+            True,
+        ),
         (C(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1], BoundA(x=2), None),
-        (C(bound_a=[BoundA(x=1, bound_client=1), BoundA(x=2, bound_client=1)]).bound_a[1],
-         BoundA(x=2, bound_client=1), True),
+        (
+            C(
+                bound_a=[
+                    BoundA(x=1, bound_client=1),
+                    BoundA(x=2, bound_client=1),
+                ]
+            ).bound_a[1],
+            BoundA(x=2, bound_client=1),
+            True,
+        ),
         (BoundC(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
         (BoundC(a=[A(x=1), A(x=2)], bound_client=1).a[1], A(x=2), False),
-        (BoundC(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1],
-         BoundA(x=2), None),
-        (BoundC(bound_a=[BoundA(x=1), BoundA(x=2)], bound_client=1).bound_a[1],
-         BoundA(x=2, bound_client=1), True)
-    )
+        (
+            BoundC(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1],
+            BoundA(x=2),
+            None,
+        ),
+        (
+            BoundC(bound_a=[BoundA(x=1), BoundA(x=2)], bound_client=1).bound_a[
+                1
+            ],
+            BoundA(x=2, bound_client=1),
+            True,
+        ),
+    ),
 )
-def test_backward_compatible_attribute_lookup(lookup_expression, expected_result, expected_bound_client):
+def test_backward_compatible_attribute_lookup(
+    lookup_expression, expected_result, expected_bound_client
+):
     assert lookup_expression == expected_result
 
     if expected_bound_client:
@@ -177,7 +222,7 @@ def test_backward_compatible_attribute_lookup(lookup_expression, expected_result
     elif expected_bound_client is None:
         assert lookup_expression.bound_client is None
     elif not expected_bound_client:
-        assert not hasattr(lookup_expression, 'bound_client')
+        assert not hasattr(lookup_expression, "bound_client")
 
 
 class ModelTest(TestBase):

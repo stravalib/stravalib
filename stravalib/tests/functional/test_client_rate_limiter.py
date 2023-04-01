@@ -73,7 +73,7 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
             # this time it should work again
             self.client.get_athlete()
             self.assertTrue("No exception raised")
-        except (exc.RateLimitExceeded) as e:
+        except exc.RateLimitExceeded as e:
             self.fail("limiter raised RateLimitTimeout unexpectedly!")
 
         # continuse other tests with DefaultRateLimiter

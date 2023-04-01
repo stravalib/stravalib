@@ -15,7 +15,7 @@ class ClientWriteTest(FunctionalTestBase):
         now = datetime.now().replace(microsecond=0)
         a = self.client.create_activity(
             "test_create_activity#simple",
-            activity_type='Ride',
+            activity_type="Ride",
             start_date_local=now,
             elapsed_time=timedelta(hours=3, minutes=4, seconds=5),
             distance=uh.miles(15.2),
@@ -40,7 +40,7 @@ class ClientWriteTest(FunctionalTestBase):
         now = datetime.now().replace(microsecond=0)
         a = self.client.create_activity(
             "test_update_activity#create",
-            activity_type='Ride',
+            activity_type="Ride",
             start_date_local=now,
             elapsed_time=timedelta(hours=3, minutes=4, seconds=5),
             distance=uh.miles(15.2),

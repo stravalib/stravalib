@@ -76,18 +76,18 @@ def is_quantity_type(obj: Any):
         return False
 
 
-meter = meters = UnitConverter('m')
-second = seconds = UnitConverter('s')
-hour = hours = UnitConverter('hour')
-foot = feet = UnitConverter('ft')
-mile = miles = UnitConverter('mi')
-kilometer = kilometers = UnitConverter('km')
+meter = meters = UnitConverter("m")
+second = seconds = UnitConverter("s")
+hour = hours = UnitConverter("hour")
+foot = feet = UnitConverter("ft")
+mile = miles = UnitConverter("mi")
+kilometer = kilometers = UnitConverter("km")
 
-meters_per_second = UnitConverter('m/s')
-miles_per_hour = mph = UnitConverter('mi/hour')
-kilometers_per_hour = kph = UnitConverter('km/hour')
-kilogram = kilograms = kg = kgs = UnitConverter('kg')
-pound = pounds = lb = lbs = UnitConverter('lb')
+meters_per_second = UnitConverter("m/s")
+miles_per_hour = mph = UnitConverter("mi/hour")
+kilometers_per_hour = kph = UnitConverter("km/hour")
+kilogram = kilograms = kg = kgs = UnitConverter("kg")
+pound = pounds = lb = lbs = UnitConverter("lb")
 
 
 def c2f(celsius):
