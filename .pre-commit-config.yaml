@@ -21,6 +21,7 @@ ci:
     autoupdate_schedule: weekly
     autoupdate_branch: ""
 
+default_stages: [commit]
 repos:
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
@@ -49,6 +50,7 @@ repos:
   # Black for auto code formatting
   - repo: https://github.com/psf/black
     rev: 23.3.0
+    stages: [commit]
     hooks:
       - id: black
         language_version: python3.10
