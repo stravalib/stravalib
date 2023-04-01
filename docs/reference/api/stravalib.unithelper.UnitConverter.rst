@@ -14,8 +14,3 @@
    .. autosummary::
 
       ~UnitConverter.__init__
-
-
-
-
-

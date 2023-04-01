@@ -14,8 +14,3 @@
    .. autosummary::
 
       ~SleepingRateLimitRule.__init__
-
-
-
-
-

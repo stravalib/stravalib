@@ -14,8 +14,3 @@
    .. autosummary::
 
       ~DefaultRateLimiter.__init__
-
-
-
-
-

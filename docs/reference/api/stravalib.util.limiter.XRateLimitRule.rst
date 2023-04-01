@@ -24,4 +24,3 @@
    .. autosummary::
 
       ~XRateLimitRule.limit_timeout
-

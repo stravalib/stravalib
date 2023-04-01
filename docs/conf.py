@@ -52,8 +52,8 @@ else:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.napoleon", # Numpy style doc support
-    "sphinx_remove_toctrees", # Remove api generated stubs from doctree
+    "sphinx.ext.napoleon",  # Numpy style doc support
+    "sphinx_remove_toctrees",  # Remove api generated stubs from doctree
     "sphinxcontrib.autodoc_pydantic",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
@@ -111,7 +111,7 @@ html_theme_options = {
     "header_links_before_dropdown": 4,
     "use_edit_page_button": True,
     "show_toc_level": 1,
-    #"navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
+    # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_items": ["copyright"],
 }
@@ -123,7 +123,7 @@ html_context = {
 }
 
 html_static_path = ["_static"]
-#html_css_files = ["stravalib.css"]
+# html_css_files = ["stravalib.css"]
 
 # Short title for the navigation bar.
 html_short_title = "Stravalib Python Package Documentation"
