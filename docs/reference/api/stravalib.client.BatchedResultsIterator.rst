@@ -26,4 +26,3 @@
    .. autosummary::
 
       ~BatchedResultsIterator.default_per_page
-

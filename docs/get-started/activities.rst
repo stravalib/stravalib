@@ -77,4 +77,3 @@ create_activity  :meth:`stravalib.client.Client.create_activity`
 upload_activity :meth:`stravalib.client.Client.upload_activity`
 update_activity :meth:`stravalib.client.Client.update_activity`
 =============== ================================================
-
