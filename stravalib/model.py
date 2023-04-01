@@ -15,17 +15,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from functools import wraps
-from typing import (
-    Any,
-    ClassVar,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Union,
-    get_args,
-)
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union, get_args
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -33,12 +23,7 @@ from pydantic.datetime_parse import parse_datetime
 from stravalib import exc
 from stravalib import unithelper as uh
 from stravalib.exc import warn_method_deprecation
-from stravalib.field_conversions import (
-    enum_value,
-    enum_values,
-    time_interval,
-    timezone,
-)
+from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
