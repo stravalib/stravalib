@@ -45,6 +45,7 @@ from stravalib.strava_model import (
     Primary,
     Route,
     Split,
+    SportType,
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
     TimedZoneRange,
@@ -751,6 +752,10 @@ class Activity(
     # TODO maybe deprecate?
     TYPES: ClassVar[Tuple] = get_args(
         ActivityType.__fields__["__root__"].type_
+    )
+
+    SPORT_TYPES: ClassVar[Tuple] = get_args(
+        SportType.__fields__["__root__"].type_
     )
 
     # Undocumented attributes:

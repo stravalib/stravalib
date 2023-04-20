@@ -665,6 +665,7 @@ class Client(object):
         activity_id,
         name=None,
         activity_type=None,
+        sport_type=None,
         private=None,
         commute=None,
         trainer=None,
@@ -688,6 +689,17 @@ class Client(object):
             Possible values: ride, run, swim, workout, hike, walk, nordicski,
             alpineski, backcountryski, iceskate, inlineskate, kitesurf,
             rollerski, windsurf, workout, snowboard, snowshoe
+        sport_type : str, default=None
+            Possible values (case-sensitive): AlpineSki, BackcountrySki,
+            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+            EMountainBikeRide, Golf, GravelRide, Handcycle,
+            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -730,6 +742,13 @@ class Client(object):
                     f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
                 )
             params["type"] = activity_type.lower()
+
+        if sport_type is not None:
+            if not sport_type in model.Activity.SPORT_TYPES:
+                raise ValueError(
+                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                )
+            params["sport_type"] = sport_type
 
         if private is not None:
             warn_param_deprecation("private")
