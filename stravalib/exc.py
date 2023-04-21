@@ -130,6 +130,19 @@ def warn_param_deprecation(param_name: str):
         stacklevel=3,
     )
 
+def warn_param_deprecation_in_favor_of(
+    param_name: str, alternative: str, alt_url: str = None
+):
+    alt_support_msg = (
+        f" See {alt_url} for more information." if alt_url else ""
+    )
+    warnings.warn(
+        f'The "{param_name}" parameter is deprecated and will be removed'
+        f'in the future. Instead, you can use "{alternative}".{alt_support_msg}',
+        DeprecationWarning,
+        stacklevel=3,
+    )
+
 
 def warn_param_unofficial(param_name: str):
     warnings.warn(

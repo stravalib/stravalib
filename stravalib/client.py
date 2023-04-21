@@ -24,6 +24,7 @@ from stravalib.exc import (
     warn_attribute_unofficial,
     warn_method_unofficial,
     warn_param_deprecation,
+    warn_param_deprecation_in_favor_of,
     warn_param_unofficial,
 )
 from stravalib.protocol import ApiV3
@@ -686,6 +687,9 @@ class Client(object):
             The name of the activity.
         activity_type : str, default=None
             The activity type (case-insensitive).
+            Deprecated. Prefer to use sport_type. In a request where both type
+            and sport_type are present, this field will be ignored.
+            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
             Possible values: ride, run, swim, workout, hike, walk, nordicski,
             alpineski, backcountryski, iceskate, inlineskate, kitesurf,
             rollerski, windsurf, workout, snowboard, snowshoe
@@ -742,6 +746,10 @@ class Client(object):
                     f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
                 )
             params["type"] = activity_type.lower()
+            warn_param_deprecation_in_favor_of(
+                "activity_type", "sport_type",
+                "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity"
+            )
 
         if sport_type is not None:
             if not sport_type in model.Activity.SPORT_TYPES:
