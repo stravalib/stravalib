@@ -758,6 +758,9 @@ class Client(object):
                     f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
                 )
             params["sport_type"] = sport_type
+            params.pop(
+                "type", None
+            )  # Just to be sure we don't confuse the Strava API
 
         if private is not None:
             warn_param_unsupported("private")
