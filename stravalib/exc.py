@@ -122,7 +122,7 @@ def warn_method_deprecation(
     )
 
 
-def warn_param_deprecation(param_name: str):
+def warn_param_unsupported(param_name: str):
     warnings.warn(
         f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
         "effect and may lead to errors in the future.",
@@ -130,7 +130,8 @@ def warn_param_deprecation(param_name: str):
         stacklevel=3,
     )
 
-def warn_param_deprecation_in_favor_of(
+
+def warn_param_deprecation(
     param_name: str, alternative: str, alt_url: str = None
 ):
     alt_support_msg = (
