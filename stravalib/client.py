@@ -25,6 +25,7 @@ from stravalib.exc import (
     warn_method_unofficial,
     warn_param_deprecation,
     warn_param_unofficial,
+    warn_param_unsupported,
 )
 from stravalib.protocol import ApiV3
 from stravalib.unithelper import is_quantity_type
@@ -339,7 +340,7 @@ class Client(object):
         params = {k: v for (k, v) in params.items() if v is not None}
         for p in params.keys():
             if p != "weight":
-                warn_param_deprecation(p)
+                warn_param_unsupported(p)
         if weight is not None:
             params["weight"] = float(weight)
 
@@ -665,6 +666,7 @@ class Client(object):
         activity_id,
         name=None,
         activity_type=None,
+        sport_type=None,
         private=None,
         commute=None,
         trainer=None,
@@ -685,9 +687,23 @@ class Client(object):
             The name of the activity.
         activity_type : str, default=None
             The activity type (case-insensitive).
+            Deprecated. Prefer to use sport_type. In a request where both type
+            and sport_type are present, this field will be ignored.
+            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
             Possible values: ride, run, swim, workout, hike, walk, nordicski,
             alpineski, backcountryski, iceskate, inlineskate, kitesurf,
             rollerski, windsurf, workout, snowboard, snowshoe
+        sport_type : str, default=None
+            Possible values (case-sensitive): AlpineSki, BackcountrySki,
+            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+            EMountainBikeRide, Golf, GravelRide, Handcycle,
+            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -730,9 +746,24 @@ class Client(object):
                     f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
                 )
             params["type"] = activity_type.lower()
+            warn_param_deprecation(
+                "activity_type",
+                "sport_type",
+                "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
+            )
+
+        if sport_type is not None:
+            if not sport_type in model.Activity.SPORT_TYPES:
+                raise ValueError(
+                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                )
+            params["sport_type"] = sport_type
+            params.pop(
+                "type", None
+            )  # Just to be sure we don't confuse the Strava API
 
         if private is not None:
-            warn_param_deprecation("private")
+            warn_param_unsupported("private")
             params["private"] = int(private)
 
         if commute is not None:
@@ -748,7 +779,7 @@ class Client(object):
             params["description"] = description
 
         if device_name is not None:
-            warn_param_deprecation("device_name")
+            warn_param_unsupported("device_name")
             params["device_name"] = device_name
 
         if hide_from_home is not None:
@@ -850,7 +881,7 @@ class Client(object):
             warn_param_unofficial("activity_type")
             params["activity_type"] = activity_type.lower()
         if private is not None:
-            warn_param_deprecation("private")
+            warn_param_unsupported("private")
             params["private"] = int(private)
         if external_id is not None:
             params["external_id"] = external_id
