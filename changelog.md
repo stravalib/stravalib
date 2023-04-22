@@ -2,9 +2,24 @@
 
 ## Unreleased
 
+## v1.3.0
+
+### Added
+
 - Add: Adds RPE to activity model (@jsamoocha, #355)
-- Fix: Move to numpy style docstrings & add black (@lwasser, #365)
 - Add: support sport_type in client.update_activitiy() (@think-nice-things, #360)
+
+### Fixed
+
+- Fix: Move to numpy style docstrings & add black (@lwasser, #365)
+
+### Deprecated
+
+- the `activity_type` parameter in the client method `update_activity()` is deprecated and should be replaced by `sport_type`.
+
+### Contributors to this release
+
+@jsamoocha, @lwasser, @think-nice-things
 
 ## v1.3.0rc0
 
