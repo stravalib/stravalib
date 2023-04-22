@@ -15,7 +15,7 @@
 
 ### Deprecated
 
-- the `activity_type` parameter in the client method `update_activity()` is deprecated and should be replaced by `sport_type`.
+- The `activity_type` parameter in the client method `update_activity()` is deprecated and should be replaced by `sport_type`.
 
 ### Contributors to this release
 
