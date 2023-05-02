@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: Bumps Flask version in example code (@jsamoocha, #366)
+
 ## v1.3.0
 
 ### Added
