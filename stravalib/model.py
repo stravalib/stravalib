@@ -638,7 +638,7 @@ class Segment(
     map: Optional[Map] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type = Optional[ActivityType] = None
+    activity_type: Optional[ActivityType] = None
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
