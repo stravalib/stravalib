@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix: Bumps Flask version in example code (@jsamoocha, #366)
+- Add: Add field override in class Segment to support all activity types (@solorisx, #368)
 
 ## v1.3.0
 
