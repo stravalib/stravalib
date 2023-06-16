@@ -1167,7 +1167,7 @@ class StreamSet(BaseModel):
 
 
 class SummarySegment(BaseModel):
-    activity_type: Optional[Literal["Ride", "Run"]] = None
+    activity_type: Optional[Literal["Ride", "Run", "VirtualRide", "VirtualRun"]] = None
     athlete_pr_effort: Optional[SummaryPRSegmentEffort] = None
     athlete_segment_stats: Optional[SummarySegmentEffort] = None
     average_grade: Optional[float] = None
