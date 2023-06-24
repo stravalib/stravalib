@@ -116,10 +116,16 @@ LimitStructure = TypedDict(
     },
 )
 
+LimitsStructure = TypedDict(
+    "LimitsStructure", {"short": LimitStructure, "long": LimitStructure}
+)
+
 
 class XRateLimitRule(object):
     def __init__(
-        self, limits: Dict[str, LimitStructure], force_limits: bool = False
+        self,
+        limits: LimitsStructure,
+        force_limits: bool = False,
     ) -> None:
         """
 
@@ -142,9 +148,10 @@ class XRateLimitRule(object):
     def __call__(self, response_headers: Dict[str, str]) -> None:
         self._update_usage(response_headers)
 
-        for limit in self.rate_limits.values():
-            self._check_limit_time_invalid(limit)
-            self._check_limit_rates(limit)
+        self._check_limit_time_invalid(self.rate_limits["short"])
+        self._check_limit_rates(self.rate_limits["short"])
+        self._check_limit_time_invalid(self.rate_limits["long"])
+        self._check_limit_rates(self.rate_limits["long"])
 
     def _update_usage(self, response_headers: Dict[str, str]) -> None:
         rates = get_rates_from_response_headers(response_headers)
