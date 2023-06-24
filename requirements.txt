@@ -14,6 +14,12 @@ pytest
 # Code coverage
 pytest-cov
 
+# Type checking
+mypy
+types-requests
+types-pytz
+types-Flask
+
 # Docs
 # Pinning to avoid a current bug in 0.13
 pydata-sphinx-theme==0.12.0
