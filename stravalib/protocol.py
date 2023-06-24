@@ -6,11 +6,38 @@ Low-level classes for interacting directly with the Strava API webservers.
 import abc
 import functools
 import logging
+from typing import (
+    Any,
+    BinaryIO,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TextIO,
+    TypedDict,
+    Union,
+)
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
 
 from stravalib import exc
+
+Scope = Literal[
+    "read",
+    "read_all",
+    "profile:read_all",
+    "profile:write",
+    "activity:read",
+    "activity:read_all",
+    "activity:write",
+]
+
+AccessInfo = TypedDict(
+    "AccessInfo",
+    {"access_token": str, "refresh_token": str, "expires_at": int},
+)
 
 
 class ApiV3(metaclass=abc.ABCMeta):
@@ -22,7 +49,10 @@ class ApiV3(metaclass=abc.ABCMeta):
     api_base = "/api/v3"
 
     def __init__(
-        self, access_token=None, requests_session=None, rate_limiter=None
+        self,
+        access_token: Optional[str] = None,
+        requests_session: Optional[requests.Session] = None,
+        rate_limiter: Optional[Callable[[Dict[str, str]], None]] = None,
     ):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
@@ -39,25 +69,25 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
         self.access_token = access_token
         if requests_session:
-            self.rsession = requests_session
+            self.rsession: requests.Session = requests_session
         else:
             self.rsession = requests.Session()
 
         if rate_limiter is None:
             # Make it a dummy function, so we don't have to check if it's defined before
             # calling it later
-            rate_limiter = lambda x=None: None
+            rate_limiter = lambda x: None
 
         self.rate_limiter = rate_limiter
 
     def authorization_url(
         self,
-        client_id,
-        redirect_uri,
-        approval_prompt="auto",
-        scope=None,
-        state=None,
-    ):
+        client_id: int,
+        redirect_uri: str,
+        approval_prompt: Literal["auto", "force"] = "auto",
+        scope: Optional[Union[List[Scope], Scope]] = None,
+        state: Optional[str] = None,
+    ) -> str:
         """
         Get the URL needed to authorize your application to access a Strava user's information.
 
@@ -104,17 +134,13 @@ class ApiV3(metaclass=abc.ABCMeta):
             unsupported
         )
 
-        if isinstance(scope, (list, tuple)):
-            scope = ",".join(scope)
-
         params = {
             "client_id": client_id,
             "redirect_uri": redirect_uri,
             "approval_prompt": approval_prompt,
+            "scope": ",".join(scope),
             "response_type": "code",
         }
-        if scope is not None:
-            params["scope"] = scope
         if state is not None:
             params["state"] = state
 
@@ -122,7 +148,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             ("https", self.server, "/oauth/authorize", urlencode(params), "")
         )
 
-    def exchange_code_for_token(self, client_id, client_secret, code):
+    def exchange_code_for_token(
+        self, client_id: int, client_secret: str, code: str
+    ) -> AccessInfo:
         """
         Exchange the temporary authorization code (returned with redirect from strava authorization URL)
         for a short-lived access token and a refresh token (used to obtain the next access token later on).
@@ -150,15 +178,17 @@ class ApiV3(metaclass=abc.ABCMeta):
             },
             method="POST",
         )
-        access_info = dict()
-        access_info["access_token"] = response["access_token"]
-        access_info["refresh_token"] = response.get("refresh_token", None)
-        access_info["expires_at"] = response.get("expires_at", None)
+        access_info: AccessInfo = {
+            "access_token": response["access_token"],
+            "refresh_token": response["refresh_token"],
+            "expires_at": response["expires_at"],
+        }
         self.access_token = response["access_token"]
-
         return access_info
 
-    def refresh_access_token(self, client_id, client_secret, refresh_token):
+    def refresh_access_token(
+        self, client_id: int, client_secret: str, refresh_token: str
+    ) -> AccessInfo:
         """
         Exchanges the previous refresh token for a short-lived access token and a new
         refresh token (used to obtain the next access token later on).
@@ -186,15 +216,16 @@ class ApiV3(metaclass=abc.ABCMeta):
             },
             method="POST",
         )
-        access_info = dict()
-        access_info["access_token"] = response["access_token"]
-        access_info["refresh_token"] = response["refresh_token"]
-        access_info["expires_at"] = response["expires_at"]
+        access_info: AccessInfo = {
+            "access_token": response["access_token"],
+            "refresh_token": response["refresh_token"],
+            "expires_at": response["expires_at"],
+        }
         self.access_token = response["access_token"]
 
         return access_info
 
-    def resolve_url(self, url):
+    def resolve_url(self, url: str) -> str:
         if not url.startswith("http"):
             url = urljoin(
                 "https://{0}".format(self.server),
@@ -203,8 +234,13 @@ class ApiV3(metaclass=abc.ABCMeta):
         return url
 
     def _request(
-        self, url, params=None, files=None, method="GET", check_for_errors=True
-    ):
+        self,
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+        files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
+        method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
+        check_for_errors: bool = True,
+    ) -> Dict[str, Any]:
         """
         Perform the underlying request, returning the parsed JSON results.
 
@@ -253,7 +289,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 )
             )
 
-        raw = requester(url, params=params)
+        raw = requester(url, params=params)  # type: ignore[operator]
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         self.rate_limiter(raw.headers)
@@ -269,7 +305,9 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         return resp
 
-    def _handle_protocol_error(self, response):
+    def _handle_protocol_error(
+        self, response: requests.Response
+    ) -> requests.Response:
         """
         Parses the raw response from the server, raising a :class:`stravalib.exc.Fault` if the
         server returned an error.
@@ -290,38 +328,33 @@ class ApiV3(metaclass=abc.ABCMeta):
                 )
 
         # Special subclasses for some errors
-        msg = None
-        exc_class = None
         if response.status_code == 404:
             msg = "%s: %s" % (response.reason, error_str)
-            exc_class = exc.ObjectNotFound
+            raise exc.ObjectNotFound(msg, response=response)
         elif response.status_code == 401:
             msg = "%s: %s" % (response.reason, error_str)
-            exc_class = exc.AccessUnauthorized
+            raise exc.AccessUnauthorized(msg, response=response)
         elif 400 <= response.status_code < 500:
             msg = "%s Client Error: %s [%s]" % (
                 response.status_code,
                 response.reason,
                 error_str,
             )
-            exc_class = exc.Fault
+            raise exc.Fault(msg, response=response)
         elif 500 <= response.status_code < 600:
             msg = "%s Server Error: %s [%s]" % (
                 response.status_code,
                 response.reason,
                 error_str,
             )
-            exc_class = exc.Fault
+            raise exc.Fault(msg, response=response)
         elif error_str:
             msg = error_str
-            exc_class = exc.Fault
-
-        if exc_class is not None:
-            raise exc_class(msg, response=response)
+            raise exc.Fault(msg, response=response)
 
         return response
 
-    def _extract_referenced_vars(self, s):
+    def _extract_referenced_vars(self, s: str) -> List[str]:
         """
         Utility method to find the referenced format variables in a string.
         (Assumes string.format() format vars.)
@@ -329,7 +362,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         :return: The list of referenced variable names. (e.g. ['foo'])
         :rtype: list
         """
-        d = {}
+        d: Dict[str, int] = {}
         while True:
             try:
                 s.format(**d)
@@ -339,9 +372,11 @@ class ApiV3(metaclass=abc.ABCMeta):
                 d[exc.args[0]] = 0
             else:
                 break
-        return d.keys()
+        return list(d.keys())
 
-    def get(self, url, check_for_errors=True, **kwargs):
+    def get(
+        self, url: str, check_for_errors: bool = True, **kwargs: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Performs a generic GET request for specified params, returning the response.
         """
@@ -354,7 +389,13 @@ class ApiV3(metaclass=abc.ABCMeta):
             url, params=params, check_for_errors=check_for_errors
         )
 
-    def post(self, url, files=None, check_for_errors=True, **kwargs):
+    def post(
+        self,
+        url: str,
+        files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
+        check_for_errors: bool = True,
+        **kwargs: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Performs a generic POST request for specified params, returning the response.
         """
@@ -371,7 +412,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             check_for_errors=check_for_errors,
         )
 
-    def put(self, url, check_for_errors=True, **kwargs):
+    def put(
+        self, url: str, check_for_errors: bool = True, **kwargs: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Performs a generic PUT request for specified params, returning the response.
         """
@@ -384,7 +427,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             url, params=params, method="PUT", check_for_errors=check_for_errors
         )
 
-    def delete(self, url, check_for_errors=True, **kwargs):
+    def delete(
+        self, url: str, check_for_errors: bool = True, **kwargs: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Performs a generic DELETE request for specified params, returning the response.
         """

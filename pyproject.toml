@@ -91,6 +91,7 @@ plugins = [
 
 files = [
     "stravalib/util/limiter.py",
+    "stravalib/protocol.py",
 ]
 
 [tool.pydantic-mypy]
