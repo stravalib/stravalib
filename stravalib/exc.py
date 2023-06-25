@@ -4,9 +4,10 @@ Exceptions & Error Handling
 Exceptions and error handling for stravalib.
 These are classes designed to capture and handle various errors encountered when interacting with the Strava API.
 """
+from __future__ import annotations
+
 import logging
 import warnings
-from typing import Type
 
 import requests.exceptions
 
@@ -56,8 +57,13 @@ class RateLimitExceeded(RuntimeError):
     https://developers.strava.com/docs/rate-limits/
     """
 
-    def __init__(self, msg, timeout=None, limit=None):
-        super(RateLimitExceeded, self).__init__()
+    def __init__(
+        self,
+        msg: str,
+        timeout: float | None = None,
+        limit: float | None = None,
+    ) -> None:
+        super().__init__()
         self.limit = limit
         self.timeout = timeout
 
@@ -109,8 +115,11 @@ logging.captureWarnings(True)
 
 
 def warn_method_deprecation(
-    klass: Type, method_name: str, alternative: str, alt_url: str = None
-):
+    klass: type,
+    method_name: str,
+    alternative: str,
+    alt_url: str | None = None,
+) -> None:
     alt_support_msg = (
         f" See {alt_url} for more information." if alt_url else ""
     )
@@ -122,7 +131,7 @@ def warn_method_deprecation(
     )
 
 
-def warn_param_unsupported(param_name: str):
+def warn_param_unsupported(param_name: str) -> None:
     warnings.warn(
         f'The "{param_name}" parameter is unsupported by the Strava API. It has no '
         "effect and may lead to errors in the future.",
@@ -132,8 +141,8 @@ def warn_param_unsupported(param_name: str):
 
 
 def warn_param_deprecation(
-    param_name: str, alternative: str, alt_url: str = None
-):
+    param_name: str, alternative: str, alt_url: str | None = None
+) -> None:
     alt_support_msg = (
         f" See {alt_url} for more information." if alt_url else ""
     )
@@ -145,7 +154,7 @@ def warn_param_deprecation(
     )
 
 
-def warn_param_unofficial(param_name: str):
+def warn_param_unofficial(param_name: str) -> None:
     warnings.warn(
         f'The "{param_name}" parameter is undocumented in the Strava API. Its use '
         "may lead to unexpected behavior or errors in the future.",
@@ -154,7 +163,7 @@ def warn_param_unofficial(param_name: str):
     )
 
 
-def warn_attribute_unofficial(attr_name: str):
+def warn_attribute_unofficial(attr_name: str) -> None:
     warnings.warn(
         f'The "{attr_name}" parameter is undocumented in the Strava API. Its use '
         "may lead to unexpected behavior or errors in the future.",
@@ -163,7 +172,7 @@ def warn_attribute_unofficial(attr_name: str):
     )
 
 
-def warn_method_unofficial(method_name: str):
+def warn_method_unofficial(method_name: str) -> None:
     warnings.warn(
         f'The "{method_name}" method is undocumented in the Strava API. Its use '
         "may lead to unexpected behavior or errors in the future.",
@@ -172,7 +181,7 @@ def warn_method_unofficial(method_name: str):
     )
 
 
-def warn_units_deprecated():
+def warn_units_deprecated() -> None:
     warnings.warn(
         "You are using a Quantity object or attributes from the units library, which is "
         "deprecated. Support for these types will be removed in the future. Instead, "
