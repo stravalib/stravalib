@@ -240,7 +240,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
         method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
         check_for_errors: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """
         Perform the underlying request, returning the parsed JSON results.
 
@@ -376,7 +376,7 @@ class ApiV3(metaclass=abc.ABCMeta):
 
     def get(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """
         Performs a generic GET request for specified params, returning the response.
         """
@@ -395,7 +395,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
         check_for_errors: bool = True,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """
         Performs a generic POST request for specified params, returning the response.
         """
@@ -414,7 +414,7 @@ class ApiV3(metaclass=abc.ABCMeta):
 
     def put(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """
         Performs a generic PUT request for specified params, returning the response.
         """
@@ -429,7 +429,7 @@ class ApiV3(metaclass=abc.ABCMeta):
 
     def delete(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """
         Performs a generic DELETE request for specified params, returning the response.
         """
