@@ -3,18 +3,19 @@ Protocol
 ==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
+from __future__ import annotations
+
 import abc
 import functools
 import logging
 from typing import (
+    TYPE_CHECKING,
     Any,
-    BinaryIO,
     Callable,
     Dict,
     List,
     Literal,
     Optional,
-    TextIO,
     TypedDict,
     Union,
 )
@@ -23,6 +24,9 @@ from urllib.parse import urlencode, urljoin, urlunsplit
 import requests
 
 from stravalib import exc
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
 Scope = Literal[
     "read",
@@ -237,7 +241,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         self,
         url: str,
         params: Optional[Dict[str, Any]] = None,
-        files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
+        files: Optional[Dict[str, SupportsRead[Union[str, bytes]]]] = None,
         method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
         check_for_errors: bool = True,
     ) -> Any:
@@ -392,7 +396,7 @@ class ApiV3(metaclass=abc.ABCMeta):
     def post(
         self,
         url: str,
-        files: Optional[Dict[str, Union[TextIO, BinaryIO]]] = None,
+        files: Optional[Dict[str, SupportsRead[Union[str, bytes]]]] = None,
         check_for_errors: bool = True,
         **kwargs: Any,
     ) -> Any:
