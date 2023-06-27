@@ -8,17 +8,7 @@ from __future__ import annotations
 import abc
 import functools
 import logging
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    TypedDict,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
@@ -38,10 +28,11 @@ Scope = Literal[
     "activity:write",
 ]
 
-AccessInfo = TypedDict(
-    "AccessInfo",
-    {"access_token": str, "refresh_token": str, "expires_at": int},
-)
+
+class AccessInfo(TypedDict):
+    access_token: str
+    refresh_token: str
+    expires_at: int
 
 
 class ApiV3(metaclass=abc.ABCMeta):
@@ -54,9 +45,9 @@ class ApiV3(metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        access_token: Optional[str] = None,
-        requests_session: Optional[requests.Session] = None,
-        rate_limiter: Optional[Callable[[Dict[str, str]], None]] = None,
+        access_token: str | None = None,
+        requests_session: requests.Session | None = None,
+        rate_limiter: Callable[[dict[str, str]], None] | None = None,
     ):
         """
         Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
@@ -89,8 +80,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         client_id: int,
         redirect_uri: str,
         approval_prompt: Literal["auto", "force"] = "auto",
-        scope: Optional[Union[List[Scope], Scope]] = None,
-        state: Optional[str] = None,
+        scope: list[Scope] | Scope | None = None,
+        state: str | None = None,
     ) -> str:
         """
         Get the URL needed to authorize your application to access a Strava user's information.
@@ -240,8 +231,8 @@ class ApiV3(metaclass=abc.ABCMeta):
     def _request(
         self,
         url: str,
-        params: Optional[Dict[str, Any]] = None,
-        files: Optional[Dict[str, SupportsRead[Union[str, bytes]]]] = None,
+        params: dict[str, Any] | None = None,
+        files: dict[str, SupportsRead[str | bytes]] | None = None,
         method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
         check_for_errors: bool = True,
     ) -> Any:
@@ -358,7 +349,7 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         return response
 
-    def _extract_referenced_vars(self, s: str) -> List[str]:
+    def _extract_referenced_vars(self, s: str) -> list[str]:
         """
         Utility method to find the referenced format variables in a string.
         (Assumes string.format() format vars.)
@@ -366,7 +357,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         :return: The list of referenced variable names. (e.g. ['foo'])
         :rtype: list
         """
-        d: Dict[str, int] = {}
+        d: dict[str, int] = {}
         while True:
             try:
                 s.format(**d)
@@ -396,7 +387,7 @@ class ApiV3(metaclass=abc.ABCMeta):
     def post(
         self,
         url: str,
-        files: Optional[Dict[str, SupportsRead[Union[str, bytes]]]] = None,
+        files: dict[str, SupportsRead[str | bytes]] | None = None,
         check_for_errors: bool = True,
         **kwargs: Any,
     ) -> Any:
