@@ -101,9 +101,12 @@ class XRateLimitRule(object):
     def __init__(self, limits, force_limits=False):
         """
 
-        :param limits: THe limits structure.
-        :param force_limits: If False (default), this rule will set/update its limits based on what the Strava API
-        tells it. If True, the provided limits will be enforced, i.e. ignoring the limits given by the API.
+        :param limits: The limits structure.
+        :param force_limits:
+            If False (default), this rule will set/update its limits based on
+            what the Strava API tells it.
+            If True, the provided limits will be enforced,
+            i.e. ignoring the limits given by the API.
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
