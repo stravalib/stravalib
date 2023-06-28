@@ -836,8 +836,8 @@ class Client(object):
             'view_private' permissions will be necessary to view the activity.
 
             .. deprecated:: 1.0
-            This param is not supported by the Strava API and may be
-            removed in the future.
+                This param is not supported by the Strava API and may be
+                removed in the future.
         external_id : str, optional, default=None
             An arbitrary unique identifier may be specified which
             will be included in status responses.
