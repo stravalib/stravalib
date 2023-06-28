@@ -33,10 +33,19 @@ from stravalib import exc
 
 
 class RequestRate(NamedTuple):
+    """Tuple about the request usage and usage limit."""
+
     short_usage: int
+    """15-minute usage"""
+
     long_usage: int
+    """Daily usage"""
+
     short_limit: int
+    """15-minutes limit"""
+
     long_limit: int
+    """Daily limit"""
 
 
 def get_rates_from_response_headers(
@@ -98,16 +107,34 @@ def get_seconds_until_next_day(now: arrow.arrow.Arrow | None = None) -> int:
 
 
 class LimitStructure(TypedDict):
-    usageFieldIndex: int
+    """
+    Dictionary that holds rate limits for a specific time window size.
+    """
+
     usage: int
+    """Usage in the current period"""
+
     limit: int
+    """Limit for the period"""
+
     time: float
+    """Duration of the period"""
+
     lastExceeded: datetime | None
+    """Last time the limit was exceeded"""
 
 
 class LimitsStructure(TypedDict):
+    """
+    Dictionary that holds rate limiting information for both of strava 15-minutes and
+    daily rate limits.
+    """
+
     short: LimitStructure
+    """15-minutes rate limiting data"""
+
     long: LimitStructure
+    """Daily rate limiting data"""
 
 
 class XRateLimitRule:
@@ -374,7 +401,6 @@ class DefaultRateLimiter(RateLimiter):
             XRateLimitRule(
                 {
                     "short": {
-                        "usageFieldIndex": 0,
                         "usage": 0,
                         # 60s * 15 = 15 min
                         "limit": 600,
@@ -382,7 +408,6 @@ class DefaultRateLimiter(RateLimiter):
                         "lastExceeded": None,
                     },
                     "long": {
-                        "usageFieldIndex": 1,
                         "usage": 0,
                         # 60s * 60m * 24 = 1 day
                         "limit": 30000,
