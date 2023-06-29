@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+*  Fix two minor mistakes in documentation (@enadeau , #375)
+*  Add type checking to limiter and protocol file (@enadeau , #374)
+
 ## v1.3.1
 
 ### Added

@@ -73,3 +73,29 @@ filterwarnings = [
     "ignore::FutureWarning:stravalib.*",
     "ignore::DeprecationWarning:stravalib.*"
 ]
+
+[tool.mypy]
+python_version = "3.8"
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+warn_unreachable = true
+disallow_untyped_defs = true
+
+plugins = [
+  "pydantic.mypy"
+]
+
+files = [
+    "stravalib/util/limiter.py",
+    "stravalib/protocol.py",
+]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
