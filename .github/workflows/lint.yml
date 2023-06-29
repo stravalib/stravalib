@@ -1,0 +1,58 @@
+name: Mypy static type checking
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+# Use bash by default in all jobs
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  mypy:
+    name: Run mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Set Variables
+        id: set_variables
+        shell: bash
+        run: |
+          echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_OUTPUT
+          echo "PIP_CACHE=$(pip cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.set_variables.outputs.PIP_CACHE }}
+          key: ubuntu-latest-pip-${{ steps.set_variables.outputs.PY }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-build.txt
+          # Install virtualenv to ensure this runs on window
+          python3 -m pip install "build[virtualenv]"
+      - name: List installed packages
+        run: python -m pip freeze
+      # Need tags for setuptools_scm to provide a proper version
+      - name: Fetch git tags
+        run: git fetch origin 'refs/tags/*:refs/tags/*'
+      - name: Build package
+        run: |
+          # Build package
+          python3 -m build
+      - name: Install package
+        run: |
+          # Install package from the built wheel
+          python -m pip install --no-deps dist/*.whl
+
+      - name: Run tests with mypy
+        run: |
+          mypy
