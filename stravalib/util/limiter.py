@@ -1,14 +1,15 @@
-"""
-Utilities
+"""Utilities
 ==============
 Rate limiter classes.
 
 These are basically callables that when called register that a request was
-issued.  Depending on how they are configured that may cause a pause or exception
-if a rate limit has been exceeded.  Obviously it is up to the calling code to ensure
-that these callables are invoked with every (successful?) call to the backend
-API.  (There is probably a better way to hook these into the requests library
-directly ... TBD.)
+issued. Depending on how they are configured that may cause a pause or
+exception if a rate limit has been exceeded. It is up to the calling
+code to ensure that these callables are invoked with every (successful?) call
+to the backend API.
+
+TODO: There is probably a better way to hook these into the requests library
+directly
 
 From the Strava docs:
   Strava API usage is limited on a per-application basis using a short term,
@@ -51,12 +52,19 @@ class RequestRate(NamedTuple):
 def get_rates_from_response_headers(
     headers: dict[str, str]
 ) -> RequestRate | None:
-    """
-    Returns a namedtuple with values for short - and long usage and limit rates found in provided HTTP response headers
-    :param headers: HTTP response headers
-    :type headers: dict
-    :return: namedtuple with request rates or None if no rate-limit headers present in response.
-    :rtype: Optional[RequestRate]
+    """Returns a namedtuple with values for short - and long usage and limit
+    rates found in provided HTTP response headers
+
+    Parameters
+    ----------
+    headers : dict
+        HTTP response headers
+
+    Returns
+    -------
+    Optional[RequestRate]
+        namedtuple with request rates or None if no rate-limit headers
+        present in response.
     """
     try:
         usage_rates = [int(v) for v in headers["X-RateLimit-Usage"].split(",")]
@@ -75,11 +83,18 @@ def get_rates_from_response_headers(
 def get_seconds_until_next_quarter(
     now: arrow.arrow.Arrow | None = None,
 ) -> int:
-    """
-    Returns the number of seconds until the next quarter of an hour. This is the short-term rate limit used by Strava.
-    :param now: A (utc) timestamp
-    :type now: arrow.arrow.Arrow
-    :return: the number of seconds until the next quarter, as int
+    """Returns the number of seconds until the next quarter of an hour. This is
+    the short-term rate limit used by Strava.
+
+    Parameters
+    ----------
+    now : arrow.arrow.Arrow
+        A (utc) timestamp
+
+    Returns
+    -------
+    unknown
+        the number of seconds until the next quarter, as int
     """
     if now is None:
         now = arrow.utcnow()
@@ -95,11 +110,18 @@ def get_seconds_until_next_quarter(
 
 
 def get_seconds_until_next_day(now: arrow.arrow.Arrow | None = None) -> int:
-    """
-    Returns the number of seconds until the next day (utc midnight). This is the long-term rate limit used by Strava.
-    :param now: A (utc) timestamp
-    :type now: arrow.arrow.Arrow
-    :return: the number of seconds until next day, as int
+    """Returns the number of seconds until the next day (utc midnight). This is
+    the long-term rate limit used by Strava.
+
+    Parameters
+    ----------
+    now : arrow.arrow.Arrow
+        A (utc) timestamp
+
+    Returns
+    -------
+    unknown
+        the number of seconds until next day, as int
     """
     if now is None:
         now = arrow.utcnow()
@@ -107,9 +129,7 @@ def get_seconds_until_next_day(now: arrow.arrow.Arrow | None = None) -> int:
 
 
 class LimitStructure(TypedDict):
-    """
-    Dictionary that holds rate limits for a specific time window size.
-    """
+    """Dictionary that holds rate limits for a specific time window size."""
 
     usage: int
     """Usage in the current period"""
@@ -125,8 +145,8 @@ class LimitStructure(TypedDict):
 
 
 class LimitsStructure(TypedDict):
-    """
-    Dictionary that holds rate limiting information for both of strava 15-minutes and
+    """Dictionary that holds rate limiting information for both of Strava
+    15-minutes and
     daily rate limits.
     """
 
@@ -142,13 +162,15 @@ class XRateLimitRule:
         self, limits: LimitsStructure, force_limits: bool = False
     ) -> None:
         """
-
-        :param limits: The limits structure.
-        :param force_limits:
-            If False (default), this rule will set/update its limits based on
-            what the Strava API tells it.
-            If True, the provided limits will be enforced,
-            i.e. ignoring the limits given by the API.
+        Parameters
+        ----------
+        limits
+            The limits structure.
+        force_limits
+            If False (default), this rule will set/update its limits
+            based on what the Strava API tells it. If True, the provided
+            limits will be enforced, i.e. ignoring the limits given by
+            the API.
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
@@ -229,11 +251,11 @@ class XRateLimitRule:
 
 
 class SleepingRateLimitRule:
-    """
-    A rate limit rule that can be prioritized and can dynamically adapt its limits based on API responses.
-    Given its priority, it will enforce a variable "cool-down" period after each response. When rate limits
-    are reached within their period, this limiter will wait until the end of that period. It will NOT raise
-    any kind of exception in this case.
+    """A rate limit rule that can be prioritized and can dynamically adapt its
+    limits based on API responses. Given its priority, it will enforce a
+    variable "cool-down" period after each response. When rate limits are
+    reached within their period, this limiter will wait until the end of that
+    period. It will NOT raise any kind of exception in this case.
     """
 
     def __init__(
@@ -243,18 +265,27 @@ class SleepingRateLimitRule:
         long_limit: int = 1000000,
         force_limits: bool = False,
     ) -> None:
-        """
-        Constructs a new SleepingRateLimitRule.
-        :param priority: The priority for this rule. When 'low', the cool-down period after each request will be such
-        that the long-term limits will not be exceeded. When 'medium', the cool-down period will be such that the
-        short-term limits will not be exceeded. When 'high', there will be no cool-down period.
-        :type priority: str
-        :param short_limit: (Optional) explicit short-term limit
-        :type short_limit: int
-        :param long_limit: (Optional) explicit long-term limit
-        :type long_limit: int
-        :param force_limits: If False (default), this rule will set/update its limits based on what the Strava API
-        tells it. If True, the provided limits will be enforced, i.e. ignoring the limits given by the API.
+        """Constructs a new SleepingRateLimitRule.
+
+        Parameters
+        ----------
+        priority : str
+            The priority for this rule. When 'low', the cool-down period
+            after each request will be such
+        short_limit : int
+            (Optional) explicit short-term limit
+        long_limit : int
+            (Optional) explicit long-term limit
+        force_limits
+            If False (default), this rule will set/update its limits
+            based on what the Strava API
+
+
+        that the long-term limits will not be exceeded. When 'medium', the
+        cool-down period will be such that the short-term limits will not be
+        exceeded. When 'high', there will be no cool-down period. tells it. If
+        True, the provided limits will be enforced, i.e. ignoring the limits
+        given by the API.
         """
         if priority not in ["low", "medium", "high"]:
             raise ValueError(
@@ -314,9 +345,16 @@ class RateLimitRule:
         self, requests: int, seconds: float, raise_exc: bool = False
     ) -> None:
         """
-        :param requests: Number of requests for limit.
-        :param seconds: The number of seconds for that number of requests (may be float)
-        :param raise_exc: Whether to raise an exception when limit is reached (as opposed to pausing)
+        Parameters
+        ----------
+        requests
+            Number of requests for limit.
+        seconds
+            The number of seconds for that number of requests (may be
+            float)
+        raise_exc
+            Whether to raise an exception when limit is reached (as
+            opposed to pausing)
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
@@ -327,20 +365,21 @@ class RateLimitRule:
         self.raise_exc = raise_exc
 
     def __call__(self, args: dict[str, str]) -> None:
-        """
-        Register another request is being issued.
+        """Register another request is being issued.
 
         Depending on configuration of the rule will pause if rate limit has
         been reached, or raise exception, etc.
         """
-        # First check if the deque is full; that indicates that we'd better check whether
-        # we need to pause.
+        # First check if the deque is full; that indicates that we'd better
+        # check whether we need to pause.
         if len(self.tab) == self.requests:
-            # Grab the oldest (leftmost) timestamp and check to see if it is greater than 1 second
+            # Grab the oldest (leftmost) timestamp and check to see if it is
+            # greater than 1 second
             delta = datetime.now() - self.tab[0]
             if (
                 delta < self.timeframe
-            ):  # Has it been less than configured timeframe since oldest request?
+            ):  # Has it been less than configured timeframe since oldest
+                # request?
                 if self.raise_exc:
                     raise exc.RateLimitExceeded(
                         "Rate limit exceeded (can try again in {0})".format(
@@ -348,7 +387,8 @@ class RateLimitRule:
                         )
                     )
                 else:
-                    # Wait the difference between timeframe and the oldest request.
+                    # Wait the difference between timeframe and the oldest
+                    # request.
                     td = self.timeframe - delta
                     sleeptime = td.total_seconds()
                     self.log.debug(
@@ -368,31 +408,28 @@ class RateLimiter:
         self.rules: list[Callable[[dict[str, str]], None]] = []
 
     def __call__(self, args: dict[str, str]) -> None:
-        """
-        Register another request is being issued.
-        """
+        """Register another request is being issued."""
         for r in self.rules:
             r(args)
 
 
 class DefaultRateLimiter(RateLimiter):
-    """
-    Implements something similar to the default rate limit for Strava apps.
+    """Implements something similar to the default rate limit for Strava apps.
 
     To do this correctly we would actually need to change our logic to reset
     the limit at midnight, etc.  Will make this more complex in the future.
 
     Strava API usage is limited on a per-application basis using a short term,
-    15 minute, limit and a long term, daily, limit. The default rate limit allows
-    600 requests every 15 minutes, with up to 30,000 requests per day.
+    15 minute, limit and a long term, daily, limit. The default rate limit
+    allows 600 requests every 15 minutes, with up to 30,000 requests per day.
     """
 
     def __init__(self) -> None:
-        """
-        Strava API usage is limited on a per-application basis using a short term,
-        15 minute, limit and a long term, daily, limit. The default rate limit
-        allows 600 requests every 15 minutes, with up to 30,000 requests per day.
-        This limit allows applications to make 40 requests per minute for about half the day.
+        """Strava API usage is limited on a per-application basis using a short
+        term, 15 minute, limit and a long term, daily, limit. The default rate
+        limit allows 600 requests every 15 minutes, with up to 30,000 requests
+        per day. This limit allows applications to make 40 requests per minute
+        for about half the day.
         """
 
         super().__init__()
@@ -418,6 +455,7 @@ class DefaultRateLimiter(RateLimiter):
             )
         )
 
+        # TODO: can we delete this code given it's commented out?
         # XRateLimitRule used instead of timer based RateLimitRule
         # self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
         # self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
