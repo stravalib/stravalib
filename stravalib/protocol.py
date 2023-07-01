@@ -157,7 +157,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         self, client_id: int, client_secret: str, code: str
     ) -> AccessInfo:
         """Exchange the temporary authorization code (returned with redirect
-        from strava authorization URL) for a short-lived access token and a
+        from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
 
         Parameters
@@ -237,6 +237,18 @@ class ApiV3(metaclass=abc.ABCMeta):
         return access_info
 
     def resolve_url(self, url: str) -> str:
+        """
+
+        Parameters
+        ----------
+        url : str
+            url string to be be accessed / resolved
+
+        Returns
+        -------
+        str
+            A string representing the full properly formatted (https) url.
+        """
         if not url.startswith("http"):
             url = urljoin(
                 "https://{0}".format(self.server),
@@ -402,7 +414,21 @@ class ApiV3(metaclass=abc.ABCMeta):
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
         """Performs a generic GET request for specified params, returning the
-        response."""
+        response.
+
+        Parameters
+        ----------
+        url : str
+            String representing the url to retrieve
+        check-for_errors: bool (default = True)
+            Flag used to raise an error (or not)
+
+        Returns
+        -------
+        dict
+            Performs the request and returns a JSON object deserialized as dict
+
+        """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
@@ -420,7 +446,22 @@ class ApiV3(metaclass=abc.ABCMeta):
         **kwargs: Any,
     ) -> Any:
         """Performs a generic POST request for specified params, returning the
-        response."""
+        response.
+
+        Parameters
+        ----------
+        url : str
+            Url string to be requested.
+        files: dict
+            Dictionary of file name to file-like objects. Used by _requests
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+            Deserialized request output.
+
+        """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
@@ -438,7 +479,20 @@ class ApiV3(metaclass=abc.ABCMeta):
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
         """Performs a generic PUT request for specified params, returning the
-        response."""
+        response.
+
+        Parameters
+        ----------
+        url : str
+            String representing url to access.
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+        Replaces current online content with new content.
+
+        """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
@@ -452,7 +506,19 @@ class ApiV3(metaclass=abc.ABCMeta):
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
         """Performs a generic DELETE request for specified params, returning
-        the response."""
+        the response.
+
+        Parameters
+        ----------
+        url : str
+            String representing url to access.
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+        Deletes specified current online content.
+        """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(

@@ -34,7 +34,7 @@ from stravalib import exc
 
 
 class RequestRate(NamedTuple):
-    """Tuple about the request usage and usage limit."""
+    """Tuple containing request usage and usage limit."""
 
     short_usage: int
     """15-minute usage"""
@@ -93,8 +93,8 @@ def get_seconds_until_next_quarter(
 
     Returns
     -------
-    unknown
-        the number of seconds until the next quarter, as int
+    int
+        The number of seconds until the next quarter, as int
     """
     if now is None:
         now = arrow.utcnow()
@@ -120,8 +120,8 @@ def get_seconds_until_next_day(now: arrow.arrow.Arrow | None = None) -> int:
 
     Returns
     -------
-    unknown
-        the number of seconds until next day, as int
+    Int
+        The number of seconds until next day, as int
     """
     if now is None:
         now = arrow.utcnow()
@@ -308,7 +308,7 @@ class SleepingRateLimitRule:
         long_usage: int,
         seconds_until_short_limit: int,
         seconds_until_long_limit: int,
-    ) -> float:
+    ) -> float | None:
         if long_usage >= self.long_limit:
             self.log.warning("Long term API rate limit exceeded")
             return seconds_until_long_limit
@@ -323,6 +323,9 @@ class SleepingRateLimitRule:
         elif self.priority == "low":
             return seconds_until_long_limit / (self.long_limit - long_usage)
 
+    # TODO: pyright returning - Argument of type "float | None" cannot be assigned to parameter "secs" of type "float" in function "sleep"
+    # Type "float | None" cannot be assigned to type "float"
+    # Type "None" cannot be assigned to type
     def __call__(self, response_headers: dict[str, str]) -> None:
         rates = get_rates_from_response_headers(response_headers)
 
@@ -455,7 +458,7 @@ class DefaultRateLimiter(RateLimiter):
             )
         )
 
-        # TODO: can we delete this code given it's commented out?
+        # TODO: This should be added to our documentation
         # XRateLimitRule used instead of timer based RateLimitRule
         # self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
         # self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
