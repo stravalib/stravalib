@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v1.3.3
+
+### Fixed
+
+- Fix: pins pydantic to v1 in pyproject.toml dependencies (@jsamoocha, #382)
+
 ## v1.3.2
 
 ### Added
