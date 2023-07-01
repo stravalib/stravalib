@@ -79,15 +79,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         else:
             self.rsession = requests.Session()
 
-        if rate_limiter is None:
-            # Make it a dummy function, so we don't have to check if it's
-            # defined before calling it later
-
-            # TODO: This violates E731 in PEP 8 - are we ok with that?
-            # The preferred syntax here is a def()
-            rate_limiter = lambda x: None
-
-        self.rate_limiter = rate_limiter
+        self.rate_limiter = rate_limiter or (lambda _: None)
 
     def authorization_url(
         self,
