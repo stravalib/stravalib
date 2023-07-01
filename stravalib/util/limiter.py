@@ -327,9 +327,10 @@ class SleepingRateLimitRule:
         long_usage: int,
         seconds_until_short_limit: int,
         seconds_until_long_limit: int,
-    ) -> float | None:
+    ) -> float:
         """Calculate how much time user has until they can make another
         request"""
+
         if long_usage >= self.long_limit:
             self.log.warning("Long term API rate limit exceeded")
             return seconds_until_long_limit
@@ -344,9 +345,6 @@ class SleepingRateLimitRule:
         elif self.priority == "low":
             return seconds_until_long_limit / (self.long_limit - long_usage)
 
-    # TODO: pyright returning - Argument of type "float | None" cannot be assigned to parameter "secs" of type "float" in function "sleep"
-    # Type "float | None" cannot be assigned to type "float"
-    # Type "None" cannot be assigned to type
     def __call__(self, response_headers: dict[str, str]) -> None:
         rates = get_rates_from_response_headers(response_headers)
 
