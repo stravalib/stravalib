@@ -1,7 +1,7 @@
 # Package deps
 arrow
 pint
-pydantic
+pydantic==1.10.9
 pytz
 requests>=2.0,<3.0dev
 responses
@@ -22,7 +22,7 @@ types-Flask
 
 # Docs
 # Pinning to avoid a current bug in 0.13
-pydata-sphinx-theme==0.12.0
+pydata-sphinx-theme
 # Support pydantic autodoc
 autodoc_pydantic
 sphinx_remove_toctrees
