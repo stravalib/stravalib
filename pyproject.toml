@@ -93,6 +93,7 @@ files = [
     "stravalib/util/limiter.py",
     "stravalib/protocol.py",
     "stravalib/exc.py",
+    "stravalib/client.py",
 ]
 
 [tool.pydantic-mypy]

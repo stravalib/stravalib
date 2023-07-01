@@ -19,10 +19,12 @@ from typing import (
     Deque,
     Dict,
     Generic,
+    Iterable,
     List,
     Literal,
     NoReturn,
     Optional,
+    Protocol,
     Type,
     TypeVar,
     Union,
@@ -54,6 +56,7 @@ if TYPE_CHECKING:
 ActivityType = str
 SportType = str
 StreamType = str
+PhotoMetadata = Any
 
 
 class Client:
@@ -1782,7 +1785,7 @@ class Client:
         An instance of :class:`stravalib.model.Subscription`.
 
         """
-        params = dict(
+        params: dict[str, Any] = dict(
             client_id=client_id,
             client_secret=client_secret,
             callback_url=callback_url,
@@ -1900,6 +1903,11 @@ class Client:
 T = TypeVar("T", bound=BaseModel)
 
 
+class ResultFetcher(Protocol):
+    def __call__(self, *, page: int, per_page: int) -> Iterable[Any]:
+        ...
+
+
 class BatchedResultsIterator(Generic[T]):
     """An iterator that enables iterating over requests that return
     paged results."""
@@ -1910,11 +1918,11 @@ class BatchedResultsIterator(Generic[T]):
 
     def __init__(
         self,
-        entity: Type[T],
-        result_fetcher,
-        bind_client: Optional[Client] = None,
-        limit: Optional[int] = None,
-        per_page: Optional[int] = None,
+        entity: type[T],
+        result_fetcher: ResultFetcher,
+        bind_client: Client | None = None,
+        limit: int | None = None,
+        per_page: int | None = None,
     ):
         """
 
@@ -1943,7 +1951,7 @@ class BatchedResultsIterator(Generic[T]):
         if per_page is not None:
             self.per_page = per_page
         else:
-            self.per_page = self.default_per_page
+            self.per_page = BatchedResultsIterator.default_per_page
 
         self._buffer: None | Deque[Any]
         self.reset()
@@ -2020,14 +2028,16 @@ class BatchedResultsIterator(Generic[T]):
             return result
 
 
-class ActivityUploader(object):
+class ActivityUploader:
     """
     The "future" object that holds information about an activity file
     upload and can wait for upload to finish, etc.
 
     """
 
-    def __init__(self, client, response, raise_exc=True):
+    def __init__(
+        self, client: Client, response: dict[str, Any], raise_exc: bool = True
+    ) -> None:
         """
         client: `stravalib.client.Client`
             The :class:`stravalib.client.Client` object that is handling the
@@ -2041,10 +2051,10 @@ class ActivityUploader(object):
         self.client = client
         self.response = response
         self.update_from_response(response, raise_exc=raise_exc)
-        self._photo_metadata: list[dict[Any, Any]] | None
+        self._photo_metadata
 
     @property
-    def photo_metadata(self):
+    def photo_metadata(self) -> PhotoMetadata:
         """photo metadata for the activity upload response, if any.
         it contains a pre-signed uri for uploading the photo.
 
@@ -2061,7 +2071,7 @@ class ActivityUploader(object):
         return self._photo_metadata
 
     @photo_metadata.setter
-    def photo_metadata(self, value):
+    def photo_metadata(self, value: PhotoMetadata) -> PhotoMetadata:
         """
 
         Parameters
@@ -2077,7 +2087,9 @@ class ActivityUploader(object):
         """
         self._photo_metadata = value
 
-    def update_from_response(self, response, raise_exc=True):
+    def update_from_response(
+        self, response: dict[str, Any], raise_exc: bool = True
+    ) -> None:
         """Updates internal state of object.
 
         Parameters
@@ -2117,21 +2129,21 @@ class ActivityUploader(object):
             self.raise_for_error()
 
     @property
-    def is_processing(self):
+    def is_processing(self) -> bool:
         """ """
         return self.activity_id is None and self.error is None
 
     @property
-    def is_error(self):
+    def is_error(self) -> bool:
         """ """
         return self.error is not None
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """ """
         return self.activity_id is not None
 
-    def raise_for_error(self):
+    def raise_for_error(self) -> None:
         """ """
         # FIXME: We need better handling of the actual responses, once those are
         # more accurately documented.
@@ -2140,7 +2152,7 @@ class ActivityUploader(object):
         elif self.status == "The created activity has been deleted.":
             raise exc.CreatedActivityDeleted(self.status)
 
-    def poll(self):
+    def poll(self) -> None:
         """Update internal state from polling strava.com.
 
         Raises
@@ -2156,7 +2168,9 @@ class ActivityUploader(object):
 
         self.update_from_response(response)
 
-    def wait(self, timeout=None, poll_interval=1.0):
+    def wait(
+        self, timeout: float | None = None, poll_interval: float = 1.0
+    ) -> model.Activity:
         """Wait for the upload to complete or to err out.
 
         Will return the resulting Activity or raise an exception if the
@@ -2194,7 +2208,9 @@ class ActivityUploader(object):
         # If we got this far, we must have an activity!
         return self.client.get_activity(self.activity_id)
 
-    def upload_photo(self, photo, timeout=None):
+    def upload_photo(
+        self, photo: SupportsRead[bytes], timeout: float | None = None
+    ) -> None:
         """Uploads a photo to the activity.
 
         Parameters
