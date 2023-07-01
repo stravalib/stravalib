@@ -51,7 +51,7 @@ dependencies = [
     "pytz",
     "arrow",
     "requests",
-    "pydantic",
+    "pydantic==1.10.9",
 ]
 
 [project.urls]
