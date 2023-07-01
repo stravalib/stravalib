@@ -164,9 +164,9 @@ class XRateLimitRule:
         """
         Parameters
         ----------
-        limits
+        limits : LimitsStructure
             The limits structure.
-        force_limits
+        force_limits : bool (default=False)
             If False (default), this rule will set/update its limits
             based on what the Strava API tells it. If True, the provided
             limits will be enforced, i.e. ignoring the limits given by
@@ -185,6 +185,19 @@ class XRateLimitRule:
         return self.limit_time_invalid
 
     def __call__(self, response_headers: dict[str, str]) -> None:
+        """Check limit rates for API calls and update current usage state
+
+        Parameters
+        ----------
+        response_headers : dict
+            A dictionary of strings from the response providing the current
+            rate-limit state.
+
+        Returns
+        -------
+        None
+            Updates the object's rate limit state attrs.
+        """
         self._update_usage(response_headers)
 
         self._check_limit_time_invalid(self.rate_limits["short"])
@@ -193,6 +206,7 @@ class XRateLimitRule:
         self._check_limit_rates(self.rate_limits["long"])
 
     def _update_usage(self, response_headers: dict[str, str]) -> None:
+        """Update current state of rate limit usage."""
         rates = get_rates_from_response_headers(response_headers)
 
         if rates:
@@ -209,6 +223,7 @@ class XRateLimitRule:
                 self.rate_limits["long"]["limit"] = rates.long_limit
 
     def _check_limit_rates(self, limit: LimitStructure) -> None:
+        """Check the current limit rates for API calls."""
         if limit["usage"] >= limit["limit"]:
             self.log.debug("Rate limit of {0} reached.".format(limit["limit"]))
             limit["lastExceeded"] = datetime.now()
@@ -232,6 +247,8 @@ class XRateLimitRule:
     def _raise_rate_limit_exception(
         self, timeout: float, limit_rate: float
     ) -> NoReturn:
+        """Raises an error for the user to see they have exceeded API
+        request limits"""
         raise exc.RateLimitExceeded(
             "Rate limit of {0} exceeded. "
             "Try again in {1} seconds.".format(limit_rate, timeout),
@@ -242,6 +259,8 @@ class XRateLimitRule:
     def _raise_rate_limit_timeout(
         self, timeout: float, limit_rate: float
     ) -> NoReturn:
+        """Inform user that rate limit exceeded and tell them when they can
+        try again."""
         raise exc.RateLimitTimeout(
             "Rate limit of {} exceeded. "
             "Try again in {} seconds.".format(limit_rate, timeout),
@@ -309,6 +328,8 @@ class SleepingRateLimitRule:
         seconds_until_short_limit: int,
         seconds_until_long_limit: int,
     ) -> float | None:
+        """Calculate how much time user has until they can make another
+        request"""
         if long_usage >= self.long_limit:
             self.log.warning("Long term API rate limit exceeded")
             return seconds_until_long_limit
