@@ -2,8 +2,20 @@
 
 ## Unreleased
 
-*  Fix two minor mistakes in documentation (@enadeau , #375)
-*  Add type checking to limiter, protocol and exc file (@enadeau , #374)
+## v1.3.2
+
+### Added
+
+- Add: type checking to limiter, protocol and exc file (@enadeau , #374)
+
+### Fixed
+
+- Fix: two minor mistakes in documentation (@enadeau , #375)
+- Fix: pins pydantic to v1 (@lwasser, #380)
+
+### Contributors to this release
+
+@enadeau, @lwasser
 
 ## v1.3.1
 
