@@ -82,9 +82,7 @@ def test_get_activity_zones(mock_strava_api, client):
 
 def test_get_activity_streams(mock_strava_api, client):
     # TODO: parameterize test to cover all branching
-    mock_strava_api.get(
-        "/activities/{id}/streams", response_update={"data": [1, 2, 3]}
-    )
+    mock_strava_api.get("/activities/{id}/streams")
     # the example in swagger.json returns a distance stream
     streams = client.get_activity_streams(42)
     assert streams["distance"].data == [1, 2, 3]

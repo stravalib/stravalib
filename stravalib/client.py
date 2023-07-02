@@ -31,6 +31,20 @@ from stravalib.protocol import ApiV3
 from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
 
+VALID_STREAM_TYPE = [
+    "time",
+    "latlng",
+    "distance",
+    "altitude",
+    "velocity_smooth",
+    "heartrate",
+    "cadence",
+    "watts",
+    "temp",
+    "moving",
+    "grade_smooth",
+]
+
 
 class Client(object):
     """Main client class for interacting with the exposed Strava v3 API methods.
@@ -1383,54 +1397,46 @@ class Client(object):
         ----------
         activity_id : int
             The ID of activity.
-        types : list, optional, default=None
-            A list of the types of streams to fetch.
-        resolution : str
-            optional, default is 'all') indicates desired number
-            of data points. 'low' (100), 'medium' (1000),
-            'high' (10000) or 'all'.
-        series_type : str, optional, default='distance'
-            Relevant only if using resolution either 'time' or 'distance'.
-            Used to index the streams if the stream is being reduced.
+        types : list[str], optional, default=None
+            A list of the types of streams to fetch. If not is specified all
+        resolution :
+            .. deprecated
+                This param is not supported by the Strava API and may be
+                removed in the future.
+        series_type :
+            .. deprecated
+                This param is not supported by the Strava API and may be
+                removed in the future.
 
         Returns
         -------
         py:class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the activity
-            or None if there are no streams.
-
         """
-
-        # Stream is a comma separated list
-        if types is not None:
-            types = ",".join(types)
-
-        params = {}
         if resolution is not None:
-            params["resolution"] = resolution
-
+            warn_param_unsupported("resolution")
         if series_type is not None:
-            params["series_type"] = series_type
+            warn_param_unsupported("series_type")
 
-        result_fetcher = functools.partial(
-            self.protocol.get,
-            "/activities/{id}/streams/{types}".format(
-                id=activity_id, types=types
-            ),
-            **params,
+        if not types:
+            types = VALID_STREAM_TYPE
+        invalid_types = set(types).difference(VALID_STREAM_TYPE)
+        if invalid_types:
+            raise ValueError(
+                f"Types {invalid_types} not supported by StravaApi"
+            )
+        types_arg = ",".join(types)
+
+        response = self.protocol.get(
+            f"/activities/{activity_id}/streams",
+            keys=types_arg,
+            key_by_type=True,
         )
-
-        streams = BatchedResultsIterator(
-            entity=model.Stream,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-        )
-
-        # Pack streams into dictionary
-        try:
-            return {i.type: i for i in streams}
-        except exc.ObjectNotFound:
-            return None  # just to be explicit.
+        print(response)
+        return {
+            model.Stream.parse_obj(stream)
+            for stream_type, stream in response.json().items()
+        }
 
     def get_effort_streams(
         self, effort_id, types=None, resolution=None, series_type=None
