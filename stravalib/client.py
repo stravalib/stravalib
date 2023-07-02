@@ -17,17 +17,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Deque,
-    Dict,
     Generic,
     Iterable,
-    List,
     Literal,
     NoReturn,
-    Optional,
     Protocol,
-    Type,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -649,7 +644,7 @@ class Client:
         activity_type: ActivityType,
         start_date_local: datetime,
         elapsed_time: int | timedelta,
-        description: pint.Quantity, | None = None,
+        description: str | None = None,
         distance: pint.Quantity | float | None = None,
     ) -> model.Activity:
         """Create a new manual activity.
