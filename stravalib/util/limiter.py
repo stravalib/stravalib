@@ -176,7 +176,7 @@ class XRateLimitRule:
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
         self.rate_limits = limits
-        # should limit args be validated?
+        # TODO: Should limit args be validated?
         self.limit_time_invalid: float = 0.0
         self.force_limits = force_limits
 
@@ -346,6 +346,7 @@ class SleepingRateLimitRule:
             return seconds_until_long_limit / (self.long_limit - long_usage)
 
     def __call__(self, response_headers: dict[str, str]) -> None:
+        """Determines wait time until a call can be mde again"""
         rates = get_rates_from_response_headers(response_headers)
 
         if rates:
