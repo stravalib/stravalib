@@ -137,8 +137,22 @@ def check_valid_location(
 # Create alias for this type so docs are more user-readable
 AllDateTypes = NewType("AllDateTypes", Union[datetime, str, bytes, int, float])
 
-
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
+    """Utility helper that parses a datetime value provided in
+    JSON, string, int or other formats and returns a datetime.datetime
+    object
+
+    Parameters
+    ----------
+    value : str, int
+        A value representing a date/time that may be presented in string,
+        int, deserialized or other format.
+
+    Returns
+    -------
+    datetime.datetime
+        A datetime object representing the datetime input value.
+    """
     if value:
         dt = parse_datetime(value)
         return dt.replace(tzinfo=None)
@@ -227,7 +241,10 @@ class BackwardCompatibilityMixin:
         return value
 
 
+# TODO: add better description of this
 class BoundClientEntity(BaseModel):
+    """Description of this class goes here."""
+
     # Using Any as type here to prevent catch-22 between circular import and
     # pydantic forward-referencing issues "resolved" by PEP-8 violations.
     # See e.g. https://github.com/pydantic/pydantic/issues/1873
@@ -417,13 +434,18 @@ class Athlete(
         return self.is_authenticated
 
 
+# TODO: better description
 class ActivityComment(Comment):
-    # Field overrides from superclass for type extensions:
+    """Field overrides from superclass for type extensions"""
+
     athlete: Optional[Athlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
-    # Undocumented attributes:
+    """The primary photo for an activity.
+    Attributes are Undocumented
+    """
+
     use_primary_photo: Optional[bool] = None
 
 
@@ -533,6 +555,8 @@ class ActivityLap(
 
 
 class Map(PolylineMap):
+    """Pass through object. Inherits from PolyLineMap"""
+
     pass
 
 
@@ -713,7 +737,7 @@ class BaseEffort(
     Base class for a best effort or segment effort.
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     segment: Optional[Segment] = None
     activity: Optional[Activity] = None
     athlete: Optional[Athlete] = None
@@ -733,6 +757,8 @@ class BestEffort(BaseEffort):
     """
     Class representing a best effort (e.g. best time for 5k)
     """
+
+    pass
 
 
 class SegmentEffort(BaseEffort):
