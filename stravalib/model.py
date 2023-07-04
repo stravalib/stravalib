@@ -107,7 +107,7 @@ def check_valid_location(
     """
     Parameters
     ----------
-    location : list of float
+    location : list of floats
         Either a list of x,y floating point values or strings or None
         (The legacy serialized format is str)
 
@@ -180,7 +180,13 @@ class DeprecatedSerializableMixin(BaseModel):
 
     def from_dict(self, attribute_value_mapping: Dict):
         """
-        Deserializes v into self, resetting and ond/or overwriting existing fields
+        Deserializes v into self, resetting and ond/or overwriting existing
+        fields
+
+        Parameters
+        ----------
+        attribute_value_mapping : Dict
+            A dictionary that will be deserialized into the parent object.
         """
         warn_method_deprecation(
             self.__class__.__name__,
@@ -188,7 +194,8 @@ class DeprecatedSerializableMixin(BaseModel):
             "parse_obj()",
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
-        # Ugly hack is necessary because parse_obj does not behave in-place but returns a new object
+        # Ugly hack is necessary because parse_obj does not behave in-place but
+        # returns a new object
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
     def to_dict(self):
@@ -206,15 +213,18 @@ class DeprecatedSerializableMixin(BaseModel):
 
 class BackwardCompatibilityMixin:
     """
-    Mixin that intercepts attribute lookup and raises warnings or modifies return values
-    based on what is defined in the following class attributes:
+    Mixin that intercepts attribute lookup and raises warnings or modifies
+    return values based on what is defined in the following class attributes:
 
     * _field_conversions
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
     """
 
+    pass
+
     def __getattribute__(self, attr):
+        """A special method..."""
         value = object.__getattribute__(self, attr)
         if attr in ["_field_conversions", "bound_client"] or attr.startswith(
             "_"
@@ -241,9 +251,8 @@ class BackwardCompatibilityMixin:
         return value
 
 
-# TODO: add better description of this
 class BoundClientEntity(BaseModel):
-    """Description of this class goes here."""
+    """A class that bounds the Client object to the model."""
 
     # Using Any as type here to prevent catch-22 between circular import and
     # pydantic forward-referencing issues "resolved" by PEP-8 violations.
@@ -257,8 +266,25 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
 
     @root_validator
-    def check_valid_latlng(cls, values):
-        # Strava sometimes returns an empty list in case of activities without GPS
+    def check_valid_latlng(
+        cls, values: List[Optional[float]]
+    ) -> Optional[float]:
+        """Validate that Strava returned an actual lat/lon rather than an empty
+        list. If list is empty, return None
+
+        Parameters
+        ----------
+        values: list
+            The list of lat/lon values returned by Strava. This list will be
+            empty if there was no GPS associated with the activity.
+
+        Returns
+        -------
+        list or None
+            List of lat/lon values or None
+
+        """
+        # Strava sometimes returns empty list in case of activities without GPS
         return values if values else None
 
     @property
@@ -348,7 +374,7 @@ class Athlete(
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     clubs: Optional[List[Club]] = None
     bikes: Optional[List[Bike]] = None
     shoes: Optional[List[Shoe]] = None
@@ -394,7 +420,8 @@ class Athlete(
 
     @validator("athlete_type")
     def to_str_representation(cls, raw_type):
-        # Replaces legacy "ChoicesAttribute" class
+        """Replaces legacy 'ChoicesAttribute' class"""
+
         return {0: "cyclist", 1: "runner"}.get(raw_type)
 
     @lazy_property
