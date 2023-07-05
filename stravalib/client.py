@@ -1385,12 +1385,12 @@ class Client(object):
             The ID of activity.
         types : list[str], optional, default=None
             A list of the types of streams to fetch.
-        resolution :
-            .. deprecated
-                This param is not supported by the Strava API and may be
+        resolution : None
+            .. deprecated::
+                 This param is not supported by the Strava API and may be
                 removed in the future.
-        series_type :
-            .. deprecated
+        series_type : None
+            .. deprecated::
                 This param is not supported by the Strava API and may be
                 removed in the future.
 
