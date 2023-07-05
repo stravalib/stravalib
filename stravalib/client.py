@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 import arrow
 import pytz
 
-from stravalib import exc, model, unithelper
+from stravalib import exc, model, strava_model, unithelper
 from stravalib.exc import (
     ActivityPhotoUploadNotSupported,
     warn_attribute_unofficial,
@@ -30,20 +30,6 @@ from stravalib.exc import (
 from stravalib.protocol import ApiV3
 from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
-
-VALID_STREAM_TYPE = [
-    "time",
-    "latlng",
-    "distance",
-    "altitude",
-    "velocity_smooth",
-    "heartrate",
-    "cadence",
-    "watts",
-    "temp",
-    "moving",
-    "grade_smooth",
-]
 
 
 class Client(object):
@@ -1398,7 +1384,7 @@ class Client(object):
         activity_id : int
             The ID of activity.
         types : list[str], optional, default=None
-            A list of the types of streams to fetch. If not is specified all
+            A list of the types of streams to fetch.
         resolution :
             .. deprecated
                 This param is not supported by the Strava API and may be
@@ -1419,8 +1405,10 @@ class Client(object):
             warn_param_unsupported("series_type")
 
         if not types:
-            types = VALID_STREAM_TYPE
-        invalid_types = set(types).difference(VALID_STREAM_TYPE)
+            types = strava_model.StreamType.schema()["enum"]
+        invalid_types = set(types).difference(
+            strava_model.StreamType.schema()["enum"]
+        )
         if invalid_types:
             raise ValueError(
                 f"Types {invalid_types} not supported by StravaApi"
@@ -1432,10 +1420,9 @@ class Client(object):
             keys=types_arg,
             key_by_type=True,
         )
-        print(response)
         return {
-            model.Stream.parse_obj(stream)
-            for stream_type, stream in response.json().items()
+            stream_type: model.Stream.parse_obj(stream)
+            for stream_type, stream in response.items()
         }
 
     def get_effort_streams(

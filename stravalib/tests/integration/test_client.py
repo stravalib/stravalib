@@ -81,11 +81,84 @@ def test_get_activity_zones(mock_strava_api, client):
 
 
 def test_get_activity_streams(mock_strava_api, client):
-    # TODO: parameterize test to cover all branching
-    mock_strava_api.get("/activities/{id}/streams")
-    # the example in swagger.json returns a distance stream
+    query_params = {"keys": "distance", "key_by_type": True}
+    mock_strava_api.get(
+        "/activities/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "series_type": "distance",
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+        match=[matchers.query_param_matcher(query_params)],
+    )
+    streams = client.get_activity_streams(42, types=["distance"])
+    assert streams["distance"].data == [1.0, 2.0, 3.0]
+
+
+def test_get_activity_streams_no_type_specified(mock_strava_api, client):
+    query_params = {
+        "keys": "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth",
+        "key_by_type": True,
+    }
+    mock_strava_api.get(
+        "/activities/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+        match=[matchers.query_param_matcher(query_params)],
+    )
     streams = client.get_activity_streams(42)
-    assert streams["distance"].data == [1, 2, 3]
+    assert streams["distance"].data == [1.0, 2.0, 3.0]
+
+
+def test_get_activity_streams_invalid_type(mock_strava_api, client):
+    with pytest.raises(ValueError):
+        streams = client.get_activity_streams(
+            42, types=["distance", "hhjj", "npt"]
+        )
+
+
+def test_get_activity_streams_resolution_deprecated(mock_strava_api, client):
+    mock_strava_api.get(
+        "/activities/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "series_type": "distance",
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+    )
+    with pytest.warns(DeprecationWarning):
+        streams = client.get_activity_streams(
+            42, types=["distance"], resolution="high"
+        )
+
+
+def test_get_activity_streams_series_type_deprecated(mock_strava_api, client):
+    mock_strava_api.get(
+        "/activities/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "series_type": "distance",
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+    )
+    with pytest.warns(DeprecationWarning):
+        streams = client.get_activity_streams(
+            42, types=["distance"], series_type="distance"
+        )
 
 
 @pytest.mark.parametrize(
@@ -702,14 +775,7 @@ def test_upload_activity_photo_fail_activity_upload_not_complete(client):
     assert str(error.value) == "Activity upload not complete"
 
 
-@pytest.mark.parametrize(
-    "photo_metadata",
-    (
-        None,
-        [],
-        [{}],
-    ),
-)
+@pytest.mark.parametrize("photo_metadata", (None, [], [{}]))
 @mock.patch("stravalib.client.ActivityUploader.poll")
 def test_upload_activity_photo_fail_not_supported(client, photo_metadata):
     activity_upload_response = {
