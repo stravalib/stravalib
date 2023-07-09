@@ -1385,13 +1385,17 @@ class Client(object):
             The ID of activity.
         types : list[str], optional, default=None
             A list of the types of streams to fetch.
-        resolution : None
+        resolution : str, optional
+            Indicates desired number of data points. 'low' (100), 'medium'
+            (1000) or 'high' (10000).
             .. deprecated::
-                 This param is not supported by the Strava API and may be
+                This param is not officialy supported by the Strava API and may be
                 removed in the future.
-        series_type : None
+        series_type : str, optional
+            Relevant only if using resolution either 'time' or 'distance'.
+            Used to index the streams if the stream is being reduced.
             .. deprecated::
-                This param is not supported by the Strava API and may be
+                This param is not officialy supported by the Strava API and may be
                 removed in the future.
 
         Returns
@@ -1399,11 +1403,13 @@ class Client(object):
         py:class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the activity
         """
+        extra_params = {}
         if resolution is not None:
-            warn_param_unsupported("resolution")
+            warn_param_unofficial("resolution")
+            extra_params["resolution"] = resolution
         if series_type is not None:
-            warn_param_unsupported("series_type")
-
+            warn_param_unofficial("series_type")
+            extra_params["series_type"] = series_type
         if not types:
             types = strava_model.StreamType.schema()["enum"]
         invalid_types = set(types).difference(
@@ -1419,6 +1425,7 @@ class Client(object):
             f"/activities/{activity_id}/streams",
             keys=types_arg,
             key_by_type=True,
+            **extra_params,
         )
         return {
             stream_type: model.Stream.parse_obj(stream)

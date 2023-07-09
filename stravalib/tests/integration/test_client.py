@@ -125,7 +125,7 @@ def test_get_activity_streams_invalid_type(mock_strava_api, client):
         )
 
 
-def test_get_activity_streams_resolution_deprecated(mock_strava_api, client):
+def test_get_activity_streams_resolution_unofficial(mock_strava_api, client):
     mock_strava_api.get(
         "/activities/{id}/streams",
         json={
@@ -137,13 +137,13 @@ def test_get_activity_streams_resolution_deprecated(mock_strava_api, client):
             }
         },
     )
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(FutureWarning):
         streams = client.get_activity_streams(
             42, types=["distance"], resolution="high"
         )
 
 
-def test_get_activity_streams_series_type_deprecated(mock_strava_api, client):
+def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
     mock_strava_api.get(
         "/activities/{id}/streams",
         json={
@@ -155,7 +155,7 @@ def test_get_activity_streams_series_type_deprecated(mock_strava_api, client):
             }
         },
     )
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(FutureWarning):
         streams = client.get_activity_streams(
             42, types=["distance"], series_type="distance"
         )
