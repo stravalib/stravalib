@@ -98,6 +98,42 @@ def test_get_activity_streams(mock_strava_api, client):
     assert streams["distance"].data == [1.0, 2.0, 3.0]
 
 
+def test_get_effort_streams(mock_strava_api, client):
+    query_params = {"keys": "distance", "key_by_type": True}
+    mock_strava_api.get(
+        "/segment_efforts/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "series_type": "distance",
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+        match=[matchers.query_param_matcher(query_params)],
+    )
+    streams = client.get_effort_streams(42, types=["distance"])
+    assert streams["distance"].data == [1.0, 2.0, 3.0]
+
+
+def test_get_segment_streams(mock_strava_api, client):
+    query_params = {"keys": "distance", "key_by_type": True}
+    mock_strava_api.get(
+        "/segments/{id}/streams",
+        json={
+            "distance": {
+                "data": [1.0, 2.0, 3.0],
+                "series_type": "distance",
+                "original_size": 9,
+                "resolution": "high",
+            }
+        },
+        match=[matchers.query_param_matcher(query_params)],
+    )
+    streams = client.get_segment_streams(42, types=["distance"])
+    assert streams["distance"].data == [1.0, 2.0, 3.0]
+
+
 def test_get_activity_streams_no_type_specified(mock_strava_api, client):
     query_params = {
         "keys": "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth",
