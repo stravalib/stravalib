@@ -32,7 +32,7 @@ import pytz
 from pydantic import BaseModel
 from requests import Session
 
-from stravalib import exc, model, unithelper
+from stravalib import exc, model, strava_model, unithelper
 from stravalib.exc import (
     ActivityPhotoUploadNotSupported,
     warn_attribute_unofficial,
@@ -1437,13 +1437,79 @@ class Client:
             for v in raw["segments"]
         ]
 
+    def _get_streams(
+        self, stream_url, types=None, resolution=None, series_type=None
+    ):
+        """
+        Generic method to retrieve stream data for activity, effort or
+        segment.
+
+        https://developers.strava.com/docs/reference/#api-Streams-getActivityStreams
+
+        Streams represent the raw spatial data for the uploaded file. External
+        applications may only access this information for activities owned
+        by the authenticated athlete.
+
+        Streams are available in 11 different types. If the stream is not
+        available for a particular activity it will be left out of the request
+        results.
+
+        Streams types are: time, latlng, distance, altitude, velocity_smooth,
+                           heartrate, cadence, watts, temp, moving, grade_smooth
+
+        Parameters
+        ----------
+        stream_url : str
+            Resource locator for the streams
+        types : list[str], optional, default=None
+            A list of the types of streams to fetch.
+        resolution : str, optional
+            Indicates desired number of data points. 'low' (100), 'medium'
+            (1000) or 'high' (10000).
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
+        series_type : str, optional
+            Relevant only if using resolution either 'time' or 'distance'.
+            Used to index the streams if the stream is being reduced.
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
+
+        Returns
+        -------
+        py:class:`dict`
+            An dictionary of :class:`stravalib.model.Stream` from the activity
+        """
+        extra_params = {}
+        if resolution is not None:
+            warn_param_unofficial("resolution")
+            extra_params["resolution"] = resolution
+        if series_type is not None:
+            warn_param_unofficial("series_type")
+            extra_params["series_type"] = series_type
+        if not types:
+            types = strava_model.StreamType.schema()["enum"]
+        invalid_types = set(types).difference(
+            strava_model.StreamType.schema()["enum"]
+        )
+        if invalid_types:
+            raise ValueError(
+                f"Types {invalid_types} not supported by StravaApi"
+            )
+        types_arg = ",".join(types)
+
+        response = self.protocol.get(
+            stream_url, keys=types_arg, key_by_type=True, **extra_params
+        )
+        return {
+            stream_type: model.Stream.parse_obj(stream)
+            for stream_type, stream in response.items()
+        }
+
     def get_activity_streams(
-        self,
-        activity_id: int,
-        types: list[StreamType] | None = None,
-        resolution: Literal["low", "medium", "high", "all"] = "all",
-        series_type: Literal["time", "distance"] = "distance",
-    ) -> dict[StreamType, model.Stream] | None:
+        self, activity_id, types=None, resolution=None, series_type=None
+    ):
         """Returns a stream for an activity.
 
         https://developers.strava.com/docs/reference/#api-Streams-getActivityStreams
@@ -1463,52 +1529,32 @@ class Client:
         ----------
         activity_id : int
             The ID of activity.
-        types : list, optional, default=None
+        types : list[str], optional, default=None
             A list of the types of streams to fetch.
-        resolution : str
-            optional, default is 'all') indicates desired number
-            of data points. 'low' (100), 'medium' (1000),
-            'high' (10000) or 'all'.
-        series_type : str, optional, default='distance'
+        resolution : str, optional
+            Indicates desired number of data points. 'low' (100), 'medium'
+            (1000) or 'high' (10000).
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
+        series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
 
         Returns
         -------
         py:class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the activity
-            or None if there are no streams.
-
         """
-
-        # Stream is a comma separated list
-        if types is not None:
-            types_key = ",".join(types)
-
-        params: dict[str, Any] = {}
-        if resolution is not None:
-            params["resolution"] = resolution
-
-        if series_type is not None:
-            params["series_type"] = series_type
-
-        result_fetcher = functools.partial(
-            self.protocol.get,
-            f"/activities/{activity_id}/streams/{types_key}",
-            **params,
+        return self._get_streams(
+            f"/activities/{activity_id}/streams",
+            types=types,
+            resolution=resolution,
+            series_type=series_type,
         )
-
-        streams = BatchedResultsIterator(
-            entity=model.Stream,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-        )
-
-        # Pack streams into dictionary
-        try:
-            return {cast(StreamType, i.type): i for i in streams}
-        except exc.ObjectNotFound:
-            return None  # just to be explicit.
 
     def get_effort_streams(
         self,
@@ -1538,12 +1584,18 @@ class Client:
             The ID of effort.
         types : list, optional, default=None
             A list of the the types of streams to fetch.
-        resolution : str, optional, default='all'
+        resolution : str, optional
             Indicates desired number of data points. 'low' (100), 'medium'
-            (1000), 'high' (10000) or 'all'.
-        series_type : str, optional, default='distance'
+            (1000) or 'high' (10000).
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
+        series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
 
         Returns
         -------
@@ -1551,32 +1603,12 @@ class Client:
             An dictionary of :class:`stravalib.model.Stream` from the effort.
 
         """
-
-        # Stream are comma separated lists
-        if types is not None:
-            types_key = ",".join(types)
-
-        params: dict[str, Any] = {}
-        if resolution is not None:
-            params["resolution"] = resolution
-
-        if series_type is not None:
-            params["series_type"] = series_type
-
-        result_fetcher = functools.partial(
-            self.protocol.get,
-            f"/segment_efforts/{effort_id}/streams/{types_key}",
-            **params,
+        return self._get_streams(
+            f"/segment_efforts/{effort_id}/streams",
+            types=types,
+            resolution=resolution,
+            series_type=series_type,
         )
-
-        streams = BatchedResultsIterator(
-            entity=model.Stream,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-        )
-
-        # Pack streams into dictionary
-        return {cast(StreamType, i.type): i for i in streams}
 
     def get_segment_streams(
         self,
@@ -1606,12 +1638,18 @@ class Client:
             The ID of segment.
         types : list, optional, default=None
             A list of the the types of streams to fetch.
-        resolution : str, optional, default='all'
+        resolution : str, optional
             Indicates desired number of data points. 'low' (100), 'medium'
-            (1000), 'high' (10000) or 'all'.
-        series_type : str, optional, default='distance'
+            (1000) or 'high' (10000).
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
+        series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
+            .. deprecated::
+                This param is not officialy supported by the Strava API and may be
+                removed in the future.
 
         Returns
         -------
@@ -1619,38 +1657,14 @@ class Client:
             An dictionary of :class:`stravalib.model.Stream` from the effort.
 
         """
-
-        # Stream are comma separated lists
-        if types is not None:
-            types_key = ",".join(types)
-
-        params: dict[str, Any] = {}
-        if resolution is not None:
-            params["resolution"] = resolution
-
-        if series_type is not None:
-            params["series_type"] = series_type
-
-        result_fetcher = functools.partial(
-            self.protocol.get,
-            "/segments/{id}/streams/{types}".format(
-                id=segment_id, types=types
-            ),
-            **params,
+        return self._get_streams(
+            f"/segments/{segment_id}/streams",
+            types=types,
+            resolution=resolution,
+            series_type=series_type,
         )
 
-        streams = BatchedResultsIterator(
-            entity=model.Stream,
-            bind_client=self,
-            result_fetcher=result_fetcher,
-        )
-
-        # Pack streams into dictionary
-        return {cast(StreamType, i.type): i for i in streams}
-
-    def get_routes(
-        self, athlete_id: int | None = None, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Route]:
+    def get_routes(self, athlete_id=None, limit=None):
         """Gets the routes list for an authenticated user.
 
         https://developers.strava.com/docs/reference/#api-Routes-getRoutesByAthleteId
