@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update client's stream method to warn when using unofficial parameters (@enadeau, #385)
+
 ## v1.3.3
 
 ### Fixed
