@@ -642,7 +642,7 @@ class Client:
         self,
         name: str,
         activity_type: ActivityType,
-        start_date_local: datetime,
+        start_date_local: datetime | str,
         elapsed_time: int | timedelta,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
@@ -675,7 +675,7 @@ class Client:
             elapsed_time = elapsed_time.seconds
 
         if is_quantity_type(distance):
-            distance = float(unithelper.meters(distance))
+            distance = float(unithelper.meters(cast(pint.Quantity, distance)))
 
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1438,8 +1438,12 @@ class Client:
         ]
 
     def _get_streams(
-        self, stream_url, types=None, resolution=None, series_type=None
-    ):
+        self,
+        stream_url: str,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """
         Generic method to retrieve stream data for activity, effort or
         segment.
@@ -1481,7 +1485,7 @@ class Client:
         py:class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the activity
         """
-        extra_params = {}
+        extra_params: dict[str, Any] = {}
         if resolution is not None:
             warn_param_unofficial("resolution")
             extra_params["resolution"] = resolution
@@ -1490,6 +1494,7 @@ class Client:
             extra_params["series_type"] = series_type
         if not types:
             types = strava_model.StreamType.schema()["enum"]
+        assert types is not None
         invalid_types = set(types).difference(
             strava_model.StreamType.schema()["enum"]
         )
@@ -1508,8 +1513,12 @@ class Client:
         }
 
     def get_activity_streams(
-        self, activity_id, types=None, resolution=None, series_type=None
-    ):
+        self,
+        activity_id: int,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """Returns a stream for an activity.
 
         https://developers.strava.com/docs/reference/#api-Streams-getActivityStreams
@@ -1560,7 +1569,7 @@ class Client:
         self,
         effort_id: int,
         types: list[StreamType] | None = None,
-        resolution: Literal["low", "medium", "high", "all"] = "all",
+        resolution: Literal["low", "medium", "high"] | None = None,
         series_type: Literal["time", "distance"] = "distance",
     ) -> dict[StreamType, model.Stream]:
         """Returns an streams for an effort.
@@ -1614,7 +1623,7 @@ class Client:
         self,
         segment_id: int,
         types: list[StreamType] | None = None,
-        resolution: Literal["low", "medium", "high", "all"] = "all",
+        resolution: Literal["low", "medium", "high"] | None = None,
         series_type: Literal["time", "distance"] = "distance",
     ) -> dict[StreamType, model.Stream]:
         """Returns an streams for a segment.
@@ -1664,7 +1673,9 @@ class Client:
             series_type=series_type,
         )
 
-    def get_routes(self, athlete_id=None, limit=None):
+    def get_routes(
+        self, athlete_id: int | None = None, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Route]:
         """Gets the routes list for an authenticated user.
 
         https://developers.strava.com/docs/reference/#api-Routes-getRoutesByAthleteId
