@@ -1570,7 +1570,7 @@ class Client:
         effort_id: int,
         types: list[StreamType] | None = None,
         resolution: Literal["low", "medium", "high"] | None = None,
-        series_type: Literal["time", "distance"] = "distance",
+        series_type: Literal["time", "distance"] | None = None,
     ) -> dict[StreamType, model.Stream]:
         """Returns an streams for an effort.
 
@@ -1624,7 +1624,7 @@ class Client:
         segment_id: int,
         types: list[StreamType] | None = None,
         resolution: Literal["low", "medium", "high"] | None = None,
-        series_type: Literal["time", "distance"] = "distance",
+        series_type: Literal["time", "distance"] | None = None,
     ) -> dict[StreamType, model.Stream]:
         """Returns an streams for a segment.
 
