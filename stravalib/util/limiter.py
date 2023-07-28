@@ -284,27 +284,26 @@ class SleepingRateLimitRule:
         long_limit: int = 1000000,
         force_limits: bool = False,
     ) -> None:
-        """Constructs a new SleepingRateLimitRule.
+        """
+        Constructs a new SleepingRateLimitRule.
 
         Parameters
         ----------
         priority : str
             The priority for this rule. When 'low', the cool-down period
-            after each request will be such
+            after each request will be such that the long-term limits will
+            not be exceeded. When 'medium', the cool-down period will be such
+            that the short-term limits will not be exceeded.  When 'high',
+            there will be no cool-down period.
         short_limit : int
             (Optional) explicit short-term limit
         long_limit : int
             (Optional) explicit long-term limit
         force_limits
             If False (default), this rule will set/update its limits
-            based on what the Strava API
-
-
-        that the long-term limits will not be exceeded. When 'medium', the
-        cool-down period will be such that the short-term limits will not be
-        exceeded. When 'high', there will be no cool-down period. tells it. If
-        True, the provided limits will be enforced, i.e. ignoring the limits
-        given by the API.
+            based on what the Strava API tells it.
+            If True, the provided limits will be enforced, i.e. ignoring the limits
+            given by the API.
         """
         if priority not in ["low", "medium", "high"]:
             raise ValueError(
