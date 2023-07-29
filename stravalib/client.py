@@ -1973,7 +1973,7 @@ class BatchedResultsIterator(Generic[T]):
         else:
             self.per_page = BatchedResultsIterator.default_per_page
 
-        self._buffer: None | Deque[Any]
+        self._buffer: None | Deque[T]
         self.reset()
 
     def __repr__(self) -> str:
@@ -2038,7 +2038,7 @@ class BatchedResultsIterator(Generic[T]):
             self._eof()
         if not self._buffer:
             self._fill_buffer()
-        assert isinstance(self._buffer, collections.deque)
+        assert self._buffer is not None
         try:
             result = self._buffer.popleft()
         except IndexError:
