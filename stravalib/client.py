@@ -296,7 +296,7 @@ class Client:
 
         before_epoch = self._utc_datetime_to_epoch(before) if before else None
         after_epoch = self._utc_datetime_to_epoch(after) if after else None
-        params = dict(before=before, after=after)
+        params = dict(before=before_epoch, after=after_epoch)
         result_fetcher = functools.partial(
             self.protocol.get, "/athlete/activities", **params
         )
