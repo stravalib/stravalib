@@ -601,7 +601,7 @@ class Athlete(
     @lazy_property
     def stats(self) -> AthleteStats:
         """
-        A method that grabs statistics for an (authenticated) athlete.
+        Grabs statistics for an (authenticated) athlete.
 
         Returns
         -------
@@ -639,15 +639,18 @@ class Athlete(
         return self.is_authenticated
 
 
-# TODO: better description <- <leah unsure of what the field override part is>?
+# TODO: better description
+# TODO: What is the goal of this attr override?
 class ActivityComment(Comment):
-    """Field overrides from superclass for type extensions"""
+    """Field overrides the athlete attribute to be of type :class:`Athlete`
+    rather than :class:`SummaryAthlete`
+    """
 
     athlete: Optional[Athlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
-    """The primary photo for an activity.
+    """Represents the primary photo for an activity.
 
     Notes
     -----
@@ -725,9 +728,10 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         )
 
 
+# TODO: this wasn't working as intended - test again
 class ActivityKudos(Athlete):
     """
-    Information about kudos an athlete received on an activity.
+    Represents kudos an athlete received on an activity.
 
     Notes
     -----
