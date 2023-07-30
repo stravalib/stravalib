@@ -13,10 +13,24 @@ import logging
 import time
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import Dict, List, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Deque,
+    Generic,
+    Iterable,
+    Literal,
+    NoReturn,
+    Protocol,
+    TypeVar,
+    cast,
+)
 
 import arrow
+import pint
 import pytz
+from pydantic import BaseModel
+from requests import Session
 
 from stravalib import exc, model, strava_model, unithelper
 from stravalib.exc import (
@@ -27,12 +41,20 @@ from stravalib.exc import (
     warn_param_unofficial,
     warn_param_unsupported,
 )
-from stravalib.protocol import ApiV3
+from stravalib.protocol import AccessInfo, ApiV3, Scope
 from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
 
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
-class Client(object):
+ActivityType = str
+SportType = str
+StreamType = str
+PhotoMetadata = Any
+
+
+class Client:
     """Main client class for interacting with the exposed Strava v3 API methods.
 
     This class can be instantiated without an access_token when performing
@@ -42,11 +64,11 @@ class Client(object):
 
     def __init__(
         self,
-        access_token=None,
-        rate_limit_requests=True,
-        rate_limiter=None,
-        requests_session=None,
-    ):
+        access_token: str | None = None,
+        rate_limit_requests: bool = True,
+        rate_limiter: limiter.RateLimiter | None = None,
+        requests_session: Session | None = None,
+    ) -> None:
         """
         Initialize a new client object.
 
@@ -85,12 +107,12 @@ class Client(object):
         )
 
     @property
-    def access_token(self):
+    def access_token(self) -> str | None:
         """The currently configured authorization token."""
         return self.protocol.access_token
 
     @access_token.setter
-    def access_token(self, token_value):
+    def access_token(self, token_value: str) -> None:
         """Set the currently configured authorization token.
 
         Parameters
@@ -107,12 +129,12 @@ class Client(object):
 
     def authorization_url(
         self,
-        client_id,
-        redirect_uri,
-        approval_prompt="auto",
-        scope=None,
-        state=None,
-    ):
+        client_id: int,
+        redirect_uri: str,
+        approval_prompt: Literal["auto", "force"] = "auto",
+        scope: list[Scope] | Scope | None = None,
+        state: str | None = None,
+    ) -> str:
         """Get the URL needed to authorize your application to access a Strava
         user's information.
 
@@ -153,7 +175,9 @@ class Client(object):
             state=state,
         )
 
-    def exchange_code_for_token(self, client_id, client_secret, code):
+    def exchange_code_for_token(
+        self, client_id: int, client_secret: str, code: str
+    ) -> AccessInfo:
         """Exchange the temporary authorization code (returned with redirect
         from strava authorization URL)  for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -180,7 +204,9 @@ class Client(object):
             client_id=client_id, client_secret=client_secret, code=code
         )
 
-    def refresh_access_token(self, client_id, client_secret, refresh_token):
+    def refresh_access_token(
+        self, client_id: int, client_secret: str, refresh_token: str
+    ) -> AccessInfo:
         """Exchanges the previous refresh token for a short-lived access token
         and a new refresh token (used to obtain the next access token later on).
 
@@ -207,7 +233,7 @@ class Client(object):
             refresh_token=refresh_token,
         )
 
-    def deauthorize(self):
+    def deauthorize(self) -> None:
         """Deauthorize the application. This causes the application to be
         removed from the athlete's "My Apps" settings page.
 
@@ -216,7 +242,7 @@ class Client(object):
         """
         self.protocol.post("oauth/deauthorize")
 
-    def _utc_datetime_to_epoch(self, activity_datetime):
+    def _utc_datetime_to_epoch(self, activity_datetime: str | datetime) -> int:
         """Convert the specified datetime value to a unix epoch timestamp
         (seconds since epoch).
 
@@ -240,7 +266,12 @@ class Client(object):
 
         return calendar.timegm(activity_datetime.timetuple())
 
-    def get_activities(self, before=None, after=None, limit=None):
+    def get_activities(
+        self,
+        before: datetime | str | None = None,
+        after: datetime | str | None = None,
+        limit: int | None = None,
+    ) -> BatchedResultsIterator[model.Activity]:
         """Get activities for authenticated user sorted by newest first.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
@@ -263,13 +294,9 @@ class Client(object):
 
         """
 
-        if before:
-            before = self._utc_datetime_to_epoch(before)
-
-        if after:
-            after = self._utc_datetime_to_epoch(after)
-
-        params = dict(before=before, after=after)
+        before_epoch = self._utc_datetime_to_epoch(before) if before else None
+        after_epoch = self._utc_datetime_to_epoch(after) if after else None
+        params = dict(before=before_epoch, after=after_epoch)
         result_fetcher = functools.partial(
             self.protocol.get, "/athlete/activities", **params
         )
@@ -281,7 +308,7 @@ class Client(object):
             limit=limit,
         )
 
-    def get_athlete(self):
+    def get_athlete(self) -> model.Athlete:
         """Gets the specified athlete; if athlete_id is None then retrieves a
         detail-level representation of currently authenticated athlete;
         otherwise summary-level representation returned of athlete.
@@ -303,8 +330,13 @@ class Client(object):
         return model.Athlete.parse_obj({**raw, **{"bound_client": self}})
 
     def update_athlete(
-        self, city=None, state=None, country=None, sex=None, weight=None
-    ):
+        self,
+        city: str | None = None,
+        state: str | None = None,
+        country: str | None = None,
+        sex: str | None = None,
+        weight: float | None = None,
+    ) -> model.Athlete:
         """Updates the properties of the authorized athlete.
 
         https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
@@ -336,7 +368,12 @@ class Client(object):
 
 
         """
-        params = {"city": city, "state": state, "country": country, "sex": sex}
+        params: dict[str, Any] = {
+            "city": city,
+            "state": state,
+            "country": country,
+            "sex": sex,
+        }
         params = {k: v for (k, v) in params.items() if v is not None}
         for p in params.keys():
             if p != "weight":
@@ -349,7 +386,9 @@ class Client(object):
             {**raw_athlete, **{"bound_client": self}}
         )
 
-    def get_athlete_koms(self, athlete_id, limit=None):
+    def get_athlete_koms(
+        self, athlete_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.SegmentEffort]:
         """Gets Q/KOMs/CRs for specified athlete.
 
         KOMs are returned as `stravalib.model.SegmentEffort` objects.
@@ -378,7 +417,9 @@ class Client(object):
             limit=limit,
         )
 
-    def get_athlete_stats(self, athlete_id=None):
+    def get_athlete_stats(
+        self, athlete_id: int | None = None
+    ) -> model.AthleteStats:
         """Returns Statistics for the athlete.
         athlete_id must be the id of the authenticated athlete or left blank.
         If it is left blank two requests will be made - first to get the
@@ -409,7 +450,7 @@ class Client(object):
 
         return model.AthleteStats.parse_obj(raw)
 
-    def get_athlete_clubs(self):
+    def get_athlete_clubs(self) -> list[model.Club]:
         """List the clubs for the currently authenticated athlete.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
@@ -430,7 +471,7 @@ class Client(object):
             for raw in club_structs
         ]
 
-    def join_club(self, club_id: int):
+    def join_club(self, club_id: int) -> None:
         """Joins the club on behalf of authenticated athlete.
 
         (Access token with write permissions required.)
@@ -448,7 +489,7 @@ class Client(object):
         """
         self.protocol.post("clubs/{id}/join", id=club_id)
 
-    def leave_club(self, club_id: int):
+    def leave_club(self, club_id: int) -> None:
         """Leave club on behalf of authenticated user.
 
         (Access token with write permissions required.)
@@ -466,7 +507,7 @@ class Client(object):
         """
         self.protocol.post("clubs/{id}/leave", id=club_id)
 
-    def get_club(self, club_id: int):
+    def get_club(self, club_id: int) -> model.Club:
         """Return a specific club object.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubById
@@ -484,7 +525,9 @@ class Client(object):
         raw = self.protocol.get("/clubs/{id}", id=club_id)
         return model.Club.parse_obj({**raw, **{"bound_client": self}})
 
-    def get_club_members(self, club_id: int, limit=None):
+    def get_club_members(
+        self, club_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Athlete]:
         """Gets the member objects for specified club ID.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubMembersById
@@ -513,7 +556,9 @@ class Client(object):
             limit=limit,
         )
 
-    def get_club_activities(self, club_id: int, limit=None):
+    def get_club_activities(
+        self, club_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Activity]:
         """Gets the activities associated with specified club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
@@ -544,7 +589,7 @@ class Client(object):
 
     def get_activity(
         self, activity_id: int, include_all_efforts: bool = False
-    ):
+    ) -> model.Activity:
         """Gets specified activity.
 
         Will be detail-level if owned by authenticated user; otherwise
@@ -574,7 +619,7 @@ class Client(object):
         return model.Activity.parse_obj({**raw, **{"bound_client": self}})
 
     # TODO: REMOVE from API altogether given deprecation of end point
-    def get_friend_activities(self, limit: int = None):
+    def get_friend_activities(self, limit: int | None = None) -> NoReturn:
         """DEPRECATED This endpoint was removed by Strava in Jan 2018.
 
         Parameters
@@ -595,13 +640,13 @@ class Client(object):
 
     def create_activity(
         self,
-        name,
-        activity_type,
-        start_date_local,
-        elapsed_time,
-        description=None,
-        distance=None,
-    ):
+        name: str,
+        activity_type: ActivityType,
+        start_date_local: datetime | str,
+        elapsed_time: int | timedelta,
+        description: str | None = None,
+        distance: pint.Quantity | float | None = None,
+    ) -> model.Activity:
         """Create a new manual activity.
 
         If you would like to create an activity from an uploaded GPS file, see the
@@ -630,7 +675,7 @@ class Client(object):
             elapsed_time = elapsed_time.seconds
 
         if is_quantity_type(distance):
-            distance = float(unithelper.meters(distance))
+            distance = float(unithelper.meters(cast(pint.Quantity, distance)))
 
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -642,7 +687,7 @@ class Client(object):
                 f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
             )
 
-        params = dict(
+        params: dict[str, Any] = dict(
             name=name,
             type=activity_type.lower(),
             start_date_local=start_date_local,
@@ -663,18 +708,18 @@ class Client(object):
 
     def update_activity(
         self,
-        activity_id,
-        name=None,
-        activity_type=None,
-        sport_type=None,
-        private=None,
-        commute=None,
-        trainer=None,
-        gear_id=None,
-        description=None,
-        device_name=None,
-        hide_from_home=None,
-    ):
+        activity_id: int,
+        name: str | None = None,
+        activity_type: ActivityType | None = None,
+        sport_type: SportType | None = None,
+        private: bool | None = None,
+        commute: bool | None = None,
+        trainer: bool | None = None,
+        gear_id: int | None = None,
+        description: str | None = None,
+        device_name: str | None = None,
+        hide_from_home: bool | None = None,
+    ) -> model.Activity:
         """Updates the properties of a specific activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
@@ -733,7 +778,7 @@ class Client(object):
         """
 
         # Convert the kwargs into a params dict
-        params = {}
+        params: dict[str, Any] = {}
 
         if name is not None:
             params["name"] = name
@@ -795,16 +840,16 @@ class Client(object):
 
     def upload_activity(
         self,
-        activity_file,
-        data_type,
-        name=None,
-        description=None,
-        activity_type=None,
-        private=None,
-        external_id=None,
-        trainer=None,
-        commute=None,
-    ):
+        activity_file: SupportsRead[str | bytes],
+        data_type: Literal["fit", "fit.gz", "tcx", "tcx.gz", "gpx", "gpx.gz"],
+        name: str | None = None,
+        description: str | None = None,
+        activity_type: ActivityType | None = None,
+        private: bool | None = None,
+        external_id: str | None = None,
+        trainer: bool | None = None,
+        commute: bool | None = None,
+    ) -> ActivityUploader:
         """Uploads a GPS file (tcx, gpx) to create a new activity for current
         athlete.
 
@@ -866,7 +911,7 @@ class Client(object):
                 f"Invalid data type {data_type}. Possible values {valid_data_types!r}"
             )
 
-        params = {"data_type": data_type}
+        params: dict[str, Any] = {"data_type": data_type}
         if name is not None:
             params["name"] = name
         if description is not None:
@@ -899,7 +944,7 @@ class Client(object):
 
         return ActivityUploader(self, response=initial_response)
 
-    def delete_activity(self, activity_id):
+    def delete_activity(self, activity_id: int) -> None:
         """Deletes the specified activity.
 
         https://developers.strava.com/docs/reference/#api-Activities
@@ -912,7 +957,9 @@ class Client(object):
         """
         self.protocol.delete("/activities/{id}", id=activity_id)
 
-    def get_activity_zones(self, activity_id):
+    def get_activity_zones(
+        self, activity_id: int
+    ) -> list[model.BaseActivityZone]:
         """Gets zones for activity.
 
         Requires premium account.
@@ -936,7 +983,12 @@ class Client(object):
             for z in zones
         ]
 
-    def get_activity_comments(self, activity_id, markdown=False, limit=None):
+    def get_activity_comments(
+        self,
+        activity_id: int,
+        markdown: bool = False,
+        limit: int | None = None,
+    ) -> BatchedResultsIterator[model.ActivityComment]:
         """Gets the comments for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getCommentsByActivityId
@@ -970,7 +1022,9 @@ class Client(object):
             limit=limit,
         )
 
-    def get_activity_kudos(self, activity_id, limit=None):
+    def get_activity_kudos(
+        self, activity_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.ActivityKudos]:
         """Gets the kudos for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getKudoersByActivityId
@@ -1000,8 +1054,11 @@ class Client(object):
         )
 
     def get_activity_photos(
-        self, activity_id, size=None, only_instagram=False
-    ):
+        self,
+        activity_id: int,
+        size: int | None = None,
+        only_instagram: bool = False,
+    ) -> BatchedResultsIterator[model.ActivityPhoto]:
         """Gets the photos from an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities
@@ -1024,7 +1081,7 @@ class Client(object):
             An iterator of :class:`stravalib.model.ActivityPhoto` objects.
 
         """
-        params = {}
+        params: dict[str, Any] = {}
 
         if not only_instagram:
             params["photo_sources"] = "true"
@@ -1045,7 +1102,9 @@ class Client(object):
             result_fetcher=result_fetcher,
         )
 
-    def get_activity_laps(self, activity_id):
+    def get_activity_laps(
+        self, activity_id: int
+    ) -> BatchedResultsIterator[model.ActivityLap]:
         """Gets the laps from an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLapsByActivityId
@@ -1072,7 +1131,9 @@ class Client(object):
         )
 
     # TODO remove this method given deprecation of end point
-    def get_related_activities(self, activity_id, limit=None):
+    def get_related_activities(
+        self, activity_id: int, limit: int | None = None
+    ) -> NoReturn:
         """Deprecated. This endpoint was removed by strava in Jan 2018.
 
         Parameters
@@ -1093,7 +1154,7 @@ class Client(object):
             "See https://developers.strava.com/docs/january-2018-update/"
         )
 
-    def get_gear(self, gear_id):
+    def get_gear(self, gear_id: str) -> model.Gear:
         """Get details for an item of gear.
 
         https://developers.strava.com/docs/reference/#api-Gears
@@ -1113,7 +1174,7 @@ class Client(object):
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 
-    def get_segment_effort(self, effort_id):
+    def get_segment_effort(self, effort_id: int) -> model.SegmentEffort:
         """Return a specific segment effort by ID.
 
         https://developers.strava.com/docs/reference/#api-SegmentEfforts
@@ -1133,7 +1194,7 @@ class Client(object):
             self.protocol.get("/segment_efforts/{id}", id=effort_id)
         )
 
-    def get_segment(self, segment_id):
+    def get_segment(self, segment_id: int) -> model.Segment:
         """Gets a specific segment by ID.
 
         https://developers.strava.com/docs/reference/#api-SegmentEfforts-getSegmentEffortById
@@ -1156,7 +1217,9 @@ class Client(object):
             }
         )
 
-    def get_starred_segments(self, limit=None):
+    def get_starred_segments(
+        self, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Segment]:
         """Returns a summary representation of the segments starred by the
          authenticated user. Pagination is supported.
 
@@ -1189,7 +1252,9 @@ class Client(object):
             limit=limit,
         )
 
-    def get_athlete_starred_segments(self, athlete_id, limit=None):
+    def get_athlete_starred_segments(
+        self, athlete_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Segment]:
         """Returns a summary representation of the segments starred by the
          specified athlete. Pagination is supported.
 
@@ -1222,12 +1287,12 @@ class Client(object):
 
     def get_segment_efforts(
         self,
-        segment_id,
-        athlete_id=None,
-        start_date_local=None,
-        end_date_local=None,
-        limit=None,
-    ):
+        segment_id: int,
+        athlete_id: int | None = None,
+        start_date_local: datetime | str | None = None,
+        end_date_local: datetime | str | None = None,
+        limit: int | None = None,
+    ) -> BatchedResultsIterator[model.BaseEffort]:
         """Gets all efforts on a particular segment sorted by start_date_local
 
         Returns an array of segment effort summary representations sorted by
@@ -1271,7 +1336,7 @@ class Client(object):
             a segment.
 
         """
-        params = {"segment_id": segment_id}
+        params: dict[str, Any] = {"segment_id": segment_id}
 
         if athlete_id is not None:
             params["athlete_id"] = athlete_id
@@ -1305,15 +1370,20 @@ class Client(object):
         )
 
     def explore_segments(
-        self, bounds, activity_type=None, min_cat=None, max_cat=None
-    ):
+        self,
+        bounds: tuple[float, float, float, float]
+        | tuple[tuple[float, float], tuple[float, float]],
+        activity_type: ActivityType | None = None,
+        min_cat: int | None = None,
+        max_cat: int | None = None,
+    ) -> list[model.SegmentExplorerResult]:
         """Returns an array of up to 10 segments.
 
         https://developers.strava.com/docs/reference/#api-Segments-exploreSegments
 
         Parameters
         ----------
-        bounds : list of 4 floats or list of 2 (lat,lon) tuples
+        bounds : tuple of 4 floats or tuple of 2 (lat,lon) tuples
             list of bounding box corners lat/lon
             [sw.lat, sw.lng, ne.lat, ne.lng] (south,west,north,east)
         activity_type : str
@@ -1330,13 +1400,19 @@ class Client(object):
 
         """
         if len(bounds) == 2:
-            bounds = (bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1])
+            bounds = (
+                bounds[0][0],  # type: ignore[index]
+                bounds[0][1],  # type: ignore[index]
+                bounds[1][0],  # type: ignore[index]
+                bounds[1][1],  # type: ignore[index]
+            )
         elif len(bounds) != 4:
             raise ValueError(
-                "Invalid bounds specified: {0!r}. Must be list of 4 float values or list of 2 (lat,lon) tuples."
+                "Invalid bounds specified: {0!r}. Must be tuple of 4 float "
+                "values or tuple of 2 (lat,lon) tuples."
             )
 
-        params = {"bounds": ",".join(str(b) for b in bounds)}
+        params: dict[str, Any] = {"bounds": ",".join(str(b) for b in bounds)}
 
         valid_activity_types = ("riding", "running")
         if activity_type is not None:
@@ -1362,8 +1438,12 @@ class Client(object):
         ]
 
     def _get_streams(
-        self, stream_url, types=None, resolution=None, series_type=None
-    ):
+        self,
+        stream_url: str,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """
         Generic method to retrieve stream data for activity, effort or
         segment.
@@ -1405,7 +1485,7 @@ class Client(object):
         py:class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the activity
         """
-        extra_params = {}
+        extra_params: dict[str, Any] = {}
         if resolution is not None:
             warn_param_unofficial("resolution")
             extra_params["resolution"] = resolution
@@ -1414,6 +1494,7 @@ class Client(object):
             extra_params["series_type"] = series_type
         if not types:
             types = strava_model.StreamType.schema()["enum"]
+        assert types is not None
         invalid_types = set(types).difference(
             strava_model.StreamType.schema()["enum"]
         )
@@ -1432,8 +1513,12 @@ class Client(object):
         }
 
     def get_activity_streams(
-        self, activity_id, types=None, resolution=None, series_type=None
-    ):
+        self,
+        activity_id: int,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """Returns a stream for an activity.
 
         https://developers.strava.com/docs/reference/#api-Streams-getActivityStreams
@@ -1481,8 +1566,12 @@ class Client(object):
         )
 
     def get_effort_streams(
-        self, effort_id, types=None, resolution=None, series_type=None
-    ):
+        self,
+        effort_id: int,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """Returns an streams for an effort.
 
         https://developers.strava.com/docs/reference/#api-Streams-getSegmentEffortStreams
@@ -1531,8 +1620,12 @@ class Client(object):
         )
 
     def get_segment_streams(
-        self, segment_id, types=None, resolution=None, series_type=None
-    ):
+        self,
+        segment_id: int,
+        types: list[StreamType] | None = None,
+        resolution: Literal["low", "medium", "high"] | None = None,
+        series_type: Literal["time", "distance"] | None = None,
+    ) -> dict[StreamType, model.Stream]:
         """Returns an streams for a segment.
 
         https://developers.strava.com/docs/reference/#api-Streams-getSegmentStreams
@@ -1580,7 +1673,9 @@ class Client(object):
             series_type=series_type,
         )
 
-    def get_routes(self, athlete_id=None, limit=None):
+    def get_routes(
+        self, athlete_id: int | None = None, limit: int | None = None
+    ) -> BatchedResultsIterator[model.Route]:
         """Gets the routes list for an authenticated user.
 
         https://developers.strava.com/docs/reference/#api-Routes-getRoutesByAthleteId
@@ -1612,7 +1707,7 @@ class Client(object):
             limit=limit,
         )
 
-    def get_route(self, route_id):
+    def get_route(self, route_id: int) -> model.Route:
         """Gets specified route.
 
         Will be detail-level if owned by authenticated user; otherwise
@@ -1634,7 +1729,9 @@ class Client(object):
         raw = self.protocol.get("/routes/{id}", id=route_id)
         return model.Route.parse_obj({**raw, **{"bound_client": self}})
 
-    def get_route_streams(self, route_id):
+    def get_route_streams(
+        self, route_id: int
+    ) -> dict[StreamType, model.Stream]:
         """Returns streams for a route.
 
         Streams represent the raw data of the saved route. External
@@ -1667,17 +1764,17 @@ class Client(object):
         )
 
         # Pack streams into dictionary
-        return {i.type: i for i in streams}
+        return {cast(StreamType, i.type): i for i in streams}
 
     # TODO: removed old link to create a subscription but can't find new equiv
     # in current strava docs
     def create_subscription(
         self,
-        client_id,
-        client_secret,
-        callback_url,
-        verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT,
-    ):
+        client_id: int,
+        client_secret: str,
+        callback_url: str,
+        verify_token: str = model.Subscription.VERIFY_TOKEN_DEFAULT,
+    ) -> model.Subscription:
         """Creates a webhook event subscription.
 
         Parameters
@@ -1708,7 +1805,7 @@ class Client(object):
         An instance of :class:`stravalib.model.Subscription`.
 
         """
-        params = dict(
+        params: dict[str, Any] = dict(
             client_id=client_id,
             client_secret=client_secret,
             callback_url=callback_url,
@@ -1719,8 +1816,10 @@ class Client(object):
 
     # TODO: UPDATE - this method uses (de)serialize which is deprecated
     def handle_subscription_callback(
-        self, raw, verify_token=model.Subscription.VERIFY_TOKEN_DEFAULT
-    ):
+        self,
+        raw: dict[str, Any],
+        verify_token: str = model.Subscription.VERIFY_TOKEN_DEFAULT,
+    ) -> dict[str, str]:
         """Validate callback request and return valid response with challenge.
 
         Parameters
@@ -1741,7 +1840,9 @@ class Client(object):
         return response_raw
 
     # TODO: i'm not sure what raw's "type" is here
-    def handle_subscription_update(self, raw):
+    def handle_subscription_update(
+        self, raw: dict[str, Any]
+    ) -> model.SubscriptionUpdate:
         """Converts a raw subscription update into a model.
 
         Parameters
@@ -1759,7 +1860,9 @@ class Client(object):
             {**raw, **{"bound_client": self}}
         )
 
-    def list_subscriptions(self, client_id, client_secret):
+    def list_subscriptions(
+        self, client_id: int, client_secret: str
+    ) -> BatchedResultsIterator[model.Subscription]:
         """List current webhook event subscriptions in place for the current
         application.
 
@@ -1789,7 +1892,9 @@ class Client(object):
             result_fetcher=result_fetcher,
         )
 
-    def delete_subscription(self, subscription_id, client_id, client_secret):
+    def delete_subscription(
+        self, subscription_id: int, client_id: int, client_secret: str
+    ) -> None:
         """Unsubscribe from webhook events for an existing subscription.
 
         Parameters
@@ -1815,7 +1920,15 @@ class Client(object):
         # Expects a 204 response if all goes well.
 
 
-class BatchedResultsIterator(object):
+T = TypeVar("T", bound=BaseModel)
+
+
+class ResultFetcher(Protocol):
+    def __call__(self, *, page: int, per_page: int) -> Iterable[Any]:
+        ...
+
+
+class BatchedResultsIterator(Generic[T]):
     """An iterator that enables iterating over requests that return
     paged results."""
 
@@ -1825,11 +1938,11 @@ class BatchedResultsIterator(object):
 
     def __init__(
         self,
-        entity,
-        result_fetcher,
-        bind_client=None,
-        limit=None,
-        per_page=None,
+        entity: type[T],
+        result_fetcher: ResultFetcher,
+        bind_client: Client | None = None,
+        limit: int | None = None,
+        per_page: int | None = None,
     ):
         """
 
@@ -1858,23 +1971,23 @@ class BatchedResultsIterator(object):
         if per_page is not None:
             self.per_page = per_page
         else:
-            self.per_page = self.default_per_page
+            self.per_page = BatchedResultsIterator.default_per_page
 
+        self._buffer: None | Deque[T]
         self.reset()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{0} entity={1}>".format(
             self.__class__.__name__, self.entity.__name__
         )
 
-    def reset(self):
-        """ """
+    def reset(self) -> None:
         self._counter = 0
         self._buffer = None
         self._page = 1
         self._all_results_fetched = False
 
-    def _fill_buffer(self):
+    def _fill_buffer(self) -> None:
         """Fills the internal buffer from Strava API."""
         # If we cannot fetch anymore from the server then we're done here.
         if self._all_results_fetched:
@@ -1892,7 +2005,7 @@ class BatchedResultsIterator(object):
             except AttributeError:
                 # Entity doesn't have a parse_obj() method, so must be of a
                 # legacy type
-                new_entity = self.entity.deserialize(
+                new_entity = self.entity.deserialize(  # type: ignore[attr-defined]
                     raw, bind_client=self.bind_client
                 )
             entities.append(new_entity)
@@ -1909,23 +2022,23 @@ class BatchedResultsIterator(object):
 
         self._page += 1
 
-    def __iter__(self):
+    def __iter__(self) -> BatchedResultsIterator[T]:
         return self
 
-    def _eof(self):
+    def _eof(self) -> NoReturn:
         """ """
         self.reset()
         raise StopIteration
 
-    def __next__(self):
+    def __next__(self) -> T:
         return self.next()
 
-    def next(self):
-        """ """
+    def next(self) -> T:
         if self.limit and self._counter >= self.limit:
             self._eof()
         if not self._buffer:
             self._fill_buffer()
+        assert self._buffer is not None
         try:
             result = self._buffer.popleft()
         except IndexError:
@@ -1935,14 +2048,16 @@ class BatchedResultsIterator(object):
             return result
 
 
-class ActivityUploader(object):
+class ActivityUploader:
     """
     The "future" object that holds information about an activity file
     upload and can wait for upload to finish, etc.
 
     """
 
-    def __init__(self, client, response, raise_exc=True):
+    def __init__(
+        self, client: Client, response: dict[str, Any], raise_exc: bool = True
+    ) -> None:
         """
         client: `stravalib.client.Client`
             The :class:`stravalib.client.Client` object that is handling the
@@ -1956,9 +2071,10 @@ class ActivityUploader(object):
         self.client = client
         self.response = response
         self.update_from_response(response, raise_exc=raise_exc)
+        self._photo_metadata
 
     @property
-    def photo_metadata(self):
+    def photo_metadata(self) -> PhotoMetadata:
         """photo metadata for the activity upload response, if any.
         it contains a pre-signed uri for uploading the photo.
 
@@ -1975,7 +2091,7 @@ class ActivityUploader(object):
         return self._photo_metadata
 
     @photo_metadata.setter
-    def photo_metadata(self, value):
+    def photo_metadata(self, value: PhotoMetadata) -> PhotoMetadata:
         """
 
         Parameters
@@ -1991,7 +2107,9 @@ class ActivityUploader(object):
         """
         self._photo_metadata = value
 
-    def update_from_response(self, response, raise_exc=True):
+    def update_from_response(
+        self, response: dict[str, Any], raise_exc: bool = True
+    ) -> None:
         """Updates internal state of object.
 
         Parameters
@@ -2016,9 +2134,7 @@ class ActivityUploader(object):
         self.activity_id = response.get("activity_id")
         self.status = response.get("status") or response.get("message")
         # Undocumented field, it contains pre-signed uri to upload photo to
-        self._photo_metadata: Optional[List[Dict]] = response.get(
-            "photo_metadata"
-        )
+        self._photo_metadata = response.get("photo_metadata")
 
         if response.get("error"):
             self.error = response.get("error")
@@ -2033,21 +2149,21 @@ class ActivityUploader(object):
             self.raise_for_error()
 
     @property
-    def is_processing(self):
+    def is_processing(self) -> bool:
         """ """
         return self.activity_id is None and self.error is None
 
     @property
-    def is_error(self):
+    def is_error(self) -> bool:
         """ """
         return self.error is not None
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """ """
         return self.activity_id is not None
 
-    def raise_for_error(self):
+    def raise_for_error(self) -> None:
         """ """
         # FIXME: We need better handling of the actual responses, once those are
         # more accurately documented.
@@ -2056,7 +2172,7 @@ class ActivityUploader(object):
         elif self.status == "The created activity has been deleted.":
             raise exc.CreatedActivityDeleted(self.status)
 
-    def poll(self):
+    def poll(self) -> None:
         """Update internal state from polling strava.com.
 
         Raises
@@ -2072,7 +2188,9 @@ class ActivityUploader(object):
 
         self.update_from_response(response)
 
-    def wait(self, timeout=None, poll_interval=1.0):
+    def wait(
+        self, timeout: float | None = None, poll_interval: float = 1.0
+    ) -> model.Activity:
         """Wait for the upload to complete or to err out.
 
         Will return the resulting Activity or raise an exception if the
@@ -2110,7 +2228,9 @@ class ActivityUploader(object):
         # If we got this far, we must have an activity!
         return self.client.get_activity(self.activity_id)
 
-    def upload_photo(self, photo, timeout=None):
+    def upload_photo(
+        self, photo: SupportsRead[bytes], timeout: float | None = None
+    ) -> None:
         """Uploads a photo to the activity.
 
         Parameters
@@ -2148,7 +2268,7 @@ class ActivityUploader(object):
                     "Photo upload not supported"
                 )
 
-            photos_data: List[Dict] = [
+            photos_data: list[dict[Any, Any]] = [
                 photo_data
                 for photo_data in self.photo_metadata
                 if photo_data

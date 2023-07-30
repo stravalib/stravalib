@@ -4,6 +4,7 @@
 
 - Apply flake8 and numpy docstrings to limiter & protocol (@lwasser, #326)
 - Update client's stream method to warn when using unofficial parameters (@enadeau, #385)
+- Type annotation to client file (@enadeau, #384)
 - Fix docstring in SleepingRateLimitRule (@enadeau)
 
 ## v1.3.3

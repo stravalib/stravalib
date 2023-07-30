@@ -54,7 +54,9 @@ from stravalib.strava_model import (
     PhotosSummary,
     PolylineMap,
     Primary,
-    Route,
+)
+from stravalib.strava_model import Route as RouteStrava
+from stravalib.strava_model import (
     Split,
     SportType,
     SummaryPRSegmentEffort,
@@ -876,7 +878,7 @@ class Stream(
 
 
 class Route(
-    Route,
+    RouteStrava,
     BackwardCompatibilityMixin,
     DeprecatedSerializableMixin,
     BoundClientEntity,
