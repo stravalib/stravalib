@@ -582,7 +582,6 @@ class Athlete(
             The string representation of the athlete type.
         """
 
-        # TODO: Pylance - Expression of type "str | None" cannot be assigned to
         # return type "str"
         return {0: "cyclist", 1: "runner"}.get(raw_type)
 
