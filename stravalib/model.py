@@ -17,6 +17,7 @@ from datetime import date, datetime
 from functools import wraps
 from typing import (
     Any,
+    Callable,
     ClassVar,
     Dict,
     List,
@@ -67,14 +68,32 @@ from stravalib.strava_model import (
 LOGGER = logging.getLogger(__name__)
 
 
-def lazy_property(fn):
+def lazy_property(fn: Callable[Any]) -> property:
     """
     Should be used to decorate the functions that return a lazily loaded
     entity (collection), e.g., the members of a club.
 
+    Parameters
+    ----------
+    fn : Callable[..., Any]
+        The input function that returns the lazily loaded entity (collection).
+
+    Returns
+    -------
+    property
+        A lazily loaded property.
+
+    Raises
+    ------
+    exc.UnboundEntity
+        If the object is unbound (self.bound_client is None) or has a None ID (self.id is None).
+
+    Notes
+    -----
     Assumes that fn (like a regular getter property) has as single
     argument a reference to self, and uses one of the (bound) client
     methods to retrieve an entity (collection) by self.id.
+
     """
 
     @wraps(fn)
@@ -163,12 +182,33 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
 class DeprecatedSerializableMixin(BaseModel):
     """
     Provides backward compatibility with legacy BaseEntity
+
+    Inherits from the `pydantic.BaseModel` class.
     """
 
     @classmethod
     def deserialize(cls, attribute_value_mapping: Dict):
         """
         Creates and returns a new object based on serialized (dict) struct.
+
+        Parameters
+        ----------
+        attribute_value_mapping : Dict
+            A dictionary representing the serialized data.
+
+        Returns
+        -------
+        DeprecatedSerializableMixin
+            A new instance of the class created from the serialized data.
+
+        Deprecated
+        ----------
+        1.0.0
+            The `deserialize()` method is deprecated in favor of `parse_obj()` method.
+            For more details, refer to the Pydantic documentation:
+            https://docs.pydantic.dev/usage/models/#helper-functions
+
+
         """
         warn_method_deprecation(
             cls,
@@ -178,7 +218,7 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         return cls.parse_obj(attribute_value_mapping)
 
-    def from_dict(self, attribute_value_mapping: Dict):
+    def from_dict(self, attribute_value_mapping: Dict) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
@@ -187,6 +227,13 @@ class DeprecatedSerializableMixin(BaseModel):
         ----------
         attribute_value_mapping : Dict
             A dictionary that will be deserialized into the parent object.
+
+        Deprecated
+        ----------
+        1.0.0
+            The `from_dict()` method is deprecated in favor of `parse_obj()` method.
+            For more details, refer to the Pydantic documentation:
+            https://docs.pydantic.dev/usage/models/#helper-functions
         """
         warn_method_deprecation(
             self.__class__.__name__,
@@ -198,9 +245,20 @@ class DeprecatedSerializableMixin(BaseModel):
         # returns a new object
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         """
         Returns a dict representation of self
+
+        Returns
+        -------
+        Dict
+            A dictionary containing the data from the instance.
+
+        Deprecated
+        ----------
+            The `to_dict()` method is deprecated in favor of `dict()` method.
+            For more details, refer to the Pydantic documentation:
+            https://docs.pydantic.dev/usage/exporting_models/
         """
         warn_method_deprecation(
             self.__class__.__name__,
@@ -223,8 +281,26 @@ class BackwardCompatibilityMixin:
 
     pass
 
-    def __getattribute__(self, attr):
-        """A special method..."""
+    def __getattribute__(self, attr: str) -> Any:
+        """A special method...
+        A method to retrieve attributes from the object.
+
+        Parameters
+        ----------
+        attr : str
+            The name of the attribute to retrieve.
+
+        Returns
+        -------
+        Any
+            The value of the requested attribute.
+
+        Notes
+        -----
+        This method is called whenever an attribute is accessed on the object.
+        It is used to control attribute retrieval and perform additional actions.
+
+        """
         value = object.__getattribute__(self, attr)
         if attr in ["_field_conversions", "bound_client"] or attr.startswith(
             "_"
@@ -255,7 +331,7 @@ class BoundClientEntity(BaseModel):
     """A class that bounds the Client object to the model."""
 
     # Using Any as type here to prevent catch-22 between circular import and
-    # pydantic forward-referencing issues "resolved" by PEP-8 violations.
+    # Pydantic forward-referencing issues "resolved" by PEP-8 violations.
     # See e.g. https://github.com/pydantic/pydantic/issues/1873
     bound_client: Optional[Any] = Field(None, exclude=True)
 
@@ -288,11 +364,27 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         return values if values else None
 
     @property
-    def lat(self):
+    def lat(self) -> float:
+        """
+        The latitude value of an x,y coordinate.
+
+        Returns
+        -------
+        float
+            The latitude value.
+        """
         return self.__root__[0]
 
     @property
-    def lon(self):
+    def lon(self) -> float:
+        """
+        The longitude value of an x,y coordinate.
+
+        Returns
+        -------
+        float
+            The longitude value.
+        """
         return self.__root__[1]
 
 
@@ -302,6 +394,21 @@ class Club(
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
+    """
+    Represents a single club with detailed information about the club including
+    club name, id, location, activity types, etc.
+
+    See Also
+    --------
+    DetailedClub : A class representing a club's detailed information.
+    DeprecatedSerializableMixin : A mixin to provide backward compatibility
+        with legacy BaseEntity.
+    BackwardCompatibilityMixin : A mixin to provide backward compatibility with
+        legacy BaseDetailedEntity.
+    BoundClientEntity : A mixin to bind the club with a Strava API client.
+
+    """
+
     # Undocumented attributes:
     profile: Optional[str] = None
     description: Optional[str] = None
@@ -310,31 +417,64 @@ class Club(
     _field_conversions = {"activity_types": enum_values}
 
     @lazy_property
-    def members(self):
+    def members(self) -> List[Activity]:
+        """
+        Lazy property to retrieve club members.
+
+        Returns
+        -------
+        List[Member]
+            A list of club members.
+        """
         return self.bound_client.get_club_members(self.id)
 
     @lazy_property
     def activities(self):
+        """
+        Lazy property to retrieve club activities.
+
+        Returns
+        -------
+        List[Activity]
+            A list of club activities.
+        """
         return self.bound_client.get_club_activities(self.id)
 
 
 class Gear(
     DetailedGear, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    """
+    Represents a piece of gear (equipment) used in physical activities.
+    """
+
     _field_conversions = {"distance": uh.meters}
 
 
 class Bike(Gear):
+    """
+    Represents a bike as a "type" / using the structure of
+    `stravalib.model.Gear`.
+    """
+
     pass
 
 
 class Shoe(Gear):
+    """
+    Represents a Shoes as a "type" / using the structure of
+    `stravalib.model.Gear`.
+    """
+
     pass
 
 
 class ActivityTotals(
     ActivityTotal, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
+    """An objecting containing a set of total values for an activity including
+    elapsed time, moving time, distance and elevation gain."""
+
     _field_conversions = {
         "elapsed_time": time_interval,
         "moving_time": time_interval,
@@ -347,11 +487,11 @@ class AthleteStats(
     ActivityStats, DeprecatedSerializableMixin, BackwardCompatibilityMixin
 ):
     """
-    Rolled-up totals for rides, runs and swims, as shown in an athlete's public
+    Summary totals for rides, runs and swims, as shown in an athlete's public
     profile. Non-public activities are not counted for these totals.
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     recent_ride_totals: Optional[ActivityTotals] = None
     recent_run_totals: Optional[ActivityTotals] = None
     recent_swim_totals: Optional[ActivityTotals] = None
@@ -374,6 +514,14 @@ class Athlete(
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
+    """Represents high level athlete information including
+    their name, email, clubs they belong to, bikes, shoes, etc.
+
+    Notes
+    ------
+    Also provides access to detailed athlete stats upon request.
+    """
+
     # Field overrides from superclass for type extensions:
     clubs: Optional[List[Club]] = None
     bikes: Optional[List[Bike]] = None
@@ -419,21 +567,50 @@ class Athlete(
     subscription_permissions: Optional[list] = None
 
     @validator("athlete_type")
-    def to_str_representation(cls, raw_type):
-        """Replaces legacy 'ChoicesAttribute' class"""
+    def to_str_representation(cls, raw_type: int) -> str:
+        """Replaces legacy 'ChoicesAttribute' class.
 
+        Parameters
+        ----------
+        raw_type : int
+            The raw integer representing the athlete type.
+
+        Returns
+        -------
+        str
+            The string representation of the athlete type.
+        """
+
+        # TODO: Pylance - Expression of type "str | None" cannot be assigned to
+        # return type "str"
         return {0: "cyclist", 1: "runner"}.get(raw_type)
 
     @lazy_property
     def authenticated_athlete(self):
+        """
+        Returns an `stravalib.Client` object containing Strava account data
+        for the (authenticated) athlete.
+
+        Returns
+        -------
+        DetailedAthlete
+            The detailed information of the authenticated athlete.
+        """
         return self.bound_client.get_athlete()
 
     @lazy_property
-    def stats(self):
+    def stats(self) -> AthleteStats:
         """
+        A method that grabs statistics for an (authenticated) athlete.
+
         Returns
         -------
         Associated :class:`stravalib.model.AthleteStats`
+
+        Raises
+        ------
+        `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
+        missing.
         """
         if not self.is_authenticated_athlete():
             raise exc.NotAuthenticatedAthlete(
@@ -441,8 +618,9 @@ class Athlete(
             )
         return self.bound_client.get_athlete_stats(self.id)
 
-    def is_authenticated_athlete(self):
-        """
+    def is_authenticated_athlete(self) -> bool:
+        """Check if the athlete is authenticated
+
         Returns
         -------
         bool
@@ -461,7 +639,7 @@ class Athlete(
         return self.is_authenticated
 
 
-# TODO: better description
+# TODO: better description <- <leah unsure of what the field override part is>?
 class ActivityComment(Comment):
     """Field overrides from superclass for type extensions"""
 
@@ -470,19 +648,21 @@ class ActivityComment(Comment):
 
 class ActivityPhotoPrimary(Primary):
     """The primary photo for an activity.
-    Attributes are Undocumented
+
+    Notes
+    -----
+    Attributes for activity photos are undocumented
     """
 
     use_primary_photo: Optional[bool] = None
 
 
 class ActivityPhotoMeta(PhotosSummary):
-    """
-    The photos structure returned with the activity, not to be confused with
+    """The photos structure returned with the activity. Not to be confused with
     the full loaded photos for an activity.
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     primary: Optional[ActivityPhotoPrimary] = None
 
     # Undocumented attributes:
@@ -490,8 +670,10 @@ class ActivityPhotoMeta(PhotosSummary):
 
 
 class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
-    """
-    A full photo record attached to an activity.
+    """A full photo record attached to an activity.
+
+    Notes
+    -----
     Warning: this entity is undocumented by Strava and there is no official
     endpoint to retrieve it
     """
@@ -545,6 +727,10 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
 class ActivityKudos(Athlete):
     """
+    Information about kudos an athlete received on an activity.
+
+    Notes
+    -----
     Activity kudos are a subset of athlete properties.
     """
 
@@ -700,7 +886,7 @@ class Segment(
     Represents a single Strava segment.
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
