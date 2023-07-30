@@ -113,7 +113,7 @@ html_theme_options = {
     "show_toc_level": 1,
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
-    "footer_items": ["copyright"],
+    "footer_start": ["copyright"],
 }
 
 html_context = {

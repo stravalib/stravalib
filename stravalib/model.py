@@ -156,6 +156,7 @@ def check_valid_location(
 # Create alias for this type so docs are more user-readable
 AllDateTypes = NewType("AllDateTypes", Union[datetime, str, bytes, int, float])
 
+
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     """Utility helper that parses a datetime value provided in
     JSON, string, int or other formats and returns a datetime.datetime
@@ -258,13 +259,13 @@ class DeprecatedSerializableMixin(BaseModel):
         ----------
             The `to_dict()` method is deprecated in favor of `dict()` method.
             For more details, refer to the Pydantic documentation:
-            https://docs.pydantic.dev/usage/exporting_models/
+            https://docs.pydantic.dev/1.10/usage/exporting_models/
         """
         warn_method_deprecation(
             self.__class__.__name__,
             "to_dict()",
             "dict()",
-            "https://docs.pydantic.dev/usage/exporting_models/",
+            "https://docs.pydantic.dev/1.10/usage/exporting_models/",
         )
         return self.dict()
 

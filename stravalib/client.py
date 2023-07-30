@@ -1471,13 +1471,13 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
+                This param is not officially supported by the Strava API and may be
                 removed in the future.
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
+                This param is not officially supported by the Strava API and may be
                 removed in the future.
 
         Returns
@@ -1532,7 +1532,7 @@ class Client:
         results.
 
         Streams types are: time, latlng, distance, altitude, velocity_smooth,
-                           heartrate, cadence, watts, temp, moving, grade_smooth
+                            heartrate, cadence, watts, temp, moving, grade_smooth
 
         Parameters
         ----------
@@ -1544,19 +1544,19 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
-                removed in the future.
+                This param is not officially supported by the Strava API and
+                may be removed in the future.
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
+                This param is not officially supported by the Strava API and may be
                 removed in the future.
 
         Returns
         -------
         py:class:`dict`
-            An dictionary of :class:`stravalib.model.Stream` from the activity
+            A dictionary of :class:`stravalib.model.Stream` from the activity
         """
         return self._get_streams(
             f"/activities/{activity_id}/streams",
@@ -1597,14 +1597,17 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
-                removed in the future.
+
+                This param is not officially supported by the Strava API and
+                may be removed in the future.
+
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
-                removed in the future.
+
+                This param is not officially supported by the Strava API and
+                may be removed in the future.
 
         Returns
         -------
@@ -1639,7 +1642,7 @@ class Client:
         results.
 
         Streams types are: time, latlng, distance, altitude, velocity_smooth,
-                           heartrate, cadence, watts, temp, moving, grade_smooth
+        heartrate, cadence, watts, temp, moving, grade_smooth
 
         Parameters
         ----------
@@ -1651,13 +1654,13 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
+                This param is not officially supported by the Strava API and may be
                 removed in the future.
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
-                This param is not officialy supported by the Strava API and may be
+                This param is not officially supported by the Strava API and may be
                 removed in the future.
 
         Returns
