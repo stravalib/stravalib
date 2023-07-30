@@ -63,7 +63,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "myst_nb",
     "sphinx_design",
-    "sphinxext.opengraph",
+    # "sphinxext.opengraph",
     "sphinx_inline_tabs",
 ]
 
