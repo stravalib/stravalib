@@ -16,6 +16,7 @@ import logging
 from datetime import date, datetime
 from functools import wraps
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
@@ -33,7 +34,6 @@ from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
 from stravalib import unithelper as uh
-from stravalib.client import BatchedResultsIterator
 from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
 from stravalib.strava_model import (
     ActivityStats,
@@ -64,6 +64,9 @@ from stravalib.strava_model import (
     SummarySegmentEffort,
     TimedZoneRange,
 )
+
+if TYPE_CHECKING:
+    from stravalib.client import BatchedResultsIterator
 
 LOGGER = logging.getLogger(__name__)
 
