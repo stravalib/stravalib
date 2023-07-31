@@ -19,6 +19,7 @@ from typing import (
     Deque,
     Generic,
     Iterable,
+    List,
     Literal,
     NoReturn,
     Protocol,
@@ -959,7 +960,7 @@ class Client:
 
     def get_activity_zones(
         self, activity_id: int
-    ) -> list[model.BaseActivityZone]:
+    ) -> List[model.BaseActivityZone]:
         """Gets zones for activity.
 
         Requires premium account.
