@@ -20,10 +20,8 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    Float,
     List,
     Literal,
-    NewType,
     Optional,
     Tuple,
     Union,
@@ -61,6 +59,7 @@ from stravalib.strava_model import Route as RouteStrava
 from stravalib.strava_model import (
     Split,
     SportType,
+    SummaryClub,
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
     TimedZoneRange,
@@ -69,6 +68,7 @@ from stravalib.strava_model import (
 LOGGER = logging.getLogger(__name__)
 
 
+# TODO: stravalib/model.py:71: error: Please use "Callable[[<parameters>], <return type>]"  [misc]
 def lazy_property(fn: Callable[Any]) -> property:
     """
     Should be used to decorate the functions that return a lazily loaded
@@ -76,7 +76,7 @@ def lazy_property(fn: Callable[Any]) -> property:
 
     Parameters
     ----------
-    fn : Callable[..., Any]
+    fn : Callable
         The input function that returns the lazily loaded entity (collection).
 
     Returns
@@ -98,7 +98,7 @@ def lazy_property(fn: Callable[Any]) -> property:
     """
 
     @wraps(fn)
-    def wrapper(obj):
+    def wrapper(obj: Any) -> Any:
         try:
             if obj.bound_client is None:
                 raise exc.UnboundEntity(
@@ -146,16 +146,19 @@ def check_valid_location(
 
     # Legacy serialized form is str, so in case of attempting to de-serialize
     # from local storage:
-    try:
-        return [float(l) for l in location.split(",")]
-    except AttributeError:
-        # Location for activities without GPS may be returned as empty list by
-        # Strava
+    if isinstance(location, str):
+        try:
+            return [float(l) for l in location.split(",")]
+        except AttributeError:
+            # Location for activities without GPS may be returned as empty list by
+            # Strava
+            return None
+    else:
         return location if location else None
 
 
-# Create alias for this type so docs are more user-readable
-AllDateTypes = NewType("AllDateTypes", Union[datetime, str, bytes, int, float])
+# Create alias for this type so docs are more readable
+AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
@@ -188,8 +191,12 @@ class DeprecatedSerializableMixin(BaseModel):
     Inherits from the `pydantic.BaseModel` class.
     """
 
+    # TODO: i used the output type from this class
+    # could Dict also be an int or float??
     @classmethod
-    def deserialize(cls, attribute_value_mapping: Dict):
+    def deserialize(
+        cls, attribute_value_mapping: Dict[str, str]
+    ) -> DeprecatedSerializableMixin:
         """
         Creates and returns a new object based on serialized (dict) struct.
 
@@ -220,7 +227,8 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         return cls.parse_obj(attribute_value_mapping)
 
-    def from_dict(self, attribute_value_mapping: Dict) -> None:
+    # TODO: Same question here about Dict elements (strings or str, Union[str,int])
+    def from_dict(self, attribute_value_mapping: Dict[str, str]) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
@@ -237,6 +245,7 @@ class DeprecatedSerializableMixin(BaseModel):
             For more details, refer to the Pydantic documentation:
             https://docs.pydantic.dev/usage/models/#helper-functions
         """
+        # TODO: Argument 1 to "warn_method_deprecation" has incompatible type "str"; expected "type
         exc.warn_method_deprecation(
             self.__class__.__name__,
             "from_dict()",
@@ -245,9 +254,10 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         # Ugly hack is necessary because parse_obj does not behave in-place but
         # returns a new object
+        # TODO - calling self.__init__ directly is not recommended because it may lead to unexpected behavior,
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, str]:
         """
         Returns a dict representation of self
 
@@ -346,7 +356,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     @root_validator
     def check_valid_latlng(
         cls, values: List[Optional[float]]
-    ) -> Optional[float]:
+    ) -> Optional[List[Optional[float]]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -419,27 +429,29 @@ class Club(
     _field_conversions = {"activity_types": enum_values}
 
     @lazy_property
-    def members(self) -> List[Activity]:
+    def members(self) -> BatchedResultsIterator[Athlete]:
         """
-        Lazy property to retrieve club members.
+        Lazy property to retrieve club members stored as Athlete objects.
 
         Returns
         -------
-        List[Member]
-            A list of club members.
+        List
+            A list of club members stored as Athlete objects.
         """
+        assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_members(self.id)
 
     @lazy_property
-    def activities(self):
+    def activities(self) -> BatchedResultsIterator[Activity]:
         """
         Lazy property to retrieve club activities.
 
         Returns
         -------
-        List[Activity]
-            A list of club activities.
+        Interator
+            An iterator of Activity objects representing club activities.
         """
+        assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_activities(self.id)
 
 
@@ -525,7 +537,14 @@ class Athlete(
     """
 
     # Field overrides from superclass for type extensions:
-    clubs: Optional[List[Club]] = None
+    # TODO: these overrides make mypy upset - i think this might be related to the circular assignment??
+    # stravalib/model.py:535: error: Incompatible types in assignment (expression
+    # has type "Optional[List[Club]]", base class "DetailedAthlete" defined the
+    # type as "Optional[List[SummaryClub]]")  [assignment]
+    # stravalib/model.py:536: error: Incompatible types in assignment (expression has type "Optional[List[Bike]]", base class "DetailedAthlete" defined the type as "Optional[List[SummaryGear]]")  [assignment]
+    clubs: Optional[List[SummaryClub]] = None
+    # mypy wants these below to be Optional[List[SummaryGear]] as that is
+    # what is defined in the DetailedAthlete class in strava_model
     bikes: Optional[List[Bike]] = None
     shoes: Optional[List[Shoe]] = None
 
@@ -566,10 +585,11 @@ class Athlete(
     membership: Optional[str] = None
     admin: Optional[bool] = None
     owner: Optional[bool] = None
-    subscription_permissions: Optional[list] = None
+    # TODO: can permission take other inputs other than bool?
+    subscription_permissions: Optional[List[bool]] = None
 
     @validator("athlete_type")
-    def to_str_representation(cls, raw_type: int) -> str:
+    def to_str_representation(cls, raw_type: int) -> Optional[str]:
         """Replaces legacy 'ChoicesAttribute' class.
 
         Parameters
@@ -587,7 +607,7 @@ class Athlete(
         return {0: "cyclist", 1: "runner"}.get(raw_type)
 
     @lazy_property
-    def authenticated_athlete(self):
+    def authenticated_athlete(self) -> Athlete:
         """
         Returns an `stravalib.Client` object containing Strava account data
         for the (authenticated) athlete.
@@ -597,6 +617,7 @@ class Athlete(
         DetailedAthlete
             The detailed information of the authenticated athlete.
         """
+        assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_athlete()
 
     @lazy_property
@@ -617,6 +638,8 @@ class Athlete(
             raise exc.NotAuthenticatedAthlete(
                 "Statistics are only available for the authenticated athlete"
             )
+        assert self.bound_client is not None, "Bound client is not set."
+
         return self.bound_client.get_athlete_stats(self.id)
 
     def is_authenticated_athlete(self) -> bool:
@@ -696,7 +719,7 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     location: Optional[LatLon] = None
     urls: Optional[Dict[str, str]] = None
     # TODO - is this a float return?
-    sizes: Optional[Dict[str, Float]] = None
+    sizes: Optional[Dict[str, float]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -779,7 +802,12 @@ class Map(PolylineMap):
     pass
 
 
-# TODO - SPlit is already defined in strava_model - Name "Split" already defined (possibly by an import)
+# if TYPE_CHECKING:
+#     from strava_model import Split
+
+
+# TODO - Split is already defined in strava_model - Name "Split" already
+# defined (possibly by an import) - i'm not sure how to deal with this.
 class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     A split -- may be metric or standard units (which has no bearing
@@ -827,8 +855,19 @@ class SegmentExplorerResult(
     )(check_valid_location)
 
     @lazy_property
-    def segment(self):
-        """Associated (full) :class:`stravalib.model.Segment` object."""
+    def segment(self) -> Segment:
+        """Returns the associated (full) :class:`Segment` object.
+
+        This property is lazy-loaded. Segment objects will be fetched from
+        the bound client only when explicitly accessed for the first time.
+
+        Returns
+        -------
+        Segment object or None
+            The associated Segment object, if available; otherwise, returns None.
+
+        """
+        assert self.bound_client is not None
         return self.bound_client.get_segment(self.id)
 
 
@@ -899,7 +938,8 @@ class Segment(
     map: Optional[Map] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type: Optional[ActivityType] = None
+    # TODO Incompatible types in assignment (expression has type "Optional[ActivityType]", base class "DetailedSegment" defined the type as "Optional[Literal['Ride', 'Run']]")
+    activity_type: Optional[Literal["Ride", "Run"]] = None
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
@@ -1005,8 +1045,9 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    best_efforts: Optional[List[BestEffort]] = None
-    segment_efforts: Optional[List[SegmentEffort]] = None
+    # TODO: Incompatible types in assignment (expression has type "Optional[List[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[List[DetailedSegmentEffort]]")
+    best_efforts: Optional[List[DetailedSegmentEffort]] = None
+    segment_efforts: Optional[List[DetailedSegmentEffort]] = None
     splits_metric: Optional[List[Split]] = None
     splits_standard: Optional[List[Split]] = None
     photos: Optional[ActivityPhotoMeta] = None
@@ -1015,11 +1056,12 @@ class Activity(
     # Added for backward compatibility
     # TODO maybe deprecate?
     # TODO: Missing type parameters for generic type "Tuple"
-    TYPES: ClassVar[Tuple[str, str]] = get_args(
+    TYPES: ClassVar[Tuple[Any, ...]] = get_args(
         ActivityType.__fields__["__root__"].type_
     )
 
-    SPORT_TYPES: ClassVar[Tuple] = get_args(
+    # TODO this and line 1055 above changed from str to Any
+    SPORT_TYPES: ClassVar[Tuple[Any, ...]] = get_args(
         SportType.__fields__["__root__"].type_
     )
 
@@ -1066,6 +1108,7 @@ class Activity(
 
     @lazy_property
     def comments(self) -> BatchedResultsIterator[ActivityComment]:
+        assert self.bound_client is not None
         return self.bound_client.get_activity_comments(self.id)
 
     # TODO: question - this returns a list of model.BaseActivityZone objects
@@ -1084,17 +1127,17 @@ class Activity(
             A list of :class:`stravalib.model.BaseActivityZone` objects.
         """
 
-        if self.bound_client:
-            return self.bound_client.get_activity_zones(self.id)
-        else:
-            return []
+        assert self.bound_client is not None
+        return self.bound_client.get_activity_zones(self.id)
 
     @lazy_property
     def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
+        assert self.bound_client is not None
         return self.bound_client.get_activity_kudos(self.id)
 
     @lazy_property
     def full_photos(self) -> BatchedResultsIterator[ActivityPhoto]:
+        assert self.bound_client is not None
         return self.bound_client.get_activity_photos(
             self.id, only_instagram=False
         )
