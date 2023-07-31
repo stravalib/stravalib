@@ -1051,6 +1051,7 @@ class Activity(
     splits_metric: Optional[List[Split]] = None
     splits_standard: Optional[List[Split]] = None
     photos: Optional[ActivityPhotoMeta] = None
+    # TODO Detailed activity has this defined as - Optional[List[Lap]]
     laps: Optional[List[ActivityLap]] = None
 
     # Added for backward compatibility
