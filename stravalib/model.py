@@ -20,6 +20,7 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
+    Float,
     List,
     Literal,
     NewType,
@@ -34,7 +35,7 @@ from pydantic.datetime_parse import parse_datetime
 
 from stravalib import exc
 from stravalib import unithelper as uh
-from stravalib.exc import warn_method_deprecation
+from stravalib.client import BatchedResultsIterator
 from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
 from stravalib.strava_model import (
     ActivityStats,
@@ -211,7 +212,7 @@ class DeprecatedSerializableMixin(BaseModel):
 
 
         """
-        warn_method_deprecation(
+        exc.warn_method_deprecation(
             cls,
             "deserialize()",
             "parse_obj()",
@@ -236,7 +237,7 @@ class DeprecatedSerializableMixin(BaseModel):
             For more details, refer to the Pydantic documentation:
             https://docs.pydantic.dev/usage/models/#helper-functions
         """
-        warn_method_deprecation(
+        exc.warn_method_deprecation(
             self.__class__.__name__,
             "from_dict()",
             "parse_obj()",
@@ -261,7 +262,7 @@ class DeprecatedSerializableMixin(BaseModel):
             For more details, refer to the Pydantic documentation:
             https://docs.pydantic.dev/1.10/usage/exporting_models/
         """
-        warn_method_deprecation(
+        exc.warn_method_deprecation(
             self.__class__.__name__,
             "to_dict()",
             "dict()",
@@ -693,8 +694,9 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     created_at: Optional[datetime] = None
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
-    urls: Optional[Dict] = None
-    sizes: Optional[Dict] = None
+    urls: Optional[Dict[str, str]] = None
+    # TODO - is this a float return?
+    sizes: Optional[Dict[str, Float]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -706,7 +708,7 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         check_valid_location
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.source == 1:
             photo_type = "native"
             idfield = "unique_id"
@@ -777,6 +779,7 @@ class Map(PolylineMap):
     pass
 
 
+# TODO - SPlit is already defined in strava_model - Name "Split" already defined (possibly by an import)
 class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     A split -- may be metric or standard units (which has no bearing
@@ -875,7 +878,7 @@ class AthletePrEffort(
     )
 
     @property
-    def elapsed_time(self):
+    def elapsed_time(self) -> Optional[int]:
         # For backward compatibility
         return self.pr_elapsed_time
 
@@ -928,7 +931,7 @@ class SegmentEffortAchievement(BaseModel):
 
     rank: Optional[int] = None
     """
-    Rank in segment (either overall leaderboard, or pr rank)
+    Rank in segment (either overall leader board, or pr rank)
     """
 
     type: Optional[str] = None
@@ -1011,7 +1014,8 @@ class Activity(
 
     # Added for backward compatibility
     # TODO maybe deprecate?
-    TYPES: ClassVar[Tuple] = get_args(
+    # TODO: Missing type parameters for generic type "Tuple"
+    TYPES: ClassVar[Tuple[str, str]] = get_args(
         ActivityType.__fields__["__root__"].type_
     )
 
@@ -1061,19 +1065,36 @@ class Activity(
     )
 
     @lazy_property
-    def comments(self):
+    def comments(self) -> BatchedResultsIterator[ActivityComment]:
         return self.bound_client.get_activity_comments(self.id)
 
+    # TODO: question - this returns a list of model.BaseActivityZone objects
+    # that class is in this module associated with the bound client.
+    # The conditional added her addresses this
+    # "error: Item "None" of "Optional[Any]" has no attribute "get_activity_zones"  [union-attr]"
+    # This error appears several times. i just don't understand how
+    # bound client could be None OR do i need to use OptionalList[BaseActivityZone] ??
     @lazy_property
-    def zones(self):
-        return self.bound_client.get_activity_zones(self.id)
+    def zones(self) -> List[BaseActivityZone]:
+        """Retrieve a list of zones for an activity.
+
+        Returns
+        -------
+        py:class:`list`
+            A list of :class:`stravalib.model.BaseActivityZone` objects.
+        """
+
+        if self.bound_client:
+            return self.bound_client.get_activity_zones(self.id)
+        else:
+            return []
 
     @lazy_property
-    def kudos(self):
+    def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
         return self.bound_client.get_activity_kudos(self.id)
 
     @lazy_property
-    def full_photos(self):
+    def full_photos(self) -> BatchedResultsIterator[ActivityPhoto]:
         return self.bound_client.get_activity_photos(
             self.id, only_instagram=False
         )
@@ -1103,6 +1124,8 @@ class BaseActivityZone(
     distribution_buckets: Optional[List[DistributionBucket]] = None
 
     # overriding the superclass type: it should also support pace as value
+    # TODO: how do we handle this with mypy (distribution_buckets above has the same issue) when we override - this happens several times
+    # base class "ActivityZone" defined the type as "Optional[Literal['heartrate', 'power']]")
     type: Optional[Literal["heartrate", "power", "pace"]] = None
 
 
@@ -1133,6 +1156,8 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[Athlete] = None
     map: Optional[Map] = None
+    # TODO: base class Route defines this as a list of SummarySegments
+    # Line 1373 in strava_model.py - are we intentionally overriding?
     segments: Optional[List[Segment]]
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
@@ -1169,10 +1194,32 @@ class SubscriptionCallback(
     hub_verify_token: Optional[str] = None
     hub_challenge: Optional[str] = None
 
+    # TODO: error: Required dynamic aliases disallowed  [pydantic-alias]
     class Config:
         alias_generator = lambda field_name: field_name.replace("hub_", "hub.")
+    # TODO: not sure if this docstring and typing is right- mypy is telling me
+    # there is an inconsistency -  Signature of "validate" incompatible with supertype "BaseModel"  [override] 
+    def validate_token(self, verify_token: str=Subscription.VERIFY_TOKEN_DEFAULT)-> None:
+        """
+        Validate the subscription's hub_verify_token against the provided
+        token.
 
-    def validate_token(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
+        Parameters
+        ----------
+        verify_token : str
+            The token to verify subscription
+            If not provided, it uses the default `VERIFY_TOKEN_DEFAULT`.
+
+        Returns
+        -------
+        None
+            None if an assertion error is not raised
+
+        Raises
+        ------
+        AssertionError
+            If the hub_verify_token does not match the provided verify_token.
+        """
         assert self.hub_verify_token == verify_token
 
 
