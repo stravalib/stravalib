@@ -20,8 +20,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
-    List,
     Literal,
     Optional,
     Tuple,
@@ -125,8 +123,8 @@ def lazy_property(fn: Callable[Any]) -> property:
 
 
 def check_valid_location(
-    location: Optional[Union[List[float], str]]
-) -> Optional[List[float]]:
+    location: Optional[Union[list[float], str]]
+) -> Optional[list[float]]:
     """
     Parameters
     ----------
@@ -195,17 +193,17 @@ class DeprecatedSerializableMixin(BaseModel):
     """
 
     # TODO: i used the output type from this class
-    # could Dict also be an int or float??
+    # could dict also be an int or float??
     @classmethod
     def deserialize(
-        cls, attribute_value_mapping: Dict[str, str]
+        cls, attribute_value_mapping: dict[str, str]
     ) -> DeprecatedSerializableMixin:
         """
         Creates and returns a new object based on serialized (dict) struct.
 
         Parameters
         ----------
-        attribute_value_mapping : Dict
+        attribute_value_mapping : dict
             A dictionary representing the serialized data.
 
         Returns
@@ -230,15 +228,15 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         return cls.parse_obj(attribute_value_mapping)
 
-    # TODO: Same question here about Dict elements (strings or str, Union[str,int])
-    def from_dict(self, attribute_value_mapping: Dict[str, str]) -> None:
+    # TODO: Same question here about dict elements (strings or str, Union[str,int])
+    def from_dict(self, attribute_value_mapping: dict[str, str]) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
 
         Parameters
         ----------
-        attribute_value_mapping : Dict
+        attribute_value_mapping : dict
             A dictionary that will be deserialized into the parent object.
 
         Deprecated
@@ -260,13 +258,13 @@ class DeprecatedSerializableMixin(BaseModel):
         # TODO - calling self.__init__ directly is not recommended because it may lead to unexpected behavior,
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """
         Returns a dict representation of self
 
         Returns
         -------
-        Dict
+        dict
             A dictionary containing the data from the instance.
 
         Deprecated
@@ -358,8 +356,8 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
     @root_validator
     def check_valid_latlng(
-        cls, values: List[Optional[float]]
-    ) -> Optional[List[Optional[float]]]:
+        cls, values: list[Optional[float]]
+    ) -> Optional[list[Optional[float]]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -372,7 +370,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         Returns
         -------
         list or None
-            List of lat/lon values or None
+            list of lat/lon values or None
 
         """
         # Strava sometimes returns empty list in case of activities without GPS
@@ -438,7 +436,7 @@ class Club(
 
         Returns
         -------
-        List
+        list
             A list of club members stored as Athlete objects.
         """
         assert self.bound_client is not None, "Bound client is not set."
@@ -542,14 +540,14 @@ class Athlete(
     # Field overrides from superclass for type extensions:
     # TODO: these overrides make mypy upset - i think this might be related to the circular assignment??
     # stravalib/model.py:535: error: Incompatible types in assignment (expression
-    # has type "Optional[List[Club]]", base class "DetailedAthlete" defined the
-    # type as "Optional[List[SummaryClub]]")  [assignment]
-    # stravalib/model.py:536: error: Incompatible types in assignment (expression has type "Optional[List[Bike]]", base class "DetailedAthlete" defined the type as "Optional[List[SummaryGear]]")  [assignment]
-    clubs: Optional[List[SummaryClub]] = None
-    # mypy wants these below to be Optional[List[SummaryGear]] as that is
+    # has type "Optional[list[Club]]", base class "DetailedAthlete" defined the
+    # type as "Optional[list[SummaryClub]]")  [assignment]
+    # stravalib/model.py:536: error: Incompatible types in assignment (expression has type "Optional[list[Bike]]", base class "DetailedAthlete" defined the type as "Optional[list[SummaryGear]]")  [assignment]
+    clubs: Optional[list[SummaryClub]] = None
+    # mypy wants these below to be Optional[list[SummaryGear]] as that is
     # what is defined in the DetailedAthlete class in strava_model
-    bikes: Optional[List[Bike]] = None
-    shoes: Optional[List[Shoe]] = None
+    bikes: Optional[list[Bike]] = None
+    shoes: Optional[list[Shoe]] = None
 
     # Undocumented attributes:
     is_authenticated: Optional[bool] = None
@@ -589,7 +587,7 @@ class Athlete(
     admin: Optional[bool] = None
     owner: Optional[bool] = None
     # TODO: can permission take other inputs other than bool?
-    subscription_permissions: Optional[List[bool]] = None
+    subscription_permissions: Optional[list[bool]] = None
 
     @validator("athlete_type")
     def to_str_representation(cls, raw_type: int) -> Optional[str]:
@@ -720,9 +718,9 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     created_at: Optional[datetime] = None
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
-    urls: Optional[Dict[str, str]] = None
+    urls: Optional[dict[str, str]] = None
     # TODO - is this a float return?
-    sizes: Optional[Dict[str, float]] = None
+    sizes: Optional[dict[str, float]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -1029,7 +1027,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
 
-    achievements: Optional[List[SegmentEffortAchievement]] = None
+    achievements: Optional[list[SegmentEffortAchievement]] = None
 
 
 class Activity(
@@ -1048,14 +1046,14 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    # TODO: Incompatible types in assignment (expression has type "Optional[List[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[List[DetailedSegmentEffort]]")
-    best_efforts: Optional[List[DetailedSegmentEffort]] = None
-    segment_efforts: Optional[List[DetailedSegmentEffort]] = None
-    splits_metric: Optional[List[Split]] = None
-    splits_standard: Optional[List[Split]] = None
+    # TODO: Incompatible types in assignment (expression has type "Optional[list[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[list[DetailedSegmentEffort]]")
+    best_efforts: Optional[list[DetailedSegmentEffort]] = None
+    segment_efforts: Optional[list[DetailedSegmentEffort]] = None
+    splits_metric: Optional[list[Split]] = None
+    splits_standard: Optional[list[Split]] = None
     photos: Optional[ActivityPhotoMeta] = None
-    # TODO Detailed activity has this defined as - Optional[List[Lap]]
-    laps: Optional[List[ActivityLap]] = None
+    # TODO Detailed activity has this defined as - Optional[list[Lap]]
+    laps: Optional[list[ActivityLap]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
@@ -1120,9 +1118,9 @@ class Activity(
     # The conditional added her addresses this
     # "error: Item "None" of "Optional[Any]" has no attribute "get_activity_zones"  [union-attr]"
     # This error appears several times. i just don't understand how
-    # bound client could be None OR do i need to use OptionalList[BaseActivityZone] ??
+    # bound client could be None OR do i need to use Optionallist[BaseActivityZone] ??
     @lazy_property
-    def zones(self) -> List[BaseActivityZone]:
+    def zones(self) -> list[BaseActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
@@ -1168,7 +1166,7 @@ class BaseActivityZone(
     """
 
     # field overrides from superclass for type extensions:
-    distribution_buckets: Optional[List[DistributionBucket]] = None
+    distribution_buckets: Optional[list[DistributionBucket]] = None
 
     # overriding the superclass type: it should also support pace as value
     # TODO: how do we handle this with mypy (distribution_buckets above has the same issue) when we override - this happens several times
@@ -1187,7 +1185,7 @@ class Stream(
 
     # Not using the typed subclasses from the generated model
     # for backward compatibility:
-    data: Optional[List[Any]] = None
+    data: Optional[list[Any]] = None
 
 
 class Route(
@@ -1205,7 +1203,7 @@ class Route(
     map: Optional[Map] = None
     # TODO: base class Route defines this as a list of SummarySegments
     # Line 1373 in strava_model.py - are we intentionally overriding?
-    segments: Optional[List[Segment]]
+    segments: Optional[list[Segment]]
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
@@ -1283,7 +1281,7 @@ class SubscriptionUpdate(
     object_type: Optional[str] = None
     aspect_type: Optional[str] = None
     event_time: Optional[datetime] = None
-    updates: Optional[Dict] = None
+    updates: Optional[dict] = None
 
 
 SegmentEffort.update_forward_refs()
