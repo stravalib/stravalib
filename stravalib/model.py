@@ -69,8 +69,8 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO: stravalib/model.py:71: error: Please use "Callable[[<parameters>], <return type>]"  [misc]
-def lazy_property(fn: Callable[Any]) -> property:
+# TODO: how do you properly type this with more precision than Any?
+def lazy_property(fn: Callable[Any], Any) -> property:
     """
     Should be used to decorate the functions that return a lazily loaded
     entity (collection), e.g., the members of a club.
