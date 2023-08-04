@@ -23,3 +23,5 @@ stravalib/tests/test.ini
 stravalib/docs/api
 .vscode/
 stravalib-2023/
+noxfile.py
+.nox/*

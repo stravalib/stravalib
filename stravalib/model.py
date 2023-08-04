@@ -20,12 +20,15 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Dict,
+    List,
     Literal,
     Optional,
     Tuple,
     TypeVar,
     Union,
     get_args,
+    no_type_check,
 )
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -59,6 +62,7 @@ from stravalib.strava_model import (
     Split,
     SportType,
     SummaryClub,
+    SummaryGear,
     SummaryPRSegmentEffort,
     SummarySegmentEffort,
     TimedZoneRange,
@@ -126,8 +130,8 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 
 
 def check_valid_location(
-    location: Optional[Union[list[float], str]]
-) -> Optional[list[float]]:
+    location: Optional[Union[List[float], str]]
+) -> Optional[List[float]]:
     """
     Parameters
     ----------
@@ -199,7 +203,7 @@ class DeprecatedSerializableMixin(BaseModel):
     # could dict also be an int or float??
     @classmethod
     def deserialize(
-        cls, attribute_value_mapping: dict[str, str]
+        cls, attribute_value_mapping: Dict[str, str]
     ) -> DeprecatedSerializableMixin:
         """
         Creates and returns a new object based on serialized (dict) struct.
@@ -232,7 +236,7 @@ class DeprecatedSerializableMixin(BaseModel):
         return cls.parse_obj(attribute_value_mapping)
 
     # TODO: Same question here about dict elements (strings or str, Union[str,int])
-    def from_dict(self, attribute_value_mapping: dict[str, str]) -> None:
+    def from_dict(self, attribute_value_mapping: Dict[str, str]) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
@@ -251,17 +255,19 @@ class DeprecatedSerializableMixin(BaseModel):
         """
         # TODO: Argument 1 to "warn_method_deprecation" has incompatible type "str"; expected "type
         exc.warn_method_deprecation(
-            self.__class__
+            self.__class__,
             "from_dict()",
             "parse_obj()",
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
         # Ugly hack is necessary because parse_obj does not behave in-place but
         # returns a new object
-        # TODO - calling self.__init__ directly is not recommended because it may lead to unexpected behavior,
+        # TODO - this hack makes tests fail -  but makes mypy happy
+        # new_obj = parse_obj_as(self.__class__, attribute_value_mapping)
+        # self.__dict__.update(new_obj.__dict__)
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> Dict[str, str]:
         """
         Returns a dict representation of self
 
@@ -277,7 +283,7 @@ class DeprecatedSerializableMixin(BaseModel):
             https://docs.pydantic.dev/1.10/usage/exporting_models/
         """
         exc.warn_method_deprecation(
-            self.__class__.__name__,
+            self.__class__,  # expects klass: type (not a str)
             "to_dict()",
             "dict()",
             "https://docs.pydantic.dev/1.10/usage/exporting_models/",
@@ -298,8 +304,7 @@ class BackwardCompatibilityMixin:
     pass
 
     def __getattribute__(self, attr: str) -> Any:
-        """A special method...
-        A method to retrieve attributes from the object.
+        """A method to retrieve attributes from the object.
 
         Parameters
         ----------
@@ -314,7 +319,8 @@ class BackwardCompatibilityMixin:
         Notes
         -----
         This method is called whenever an attribute is accessed on the object.
-        It is used to control attribute retrieval and perform additional actions.
+        It is used to control attribute retrieval and perform additional
+        actions.
 
         """
         value = object.__getattribute__(self, attr)
@@ -359,8 +365,8 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
     @root_validator
     def check_valid_latlng(
-        cls, values: list[Optional[float]]
-    ) -> Optional[list[Optional[float]]]:
+        cls, values: List[Optional[float]]
+    ) -> Optional[List[Optional[float]]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -541,16 +547,11 @@ class Athlete(
     """
 
     # Field overrides from superclass for type extensions:
-    # TODO: these overrides make mypy upset - i think this might be related to the circular assignment??
-    # stravalib/model.py:535: error: Incompatible types in assignment (expression
-    # has type "Optional[list[Club]]", base class "DetailedAthlete" defined the
-    # type as "Optional[list[SummaryClub]]")  [assignment]
-    # stravalib/model.py:536: error: Incompatible types in assignment (expression has type "Optional[list[Bike]]", base class "DetailedAthlete" defined the type as "Optional[list[SummaryGear]]")  [assignment]
-    clubs: Optional[list[SummaryClub]] = None
-    # mypy wants these below to be Optional[list[SummaryGear]] as that is
-    # what is defined in the DetailedAthlete class in strava_model
-    bikes: Optional[list[Bike]] = None
-    shoes: Optional[list[Shoe]] = None
+    clubs: Optional[List[SummaryClub]] = None
+    # These overrides support legacy model behavior which will be deprecated
+    # for now we can ignore the type until we implement the deprecation behavior.
+    bikes: Optional[List[SummaryGear]] = None
+    shoes: Optional[List[SummaryGear]] = None
 
     # Undocumented attributes:
     is_authenticated: Optional[bool] = None
@@ -590,7 +591,7 @@ class Athlete(
     admin: Optional[bool] = None
     owner: Optional[bool] = None
     # TODO: can permission take other inputs other than bool?
-    subscription_permissions: Optional[list[bool]] = None
+    subscription_permissions: Optional[List[bool]] = None
 
     @validator("athlete_type")
     def to_str_representation(cls, raw_type: int) -> Optional[str]:
@@ -662,6 +663,8 @@ class Athlete(
             else:
                 # We need to check this athlete's id matches the authenticated athlete's id
                 authenticated_athlete = self.authenticated_athlete
+                assert authenticated_athlete is not None
+
                 self.is_authenticated = authenticated_athlete.id == self.id
 
         return self.is_authenticated
@@ -721,9 +724,9 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     created_at: Optional[datetime] = None
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
-    urls: Optional[dict[str, str]] = None
+    urls: Optional[Dict[str, str]] = None
     # TODO - is this a float return?
-    sizes: Optional[dict[str, float]] = None
+    sizes: Optional[Dict[str, float]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -806,13 +809,13 @@ class Map(PolylineMap):
     pass
 
 
-# if TYPE_CHECKING:
-#     from strava_model import Split
-
-
-# TODO - Split is already defined in strava_model - Name "Split" already
-# defined (possibly by an import) - i'm not sure how to deal with this.
-class Split(Split, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+# TODO -opening an issue about perhaps a different approach to adding these attrs
+# to split()
+class Split(  # type: ignore
+    Split,
+    BackwardCompatibilityMixin,
+    DeprecatedSerializableMixin,
+):
     """
     A split -- may be metric or standard units (which has no bearing
     on the units used in this object, just the binning of values).
@@ -1030,7 +1033,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
 
-    achievements: Optional[list[SegmentEffortAchievement]] = None
+    achievements: Optional[List[SegmentEffortAchievement]] = None
 
 
 class Activity(
@@ -1049,14 +1052,14 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    # TODO: Incompatible types in assignment (expression has type "Optional[list[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[list[DetailedSegmentEffort]]")
-    best_efforts: Optional[list[DetailedSegmentEffort]] = None
-    segment_efforts: Optional[list[DetailedSegmentEffort]] = None
-    splits_metric: Optional[list[Split]] = None
-    splits_standard: Optional[list[Split]] = None
+    # TODO: Incompatible types in assignment (expression has type "Optional[List[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[List[DetailedSegmentEffort]]")
+    best_efforts: Optional[List[DetailedSegmentEffort]] = None
+    segment_efforts: Optional[List[DetailedSegmentEffort]] = None
+    splits_metric: Optional[List[Split]] = None
+    splits_standard: Optional[List[Split]] = None
     photos: Optional[ActivityPhotoMeta] = None
-    # TODO Detailed activity has this defined as - Optional[list[Lap]]
-    laps: Optional[list[ActivityLap]] = None
+    # TODO Detailed activity has this defined as - Optional[List[Lap]]
+    laps: Optional[List[Union[ActivityLap, Lap]]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
@@ -1123,7 +1126,7 @@ class Activity(
     # This error appears several times. i just don't understand how
     # bound client could be None OR do i need to use Optionallist[BaseActivityZone] ??
     @lazy_property
-    def zones(self) -> list[BaseActivityZone]:
+    def zones(self) -> List[BaseActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
@@ -1168,13 +1171,12 @@ class BaseActivityZone(
     A collection of :class:`stravalib.model.DistributionBucket` objects.
     """
 
-    # field overrides from superclass for type extensions:
-    distribution_buckets: Optional[list[DistributionBucket]] = None
+    # Field overrides from superclass for type extensions:
+    # Using type that is currently mimicking legacy behavior...
+    distribution_buckets: Optional[List[DistributionBucket]] = None  # type: ignore
 
-    # overriding the superclass type: it should also support pace as value
-    # TODO: how do we handle this with mypy (distribution_buckets above has the same issue) when we override - this happens several times
-    # base class "ActivityZone" defined the type as "Optional[Literal['heartrate', 'power']]")
-    type: Optional[Literal["heartrate", "power", "pace"]] = None
+    # TODO: ignoring type given legacy support will be deprecated
+    type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore
 
 
 class Stream(
@@ -1188,7 +1190,7 @@ class Stream(
 
     # Not using the typed subclasses from the generated model
     # for backward compatibility:
-    data: Optional[list[Any]] = None
+    data: Optional[List[Any]] = None
 
 
 class Route(
@@ -1206,7 +1208,7 @@ class Route(
     map: Optional[Map] = None
     # TODO: base class Route defines this as a list of SummarySegments
     # Line 1373 in strava_model.py - are we intentionally overriding?
-    segments: Optional[list[Segment]]
+    segments: Optional[List[Segment]]  # type: ignore
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
@@ -1245,9 +1247,13 @@ class SubscriptionCallback(
     # TODO: error: Required dynamic aliases disallowed  [pydantic-alias]
     class Config:
         alias_generator = lambda field_name: field_name.replace("hub_", "hub.")
-    # TODO: not sure if this docstring and typing is right- mypy is telling me
-    # there is an inconsistency -  Signature of "validate" incompatible with supertype "BaseModel"  [override] 
-    def validate_token(self, verify_token: str=Subscription.VERIFY_TOKEN_DEFAULT)-> None:
+
+    # TODO: Signature of "validate" incompatible with supertype "BaseModel"
+    # [override] - we should consider renaming this method??
+    #@no_type_check
+    def validate(
+        self, verify_token: str = Subscription.VERIFY_TOKEN_DEFAULT
+    ) -> None:
         """
         Validate the subscription's hub_verify_token against the provided
         token.
@@ -1284,7 +1290,7 @@ class SubscriptionUpdate(
     object_type: Optional[str] = None
     aspect_type: Optional[str] = None
     event_time: Optional[datetime] = None
-    updates: Optional[dict] = None
+    updates: Optional[Dict[str, Any]] = None
 
 
 SegmentEffort.update_forward_refs()
