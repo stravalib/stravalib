@@ -23,6 +23,7 @@ from typing import (
     Literal,
     Optional,
     Tuple,
+    TypeVar,
     Union,
     get_args,
 )
@@ -68,9 +69,11 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger(__name__)
 
+T = TypeVar("T")
+U = TypeVar("U", bound="BoundClientEntity")
 
-# TODO: how do you properly type this with more precision than Any?
-def lazy_property(fn: Callable[[Any], Any]) -> property:
+
+def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
     """
     Should be used to decorate the functions that return a lazily loaded
     entity (collection), e.g., the members of a club.
@@ -99,13 +102,13 @@ def lazy_property(fn: Callable[[Any], Any]) -> property:
     """
 
     @wraps(fn)
-    def wrapper(obj: Any) -> Any:
+    def wrapper(obj: U) -> Optional[T]:
         try:
             if obj.bound_client is None:
                 raise exc.UnboundEntity(
                     f"Unable to fetch objects for unbound {obj.__class__} entity."
                 )
-            if obj.id is None:
+            if obj.id is None:  # type: ignore[attr-defined]
                 LOGGER.warning(
                     f"Cannot retrieve {obj.__class__}.{fn.__name__}, self.id is None"
                 )
@@ -116,7 +119,7 @@ def lazy_property(fn: Callable[[Any], Any]) -> property:
                 f"Unable to fetch objects for unbound {obj.__class__} entity: {e}"
             )
 
-    return property(wrapper)
+    return property(wrapper)  # type: ignore[return-value]
 
 
 # Custom validators for some edge cases:
