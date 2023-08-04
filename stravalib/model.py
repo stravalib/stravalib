@@ -70,7 +70,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 # TODO: how do you properly type this with more precision than Any?
-def lazy_property(fn: Callable[Any], Any) -> property:
+def lazy_property(fn: Callable[[Any], Any]) -> property:
     """
     Should be used to decorate the functions that return a lazily loaded
     entity (collection), e.g., the members of a club.
