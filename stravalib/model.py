@@ -613,12 +613,12 @@ class Athlete(
     @lazy_property
     def authenticated_athlete(self) -> Athlete:
         """
-        Returns an `stravalib.Client` object containing Strava account data
+        Returns an `Athlete` object containing Strava account data
         for the (authenticated) athlete.
 
         Returns
         -------
-        DetailedAthlete
+        Athlete
             The detailed information of the authenticated athlete.
         """
         assert self.bound_client is not None, "Bound client is not set."
