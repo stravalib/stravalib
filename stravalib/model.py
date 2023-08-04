@@ -251,7 +251,7 @@ class DeprecatedSerializableMixin(BaseModel):
         """
         # TODO: Argument 1 to "warn_method_deprecation" has incompatible type "str"; expected "type
         exc.warn_method_deprecation(
-            self.__class__.__name__,
+            self.__class__
             "from_dict()",
             "parse_obj()",
             "https://docs.pydantic.dev/usage/models/#helper-functions",
