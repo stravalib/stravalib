@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Apply flake8 and numpy docstrings to limiter & protocol (@lwasser, #326)
+- Update client's stream method to warn when using unofficial parameters (@enadeau, #385)
+- Type annotation to client file (@enadeau, #384)
+- Fix docstring in SleepingRateLimitRule (@enadeau)
 - fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #396)
 
 ## v1.3.3
@@ -19,11 +23,15 @@
 ### Fixed
 
 - Fix: two minor mistakes in documentation (@enadeau , #375)
-- Fix: pins pydantic to v1 (@lwasser, #380)
+- Fix: pins pydantic to v1.10.6 (@lwasser, #380)
 
 ### Contributors to this release
 
 @enadeau, @lwasser
+
+- Fix two minor mistakes in documentation (@enadeau , #375)
+- Add type checking to limiter, protocol and exc file (@enadeau , #374)
+- Apply flake8 and numpy docstrings to all modules limiter & protocol (@lwasser, #326)
 
 ## v1.3.1
 

@@ -1,5 +1,4 @@
-"""
-Protocol
+"""Protocol
 ==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
@@ -36,20 +35,20 @@ class AccessInfo(TypedDict):
     """A short live token the access Strava API"""
 
     refresh_token: str
-    """The refresh token for this user, to be used to get the next access token for this
-    user. Please expect that this value can change anytime you retrieve a new access
-    token. Once a new refresh token code has been returned, the older code will no
-    longer work.
+    """The refresh token for this user, to be used to get the next access token
+    for this user. Please expect that this value can change anytime you
+    retrieve a new access token. Once a new refresh token code has been
+    returned, the older code will no longer work.
     """
 
     expires_at: int
-    """The number of seconds since the epoch when the provided access token will expire"""
+    """The number of seconds since the epoch when the provided access token
+    will expire"""
 
 
 class ApiV3(metaclass=abc.ABCMeta):
-    """
-    This class is responsible for performing the HTTP requests, rate limiting, and error handling.
-    """
+    """This class is responsible for performing the HTTP requests, rate
+    limiting, and error handling."""
 
     server = "www.strava.com"
     api_base = "/api/v3"
@@ -60,15 +59,16 @@ class ApiV3(metaclass=abc.ABCMeta):
         requests_session: requests.Session | None = None,
         rate_limiter: Callable[[dict[str, str]], None] | None = None,
     ):
-        """
-        Initialize this protocol client, optionally providing a (shared) :class:`requests.Session`
-        object.
+        """Initialize this protocol client, optionally providing a (shared)
+        :class:`requests.Session` object.
 
-        :param access_token: The token that provides access to a specific Strava account.
-        :type access_token: str
+        Parameters
+        ----------
+        access_token : str
+            The token that provides access to a specific Strava account.
+        requests_session : :class:`requests.Session`
+            An existing :class:`requests.Session` object to use.
 
-        :param requests_session: An existing :class:`requests.Session` object to use.
-        :type requests_session::class:`requests.Session`
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
@@ -79,12 +79,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         else:
             self.rsession = requests.Session()
 
-        if rate_limiter is None:
-            # Make it a dummy function, so we don't have to check if it's defined before
-            # calling it later
-            rate_limiter = lambda x: None
-
-        self.rate_limiter = rate_limiter
+        self.rate_limiter = rate_limiter or (lambda _: None)
 
     def authorization_url(
         self,
@@ -94,31 +89,35 @@ class ApiV3(metaclass=abc.ABCMeta):
         scope: list[Scope] | Scope | None = None,
         state: str | None = None,
     ) -> str:
-        """
-        Get the URL needed to authorize your application to access a Strava user's information.
+        """Get the URL needed to authorize your application to access a Strava
+        user's information.
 
         See https://developers.strava.com/docs/authentication/
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        redirect_uri : str
+            The URL that Strava will redirect to after successful (or
+            failed) authorization.
+        approval_prompt : str
+            Whether to prompt for approval even if approval already
+            granted to app. Choices are 'auto' or 'force'.  (Default is
+            'auto')
+        scope : list[str]
+            The access scope required.  Omit to imply "read" and
+            "activity:read" Valid values are 'read', 'read_all',
+            'profile:read_all', 'profile:write', 'activity:read',
+            'activity:read_all', 'activity:write'.
+        state : str
+            An arbitrary variable that will be returned to your
+            application in the redirect URI.
 
-        :param redirect_uri: The URL that Strava will redirect to after successful (or failed) authorization.
-        :type redirect_uri: str
-
-        :param approval_prompt: Whether to prompt for approval even if approval already granted to app.
-                                Choices are 'auto' or 'force'.  (Default is 'auto')
-        :type approval_prompt: str
-
-        :param scope: The access scope required.  Omit to imply "read" and "activity:read"
-                      Valid values are 'read', 'read_all', 'profile:read_all', 'profile:write', 'activity:read',
-                      'activity:read_all', 'activity:write'.
-        :type scope: list[str]
-
-        :param state: An arbitrary variable that will be returned to your application in the redirect URI.
-        :type state: str
-
-        :return: The URL to use for authorization link.
-        :rtype: str
+        Returns
+        -------
+        str
+            The URL to use for authorization link.
         """
         assert approval_prompt in ("auto", "force")
         if scope is None:
@@ -157,22 +156,25 @@ class ApiV3(metaclass=abc.ABCMeta):
     def exchange_code_for_token(
         self, client_id: int, client_secret: str, code: str
     ) -> AccessInfo:
-        """
-        Exchange the temporary authorization code (returned with redirect from strava authorization URL)
-        for a short-lived access token and a refresh token (used to obtain the next access token later on).
+        """Exchange the temporary authorization code (returned with redirect
+        from Strava authorization URL) for a short-lived access token and a
+        refresh token (used to obtain the next access token later on).
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        client_secret : str
+            The developer client secret
+        code : str
+            The temporary authorization code
 
-        :param client_secret: The developer client secret
-        :type client_secret: str
-
-        :param code: The temporary authorization code
-        :type code: str
-
-        :return: Dictionary containing the access_token, refresh_token
-                 and expires_at (number of seconds since Epoch when the provided access token will expire)
-        :rtype: dict
+        Returns
+        -------
+        dict
+            Dictionary containing the access_token, refresh_token and
+            expires_at (number of seconds since Epoch when the provided
+            access token will expire)
         """
         response = self._request(
             "https://{0}/oauth/token".format(self.server),
@@ -195,22 +197,25 @@ class ApiV3(metaclass=abc.ABCMeta):
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
     ) -> AccessInfo:
-        """
-        Exchanges the previous refresh token for a short-lived access token and a new
-        refresh token (used to obtain the next access token later on).
+        """Exchanges the previous refresh token for a short-lived access token
+        and a new refresh token (used to obtain the next access token later on)
 
-        :param client_id: The numeric developer client id.
-        :type client_id: int
+        Parameters
+        ----------
+        client_id : int
+            The numeric developer client id.
+        client_secret : str
+            The developer client secret
+        refresh_token : str
+            The refresh token obtain from a previous authorization
+            request
 
-        :param client_secret: The developer client secret
-        :type client_secret: str
-
-        :param refresh_token: The refresh token obtain from a previous authorization request
-        :type refresh_token: str
-
-        :return: Dictionary containing the access_token, refresh_token
-                 and expires_at (number of seconds since Epoch when the provided access token will expire)
-        :rtype: dict
+        Returns
+        -------
+        dict
+            Dictionary containing the access_token, refresh_token and
+            expires_at (number of seconds since Epoch when the provided
+            access token will expire)
         """
         response = self._request(
             "https://{0}/oauth/token".format(self.server),
@@ -232,6 +237,18 @@ class ApiV3(metaclass=abc.ABCMeta):
         return access_info
 
     def resolve_url(self, url: str) -> str:
+        """
+
+        Parameters
+        ----------
+        url : str
+            url string to be be accessed / resolved
+
+        Returns
+        -------
+        str
+            A string representing the full properly formatted (https) url.
+        """
         if not url.startswith("http"):
             url = urljoin(
                 "https://{0}".format(self.server),
@@ -247,26 +264,25 @@ class ApiV3(metaclass=abc.ABCMeta):
         method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
         check_for_errors: bool = True,
     ) -> Any:
-        """
-        Perform the underlying request, returning the parsed JSON results.
+        """Perform the underlying request, returning the parsed JSON results.
 
-        :param url: The request URL.
-        :type url: str
+        Parameters
+        ----------
+        url : str
+            The request URL.
+        params : Dict[str,Any]
+            Request parameters
+        files : Dict[str,file]
+            Dictionary of file name to file-like objects.
+        method : str
+            The request method (GET/POST/etc.)
+        check_for_errors : bool
+            Whether to raise
 
-        :param params: Request parameters
-        :type params: Dict[str,Any]
-
-        :param files: Dictionary of file name to file-like objects.
-        :type files: Dict[str,file]
-
-        :param method: The request method (GET/POST/etc.)
-        :type method: str
-
-        :param check_for_errors: Whether to raise
-        :type check_for_errors: bool
-
-        :return: The parsed JSON response.
-        :rtype: Dict[str,Any]
+        Returns
+        -------
+        Dict[str,Any]
+            The parsed JSON response.
         """
         url = self.resolve_url(url)
         self.log.info(
@@ -314,12 +330,18 @@ class ApiV3(metaclass=abc.ABCMeta):
     def _handle_protocol_error(
         self, response: requests.Response
     ) -> requests.Response:
-        """
-        Parses the raw response from the server, raising a :class:`stravalib.exc.Fault` if the
-        server returned an error.
+        """Parses the raw response from the server, raising a
+        :class:`stravalib.exc.Fault` if the server returned an error.
 
-        :param response: The response object.
-        :raises Fault: If the response contains an error.
+        Parameters
+        ----------
+        response
+            The response object.
+
+        Raises
+        ------
+        Fault
+            If the response contains an error.
         """
         error_str = None
         try:
@@ -361,12 +383,19 @@ class ApiV3(metaclass=abc.ABCMeta):
         return response
 
     def _extract_referenced_vars(self, s: str) -> list[str]:
-        """
-        Utility method to find the referenced format variables in a string.
+        """Utility method to find the referenced format variables in a string.
         (Assumes string.format() format vars.)
-        :param s: The string that contains format variables. (e.g. "{foo}-text")
-        :return: The list of referenced variable names. (e.g. ['foo'])
-        :rtype: list
+
+        Parameters
+        ----------
+        s
+            The string that contains format variables. (e.g.
+            "{foo}-text")
+
+        Returns
+        -------
+        list
+            The list of referenced variable names. (e.g. ['foo'])
         """
         d: dict[str, int] = {}
         while True:
@@ -374,7 +403,8 @@ class ApiV3(metaclass=abc.ABCMeta):
                 s.format(**d)
             except KeyError as exc:
                 # exc.args[0] contains the name of the key that was not found;
-                # 0 is used because it appears to work with all types of placeholders.
+                # 0 is used because it appears to work with all types of
+                # placeholders.
                 d[exc.args[0]] = 0
             else:
                 break
@@ -383,13 +413,26 @@ class ApiV3(metaclass=abc.ABCMeta):
     def get(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
-        """
-        Performs a generic GET request for specified params, returning the response.
+        """Performs a generic GET request for specified params, returning the
+        response.
+
+        Parameters
+        ----------
+        url : str
+            String representing the url to retrieve
+        check-for_errors: bool (default = True)
+            Flag used to raise an error (or not)
+
+        Returns
+        -------
+        dict
+            Performs the request and returns a JSON object deserialized as dict
+
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
-            [(k, v) for k, v in kwargs.items() if not k in referenced]
+            [(k, v) for k, v in kwargs.items() if k not in referenced]
         )
         return self._request(
             url, params=params, check_for_errors=check_for_errors
@@ -402,13 +445,27 @@ class ApiV3(metaclass=abc.ABCMeta):
         check_for_errors: bool = True,
         **kwargs: Any,
     ) -> Any:
-        """
-        Performs a generic POST request for specified params, returning the response.
+        """Performs a generic POST request for specified params, returning the
+        response.
+
+        Parameters
+        ----------
+        url : str
+            Url string to be requested.
+        files: dict
+            Dictionary of file name to file-like objects. Used by _requests
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+            Deserialized request output.
+
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
-            [(k, v) for k, v in kwargs.items() if not k in referenced]
+            [(k, v) for k, v in kwargs.items() if k not in referenced]
         )
         return self._request(
             url,
@@ -421,13 +478,25 @@ class ApiV3(metaclass=abc.ABCMeta):
     def put(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
-        """
-        Performs a generic PUT request for specified params, returning the response.
+        """Performs a generic PUT request for specified params, returning the
+        response.
+
+        Parameters
+        ----------
+        url : str
+            String representing url to access.
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+        Replaces current online content with new content.
+
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
-            [(k, v) for k, v in kwargs.items() if not k in referenced]
+            [(k, v) for k, v in kwargs.items() if k not in referenced]
         )
         return self._request(
             url, params=params, method="PUT", check_for_errors=check_for_errors
@@ -436,13 +505,24 @@ class ApiV3(metaclass=abc.ABCMeta):
     def delete(
         self, url: str, check_for_errors: bool = True, **kwargs: Any
     ) -> Any:
-        """
-        Performs a generic DELETE request for specified params, returning the response.
+        """Performs a generic DELETE request for specified params, returning
+        the response.
+
+        Parameters
+        ----------
+        url : str
+            String representing url to access.
+        check_for_errors: bool
+            Whether to raise an error (or not)
+
+        Returns
+        -------
+        Deletes specified current online content.
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
         params = dict(
-            [(k, v) for k, v in kwargs.items() if not k in referenced]
+            [(k, v) for k, v in kwargs.items() if k not in referenced]
         )
         return self._request(
             url,

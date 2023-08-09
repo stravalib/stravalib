@@ -15,7 +15,18 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime
 from functools import wraps
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union, get_args
+from typing import (
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    NewType,
+    Optional,
+    Tuple,
+    Union,
+    get_args,
+)
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
@@ -43,7 +54,9 @@ from stravalib.strava_model import (
     PhotosSummary,
     PolylineMap,
     Primary,
-    Route,
+)
+from stravalib.strava_model import Route as RouteStrava
+from stravalib.strava_model import (
     Split,
     SportType,
     SummaryPRSegmentEffort,
@@ -121,7 +134,11 @@ def check_valid_location(
         return location if location else None
 
 
-def naive_datetime(value: Optional[Any]) -> Optional[datetime]:
+# Create alias for this type so docs are more user-readable
+AllDateTypes = NewType("AllDateTypes", Union[datetime, str, bytes, int, float])
+
+
+def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     if value:
         dt = parse_datetime(value)
         return dt.replace(tzinfo=None)
@@ -861,7 +878,7 @@ class Stream(
 
 
 class Route(
-    Route,
+    RouteStrava,
     BackwardCompatibilityMixin,
     DeprecatedSerializableMixin,
     BoundClientEntity,
