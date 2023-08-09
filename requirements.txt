@@ -6,12 +6,13 @@ pytz
 requests>=2.0,<3.0dev
 responses
 
+nox
+
 # Pre commit hook
 pre-commit
 
-# Testing
+# Testing & code cov
 pytest
-# Code coverage
 pytest-cov
 
 # Type checking
