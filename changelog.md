@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #396)
+
 ## v1.3.3
 
 ### Fixed

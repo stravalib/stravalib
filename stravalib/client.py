@@ -1720,7 +1720,7 @@ class Client(object):
 
         """
         callback = model.SubscriptionCallback.deserialize(raw)
-        callback.validate(verify_token)
+        callback.validate_token(verify_token)
         response_raw = {"hub.challenge": callback.hub_challenge}
         return response_raw
 
