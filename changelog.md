@@ -6,7 +6,7 @@
 - Update client's stream method to warn when using unofficial parameters (@enadeau, #385)
 - Type annotation to client file (@enadeau, #384)
 - Fix docstring in SleepingRateLimitRule (@enadeau)
-- fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #396)
+- fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #394)
 
 ## v1.3.3
 
