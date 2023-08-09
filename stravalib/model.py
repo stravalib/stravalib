@@ -929,7 +929,7 @@ class SubscriptionCallback(
     class Config:
         alias_generator = lambda field_name: field_name.replace("hub_", "hub.")
 
-    def validate(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
+    def validate_token(self, verify_token=Subscription.VERIFY_TOKEN_DEFAULT):
         assert self.hub_verify_token == verify_token
 
 
