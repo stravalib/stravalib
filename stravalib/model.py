@@ -28,7 +28,6 @@ from typing import (
     TypeVar,
     Union,
     get_args,
-    no_type_check,
 )
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -1250,8 +1249,7 @@ class SubscriptionCallback(
 
     # TODO: Signature of "validate" incompatible with supertype "BaseModel"
     # [override] - we should consider renaming this method??
-    #@no_type_check
-    def validate(
+    def validate_token(
         self, verify_token: str = Subscription.VERIFY_TOKEN_DEFAULT
     ) -> None:
         """
