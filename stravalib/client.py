@@ -21,6 +21,7 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
+    Optional,
     Protocol,
     TypeVar,
     cast,
@@ -1822,7 +1823,7 @@ class Client:
         self,
         raw: dict[str, Any],
         verify_token: str = model.Subscription.VERIFY_TOKEN_DEFAULT,
-    ) -> dict[str, str]:
+    ) -> dict[str, Optional[str]]:
         """Validate callback request and return valid response with challenge.
 
         Parameters
@@ -1833,7 +1834,7 @@ class Client:
 
         Returns
         -------
-        Dict[str, str]
+        dict[str, str]
             The JSON response expected by Strava to the challenge request.
 
         """

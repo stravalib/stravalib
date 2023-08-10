@@ -32,8 +32,9 @@ from typing import (
 
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.datetime_parse import parse_datetime
+from typing_extensions import Self
 
-from stravalib import exc
+from stravalib import exc, strava_model
 from stravalib import unithelper as uh
 from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
 from stravalib.strava_model import (
@@ -58,7 +59,6 @@ from stravalib.strava_model import (
 )
 from stravalib.strava_model import Route as RouteStrava
 from stravalib.strava_model import (
-    Split,
     SportType,
     SummaryClub,
     SummaryGear,
@@ -201,9 +201,7 @@ class DeprecatedSerializableMixin(BaseModel):
     # TODO: i used the output type from this class
     # could dict also be an int or float??
     @classmethod
-    def deserialize(
-        cls, attribute_value_mapping: Dict[str, str]
-    ) -> DeprecatedSerializableMixin:
+    def deserialize(cls, attribute_value_mapping: dict[str, str]) -> Self:
         """
         Creates and returns a new object based on serialized (dict) struct.
 
@@ -234,8 +232,7 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         return cls.parse_obj(attribute_value_mapping)
 
-    # TODO: Same question here about dict elements (strings or str, Union[str,int])
-    def from_dict(self, attribute_value_mapping: Dict[str, str]) -> None:
+    def from_dict(self, attribute_value_mapping: dict[str, str]) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
@@ -252,7 +249,7 @@ class DeprecatedSerializableMixin(BaseModel):
             For more details, refer to the Pydantic documentation:
             https://docs.pydantic.dev/usage/models/#helper-functions
         """
-        # TODO: Argument 1 to "warn_method_deprecation" has incompatible type "str"; expected "type
+
         exc.warn_method_deprecation(
             self.__class__,
             "from_dict()",
@@ -261,10 +258,7 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         # Ugly hack is necessary because parse_obj does not behave in-place but
         # returns a new object
-        # TODO - this hack makes tests fail -  but makes mypy happy
-        # new_obj = parse_obj_as(self.__class__, attribute_value_mapping)
-        # self.__dict__.update(new_obj.__dict__)
-        self.__init__(**self.parse_obj(attribute_value_mapping).dict())
+        self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore
 
     def to_dict(self) -> Dict[str, str]:
         """
@@ -547,8 +541,6 @@ class Athlete(
 
     # Field overrides from superclass for type extensions:
     clubs: Optional[List[SummaryClub]] = None
-    # These overrides support legacy model behavior which will be deprecated
-    # for now we can ignore the type until we implement the deprecation behavior.
     bikes: Optional[List[SummaryGear]] = None
     shoes: Optional[List[SummaryGear]] = None
 
@@ -670,7 +662,6 @@ class Athlete(
 
 
 # TODO: better description
-# TODO: What is the goal of this attr override?
 class ActivityComment(Comment):
     """Field overrides the athlete attribute to be of type :class:`Athlete`
     rather than :class:`SummaryAthlete`
@@ -759,7 +750,6 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         )
 
 
-# TODO: this wasn't working as intended - test again
 class ActivityKudos(Athlete):
     """
     Represents kudos an athlete received on an activity.
@@ -810,8 +800,10 @@ class Map(PolylineMap):
 
 # TODO -opening an issue about perhaps a different approach to adding these attrs
 # to split()
-class Split(  # type: ignore
-    Split,
+
+
+class Split(
+    strava_model.Split,
     BackwardCompatibilityMixin,
     DeprecatedSerializableMixin,
 ):
@@ -1051,18 +1043,17 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    # TODO: Incompatible types in assignment (expression has type "Optional[List[BestEffort]]", base class "DetailedActivity" defined the type as "Optional[List[DetailedSegmentEffort]]")
     best_efforts: Optional[List[DetailedSegmentEffort]] = None
     segment_efforts: Optional[List[DetailedSegmentEffort]] = None
-    splits_metric: Optional[List[Split]] = None
-    splits_standard: Optional[List[Split]] = None
+    # Ignoring types here given there are overrides
+    splits_metric: Optional[List[Split]] = None  # type: ignore
+    splits_standard: Optional[List[Split]] = None  # type: ignore
     photos: Optional[ActivityPhotoMeta] = None
     # TODO Detailed activity has this defined as - Optional[List[Lap]]
     laps: Optional[List[Union[ActivityLap, Lap]]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
-    # TODO: Missing type parameters for generic type "Tuple"
     TYPES: ClassVar[Tuple[Any, ...]] = get_args(
         ActivityType.__fields__["__root__"].type_
     )
@@ -1118,12 +1109,6 @@ class Activity(
         assert self.bound_client is not None
         return self.bound_client.get_activity_comments(self.id)
 
-    # TODO: question - this returns a list of model.BaseActivityZone objects
-    # that class is in this module associated with the bound client.
-    # The conditional added her addresses this
-    # "error: Item "None" of "Optional[Any]" has no attribute "get_activity_zones"  [union-attr]"
-    # This error appears several times. i just don't understand how
-    # bound client could be None OR do i need to use Optionallist[BaseActivityZone] ??
     @lazy_property
     def zones(self) -> List[BaseActivityZone]:
         """Retrieve a list of zones for an activity.
@@ -1205,8 +1190,6 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[Athlete] = None
     map: Optional[Map] = None
-    # TODO: base class Route defines this as a list of SummarySegments
-    # Line 1373 in strava_model.py - are we intentionally overriding?
     segments: Optional[List[Segment]]  # type: ignore
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
@@ -1239,16 +1222,10 @@ class SubscriptionCallback(
     Represents a Webhook Event Subscription Callback.
     """
 
-    hub_mode: Optional[str] = None
-    hub_verify_token: Optional[str] = None
-    hub_challenge: Optional[str] = None
+    hub_mode: Optional[str] = Field(None, alias="hub.mode")
+    hub_verify_token: Optional[str] = Field(None, alias="hub.verify_token")
+    hub_challenge: Optional[str] = Field(None, alias="hub.challenge")
 
-    # TODO: error: Required dynamic aliases disallowed  [pydantic-alias]
-    class Config:
-        alias_generator = lambda field_name: field_name.replace("hub_", "hub.")
-
-    # TODO: Signature of "validate" incompatible with supertype "BaseModel"
-    # [override] - we should consider renaming this method??
     def validate_token(
         self, verify_token: str = Subscription.VERIFY_TOKEN_DEFAULT
     ) -> None:
