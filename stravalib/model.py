@@ -357,7 +357,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     @root_validator
     def check_valid_latlng(
         cls, values: List[Optional[float]]
-    ) -> Optional[List[Optional[float]]]:
+    ) -> Optional[List[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
