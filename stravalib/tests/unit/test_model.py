@@ -335,3 +335,10 @@ class ModelTest(TestBase):
             "2011-02-09 21:22:21",
             subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
         )
+
+
+# New test
+def test_naive_datetime():
+    a_date = None
+    out = model.naive_datetime(a_date)
+    assert out is None
