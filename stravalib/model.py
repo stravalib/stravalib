@@ -582,7 +582,7 @@ class Athlete(
     subscription_permissions: Optional[List[bool]] = None
 
     @validator("athlete_type")
-    def to_str_representation(cls, raw_type: int) -> str:
+    def to_str_representation(cls, raw_type: int) -> Optional[str]:
         """Replaces legacy 'ChoicesAttribute' class.
 
         Parameters
@@ -597,7 +597,10 @@ class Athlete(
         """
 
         athlete_type = {0: "cyclist", 1: "runner"}
-        return athlete_type.get(raw_type)
+        if raw_type in [0, 1]:
+            return athlete_type.get(raw_type)
+        else:
+            return None
 
     @lazy_property
     def authenticated_athlete(self) -> Athlete:
