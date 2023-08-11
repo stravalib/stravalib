@@ -354,6 +354,9 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     Enables backward compatibility for legacy namedtuple
     """
 
+    # TODO: stravalib/model.py:377: error: Incompatible return value type (got "Optional[List[Optional[float]]]", expected "Optional[List[float]]")  [return-value]
+    # this error doesn't make sense as the types are correct based on what the
+    # error says it wants to see. so why is it throwing the error?
     @root_validator
     def check_valid_latlng(
         cls, values: List[Optional[float]]
@@ -544,7 +547,7 @@ class Athlete(
 
     # Undocumented attributes:
     is_authenticated: Optional[bool] = None
-    athlete_type: Optional[int] = None
+    athlete_type: Optional[Literal["cyclist", "runner"]] = None
     friend: Optional[str] = None
     follower: Optional[str] = None
     approve_followers: Optional[bool] = None
@@ -581,8 +584,10 @@ class Athlete(
     owner: Optional[bool] = None
     subscription_permissions: Optional[List[bool]] = None
 
-    @validator("athlete_type")
-    def to_str_representation(cls, raw_type: int) -> Optional[str]:
+    @validator("athlete_type", pre=True)
+    def to_str_representation(
+        cls, raw_type: int
+    ) -> Optional[Literal["cyclist", "runner"]]:
         """Replaces legacy 'ChoicesAttribute' class.
 
         Parameters
