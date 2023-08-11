@@ -7,7 +7,7 @@
 - Type annotation to client file (@enadeau, #384)
 - Fix docstring in SleepingRateLimitRule (@enadeau)
 - Fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #394)
-- Fix: docstrings in model.py, documentation errors, findfonts warning suppression by removing opengraph (temporarily), typing (@lwasser)
+- Fix: docstrings in model.py, documentation errors, findfonts warning suppression by removing opengraph (temporarily), typing updates (@lwasser, #387)
 
 ## v1.3.3
 

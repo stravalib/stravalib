@@ -198,10 +198,8 @@ class DeprecatedSerializableMixin(BaseModel):
     Inherits from the `pydantic.BaseModel` class.
     """
 
-    # TODO: i used the output type from this class
-    # could dict also be an int or float??
     @classmethod
-    def deserialize(cls, attribute_value_mapping: dict[str, str]) -> Self:
+    def deserialize(cls, attribute_value_mapping: dict[str, Any]) -> Self:
         """
         Creates and returns a new object based on serialized (dict) struct.
 
@@ -232,7 +230,7 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         return cls.parse_obj(attribute_value_mapping)
 
-    def from_dict(self, attribute_value_mapping: dict[str, str]) -> None:
+    def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
         """
         Deserializes v into self, resetting and ond/or overwriting existing
         fields
@@ -258,9 +256,9 @@ class DeprecatedSerializableMixin(BaseModel):
         )
         # Ugly hack is necessary because parse_obj does not behave in-place but
         # returns a new object
-        self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore
+        self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Returns a dict representation of self
 
@@ -276,7 +274,7 @@ class DeprecatedSerializableMixin(BaseModel):
             https://docs.pydantic.dev/1.10/usage/exporting_models/
         """
         exc.warn_method_deprecation(
-            self.__class__,  # expects klass: type (not a str)
+            self.__class__,
             "to_dict()",
             "dict()",
             "https://docs.pydantic.dev/1.10/usage/exporting_models/",
@@ -581,11 +579,10 @@ class Athlete(
     membership: Optional[str] = None
     admin: Optional[bool] = None
     owner: Optional[bool] = None
-    # TODO: can permission take other inputs other than bool?
     subscription_permissions: Optional[List[bool]] = None
 
     @validator("athlete_type")
-    def to_str_representation(cls, raw_type: int) -> Optional[str]:
+    def to_str_representation(cls, raw_type: int) -> str:
         """Replaces legacy 'ChoicesAttribute' class.
 
         Parameters
@@ -599,8 +596,8 @@ class Athlete(
             The string representation of the athlete type.
         """
 
-        # return type "str"
-        return {0: "cyclist", 1: "runner"}.get(raw_type)
+        athlete_type = {0: "cyclist", 1: "runner"}
+        return athlete_type.get(raw_type)
 
     @lazy_property
     def authenticated_athlete(self) -> Athlete:
@@ -654,7 +651,8 @@ class Athlete(
             else:
                 # We need to check this athlete's id matches the authenticated athlete's id
                 authenticated_athlete = self.authenticated_athlete
-                assert authenticated_athlete is not None
+                if authenticated_athlete is None:
+                    return False
 
                 self.is_authenticated = authenticated_athlete.id == self.id
 
@@ -798,10 +796,6 @@ class Map(PolylineMap):
     pass
 
 
-# TODO -opening an issue about perhaps a different approach to adding these attrs
-# to split()
-
-
 class Split(
     strava_model.Split,
     BackwardCompatibilityMixin,
@@ -936,7 +930,6 @@ class Segment(
     map: Optional[Map] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    # TODO Incompatible types in assignment (expression has type "Optional[ActivityType]", base class "DetailedSegment" defined the type as "Optional[Literal['Ride', 'Run']]")
     activity_type: Optional[Literal["Ride", "Run"]] = None
 
     # Undocumented attributes:
@@ -1046,11 +1039,10 @@ class Activity(
     best_efforts: Optional[List[DetailedSegmentEffort]] = None
     segment_efforts: Optional[List[DetailedSegmentEffort]] = None
     # Ignoring types here given there are overrides
-    splits_metric: Optional[List[Split]] = None  # type: ignore
-    splits_standard: Optional[List[Split]] = None  # type: ignore
+    splits_metric: Optional[List[Split]] = None  # type: ignore[assignment]
+    splits_standard: Optional[List[Split]] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None
-    # TODO Detailed activity has this defined as - Optional[List[Lap]]
-    laps: Optional[List[Union[ActivityLap, Lap]]] = None
+    laps: Optional[List[Lap]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
@@ -1157,10 +1149,10 @@ class BaseActivityZone(
 
     # Field overrides from superclass for type extensions:
     # Using type that is currently mimicking legacy behavior...
-    distribution_buckets: Optional[List[DistributionBucket]] = None  # type: ignore
+    distribution_buckets: Optional[List[DistributionBucket]] = None  # type: ignore[assignment]
 
     # TODO: ignoring type given legacy support will be deprecated
-    type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore
+    type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
 
 
 class Stream(
@@ -1190,7 +1182,7 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[Athlete] = None
     map: Optional[Map] = None
-    segments: Optional[List[Segment]]  # type: ignore
+    segments: Optional[List[Segment]]  # type: ignore[assignment]
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 

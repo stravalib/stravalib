@@ -21,7 +21,6 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
-    Optional,
     Protocol,
     TypeVar,
     cast,
@@ -1823,7 +1822,7 @@ class Client:
         self,
         raw: dict[str, Any],
         verify_token: str = model.Subscription.VERIFY_TOKEN_DEFAULT,
-    ) -> dict[str, Optional[str]]:
+    ) -> dict[str, str]:
         """Validate callback request and return valid response with challenge.
 
         Parameters
@@ -1840,10 +1839,11 @@ class Client:
         """
         callback = model.SubscriptionCallback.deserialize(raw)
         callback.validate_token(verify_token)
+
+        assert callback.hub_challenge is not None
         response_raw = {"hub.challenge": callback.hub_challenge}
         return response_raw
 
-    # TODO: i'm not sure what raw's "type" is here
     def handle_subscription_update(
         self, raw: dict[str, Any]
     ) -> model.SubscriptionUpdate:
