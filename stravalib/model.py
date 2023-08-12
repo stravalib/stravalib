@@ -13,6 +13,7 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
+import warnings
 from datetime import date, datetime
 from functools import wraps
 from typing import (
@@ -358,9 +359,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     # this error doesn't make sense as the types are correct based on what the
     # error says it wants to see. so why is it throwing the error?
     @root_validator
-    def check_valid_latlng(
-        cls, values: List[Optional[float]]
-    ) -> Optional[List[float]]:
+    def check_valid_latlng(cls, values: List[float]) -> Optional[List[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -601,10 +600,12 @@ class Athlete(
             The string representation of the athlete type.
         """
 
-        athlete_type = {0: "cyclist", 1: "runner"}
-        if raw_type in [0, 1]:
-            return athlete_type.get(raw_type)
+        if raw_type == 0:
+            return "cyclist"
+        elif raw_type == 1:
+            return "runner"
         else:
+            warnings.warn(f"Unknown athlete type value: {raw_type}")
             return None
 
     @lazy_property
