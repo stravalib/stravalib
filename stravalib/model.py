@@ -13,7 +13,6 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
-import warnings
 from datetime import date, datetime
 from functools import wraps
 from typing import (
@@ -605,7 +604,7 @@ class Athlete(
         elif raw_type == 1:
             return "runner"
         else:
-            warnings.warn(f"Unknown athlete type value: {raw_type}")
+            LOGGER.warning(f"Unknown athlete type value: {raw_type}")
             return None
 
     @lazy_property
