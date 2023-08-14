@@ -21,7 +21,6 @@ types-pytz
 types-Flask
 
 # Docs
-# Pinning to avoid a current bug in 0.13
 pydata-sphinx-theme
 # Support pydantic autodoc
 autodoc_pydantic
@@ -33,4 +32,6 @@ sphinx_copybutton
 sphinx_design
 
 # Support for social / adds meta tags
-sphinxext-opengraph
+# Removing this for the time being to avoid issues with matplotlib / findfonts
+# bug
+#sphinxext-opengraph

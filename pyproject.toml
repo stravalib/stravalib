@@ -94,6 +94,7 @@ files = [
     "stravalib/protocol.py",
     "stravalib/exc.py",
     "stravalib/client.py",
+    "stravalib/model.py",
 ]
 
 [tool.pydantic-mypy]

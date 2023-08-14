@@ -63,7 +63,9 @@ extensions = [
     "sphinx.ext.autosummary",
     "myst_nb",
     "sphinx_design",
-    "sphinxext.opengraph",
+    # Commented out because matplotlib raises a findfonts warning over and over
+    # TODO: fix is to install fonts in CI or remove opengraph
+    # "sphinxext.opengraph",
     "sphinx_inline_tabs",
 ]
 
@@ -113,7 +115,7 @@ html_theme_options = {
     "show_toc_level": 1,
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
-    "footer_items": ["copyright"],
+    "footer_start": ["copyright"],
 }
 
 html_context = {

@@ -21,3 +21,7 @@ examples/strava-oauth/settings.cfg
 stravalib/tests/test.ini-example
 stravalib/tests/test.ini
 stravalib/docs/api
+.vscode/
+stravalib-2023/
+noxfile.py
+.nox/*
