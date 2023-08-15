@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, conint
+from pydantic import BaseModel, Field
 
 
 class ActivityTotal(BaseModel):
@@ -412,7 +412,7 @@ class SummaryActivity(MetaActivity):
     The number of achievements gained during this activity
     """
     athlete: Optional[MetaAthlete] = None
-    athlete_count: Optional[conint(ge=1)] = None
+    athlete_count: Optional[int] = Field(None, ge=1)
     """
     The number of athletes for taking part in a group activity
     """
@@ -1040,7 +1040,7 @@ class ExplorerSegment(BaseModel):
     """
     The segment's average grade, in percents
     """
-    climb_category: Optional[conint(ge=0, le=5)] = None
+    climb_category: Optional[int] = Field(None, ge=0, le=5)
     """
     The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category. If climb_category = 5, climb_category_desc = HC. If climb_category = 2, climb_category_desc = 3.
     """
@@ -1297,7 +1297,7 @@ class DetailedSegmentEffort(SummarySegmentEffort):
     """
     Whether this effort should be hidden when viewed within an activity
     """
-    kom_rank: Optional[conint(ge=1, le=10)] = None
+    kom_rank: Optional[int] = Field(None, ge=1, le=10)
     """
     The rank of the effort on the global leaderboard if it belongs in the top 10 at the time of upload
     """
@@ -1313,7 +1313,7 @@ class DetailedSegmentEffort(SummarySegmentEffort):
     """
     The name of the segment on which this effort was performed
     """
-    pr_rank: Optional[conint(ge=1, le=3)] = None
+    pr_rank: Optional[int] = Field(None, ge=1, le=3)
     """
     The rank of the effort on the athlete's leaderboard if it belongs in the top 3 at the time of upload
     """
