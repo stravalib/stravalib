@@ -89,14 +89,8 @@ plugins = [
   "pydantic.mypy"
 ]
 
-files = [
-    "stravalib/util/limiter.py",
-    "stravalib/protocol.py",
-    "stravalib/exc.py",
-    "stravalib/client.py",
-    "stravalib/model.py",
-    "stravalib/strava_model.py",
-]
+files = ["stravalib/"]
+exclude = ["stravalib/tests/"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

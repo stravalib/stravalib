@@ -48,10 +48,12 @@ class Quantity(Q_):
 
 
 class UnitConverter:
-    def __init__(self, unit: str):
+    def __init__(self, unit: str) -> None:
         self.unit = unit
 
-    def __call__(self, q: Union[Number, pint.Quantity, UnitsQuantity]):
+    def __call__(
+        self, q: Union[Number, pint.Quantity, UnitsQuantity]
+    ) -> Quantity:
         if isinstance(q, Number):
             # provided quantity is unitless, so mimick legacy `units` behavior:
             converted_q = Quantity(q, self.unit)
@@ -66,7 +68,7 @@ class UnitConverter:
         return converted_q
 
 
-def is_quantity_type(obj: Any):
+def is_quantity_type(obj: Any) -> bool:
     if isinstance(obj, (pint.Quantity, Quantity)):
         return True
     elif isinstance(obj, UnitsQuantity):  # check using Duck Typing
@@ -90,7 +92,7 @@ kilogram = kilograms = kg = kgs = UnitConverter("kg")
 pound = pounds = lb = lbs = UnitConverter("lb")
 
 
-def c2f(celsius):
+def c2f(celsius: float) -> float:
     """
     Convert Celsius to Fahrenheit.
 
