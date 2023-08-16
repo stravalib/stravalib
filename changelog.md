@@ -18,6 +18,7 @@
 
 - Type annotation to client file (@enadeau, #384)
 - Add: issue templates for easier debugging / guide users (@lwasser, #408)
+- Fix: read the docs is breaking due to pydantic json warnings, also update python version on build and sync pr previews (@lwasser, #412)
 
 ### Contributors to this release
 
