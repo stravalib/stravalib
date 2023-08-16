@@ -2,7 +2,6 @@ name: 🐞 Bug Report
 description: Report incorrect behavior in the stravalib library
 title: "BUG: "
 labels: [Bug, help-wanted]
-assignees: ''
 
 body:
   - type: checkboxes
@@ -26,7 +25,7 @@ body:
             [main branch](https://github.com/stravalib/stravalib)
             of stravalib.
   - type: dropdown
-    id: Operating System
+    id: operating-system
     attributes:
       label: What operating system are you seeing the problem on?
       multiple: true

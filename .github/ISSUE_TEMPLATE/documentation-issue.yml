@@ -7,14 +7,13 @@ body:
   - type: checkboxes
     attributes:
       label: Stravalib version checks
+      options:
         - label: >
             I have checked that this issue has not already been reported.
-          required: true
+            required: true
         - label: >
             I have confirmed this bug exists on the
             [latest version](https://pypi.org/project/stravalib/) of stravalib.
-          required: true
-      options:
         - label: >
             I have confirmed this bug exists on the
             [main branch](https://github.com/stravalib/stravalib)
