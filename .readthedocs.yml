@@ -1,12 +1,14 @@
 version: 2
 
 sphinx:
+  builder: html
   configuration: docs/conf.py
+  fail_on_warning: false
 
 formats: all
 
 python:
-  version: 3.8
+  version: 3.10
   install:
     - method: pip
       path: .
