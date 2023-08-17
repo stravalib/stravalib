@@ -9,6 +9,7 @@
 - Fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #394)
 - Fix: docstrings in model.py, documentation errors, findfonts warning suppression by removing opengraph (temporarily), typing updates (@lwasser, #387)
 - Fix: read the docs is breaking due to pydantic json warnings, also update python version on build and sync pr previews (@lwasser, #412)
+- Fix: update master to main in all builds (@lwasser)
 
 ## v1.3.3
 

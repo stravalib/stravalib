@@ -4,11 +4,11 @@ on:
     types: [published]
   push:
     branches:
-      - master
+      - main
 jobs:
   build-publish:
     runs-on: ubuntu-latest
-    # This action only needs to run in the base repository
+    # Only run build action on base repo - not forks
     if: github.repository_owner == 'stravalib'
     steps:
       - name: Checkout
@@ -42,7 +42,7 @@ jobs:
         run: twine check dist/*
 
       - name: Publish package on test PyPI on merge
-        # Test push to test pypi on merge to master
+        # Test push to test pypi on merge to main
         if: github.event_name == 'push'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:

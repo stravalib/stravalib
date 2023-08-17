@@ -83,7 +83,7 @@ myst_enable_extensions = ["colon_fence"]
 templates_path = ["_templates"]
 
 
-# The master toctree document.
+# The main toctree document.
 master_doc = "index"
 
 
@@ -121,7 +121,7 @@ html_theme_options = {
 html_context = {
     "github_user": "stravalib",
     "github_repo": "stravalib",
-    "github_version": "master",
+    "github_version": "main",
 }
 
 html_static_path = ["_static"]
