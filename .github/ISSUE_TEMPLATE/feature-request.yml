@@ -57,3 +57,11 @@ body:
       description: >
         Please provide any relevant GitHub issues, code examples or references
         that help describe and support the feature request.
+    - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/stravalib/stravalib/blob/master/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
