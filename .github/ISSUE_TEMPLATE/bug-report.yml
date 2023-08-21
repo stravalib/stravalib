@@ -83,7 +83,8 @@ body:
     attributes:
       label: Your environment
       description: >
-        Please paste the output of ``pip list`` or ``conda list`` here
+        Please paste the output of ``pip freeze`` or the associated conda envt
+        ``conda env export > environment.yml`` here
       value: >
         <details>
 
