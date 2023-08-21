@@ -57,7 +57,7 @@ body:
       description: >
         Please provide any relevant GitHub issues, code examples or references
         that help describe and support the feature request.
-    - type: checkboxes
+  - type: checkboxes
     id: terms
     attributes:
       label: Code of Conduct
