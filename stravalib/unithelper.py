@@ -4,7 +4,7 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 from numbers import Number
-from typing import Any, Protocol, Union, runtime_checkable
+from typing import Any, Protocol, Union, cast, runtime_checkable
 
 import pint
 
@@ -24,26 +24,26 @@ class UnitsQuantity(Protocol):
     unit: str
 
 
-class Quantity(Q_):
+class Quantity(Q_):  # type: ignore[valid-type, misc]
     """
     Extension of `pint.Quantity` for temporary backward compatibility with
     the legacy `units` package.
     """
 
     @property
-    def num(self):
+    def num(self) -> pint._typing.Magnitude:
         warn_units_deprecated()
         return self.magnitude
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         warn_units_deprecated()
         return str(self.units)
 
-    def __int__(self):
+    def __int__(self) -> int:
         return int(self.magnitude)
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.magnitude)
 
 
@@ -59,11 +59,16 @@ class UnitConverter:
             converted_q = Quantity(q, self.unit)
         else:
             try:
-                converted_q = q.to(self.unit)
+                converted_q = Quantity(
+                    cast(pint.Quantity, q).to(self.unit).magnitude, self.unit
+                )
             except AttributeError:
                 # unexpected type of quantity, maybe it's a legacy `units` Quantity
                 warn_units_deprecated()
-                converted_q = Quantity(q.num, q.unit).to(self.unit)
+                computed_q = Quantity(q.num, q.unit)
+                converted_q = Quantity(
+                    computed_q.to(self.unit).magnitude, self.unit
+                )
 
         return converted_q
 
