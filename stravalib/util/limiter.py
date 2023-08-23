@@ -225,7 +225,7 @@ class XRateLimitRule:
     def _check_limit_rates(self, limit: LimitStructure) -> None:
         """Check the current limit rates for API calls."""
         if limit["usage"] >= limit["limit"]:
-            self.log.debug("Rate limit of {0} reached.".format(limit["limit"]))
+            self.log.debug("Rate limit of {} reached.".format(limit["limit"]))
             limit["lastExceeded"] = datetime.now()
             self._raise_rate_limit_exception(limit["limit"], limit["time"])
 
@@ -236,7 +236,7 @@ class XRateLimitRule:
             if delta < limit["time"]:
                 self.limit_time_invalid = limit["time"] - delta
                 self.log.debug(
-                    "Rate limit invalid duration {0} seconds.".format(
+                    "Rate limit invalid duration {} seconds.".format(
                         self.limit_time_invalid
                     )
                 )
@@ -250,8 +250,8 @@ class XRateLimitRule:
         """Raises an error for the user to see they have exceeded API
         request limits"""
         raise exc.RateLimitExceeded(
-            "Rate limit of {0} exceeded. "
-            "Try again in {1} seconds.".format(limit_rate, timeout),
+            "Rate limit of {} exceeded. "
+            "Try again in {} seconds.".format(limit_rate, timeout),
             limit=limit_rate,
             timeout=timeout,
         )
@@ -307,7 +307,7 @@ class SleepingRateLimitRule:
         """
         if priority not in ["low", "medium", "high"]:
             raise ValueError(
-                'Invalid priority "{0}", expecting one of "low", "medium" or "high"'.format(
+                'Invalid priority "{}", expecting one of "low", "medium" or "high"'.format(
                     priority
                 )
             )
@@ -404,7 +404,7 @@ class RateLimitRule:
                 # request?
                 if self.raise_exc:
                     raise exc.RateLimitExceeded(
-                        "Rate limit exceeded (can try again in {0})".format(
+                        "Rate limit exceeded (can try again in {})".format(
                             self.timeframe - delta
                         )
                     )
@@ -414,7 +414,7 @@ class RateLimitRule:
                     td = self.timeframe - delta
                     sleeptime = td.total_seconds()
                     self.log.debug(
-                        "Rate limit triggered; sleeping for {0}".format(
+                        "Rate limit triggered; sleeping for {}".format(
                             sleeptime
                         )
                     )
