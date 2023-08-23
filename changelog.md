@@ -11,6 +11,7 @@
 - Add: issue templates for easier debugging / guide users (@lwasser, #408)
 - Fix: read the docs is breaking due to pydantic json warnings, also update python version on build and sync pr previews (@lwasser, #412)
 - Fix: update master to main in all builds (@lwasser)
+- Remove python 3.8 support following NEP-29 (@enadeau, #416)
 
 ## v1.3.3
 
