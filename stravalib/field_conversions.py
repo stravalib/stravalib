@@ -1,7 +1,8 @@
 import logging
+from collections.abc import Sequence
 from datetime import timedelta
 from functools import wraps
-from typing import Any, Callable, List, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Union
 
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
@@ -34,7 +35,7 @@ def enum_value(v: Union[ActivityType, SportType]) -> str:
 
 
 @optional_input
-def enum_values(enums: Sequence[Union[ActivityType, SportType]]) -> List:
+def enum_values(enums: Sequence[Union[ActivityType, SportType]]) -> list:
     # Pydantic (1.x) has config for using enum values, but unfortunately
     # it doesn't work for lists of enums.
     # See https://github.com/pydantic/pydantic/issues/5005
