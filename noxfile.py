@@ -13,7 +13,11 @@ def test(session):
     session.install(".[all]")
     session.install("-r", "requirements.txt")
     session.run(
-        "pytest", "stravalib/tests/unit/", "stravalib/tests/integration/"
+        "pytest",
+        "--cov",
+        "stravalib",
+        "stravalib/tests/unit/",
+        "stravalib/tests/integration/",
     )
 
 
@@ -59,16 +63,17 @@ docs_dir = os.path.join("_build", "html")
 
 
 @nox.session(name="docs-clean")
-def clean_dir(dir_path=docs_dir):
+def clean_docs(session):
     """
     Clean out the docs directory used in the
     live build.
     """
-    dir_path = pathlib.Path(dir_path)
+    dir_path = pathlib.Path("docs", "_build")
+    print(dir_path)
     dir_contents = dir_path.glob("*")
 
     for content in dir_contents:
-        print(content)
+        print(f"cleaning content from the {dir_path}")
         if content.is_dir():
             shutil.rmtree(content)
         else:
