@@ -8,7 +8,7 @@ nox.options.reuse_existing_virtualenvs = True
 
 
 # Use this for venv envs nox -s test
-@nox.session(python=["3.8", "3.9", "3.10", "3.11"])
+@nox.session(python=["3.9", "3.10", "3.11"])
 def test(session):
     session.install(".[all]")
     session.install("-r", "requirements.txt")
@@ -22,12 +22,16 @@ def test(session):
 
 
 # Use this for conda/mamba = nox -s test_mamba
-@nox.session(venv_backend="mamba", python=["3.8", "3.9", "3.10", "3.11"])
+@nox.session(venv_backend="mamba", python=["3.9", "3.10", "3.11"])
 def test_mamba(session):
     session.install(".[all]")
     session.install("-r", "requirements.txt")
     session.run(
-        "pytest", "stravalib/tests/unit/", "stravalib/tests/integration/"
+        "pytest",
+        "--cov",
+        "stravalib",
+        "stravalib/tests/unit/",
+        "stravalib/tests/integration/",
     )
 
 
@@ -59,7 +63,14 @@ def docs_live(session):
     session.run(*cmd)
 
 
-docs_dir = os.path.join("_build", "html")
+# Use this for venv envs nox -s test
+@nox.session(python=["3.9", "3.10", "3.11"])
+def mypy(session):
+    session.install(".[all]")
+    session.install("-r", "requirements.txt")
+    session.run(
+        "mypy",
+    )
 
 
 @nox.session(name="docs-clean")

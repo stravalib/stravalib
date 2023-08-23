@@ -76,7 +76,7 @@ To make a release:
 
 Below you can see an example of what these changelog changes looked like when
 we bumped to version 1.0 of stravalib.
-_(Some fo the original change log content is removed to keep this page shorter)_
+_(Some of the original change log content is removed to keep this page shorter)_
 
 ```
 ## Unreleased
