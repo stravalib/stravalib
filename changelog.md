@@ -2,15 +2,26 @@
 
 ## Unreleased
 
+## v1.4
+
+### Fixed
+
 - Apply flake8 and numpy docstrings to limiter & protocol (@lwasser, #326)
 - Update client's stream method to warn when using unofficial parameters (@enadeau, #385)
-- Type annotation to client file (@enadeau, #384)
 - Fix docstring in SleepingRateLimitRule (@enadeau)
 - Fix: rename `SubscriptionCallback.validate` -> `SubscriptionCallback.validate_token` to avoid conflict with `pydantic.BaseModel` (@lwasser, #394)
 - Fix: docstrings in model.py, documentation errors, findfonts warning suppression by removing opengraph (temporarily), typing updates (@lwasser, #387)
-- Add: issue templates for easier debugging / guide users (@lwasser, #408)
 - Fix: read the docs is breaking due to pydantic json warnings, also update python version on build and sync pr previews (@lwasser, #412)
 - Fix: update master to main in all builds (@lwasser)
+
+### Added
+
+- Type annotation to client file (@enadeau, #384)
+- Add: issue templates for easier debugging / guide users (@lwasser, #408)
+
+### Contributors to this release
+
+@endeau, @lwasser, @jsamoocha
 
 ## v1.3.3
 
