@@ -43,6 +43,6 @@ ping one of the maintainers here!_
 If you are a stravalib maintainer submitting a PR in preparation for a new release
 you can use the pull request release template:
 
-[https://github.com/stravalib/stravalib/compare/main...branch-name-here?template=release-pull-request-template.md](https://github.com/stravalib/stravalib/compare/master...branch-name-here?template=release-pull-request-template.md). Be sure to modify
+[https://github.com/stravalib/stravalib/compare/main...branch-name-here?template=release-pull-request-template.md](https://github.com/stravalib/stravalib/compare/main...branch-name-here?template=release-pull-request-template.md). Be sure to modify
 the text "branch-name-here" in the above url to apply the release template.
 -->
