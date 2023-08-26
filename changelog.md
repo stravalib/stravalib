@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add: Add nox to run tests & build docs (@lwasser, #395)
+
 ## v1.4
 
 ### Fixed
