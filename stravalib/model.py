@@ -20,11 +20,8 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
-    List,
     Literal,
     Optional,
-    Tuple,
     TypeVar,
     Union,
     get_args,
@@ -129,8 +126,8 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 
 
 def check_valid_location(
-    location: Optional[Union[List[float], str]]
-) -> Optional[List[float]]:
+    location: Optional[Union[list[float], str]]
+) -> Optional[list[float]]:
     """
     Parameters
     ----------
@@ -258,7 +255,7 @@ class DeprecatedSerializableMixin(BaseModel):
         # returns a new object
         self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Returns a dict representation of self
 
@@ -358,7 +355,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     # this error doesn't make sense as the types are correct based on what the
     # error says it wants to see. so why is it throwing the error?
     @root_validator
-    def check_valid_latlng(cls, values: List[float]) -> Optional[List[float]]:
+    def check_valid_latlng(cls, values: list[float]) -> Optional[list[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -539,9 +536,9 @@ class Athlete(
     """
 
     # Field overrides from superclass for type extensions:
-    clubs: Optional[List[SummaryClub]] = None
-    bikes: Optional[List[SummaryGear]] = None
-    shoes: Optional[List[SummaryGear]] = None
+    clubs: Optional[list[SummaryClub]] = None
+    bikes: Optional[list[SummaryGear]] = None
+    shoes: Optional[list[SummaryGear]] = None
 
     # Undocumented attributes:
     is_authenticated: Optional[bool] = None
@@ -580,7 +577,7 @@ class Athlete(
     membership: Optional[str] = None
     admin: Optional[bool] = None
     owner: Optional[bool] = None
-    subscription_permissions: Optional[List[bool]] = None
+    subscription_permissions: Optional[list[bool]] = None
 
     @validator("athlete_type", pre=True)
     def to_str_representation(
@@ -720,9 +717,9 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     created_at: Optional[datetime] = None
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
-    urls: Optional[Dict[str, str]] = None
+    urls: Optional[dict[str, str]] = None
     # TODO - is this a float return?
-    sizes: Optional[Dict[str, float]] = None
+    sizes: Optional[dict[str, float]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -1025,7 +1022,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
 
-    achievements: Optional[List[SegmentEffortAchievement]] = None
+    achievements: Optional[list[SegmentEffortAchievement]] = None
 
 
 class Activity(
@@ -1044,22 +1041,22 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    best_efforts: Optional[List[DetailedSegmentEffort]] = None
-    segment_efforts: Optional[List[DetailedSegmentEffort]] = None
+    best_efforts: Optional[list[DetailedSegmentEffort]] = None
+    segment_efforts: Optional[list[DetailedSegmentEffort]] = None
     # Ignoring types here given there are overrides
-    splits_metric: Optional[List[Split]] = None  # type: ignore[assignment]
-    splits_standard: Optional[List[Split]] = None  # type: ignore[assignment]
+    splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
+    splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None
-    laps: Optional[List[Lap]] = None
+    laps: Optional[list[Lap]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
-    TYPES: ClassVar[Tuple[Any, ...]] = get_args(
+    TYPES: ClassVar[tuple[Any, ...]] = get_args(
         ActivityType.__fields__["__root__"].type_
     )
 
     # TODO this and line 1055 above changed from str to Any
-    SPORT_TYPES: ClassVar[Tuple[Any, ...]] = get_args(
+    SPORT_TYPES: ClassVar[tuple[Any, ...]] = get_args(
         SportType.__fields__["__root__"].type_
     )
 
@@ -1110,7 +1107,7 @@ class Activity(
         return self.bound_client.get_activity_comments(self.id)
 
     @lazy_property
-    def zones(self) -> List[BaseActivityZone]:
+    def zones(self) -> list[BaseActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
@@ -1157,7 +1154,7 @@ class BaseActivityZone(
 
     # Field overrides from superclass for type extensions:
     # Using type that is currently mimicking legacy behavior...
-    distribution_buckets: Optional[List[DistributionBucket]] = None  # type: ignore[assignment]
+    distribution_buckets: Optional[list[DistributionBucket]] = None  # type: ignore[assignment]
 
     # TODO: ignoring type given legacy support will be deprecated
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
@@ -1174,7 +1171,7 @@ class Stream(
 
     # Not using the typed subclasses from the generated model
     # for backward compatibility:
-    data: Optional[List[Any]] = None
+    data: Optional[list[Any]] = None
 
 
 class Route(
@@ -1190,7 +1187,7 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[Athlete] = None
     map: Optional[Map] = None
-    segments: Optional[List[Segment]]  # type: ignore[assignment]
+    segments: Optional[list[Segment]]  # type: ignore[assignment]
 
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
@@ -1265,7 +1262,7 @@ class SubscriptionUpdate(
     object_type: Optional[str] = None
     aspect_type: Optional[str] = None
     event_time: Optional[datetime] = None
-    updates: Optional[Dict[str, Any]] = None
+    updates: Optional[dict[str, Any]] = None
 
 
 SegmentEffort.update_forward_refs()

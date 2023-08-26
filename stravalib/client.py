@@ -11,6 +11,7 @@ import collections
 import functools
 import logging
 import time
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import (
@@ -18,7 +19,6 @@ from typing import (
     Any,
     Deque,
     Generic,
-    Iterable,
     Literal,
     NoReturn,
     Protocol,
@@ -900,7 +900,7 @@ class Client:
                 activity_file = BytesIO(activity_file)
             else:
                 raise TypeError(
-                    "Invalid type specified for activity_file: {0}".format(
+                    "Invalid type specified for activity_file: {}".format(
                         type(activity_file)
                     )
                 )
@@ -1418,7 +1418,7 @@ class Client:
         if activity_type is not None:
             if activity_type not in ("riding", "running"):
                 raise ValueError(
-                    "Invalid activity type: {0}.  Possible values: {1!r}".format(
+                    "Invalid activity type: {}.  Possible values: {!r}".format(
                         activity_type, valid_activity_types
                     )
                 )
@@ -1700,7 +1700,7 @@ class Client:
             athlete_id = self.get_athlete().id
 
         result_fetcher = functools.partial(
-            self.protocol.get, "/athletes/{id}/routes".format(id=athlete_id)
+            self.protocol.get, f"/athletes/{athlete_id}/routes"
         )
 
         return BatchedResultsIterator(
@@ -1757,7 +1757,7 @@ class Client:
         """
 
         result_fetcher = functools.partial(
-            self.protocol.get, "/routes/{id}/streams/".format(id=route_id)
+            self.protocol.get, f"/routes/{route_id}/streams/"
         )
 
         streams = BatchedResultsIterator(
@@ -1981,7 +1981,7 @@ class BatchedResultsIterator(Generic[T]):
         self.reset()
 
     def __repr__(self) -> str:
-        return "<{0} entity={1}>".format(
+        return "<{} entity={}>".format(
             self.__class__.__name__, self.entity.__name__
         )
 
@@ -2017,7 +2017,7 @@ class BatchedResultsIterator(Generic[T]):
         self._buffer = collections.deque(entities)
 
         self.log.debug(
-            "Requested page {0} (got: {1} items)".format(
+            "Requested page {} (got: {} items)".format(
                 self._page, len(self._buffer)
             )
         )

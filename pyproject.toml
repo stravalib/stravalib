@@ -25,8 +25,9 @@ maintainers = [
      {name = "Hans Lellelid"},
      {name = "Jonatan Samoocha"},
      {name = "Yihong"},
+     {name = "Émile Nadeau"},
     ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -39,7 +40,6 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -75,7 +75,7 @@ filterwarnings = [
 ]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 follow_imports = "silent"
 warn_redundant_casts = true
 warn_unused_ignores = true

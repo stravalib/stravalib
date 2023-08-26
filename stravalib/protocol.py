@@ -177,7 +177,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             access token will expire)
         """
         response = self._request(
-            "https://{0}/oauth/token".format(self.server),
+            f"https://{self.server}/oauth/token",
             params={
                 "client_id": client_id,
                 "client_secret": client_secret,
@@ -218,7 +218,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             access token will expire)
         """
         response = self._request(
-            "https://{0}/oauth/token".format(self.server),
+            f"https://{self.server}/oauth/token",
             params={
                 "client_id": client_id,
                 "client_secret": client_secret,
@@ -251,7 +251,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         if not url.startswith("http"):
             url = urljoin(
-                "https://{0}".format(self.server),
+                f"https://{self.server}",
                 self.api_base + "/" + url.strip("/"),
             )
         return url
@@ -306,7 +306,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             requester = methods[method.upper()]
         except KeyError:
             raise ValueError(
-                "Invalid/unsupported request method specified: {0}".format(
+                "Invalid/unsupported request method specified: {}".format(
                     method
                 )
             )
@@ -350,27 +350,27 @@ class ApiV3(metaclass=abc.ABCMeta):
             pass
         else:
             if "message" in json_response or "errors" in json_response:
-                error_str = "{0}: {1}".format(
+                error_str = "{}: {}".format(
                     json_response.get("message", "Undefined error"),
                     json_response.get("errors"),
                 )
 
         # Special subclasses for some errors
         if response.status_code == 404:
-            msg = "%s: %s" % (response.reason, error_str)
+            msg = "{}: {}".format(response.reason, error_str)
             raise exc.ObjectNotFound(msg, response=response)
         elif response.status_code == 401:
-            msg = "%s: %s" % (response.reason, error_str)
+            msg = "{}: {}".format(response.reason, error_str)
             raise exc.AccessUnauthorized(msg, response=response)
         elif 400 <= response.status_code < 500:
-            msg = "%s Client Error: %s [%s]" % (
+            msg = "{} Client Error: {} [{}]".format(
                 response.status_code,
                 response.reason,
                 error_str,
             )
             raise exc.Fault(msg, response=response)
         elif 500 <= response.status_code < 600:
-            msg = "%s Server Error: %s [%s]" % (
+            msg = "{} Server Error: {} [{}]".format(
                 response.status_code,
                 response.reason,
                 error_str,
@@ -431,9 +431,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict(
-            [(k, v) for k, v in kwargs.items() if k not in referenced]
-        )
+        params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
             url, params=params, check_for_errors=check_for_errors
         )
@@ -464,9 +462,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict(
-            [(k, v) for k, v in kwargs.items() if k not in referenced]
-        )
+        params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
             url,
             params=params,
@@ -495,9 +491,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict(
-            [(k, v) for k, v in kwargs.items() if k not in referenced]
-        )
+        params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
             url, params=params, method="PUT", check_for_errors=check_for_errors
         )
@@ -521,9 +515,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         referenced = self._extract_referenced_vars(url)
         url = url.format(**kwargs)
-        params = dict(
-            [(k, v) for k, v in kwargs.items() if k not in referenced]
-        )
+        params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
             url,
             params=params,
