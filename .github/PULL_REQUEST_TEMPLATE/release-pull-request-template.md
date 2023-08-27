@@ -2,8 +2,8 @@
 
 Please use this template when you are preparing to make a release to stravalib
 
-* [An overview of our release workflow can be found in our documentation.](https://stravalib.readthedocs.io/contributing/build-release-guide.md)
-* [Before making a release be sure to check out test PyPI](https://pypi.org/project/stravalib/) to ensure that the build is working properly.
+* [An overview of our release workflow can be found in our documentation.](https://stravalib.readthedocs.io/en/latest/contributing/build-release-guide.html)
+* [Before making a release be sure to check out test PyPI](https://test.pypi.org/project/stravalib/) to ensure that the build is working properly.
 
 ## Release checklist
 - [ ] Be sure to clearly specify what version you are bumping to in the PR title: Example: Bump to version x.x
