@@ -5,6 +5,7 @@
 - Add: Add nox to run tests & build docs (@lwasser, #395)
 - Type annotation for all file in the library (@enadeau, #384, #415)
 - Remove python 3.8 support following NEP-29 (@enadeau, #416)
+- Stravalib now includes types annotation, the package is PEP 561 compatible (@enadeau, #423)
 
 ## v1.4
 

@@ -11,6 +11,8 @@ local_scheme = "no-local-version"
 write_to =  "stravalib/_version_generated.py"
 write_to_template = '__version__ = "v{version}"'
 
+[tool.setuptools.package-data]
+"stravalib" = ["py.typed"]
 
 [project]
 name = "stravalib"
