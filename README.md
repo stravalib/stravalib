@@ -1,21 +1,23 @@
 # Welcome to stravalib
+
 [![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908)
-![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic) [![codecov](https://codecov.io/gh/stravalib/stravalib/branch/master/graph/badge.svg?token=sHbFJn7epy)](https://codecov.io/gh/stravalib/stravalib)
+![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic) [![codecov](https://codecov.io/gh/stravalib/stravalib/branch/main/graph/badge.svg?token=sHbFJn7epy)](https://codecov.io/gh/stravalib/stravalib)
 
 The **stravalib** Python package provides easy-to-use tools for accessing and
 downloading Strava data from the Strava V3 web service. Stravalib provides a Client class that supports:
-* Authenticating with stravalib
-* Accessing and downloading strava activity, club and profile data
-* Making changes to account activities
+
+- Authenticating with stravalib
+- Accessing and downloading strava activity, club and profile data
+- Making changes to account activities
 
 It also provides support for working with date/time/temporal attributes
 and quantities through the [Python Pint library](https://pypi.org/project/Pint/).
 
 ## Dependencies
 
-* Python 3.9+
-* Setuptools for installing dependencies
-* Other Python libraries (installed automatically when using pip): requests, pytz, pint, arrow, pydantic
+- Python 3.9+
+- Setuptools for installing dependencies
+- Other Python libraries (installed automatically when using pip): requests, pytz, pint, arrow, pydantic
 
 ## Installation
 
@@ -30,23 +32,27 @@ The package is available on PyPI to be installed using `pip`:
 Ready to contribute? Here's how to set up Stravalib for local development.
 
 1. Fork the repository on GitHub
---------------------------------
+
+---
 
 To create your own copy of the repository on GitHub, navigate to the
-`stravalib/stravalib <https://github.com/stravalib/stravalib>`_ repository
+`stravalib/stravalib <https://github.com/stravalib/stravalib>`\_ repository
 and click the **Fork** button in the top-right corner of the page.
 
 2. Clone your fork locally
---------------------------
 
-Use ``git clone`` to get a local copy of your stravalib repository on your
+---
+
+Use `git clone` to get a local copy of your stravalib repository on your
 local filesystem::
 
     $ git clone git@github.com:your_name_here/stravalib.git
     $ cd stravalib/
 
 3. Set up your fork for local development
------------------------------------------
+
+---
+
 The docs for this library are created using `sphinx`.
 To build the html version of the documentation, use the
 command:
@@ -69,8 +75,10 @@ $ make test
 ```
 
 ## Local Tests
-To run **end-to-end** tests you will need to rename *test.ini-example* (which you can find *<your-root-proj-dir>*/stravalib/tests/) to *test.ini*
-In *test.ini* provide your *access_token* and *activity_id*. Now you can run
+
+To run **end-to-end** tests you will need to rename _test.ini-example_ (which you can find _<your-root-proj-dir>_/stravalib/tests/) to _test.ini_
+In _test.ini_ provide your _access_token_ and _activity_id_. Now you can run
+
 ```
 shell$ pytest stravalib/tests/functional
 ```
@@ -87,7 +95,7 @@ fixture can be found in the `stravalib.tests.integration` package.
 ## Basic Usage
 
 Please take a look at the source (in particular the stravalib.client.Client class, if you'd like to play around with the
-API.  Most of the Strava API is implemented at this point; however, certain features such as streams are still on the
+API. Most of the Strava API is implemented at this point; however, certain features such as streams are still on the
 to-do list.
 
 ### Authentication
@@ -190,11 +198,10 @@ if "altitude" in streams.keys():
     print(streams["altitude"].data)
 ```
 
-
 ### Working with Units
 
 stravalib uses the [python Pint library](https://pypi.org/project/Pint/) to facilitate working
-with the values in the API that have associated units (e.g. distance, speed).  You can use the pint library
+with the values in the API that have associated units (e.g. distance, speed). You can use the pint library
 directly or through the `stravalib.unithelper` module for shortcuts
 
 ```python
