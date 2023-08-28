@@ -4,7 +4,7 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 from numbers import Number
-from typing import Any, Protocol, Union, runtime_checkable
+from typing import Any, Protocol, Union, cast, runtime_checkable
 
 import pint
 
@@ -24,49 +24,56 @@ class UnitsQuantity(Protocol):
     unit: str
 
 
-class Quantity(Q_):
+class Quantity(Q_):  # type: ignore[valid-type, misc]
     """
     Extension of `pint.Quantity` for temporary backward compatibility with
     the legacy `units` package.
     """
 
     @property
-    def num(self):
+    def num(self) -> pint._typing.Magnitude:
         warn_units_deprecated()
         return self.magnitude
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         warn_units_deprecated()
         return str(self.units)
 
-    def __int__(self):
+    def __int__(self) -> int:
         return int(self.magnitude)
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.magnitude)
 
 
 class UnitConverter:
-    def __init__(self, unit: str):
+    def __init__(self, unit: str) -> None:
         self.unit = unit
 
-    def __call__(self, q: Union[Number, pint.Quantity, UnitsQuantity]):
+    def __call__(
+        self, q: Union[Number, pint.Quantity, UnitsQuantity]
+    ) -> Quantity:
         if isinstance(q, Number):
             # provided quantity is unitless, so mimick legacy `units` behavior:
             converted_q = Quantity(q, self.unit)
         else:
             try:
-                converted_q = q.to(self.unit)
+                converted_q = Quantity(
+                    cast(pint.Quantity, q).to(self.unit).magnitude, self.unit
+                )
             except AttributeError:
                 # unexpected type of quantity, maybe it's a legacy `units` Quantity
                 warn_units_deprecated()
-                converted_q = Quantity(q.num, q.unit).to(self.unit)
+                computed_q = Quantity(q.num, q.unit)
+                converted_q = Quantity(
+                    computed_q.to(self.unit).magnitude, self.unit
+                )
 
         return converted_q
 
 
-def is_quantity_type(obj: Any):
+def is_quantity_type(obj: Any) -> bool:
     if isinstance(obj, (pint.Quantity, Quantity)):
         return True
     elif isinstance(obj, UnitsQuantity):  # check using Duck Typing
@@ -90,7 +97,7 @@ kilogram = kilograms = kg = kgs = UnitConverter("kg")
 pound = pounds = lb = lbs = UnitConverter("lb")
 
 
-def c2f(celsius):
+def c2f(celsius: float) -> float:
     """
     Convert Celsius to Fahrenheit.
 
