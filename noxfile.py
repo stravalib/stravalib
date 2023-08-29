@@ -15,11 +15,23 @@ def test(session):
     session.run(
         "pytest",
         "--cov",
-        "stravalib",
-        "stravalib/tests/unit/",
-        "stravalib/tests/integration/",
+        "src/stravalib",
+        "src/stravalib/tests/unit/",
+        "src/stravalib/tests/integration/",
     )
 
+# Use this for venv envs nox -s test
+@nox.session()
+def ci_test(session):
+    session.install(".[all]")
+    session.install("-r", "requirements.txt")
+    session.run(
+        "pytest",
+        "--cov",
+        "src/stravalib",
+        "src/stravalib/tests/unit/",
+        "src/stravalib/tests/integration/",
+    )
 
 # Use this for conda/mamba = nox -s test_mamba
 @nox.session(venv_backend="mamba", python=["3.9", "3.10", "3.11"])
@@ -29,9 +41,9 @@ def test_mamba(session):
     session.run(
         "pytest",
         "--cov",
-        "stravalib",
-        "stravalib/tests/unit/",
-        "stravalib/tests/integration/",
+        "src/stravalib",
+        "src/stravalib/tests/unit/",
+        "src/stravalib/tests/integration/",
     )
 
 
@@ -40,6 +52,7 @@ build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 @nox.session
 def docs(session):
+    session.install(".[all]")
     session.install("-r", "requirements.txt")
     cmd = ["sphinx-build"]
     cmd.extend(build_command + session.posargs)
@@ -49,6 +62,7 @@ def docs(session):
 @nox.session(name="docs-live")
 def docs_live(session):
     session.install("-r", "requirements.txt")
+    session.install(".[all]")
 
     AUTOBUILD_IGNORE = [
         "_build",
@@ -133,7 +147,6 @@ def clean_build(session):
         'MANIFEST',
         '*.egg-info',
         '__pycache__',
-        '.coverage*',
         '.cache',
         '.pytest_cache',
         'src/stravalib/_version_generated.py',]
