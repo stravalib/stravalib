@@ -1,7 +1,7 @@
 import os
 import pathlib
 import shutil
-
+from glob import glob
 import nox
 
 nox.options.reuse_existing_virtualenvs = True
@@ -35,9 +35,8 @@ def test_mamba(session):
     )
 
 
-# Build docs!
+# Build docs
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
-
 
 @nox.session
 def docs(session):
@@ -89,3 +88,64 @@ def clean_docs(session):
             shutil.rmtree(content)
         else:
             os.remove(content)
+
+
+@nox.session()
+def build(session):
+    """Build the package's SDist and wheel using PyPA build and 
+    setuptools / setuptools_scm""" 
+
+    session.install("-r", "requirements-build.txt")
+    session.run("python", "-m", "build")
+
+
+@nox.session()
+def install_wheel(session):
+    """If you have several wheels in your dist/ directory this will 
+    try to install each one. so be sure to clean things out before 
+    running."""
+
+    wheel_files = glob(os.path.join("dist", "*.whl"))
+    print(wheel_files)
+    session.run("pip", 
+                "install",
+                "--no-deps", 
+                "dist/stravalib-1.4.post24-py3-none-any.whl")
+    if wheel_files:
+        for wheel_path in wheel_files:
+            print("Installing:", wheel_path)
+            session.install(wheel_path)
+    else:
+        print("No wheel files found matching the pattern:", wheel_pattern)
+
+@nox.session()
+def clean_build(session):
+    """Clean out the dist/ directory and also clean out other remnant 
+    files such as .coverage, etc. """
+
+    files_remove = [
+        '*.pyc',
+        '*.mypy_cache',
+        '*.orig',
+        '.coverage.*',
+        'build',
+        'dist',
+        'MANIFEST',
+        '*.egg-info',
+        '__pycache__',
+        '.coverage*',
+        '.cache',
+        '.pytest_cache',
+        'src/stravalib/_version_generated.py',]
+
+    for pattern in files_remove:
+        matches = glob(pattern, recursive=True)
+        print("searching for", matches)
+        
+    for match in matches:
+        if os.path.isfile(match):
+            os.remove(match)
+            print(f"Removed file: {match}")
+        elif os.path.isdir(match):
+            shutil.rmtree(match)
+            print(f"Removed directory: {match}")
