@@ -21,21 +21,6 @@ def tests(session):
         "src/stravalib/tests/integration/",
     )
 
-# # Use this for venv envs nox -s test
-# @nox.session()
-# def ci_test(session):
-#     """This is a ci session that allows you to run nox on whatever version of 
-#     python. This actually might not be working as intended as the env is 
-#     built during the session so i'm not sure it sees the ci matric settings. """
-#     session.install(".[all]")
-#     session.install("-r", "requirements.txt")
-#     session.run(
-#         "pytest",
-#         "--cov",
-#         "src/stravalib",
-#         "src/stravalib/tests/unit/",
-#         "src/stravalib/tests/integration/",
-#     )
 
 # Use this for conda/mamba = nox -s test_mamba
 @nox.session(venv_backend="mamba", python=["3.9", "3.10", "3.11"])
