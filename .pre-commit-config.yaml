@@ -57,3 +57,8 @@ repos:
         entry: bash -c 'isort "$@"; git add -u' --
         files: \.py$
         args: ["--profile", "black", "--filter-files"]
+
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: ""  # replace with latest tag on GitHub
+    hooks:
+      - id: blacken-docs
