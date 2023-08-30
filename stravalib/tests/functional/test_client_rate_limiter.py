@@ -33,7 +33,7 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
         # interact with api to get the limits
         self.client.get_athlete()
 
-        # acces the default rate limit rule
+        # access the default rate limit rule
         rate_limit_rule = self.client.protocol.rate_limiter.rules[0]
 
         # get any of the rate limits, ex the 'short'
@@ -56,12 +56,12 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
         with self.assertRaises(exc.RateLimitTimeout):
             self.client.get_athlete()
 
-        # once rate limit has exceeded wait until another reuqest is possible
-        #  check if timout has been set
+        # once rate limit has exceeded wait until another request is possible
+        # check if timeout has been set
         self.assertTrue(rate_limit_rule.limit_timeout > 0)
         print("limit timeout {0}".format(rate_limit_rule.limit_timeout))
 
-        # reseting limit
+        # resetting limit
         # simulates Strava api - it would set the usage again to 0
         limit["limit"] = 600
         print("resetting limit to {0}".format(limit["limit"]))
@@ -76,6 +76,6 @@ class ClientDefaultRateLimiterTest(FunctionalTestBase):
         except exc.RateLimitExceeded as e:
             self.fail("limiter raised RateLimitTimeout unexpectedly!")
 
-        # continuse other tests with DefaultRateLimiter
+        # continue other tests with DefaultRateLimiter
         print("setting default rate limiter")
         self.client.protocol.rate_limiter = DefaultRateLimiter()

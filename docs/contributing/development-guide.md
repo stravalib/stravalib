@@ -100,7 +100,7 @@ the Python Enhancement Protocol (PEP) 008 standards. These standards dictate
 best practices for Python code readability and consistency:
 
 - [black](https://black.readthedocs.io/en/stable/) for consistent code format
-  that generally follows [PEP 8 guidlines](https://peps.python.org/pep-0008/).
+  that generally follows [PEP 8 guidelines](https://peps.python.org/pep-0008/).
   Because black's default line length is 88 characters, we adjust it to 79
   characters in the config [to follow PEP 8 line width guidelines](https://peps.python.org/pep-0008/#maximum-line-length).
 - [isort](https://pycqa.github.io/isort/): ensure imports are ordered following [PEP 8 import guidelines](https://peps.python.org/pep-0008/#imports)

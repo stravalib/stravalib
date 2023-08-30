@@ -81,7 +81,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Access Token: {}\n".format(access_token))
             else:
                 self.server.logger.error("No code param received.")
-                self.wfile.write(b"ERROR: No code param recevied.\n")
+                self.wfile.write(b"ERROR: No code param received.\n")
         else:
             url = client.authorization_url(
                 client_id=self.server.client_id,
