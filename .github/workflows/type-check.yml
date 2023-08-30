@@ -13,19 +13,17 @@ defaults:
 
 jobs:
   mypy:
-    name: Run mypy (${{ matrix.python-version }})
+    name: Run mypy
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
       - name: Set Variables
         id: set_variables
         shell: bash
@@ -46,4 +44,4 @@ jobs:
         run: python -m pip freeze
       - name: Run tests with mypy
         run: |
-          nox -s mypy-${{ matrix.python-version }}
+          nox -s mypy
