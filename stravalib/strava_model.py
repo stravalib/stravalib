@@ -708,7 +708,7 @@ class SummaryPRSegmentEffort(BaseModel):
     """
     pr_elapsed_time: Optional[int] = None
     """
-    The elapsed time ot the PR effort.
+    The elapsed time of the PR effort.
     """
 
 

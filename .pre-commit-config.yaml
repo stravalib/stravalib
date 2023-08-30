@@ -67,6 +67,6 @@ repos:
     rev: v2.2.5
     hooks:
       - id: codespell
-        args: [--toml, pyproject-codespell.precommit-toml]
+        args: [--toml]
         additional_dependencies:
           - tomli

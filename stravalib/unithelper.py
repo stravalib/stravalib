@@ -55,7 +55,7 @@ class UnitConverter:
         self, q: Union[Number, pint.Quantity, UnitsQuantity]
     ) -> Quantity:
         if isinstance(q, Number):
-            # provided quantity is unitless, so mimick legacy `units` behavior:
+            # provided quantity is unitless, so mimic legacy `units` behavior:
             converted_q = Quantity(q, self.unit)
         else:
             try:

@@ -759,7 +759,7 @@ class Client:
         trainer : bool, default=None
             Whether this is a trainer activity.
         gear_id : int, default=None
-            Alpha-numeric ID of gear (bike, shoes) used on this activity.
+            Alphanumeric ID of gear (bike, shoes) used on this activity.
         description : str, default=None
             Description for the activity.
         device_name : str, default=None
@@ -2143,8 +2143,7 @@ class ActivityUploader:
         if response.get("error"):
             self.error = response.get("error")
         elif response.get("errors"):
-            # This appears to be an undocumented API; ths is a bit of a hack
-            # for now.
+            # This appears to be an undocumented API; this is a temp hack
             self.error = str(response.get("errors"))
         else:
             self.error = None
