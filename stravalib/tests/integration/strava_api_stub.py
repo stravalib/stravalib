@@ -128,9 +128,7 @@ def _api_method_adapter(api_method: Callable) -> Callable:
                     ]
                 elif n_results is not None:
                     # Force single response in example into result list (not all examples provide lists)
-                    LOGGER.warning(
-                        f"Forcing example single response into list"
-                    )
+                    LOGGER.warning("Forcing example single response into list")
                     response = [{**response, **response_update}] * n_results
             except KeyError:
                 LOGGER.warning(
