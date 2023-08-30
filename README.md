@@ -106,16 +106,20 @@ authentication easier.
 from stravalib.client import Client
 
 client = Client()
-authorize_url = client.authorization_url(client_id=1234, redirect_uri='http://localhost:8282/authorized')
+authorize_url = client.authorization_url(
+    client_id=1234, redirect_uri="http://localhost:8282/authorized"
+)
 # Have the user click the authorization URL, a 'code' param will be added to the redirect_uri
 # .....
 
 # Extract the code from your webapp response
-code = requests.get('code') # or whatever your framework does
-token_response = client.exchange_code_for_token(client_id=1234, client_secret='asdf1234', code=code)
-access_token = token_response['access_token']
-refresh_token = token_response['refresh_token']
-expires_at = token_response['expires_at']
+code = requests.get("code")  # or whatever your framework does
+token_response = client.exchange_code_for_token(
+    client_id=1234, client_secret="asdf1234", code=code
+)
+access_token = token_response["access_token"]
+refresh_token = token_response["refresh_token"]
+expires_at = token_response["expires_at"]
 
 # Now store that short-lived access token somewhere (a database?)
 client.access_token = access_token
@@ -128,15 +132,20 @@ client.refresh_token = refresh_token
 client.token_expires_at = expires_at
 
 athlete = client.get_athlete()
-print("For {id}, I now have an access token {token}".format(id=athlete.id, token=access_token))
+print(
+    "For {id}, I now have an access token {token}".format(
+        id=athlete.id, token=access_token
+    )
+)
 
 # ... time passes ...
 if time.time() > client.token_expires_at:
-    refresh_response = client.refresh_access_token(client_id=1234, client_secret='asdf1234',
-        refresh_token=client.refresh_token)
-    access_token = refresh_response['access_token']
-    refresh_token = refresh_response['refresh_token']
-    expires_at = refresh_response['expires_at']
+    refresh_response = client.refresh_access_token(
+        client_id=1234, client_secret="asdf1234", refresh_token=client.refresh_token
+    )
+    access_token = refresh_response["access_token"]
+    refresh_token = refresh_response["refresh_token"]
+    expires_at = refresh_response["expires_at"]
 ```
 
 ### Athletes and Activities
@@ -165,16 +174,20 @@ segments all have streams. There are many types of streams, if activity does
 not have requested stream type, returned set simply won't include it.
 
 ```python
-
 # Activities can have many streams, you can request n desired stream types
-types = ['time', 'latlng', 'altitude', 'heartrate', 'temp', ]
+types = [
+    "time",
+    "latlng",
+    "altitude",
+    "heartrate",
+    "temp",
+]
 
-streams = client.get_activity_streams(123, types=types, resolution='medium')
+streams = client.get_activity_streams(123, types=types, resolution="medium")
 
 #  Result is a dictionary object.  The dict's key are the stream type.
-if 'altitude' in streams.keys():
-    print(streams['altitude'].data)
-
+if "altitude" in streams.keys():
+    print(streams["altitude"].data)
 ```
 
 
@@ -185,7 +198,6 @@ with the values in the API that have associated units (e.g. distance, speed).  Y
 directly or through the `stravalib.unithelper` module for shortcuts
 
 ```python
-
 activity = client.get_activity(96089609)
 assert isinstance(activity.distance, unithelper.Quantity)
 print(activity.distance)

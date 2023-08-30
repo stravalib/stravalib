@@ -1,7 +1,5 @@
 #!flask/bin/python
-import logging
-
-from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask import Flask, render_template, request, url_for
 
 from stravalib import Client
 

@@ -57,3 +57,15 @@ repos:
         entry: bash -c 'isort "$@"; git add -u' --
         files: \.py$
         args: ["--profile", "black", "--filter-files"]
+
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: "1.16.0"
+    hooks:
+      - id: blacken-docs
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli

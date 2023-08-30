@@ -229,8 +229,8 @@ class DeprecatedSerializableMixin(BaseModel):
 
     def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
         """
-        Deserializes v into self, resetting and ond/or overwriting existing
-        fields
+        Deserializes v into self, resetting and/or overwriting existing
+        fields.
 
         Parameters
         ----------
@@ -447,7 +447,7 @@ class Club(
 
         Returns
         -------
-        Interator
+        Iterator
             An iterator of Activity objects representing club activities.
         """
         assert self.bound_client is not None, "Bound client is not set."

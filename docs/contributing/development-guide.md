@@ -100,7 +100,7 @@ the Python Enhancement Protocol (PEP) 008 standards. These standards dictate
 best practices for Python code readability and consistency:
 
 - [black](https://black.readthedocs.io/en/stable/) for consistent code format
-  that generally follows [PEP 8 guidlines](https://peps.python.org/pep-0008/).
+  that generally follows [PEP 8 guidelines](https://peps.python.org/pep-0008/).
   Because black's default line length is 88 characters, we adjust it to 79
   characters in the config [to follow PEP 8 line width guidelines](https://peps.python.org/pep-0008/#maximum-line-length).
 - [isort](https://pycqa.github.io/isort/): ensure imports are ordered following [PEP 8 import guidelines](https://peps.python.org/pep-0008/#imports)
@@ -188,7 +188,8 @@ To ensure proper typing throughout our library we use [mypy](https://mypy.readth
 Similar to running tests, if you are missing a version of Python, nox will
 skip that run and continue to the next version.
 
-```python
+```bash
+
 ❯ nox -s mypy
 nox > Running session mypy-3.8
 nox > Missing interpreters will error by default on CI systems.
