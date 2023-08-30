@@ -26,8 +26,8 @@ Create a file -- for example `settings.cfg`:
 Paste in your Strava client ID and secret:
 
 ```python
-STRAVA_CLIENT_ID=123
-STRAVA_CLIENT_SECRET='deadbeefdeadbeefdeadbeef'
+STRAVA_CLIENT_ID = 123
+STRAVA_CLIENT_SECRET = "deadbeefdeadbeefdeadbeef"
 ```
 
 Run Server
