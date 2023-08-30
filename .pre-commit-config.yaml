@@ -59,7 +59,7 @@ repos:
         args: ["--profile", "black", "--filter-files"]
 
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: ""  # replace with latest tag on GitHub
+    rev: "1.16.0"
     hooks:
       - id: blacken-docs
 
