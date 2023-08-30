@@ -62,3 +62,11 @@ repos:
     rev: ""  # replace with latest tag on GitHub
     hooks:
       - id: blacken-docs
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        args: [--toml, pyproject-codespell.precommit-toml]
+        additional_dependencies:
+          - tomli
