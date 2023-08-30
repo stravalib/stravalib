@@ -73,7 +73,6 @@ filterwarnings = [
 ]
 
 [tool.mypy]
-plugins = ["pydantic.mypy"]
 python_version = "3.9"
 follow_imports = "silent"
 warn_redundant_casts = true

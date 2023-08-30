@@ -2,6 +2,7 @@ import os
 import pathlib
 import shutil
 from glob import glob
+
 import nox
 
 nox.options.reuse_existing_virtualenvs = True
@@ -67,7 +68,7 @@ def docs_live(session):
 
 
 # Use this for venv envs nox -s test
-@nox.session(python=["3.9", "3.10", "3.11"])
+@nox.session(python="3.10")
 def mypy(session):
     session.install(".[all]")
     session.install("-r", "requirements.txt")
@@ -122,7 +123,7 @@ def install_wheel(session):
             print("Installing:", wheel_path)
             session.install(wheel_path)
     else:
-        print("No wheel files found matching the pattern:", wheel_pattern)
+        print("No wheel files found matching the pattern: *.whl")
 
 
 @nox.session()
