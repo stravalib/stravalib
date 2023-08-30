@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask render_template, request, url_for
+from flask import Flask, render_template, request, url_for
 
 from stravalib import Client
 

@@ -188,7 +188,8 @@ To ensure proper typing throughout our library we use [mypy](https://mypy.readth
 Similar to running tests, if you are missing a version of Python, nox will
 skip that run and continue to the next version.
 
-```python
+```bash
+
 ❯ nox -s mypy
 nox > Running session mypy-3.8
 nox > Missing interpreters will error by default on CI systems.
