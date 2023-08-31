@@ -6,3 +6,6 @@ try:
     from ._version_generated import __version__
 except ImportError:
     __version__ = "unreleased"
+
+
+__all__ = ["Client"]
