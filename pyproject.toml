@@ -94,3 +94,13 @@ warn_untyped_fields = true
 
 [tool.codespell]
 skip = './docs/_build, ./build'
+
+[tool.ruff]
+select = [
+    "F", # pyflakes
+    "I", # isort
+]
+ignore = [
+    "F841"
+]
+line-length = 79
