@@ -17,10 +17,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON-VERSION }}
-      - name: Upgrade pip
+      - name: Upgrade pip & install nox
         run: |
           # install pip=>20.1 to use "pip cache dir"
           python3 -m pip install --upgrade pip
+          pip install nox
       - name: Set Variables
         id: set_variables
         shell: bash
@@ -36,10 +37,11 @@ jobs:
         run: |
           python3 -m pip install -r ./requirements.txt
           python3 -m pip install .
+          pip install nox
       - name: Build docs & linkcheck
         run: |
           # Build html and link check
-          make -C docs
+          nox -s docs
       - name: Print doc link failures in the output.txt file
         if: success() || failure()
         run: |

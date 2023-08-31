@@ -1,6 +1,9 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
 
 [tool.setuptools_scm]
 # Make sure setuptools uses version of last created tag - this allows us to specify bump
@@ -8,7 +11,7 @@ version_scheme = "post-release"
 # Make sure scm doesn't use local scheme version for push to pypi
 # (so there isn't a + in the version)
 local_scheme = "no-local-version"
-write_to = "stravalib/_version_generated.py"
+write_to = "src/stravalib/_version_generated.py"
 write_to_template = '__version__ = "v{version}"'
 
 [tool.setuptools.package-data]
@@ -31,7 +34,7 @@ maintainers = [
 ]
 requires-python = ">=3.9"
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
@@ -47,14 +50,13 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
 ]
 
-
 dependencies = ["pint", "pytz", "arrow", "requests", "pydantic==1.10.9"]
 
 [project.urls]
 homepage = "https://example.com"
 documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
-changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
+changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
 
 [tool.black]
 line-length = 79
@@ -80,11 +82,9 @@ check_untyped_defs = true
 no_implicit_reexport = true
 warn_unreachable = true
 disallow_untyped_defs = true
-
+files = ["src/stravalib/"]
 plugins = ["pydantic.mypy"]
-
-files = ["stravalib/"]
-exclude = ["stravalib/tests/"]
+exclude = ["src/stravalib/tests/"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

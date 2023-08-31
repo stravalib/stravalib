@@ -306,7 +306,7 @@ $ pytest
 ### Test code coverage
 
 We use [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) to calculate
-test coverage. When you run `make test` pytest-cov will provide you with
+test coverage. When you run `nox -s tests` pytest-cov will provide you with
 coverage outputs locally. You can ignore the returned values for any files in
 the `test` directory.
 
@@ -455,12 +455,9 @@ command from the root of the `stravalib` directory:
 $ nox -s clean-docs
 ```
 
-To clean up build files such as the .whl file, and other temporary files
-creating when building `stravalib` run:
+To clean up build files such as the package **.whl**, and other temporary files
+created when building `stravalib` distributions and running tests, run:
 
 ```bash
-$ make clean
+$ nox -s clean_build
 ```
-
-Note: we will be moving the build and this step to nox as well in the near
-future.
