@@ -30,7 +30,6 @@ import arrow
 import pint
 import pytz
 from pydantic import BaseModel
-from requests import Session
 
 from stravalib import exc, model, strava_model, unithelper
 from stravalib.exc import (
@@ -44,6 +43,8 @@ from stravalib.exc import (
 from stravalib.protocol import AccessInfo, ApiV3, Scope
 from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
+
+from requests import Session
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -112,7 +113,7 @@ class Client:
         return self.protocol.access_token
 
     @access_token.setter
-    def access_token(self, token_value: str) -> None:
+    def access_token(self,token_value: str) -> None:
         """Set the currently configured authorization token.
 
         Parameters
