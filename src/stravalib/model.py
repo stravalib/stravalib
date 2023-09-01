@@ -1042,8 +1042,8 @@ class Activity(
     map: Optional[Map] = None
     gear: Optional[Gear] = None
     # Ignoring types here given there are overrides
-    best_efforts: Optional[list[BestEffort]] = None
-    segment_efforts: Optional[list[SegmentEffort]] = None
+    best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
+    segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
     splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None
