@@ -269,10 +269,7 @@ class Client:
 
     def get_activities(
         self,
-        before: datetime | str | None = None,
-        after: datetime | str | None = None,
-        limit: int | None = None,
-    ) -> BatchedResultsIterator[model.Activity]:
+        before: datetime | str | None = None,after: datetime | str | None = None, limit: int | None = None,) -> BatchedResultsIterator[model.Activity]:
         """Get activities for authenticated user sorted by newest first.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
