@@ -7,7 +7,7 @@
 - Remove python 3.8 support following NEP-29 (@enadeau, #416)
 - Stravalib now includes types annotation, the package is PEP 561 compatible (@enadeau, #423)
 - Add blacken-docs and codespell to pre-commit & apply on docs (@lwasser, #391)
-- Add: Add field override in class Segment to support all activity types (@JohnScolaro, #432)
+- Add: Add field override in class Segment to support all activity types (@JohnScolaro, #434)
 - Infra: Replace flake8 and isort by ruff (@enadeau, #430)
 
 ## v1.4
