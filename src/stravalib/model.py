@@ -33,7 +33,12 @@ from typing_extensions import Self
 
 from stravalib import exc, strava_model
 from stravalib import unithelper as uh
-from stravalib.field_conversions import enum_value, enum_values, time_interval, timezone
+from stravalib.field_conversions import (
+    enum_value,
+    enum_values,
+    time_interval,
+    timezone,
+)
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
@@ -53,9 +58,6 @@ from stravalib.strava_model import (
     PhotosSummary,
     PolylineMap,
     Primary,
-)
-from stravalib.strava_model import Route as RouteStrava
-from stravalib.strava_model import (
     SportType,
     SummaryClub,
     SummaryGear,
@@ -63,6 +65,7 @@ from stravalib.strava_model import (
     SummarySegmentEffort,
     TimedZoneRange,
 )
+from stravalib.strava_model import Route as RouteStrava
 
 if TYPE_CHECKING:
     from stravalib.client import BatchedResultsIterator
