@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## v.15
+## v1.5
 
 ### Added
 - Stravalib now includes types annotation, the package is PEP 561 compatible (@enadeau, #423)
