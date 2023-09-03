@@ -2,13 +2,25 @@
 
 ## Unreleased
 
+## v.15
+
+### Added
+- Stravalib now includes types annotation, the package is PEP 561 compatible (@enadeau, #423)
 - Add: Add nox to run tests, build docs, build package wheel/sdist(@lwasser, #395, #397)
 - Type annotation for all file in the library (@enadeau, #384, #415)
-- Remove python 3.8 support following NEP-29 (@enadeau, #416)
-- Stravalib now includes types annotation, the package is PEP 561 compatible (@enadeau, #423)
 - Add blacken-docs and codespell to pre-commit & apply on docs (@lwasser, #391)
-- Add: Add field override in class Segment to support all activity types (@JohnScolaro, #434)
+
+### Fixed
+- Allow parsing of activity with segment of type other that Run and Ride (@JohnScolaro, #434)
+
+### Changed
 - Infra: Replace flake8 and isort by ruff (@enadeau, #430)
+
+### Removed
+- Remove python 3.8 support following NEP-29 (@enadeau, #416)
+
+### Contributors to this release
+@endeau, @lwasser, @JohnScolaro
 
 ## v1.4
 
