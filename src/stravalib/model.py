@@ -938,7 +938,7 @@ class Segment(
     map: Optional[Map] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type: Optional[Literal["Ride", "Run"]] = None
+    activity_type: Optional[ActivityType] = None  # type: ignore[assignment]
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
@@ -1044,9 +1044,9 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
-    best_efforts: Optional[list[DetailedSegmentEffort]] = None
-    segment_efforts: Optional[list[DetailedSegmentEffort]] = None
     # Ignoring types here given there are overrides
+    best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
+    segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
     splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None

@@ -45,6 +45,75 @@ def test_get_activity(
     assert activity.id == test_activity_id
 
 
+def test_activity_with_segment_that_that_is_not_ride_or_run(
+    mock_strava_api, client
+):
+    """
+    Make sure that activity that are not run are ride can still have segment.
+
+    See issue https://github.com/stravalib/stravalib/issues/432
+    """
+    test_activity_id = 1907
+    mock_strava_api.get(
+        "/activities/{id}",
+        response_update={
+            "id": test_activity_id,
+            "type": "Hike",
+            "segment_efforts": [
+                {
+                    "id": 3125507031446243384,
+                    "resource_state": 2,
+                    "name": "Landmannalaugavegur Climb",
+                    "activity": {
+                        "id": 9634609164,
+                        "visibility": "followers_only",
+                        "resource_state": 1,
+                    },
+                    "athlete": {"id": 69911568, "resource_state": 1},
+                    "elapsed_time": 454,
+                    "moving_time": 426,
+                    "start_date": "2023-08-12T05:22:38Z",
+                    "start_date_local": "2023-08-12T05:22:38Z",
+                    "distance": 709.74,
+                    "start_index": 91,
+                    "end_index": 213,
+                    "average_cadence": 47.7,
+                    "device_watts": False,
+                    "segment": {
+                        "id": 837087,
+                        "resource_state": 2,
+                        "name": "Landmannalaugavegur Climb",
+                        "activity_type": "Hike",
+                        "distance": 709.74,
+                        "average_grade": 7.7,
+                        "maximum_grade": 427.6,
+                        "elevation_high": 624.4,
+                        "elevation_low": 570.0,
+                        "start_latlng": [
+                            63.99094129912555,
+                            -19.063721196725965,
+                        ],
+                        "end_latlng": [63.99059135466814, -19.075878812000155],
+                        "elevation_profile": None,
+                        "climb_category": 0,
+                        "city": None,
+                        "state": "Suðurland",
+                        "country": "Iceland",
+                        "private": False,
+                        "hazardous": False,
+                        "starred": False,
+                    },
+                    "pr_rank": None,
+                    "achievements": [],
+                    "visibility": "followers_only",
+                    "hidden": False,
+                }
+            ],
+        },
+    )
+    activity = client.get_activity(test_activity_id)
+
+
 def test_get_activity_laps(mock_strava_api, client):
     mock_strava_api.get(
         "/activities/{id}/laps",
