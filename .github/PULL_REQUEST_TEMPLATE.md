@@ -21,6 +21,7 @@ Select the statement best describes this pull request.
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
 - [ ] This is a documentation update
+- [ ] This is a infrastructure update (docs, ci, etc)
 - [ ] Other (please describe)
 
 ## Does your PR include tests
