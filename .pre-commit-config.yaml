@@ -17,7 +17,7 @@ ci:
       '[pre-commit.ci 🤖] Apply code format tools to PR'
     autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
     # Update hook versions every quarter (so we don't get hit with weekly update pr's)
-    autoupdate_schedule: weekly
+    autoupdate_schedule: quarterly
     autoupdate_branch: ""
 
 default_stages: [commit]
