@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Sequence
-from datetime import timedelta
 from functools import wraps
 from typing import Callable, TypeVar
 
@@ -53,14 +52,6 @@ def enum_values(enums: Sequence[ActivityType | SportType]) -> list[str | None]:
     # it doesn't work for lists of enums.
     # See https://github.com/pydantic/pydantic/issues/5005
     return [enum_value(e) for e in enums]
-
-
-@optional_input
-def time_interval(seconds: int) -> timedelta:
-    """
-    Replaces legacy TimeIntervalAttribute
-    """
-    return timedelta(seconds=seconds)
 
 
 @optional_input
