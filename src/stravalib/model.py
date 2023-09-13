@@ -13,7 +13,7 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -36,7 +36,6 @@ from stravalib import unithelper as uh
 from stravalib.field_conversions import (
     enum_value,
     enum_values,
-    time_interval,
     timezone,
 )
 from stravalib.strava_model import (
@@ -492,11 +491,11 @@ class ActivityTotals(
     elapsed time, moving time, distance and elevation gain."""
 
     _field_conversions = {
-        "elapsed_time": time_interval,
-        "moving_time": time_interval,
         "distance": uh.meters,
         "elevation_gain": uh.meters,
     }
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
+    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
 
 
 class AthleteStats(
@@ -785,13 +784,13 @@ class ActivityLap(
     device_watts: Optional[bool] = None
 
     _field_conversions = {
-        "elapsed_time": time_interval,
-        "moving_time": time_interval,
         "distance": uh.meters,
         "total_elevation_gain": uh.meters,
         "average_speed": uh.meters_per_second,
         "max_speed": uh.meters_per_second,
     }
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
+    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _naive_local = validator("start_date_local", allow_reuse=True)(
         naive_datetime
@@ -819,13 +818,13 @@ class Split(
     average_grade_adjusted_speed: Optional[float] = None
 
     _field_conversions = {
-        "elapsed_time": time_interval,
-        "moving_time": time_interval,
         "distance": uh.meters,
         "elevation_difference": uh.meters,
         "average_speed": uh.meters_per_second,
         "average_grade_adjusted_speed": uh.meters_per_second,
     }
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
+    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
 
 
 class SegmentExplorerResult(
@@ -882,14 +881,13 @@ class AthleteSegmentStats(
 
     # Undocumented attributes:
     effort_count: Optional[int] = None
-    pr_elapsed_time: Optional[int] = None
+    pr_elapsed_time: Optional[timedelta] = None
     pr_date: Optional[date] = None
 
     _field_conversions = {
-        "elapsed_time": time_interval,
-        "pr_elapsed_time": time_interval,
         "distance": uh.meters,
     }
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _naive_local = validator("start_date_local", allow_reuse=True)(
         naive_datetime
@@ -908,16 +906,16 @@ class AthletePrEffort(
     is_kom: Optional[bool] = None
 
     _field_conversions = {
-        "pr_elapsed_time": time_interval,
         "distance": uh.meters,
     }
+    pr_elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _naive_local = validator("start_date_local", allow_reuse=True)(
         naive_datetime
     )
 
     @property
-    def elapsed_time(self) -> Optional[int]:
+    def elapsed_time(self) -> Optional[timedelta]:
         # For backward compatibility
         return self.pr_elapsed_time
 
@@ -946,7 +944,7 @@ class Segment(
     start_longitude: Optional[float] = None
     end_longitude: Optional[float] = None
     starred: Optional[bool] = None
-    pr_time: Optional[int] = None
+    pr_time: Optional[timedelta] = None
     starred_date: Optional[datetime] = None
     elevation_profile: Optional[str] = None
 
@@ -955,7 +953,6 @@ class Segment(
         "elevation_high": uh.meters,
         "elevation_low": uh.meters,
         "total_elevation_gain": uh.meters,
-        "pr_time": time_interval,
     }
 
     _latlng_check = validator(
@@ -1002,10 +999,10 @@ class BaseEffort(
     athlete: Optional[Athlete] = None
 
     _field_conversions = {
-        "moving_time": time_interval,
-        "elapsed_time": time_interval,
         "distance": uh.meters,
     }
+    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _naive_local = validator("start_date_local", allow_reuse=True)(
         naive_datetime
@@ -1086,8 +1083,6 @@ class Activity(
     perceived_exertion: Optional[int] = None
 
     _field_conversions = {
-        "moving_time": time_interval,
-        "elapsed_time": time_interval,
         "timezone": timezone,
         "distance": uh.meters,
         "total_elevation_gain": uh.meters,
@@ -1096,6 +1091,8 @@ class Activity(
         "type": enum_value,
         "sport_type": enum_value,
     }
+    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
+    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _latlng_check = validator(
         "start_latlng", "end_latlng", allow_reuse=True, pre=True
