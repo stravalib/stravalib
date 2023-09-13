@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix: forgot to update model CI build to follow new src layout (@lwasser, #438)
+- Fix: Type annotation on field that are of type timedelta are now correct (@enadeau, #440)
 
 ## v1.5
 
