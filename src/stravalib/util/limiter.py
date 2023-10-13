@@ -30,6 +30,7 @@ from typing import Callable, Literal, NamedTuple, NoReturn, TypedDict
 import arrow
 
 from stravalib import exc
+from stravalib.protocol import RequestMethod
 
 
 class RequestRate(NamedTuple):
@@ -183,7 +184,9 @@ class XRateLimitRule:
     def limit_timeout(self) -> float:
         return self.limit_time_invalid
 
-    def __call__(self, response_headers: dict[str, str]) -> None:
+    def __call__(
+        self, response_headers: dict[str, str], method: RequestMethod
+    ) -> None:
         """Check limit rates for API calls and update current usage state
 
         Parameters
@@ -343,7 +346,9 @@ class SleepingRateLimitRule:
         elif self.priority == "low":
             return seconds_until_long_limit / (self.long_limit - long_usage)
 
-    def __call__(self, response_headers: dict[str, str]) -> None:
+    def __call__(
+        self, response_headers: dict[str, str], method: RequestMethod
+    ) -> None:
         """Determines wait time until a call can be mde again"""
         rates = get_rates_from_response_headers(response_headers)
 
@@ -366,12 +371,12 @@ class RateLimiter:
         self.log: Logger = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
-        self.rules: list[Callable[[dict[str, str]], None]] = []
+        self.rules: list[Callable[[dict[str, str], RequestMethod], None]] = []
 
-    def __call__(self, args: dict[str, str]) -> None:
+    def __call__(self, args: dict[str, str], method: RequestMethod) -> None:
         """Register another request is being issued."""
         for r in self.rules:
-            r(args)
+            r(args, method)
 
 
 class DefaultRateLimiter(RateLimiter):

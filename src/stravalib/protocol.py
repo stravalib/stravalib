@@ -27,6 +27,8 @@ Scope = Literal[
     "activity:write",
 ]
 
+RequestMethod = Literal["GET", "POST", "PUT", "DELETE"]
+
 
 class AccessInfo(TypedDict):
     """Dictionary containing token exchange response from Strava."""
@@ -57,7 +59,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         self,
         access_token: str | None = None,
         requests_session: requests.Session | None = None,
-        rate_limiter: Callable[[dict[str, str]], None] | None = None,
+        rate_limiter: Callable[[dict[str, str], RequestMethod], None]
+        | None = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
@@ -79,7 +82,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         else:
             self.rsession = requests.Session()
 
-        self.rate_limiter = rate_limiter or (lambda _: None)
+        self.rate_limiter = rate_limiter or (
+            lambda _request_params, _method: None
+        )
 
     def authorization_url(
         self,
@@ -261,7 +266,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         url: str,
         params: dict[str, Any] | None = None,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
-        method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
+        method: RequestMethod = "GET",
         check_for_errors: bool = True,
     ) -> Any:
         """Perform the underlying request, returning the parsed JSON results.
@@ -314,7 +319,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         raw = requester(url, params=params)  # type: ignore[operator]
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
-        self.rate_limiter(raw.headers)
+        self.rate_limiter(raw.headers, method)
 
         if check_for_errors:
             self._handle_protocol_error(raw)
