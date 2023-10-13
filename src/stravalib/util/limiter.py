@@ -21,12 +21,11 @@ From the Strava docs:
 """
 from __future__ import annotations
 
-import collections
 import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from logging import Logger
-from typing import Callable, Deque, Literal, NamedTuple, NoReturn, TypedDict
+from typing import Callable, Literal, NamedTuple, NoReturn, TypedDict
 
 import arrow
 
@@ -360,66 +359,6 @@ class SleepingRateLimitRule:
             if not self.force_limits:
                 self.short_limit = rates.short_limit
                 self.long_limit = rates.long_limit
-
-
-class RateLimitRule:
-    def __init__(
-        self, requests: int, seconds: float, raise_exc: bool = False
-    ) -> None:
-        """
-        Parameters
-        ----------
-        requests
-            Number of requests for limit.
-        seconds
-            The number of seconds for that number of requests (may be
-            float)
-        raise_exc
-            Whether to raise an exception when limit is reached (as
-            opposed to pausing)
-        """
-        self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
-        )
-        self.timeframe = timedelta(seconds=seconds)
-        self.requests = requests
-        self.tab: Deque[datetime] = collections.deque(maxlen=self.requests)
-        self.raise_exc = raise_exc
-
-    def __call__(self, args: dict[str, str]) -> None:
-        """Register another request is being issued.
-
-        Depending on configuration of the rule will pause if rate limit has
-        been reached, or raise exception, etc.
-        """
-        # First check if the deque is full; that indicates that we'd better
-        # check whether we need to pause.
-        if len(self.tab) == self.requests:
-            # Grab the oldest (leftmost) timestamp and check to see if it is
-            # greater than 1 second
-            delta = datetime.now() - self.tab[0]
-            if (
-                delta < self.timeframe
-            ):  # Has it been less than configured timeframe since oldest
-                # request?
-                if self.raise_exc:
-                    raise exc.RateLimitExceeded(
-                        "Rate limit exceeded (can try again in {})".format(
-                            self.timeframe - delta
-                        )
-                    )
-                else:
-                    # Wait the difference between timeframe and the oldest
-                    # request.
-                    td = self.timeframe - delta
-                    sleeptime = td.total_seconds()
-                    self.log.debug(
-                        "Rate limit triggered; sleeping for {}".format(
-                            sleeptime
-                        )
-                    )
-                    time.sleep(sleeptime)
-        self.tab.append(datetime.now())
 
 
 class RateLimiter:
