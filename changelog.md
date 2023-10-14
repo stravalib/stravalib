@@ -5,6 +5,7 @@
 - Fix: forgot to update model CI build to follow new src layout (@lwasser, #438)
 - Fix: Type annotation on field that are of type timedelta are now correct (@enadeau, #440)
 - Fix: Correct type for ActivityPhoto sizes attribute (@jsamoocha, #444)
+- Fix: codespell config - ignore resources dir in tests (@lwasser, #445)
 
 ## v1.5
 
@@ -253,7 +254,7 @@
 
 ## 0.9.3
 
-- Fix mutable parma defaults in rate-limiter util functions (@hozn, #155)
+- Fix mutable parameter defaults in rate-limiter util functions (@hozn, #155)
 - Add the missing subscription_permissions attr to Athlete (@hozn, #156)
 
 ## 0.9.2
