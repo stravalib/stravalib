@@ -720,8 +720,7 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
     urls: Optional[dict[str, str]] = None
-    # TODO - is this a float return?
-    sizes: Optional[dict[str, float]] = None
+    sizes: Optional[dict[str, list[int]]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
