@@ -93,14 +93,12 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.codespell]
-skip = './docs/_build, ./build'
+skip = './docs/_build, ./build, ./src/stravalib/tests/resources'
 
 [tool.ruff]
 select = [
-    "F", # pyflakes
-    "I", # isort
+  "F", # pyflakes
+  "I", # isort
 ]
-ignore = [
-    "F841"
-]
+ignore = ["F841"]
 line-length = 79

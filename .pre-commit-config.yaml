@@ -10,6 +10,7 @@
 #
 # - Run on all files:   pre-commit run --all-files
 # - Register git hooks: pre-commit install --install-hooks
+# - Run a specific hook on all files: pre-commit run codespell --all-files
 
 ci:
     autofix_prs: false
@@ -59,5 +60,6 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
+        files: ^.*\.(py|md|rst)$
         additional_dependencies:
           - tomli
