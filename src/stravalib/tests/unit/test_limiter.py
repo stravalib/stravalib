@@ -1,8 +1,8 @@
 import arrow
 import pytest
 
-from stravalib.tests import TestBase
 from stravalib.util.limiter import (
+    RequestRate,
     SleepingRateLimitRule,
     get_rates_from_response_headers,
     get_seconds_until_next_day,
@@ -79,107 +79,61 @@ def test_get_rates_from_response_headers(
     )
 
 
-class LimiterTest(TestBase):
-    def test_get_seconds_until_next_quarter(self):
-        """Should return number of seconds to next quarter of an hour"""
-        self.assertEqual(
-            59,
-            get_seconds_until_next_quarter(
-                arrow.get(2017, 11, 1, 17, 14, 0, 0)
-            ),
+@pytest.mark.parametrize(
+    "timestamp,expected_seconds",
+    (
+        (arrow.get(2017, 11, 1, 17, 14, 0, 0), 59),
+        (arrow.get(2017, 11, 1, 17, 59, 0, 0), 59),
+        (arrow.get(2017, 11, 1, 17, 59, 59, 999999), 0),
+        (arrow.get(2017, 11, 1, 17, 0, 0, 1), 899),
+    ),
+)
+def test_get_seconds_until_next_quarter(timestamp, expected_seconds):
+    assert get_seconds_until_next_quarter(timestamp) == expected_seconds
+
+
+@pytest.mark.parametrize(
+    "timestamp,expected_seconds",
+    (
+        (arrow.get(2017, 11, 1, 23, 59, 0, 0), 59),
+        (arrow.get(2017, 11, 1, 0, 0, 0, 0), 86399),
+    ),
+)
+def test_get_seconds_until_next_day(timestamp, expected_seconds):
+    assert get_seconds_until_next_day(timestamp) == expected_seconds
+
+
+def test_create_limiter_invalid_priority():
+    """Should raise ValueError in case of invalid priority"""
+    with pytest.raises(ValueError):
+        SleepingRateLimitRule(priority="foobar")
+
+
+@pytest.mark.parametrize(
+    "priority,rates,seconds_until_short_limit,seconds_until_long_limit,expected_wait_time",
+    (
+        ("high", RequestRate(42, 42, 100, 100), 60, 3600, 0),
+        ("medium", RequestRate(1, 1, 11, 100), 10, 1000, 1),
+        ("medium", RequestRate(1, 1, 11, 100), 5, 1000, 0.5),
+        ("low", RequestRate(1, 1, 3, 11), 1, 10, 1),
+        ("low", RequestRate(1, 1, 3, 11), 1, 5, 0.5),
+        ("high", RequestRate(10, 10, 10, 100), 42, 1000, 42),
+        ("high", RequestRate(999, 10, 10, 100), 42, 1000, 42),
+        ("medium", RequestRate(10, 100, 10, 100), 42, 1000, 1000),
+        ("low", RequestRate(10, 1001, 10, 100), 42, 1000, 1000),
+    ),
+)
+def test_get_wait_time(
+    priority,
+    rates,
+    seconds_until_short_limit,
+    seconds_until_long_limit,
+    expected_wait_time,
+):
+    rule = SleepingRateLimitRule(priority=priority)
+    assert (
+        rule._get_wait_time(
+            rates, seconds_until_short_limit, seconds_until_long_limit
         )
-        self.assertEqual(
-            59,
-            get_seconds_until_next_quarter(
-                arrow.get(2017, 11, 1, 17, 59, 0, 0)
-            ),
-        )
-        self.assertEqual(
-            0,
-            get_seconds_until_next_quarter(
-                arrow.get(2017, 11, 1, 17, 59, 59, 999999)
-            ),
-        )
-        self.assertEqual(
-            899,
-            get_seconds_until_next_quarter(
-                arrow.get(2017, 11, 1, 17, 0, 0, 1)
-            ),
-        )
-
-    def test_get_seconds_until_next_day(self):
-        """Should return the number of seconds until next day"""
-        self.assertEqual(
-            59,
-            get_seconds_until_next_day(arrow.get(2017, 11, 1, 23, 59, 0, 0)),
-        )
-        self.assertEqual(
-            86399,
-            get_seconds_until_next_day(arrow.get(2017, 11, 1, 0, 0, 0, 0)),
-        )
-
-
-class SleepingRateLimitRuleTest(TestBase):
-    def setUp(self):
-        self.test_response = fake_response_unenrolled.copy()
-
-    def test_invalid_priority(self):
-        """Should raise ValueError in case of invalid priority"""
-        with self.assertRaises(ValueError):
-            SleepingRateLimitRule(priority="foobar")
-
-    def test_get_wait_time_high_priority(self):
-        """Should never sleep/wait after high priority requests"""
-        self.assertEqual(
-            0, SleepingRateLimitRule()._get_wait_time(42, 42, 60, 3600)
-        )
-
-    def test_get_wait_time_medium_priority(self):
-        """Should return number of seconds to next short limit divided by number of remaining requests
-        for that period"""
-        rule = SleepingRateLimitRule(priority="medium", short_limit=11)
-        self.assertEqual(1, rule._get_wait_time(1, 1, 10, 1000))
-        self.assertEqual(0.5, rule._get_wait_time(1, 1, 5, 1000))
-
-    def test_get_wait_time_low_priority(self):
-        """Should return number of seconds to next long limit divided by number of remaining requests
-        for that period"""
-        rule = SleepingRateLimitRule(priority="low", long_limit=11)
-        self.assertEqual(1, rule._get_wait_time(1, 1, 1, 10))
-        self.assertEqual(0.5, rule._get_wait_time(1, 1, 1, 5))
-
-    def test_get_wait_time_limit_reached(self):
-        """Should wait until end of period when limit is reached, regardless priority"""
-        rule = SleepingRateLimitRule(short_limit=10, long_limit=100)
-        self.assertEqual(42, rule._get_wait_time(10, 10, 42, 1000))
-        self.assertEqual(42, rule._get_wait_time(1234, 10, 42, 1000))
-        self.assertEqual(21, rule._get_wait_time(10, 100, 42, 21))
-        self.assertEqual(21, rule._get_wait_time(10, 1234, 42, 21))
-
-    def test_invocation_unchanged_limits(self):
-        """Should not update limits if these don't change"""
-        self.test_response["X-RateLimit-Usage"] = "0, 0"
-        self.test_response["X-RateLimit-Limit"] = "10000, 1000000"
-        rule = SleepingRateLimitRule()
-        self.assertEqual(10000, rule.short_limit)
-        self.assertEqual(1000000, rule.long_limit)
-        rule(self.test_response)
-        self.assertEqual(10000, rule.short_limit)
-        self.assertEqual(1000000, rule.long_limit)
-
-    def test_invocation_changed_limits(self):
-        """Should update limits in case of changes, depending on limit enforcement"""
-        self.test_response["X-RateLimit-Usage"] = "0, 0"
-        self.test_response["X-RateLimit-Limit"] = "600, 30000"
-
-        # without limit enforcement (default)
-        rule = SleepingRateLimitRule()
-        rule(self.test_response)
-        self.assertEqual(600, rule.short_limit)
-        self.assertEqual(30000, rule.long_limit)
-
-        # with limit enforcement
-        rule = SleepingRateLimitRule(force_limits=True)
-        rule(self.test_response)
-        self.assertEqual(10000, rule.short_limit)
-        self.assertEqual(1000000, rule.long_limit)
+        == expected_wait_time
+    )

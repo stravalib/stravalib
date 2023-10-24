@@ -149,9 +149,6 @@ class SleepingRateLimitRule:
     def __init__(
         self,
         priority: Literal["low", "medium", "high"] = "high",
-        short_limit: int = 10000,
-        long_limit: int = 1000000,
-        force_limits: bool = False,
     ) -> None:
         """
         Constructs a new SleepingRateLimitRule.
@@ -164,73 +161,61 @@ class SleepingRateLimitRule:
             not be exceeded. When 'medium', the cool-down period will be such
             that the short-term limits will not be exceeded.  When 'high',
             there will be no cool-down period.
-        short_limit : int
-            (Optional) explicit short-term limit
-        long_limit : int
-            (Optional) explicit long-term limit
-        force_limits
-            If False (default), this rule will set/update its limits
-            based on what the Strava API tells it.
-            If True, the provided limits will be enforced, i.e. ignoring the limits
-            given by the API.
         """
         if priority not in ["low", "medium", "high"]:
             raise ValueError(
-                'Invalid priority "{}", expecting one of "low", "medium" or "high"'.format(
-                    priority
-                )
+                f'Invalid priority "{priority}", expecting one of "low", "medium" or "high"'
             )
 
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
         self.priority = priority
-        self.short_limit = short_limit
-        self.long_limit = long_limit
-        self.force_limits = force_limits
 
     def _get_wait_time(
         self,
-        short_usage: int,
-        long_usage: int,
+        rates: RequestRate,
         seconds_until_short_limit: int,
         seconds_until_long_limit: int,
     ) -> float:
         """Calculate how much time user has until they can make another
         request"""
 
-        if long_usage >= self.long_limit:
+        if rates.long_usage >= rates.long_limit:
             self.log.warning("Long term API rate limit exceeded")
             return seconds_until_long_limit
-        elif short_usage >= self.short_limit:
+        elif rates.short_usage >= rates.short_limit:
             self.log.warning("Short term API rate limit exceeded")
             return seconds_until_short_limit
 
         if self.priority == "high":
             return 0
         elif self.priority == "medium":
-            return seconds_until_short_limit / (self.short_limit - short_usage)
+            return seconds_until_short_limit / (
+                rates.short_limit - rates.short_usage
+            )
         elif self.priority == "low":
-            return seconds_until_long_limit / (self.long_limit - long_usage)
+            return seconds_until_long_limit / (
+                rates.long_limit - rates.long_usage
+            )
 
     def __call__(
         self, response_headers: dict[str, str], method: RequestMethod
     ) -> None:
         """Determines wait time until a call can be made again"""
         rates = get_rates_from_response_headers(response_headers, method)
+        self.log.debug(f"Throttling based on rates: {rates}")
 
         if rates:
             time.sleep(
                 self._get_wait_time(
-                    rates.short_usage,
-                    rates.long_usage,
+                    rates,
                     get_seconds_until_next_quarter(),
                     get_seconds_until_next_day(),
                 )
             )
-            if not self.force_limits:
-                self.short_limit = rates.short_limit
-                self.long_limit = rates.long_limit
+        else:
+            self.log.warning("No rates present in response headers")
 
 
 class RateLimiter:
