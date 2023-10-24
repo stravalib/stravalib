@@ -1,15 +1,18 @@
 import arrow
+import pytest
 
 from stravalib.tests import TestBase
 from stravalib.util.limiter import (
     SleepingRateLimitRule,
-    XRateLimitRule,
     get_rates_from_response_headers,
     get_seconds_until_next_day,
     get_seconds_until_next_quarter,
 )
 
-test_response = {
+# Example responses for Strava 3rd party apps that are not enrolled in the
+# 2023 developer program:
+
+fake_response_unenrolled = {
     "Status": "404 Not Found",
     "X-Request-Id": "a1a4a4973962ffa7e0f18d7c485fe741",
     "Content-Encoding": "gzip",
@@ -24,7 +27,11 @@ test_response = {
     "X-RateLimit-Usage": "4,67",
 }
 
-test_response_no_rates = {
+fake_response_unenrolled_limit_exceeded = fake_response_unenrolled | {
+    "X-RateLimit-Usage": "601, 602"
+}
+
+fake_response_unenrolled_no_rates = {
     "Status": "200 OK",
     "X-Request-Id": "d465159561420f6e0239dc24429a7cf3",
     "Content-Encoding": "gzip",
@@ -37,22 +44,42 @@ test_response_no_rates = {
     "Content-Type": "application/json; charset=UTF-8",
 }
 
+# Example responses for Strava 3rd party apps that are enrolled:
+fake_reponse_enrolled = fake_response_unenrolled | {
+    "X-ReadRateLimit-Usage": "2,32",
+    "X-ReadRateLimit-Limit": "300,15000",
+}
+
+fake_reponse_enrolled_read_limit_exceeded = fake_reponse_enrolled | {
+    "X-ReadRateLimit-Usage": "301,302"
+}
+fake_reponse_enrolled_overall_limit_exceeded = fake_reponse_enrolled | {
+    "X-RateLimit-Usage": "601,602"
+}
+
+
+@pytest.mark.parametrize(
+    "headers,request_method,expected_rates",
+    # rates = (short_usage,long_usage,short_limit,long_limit)
+    (
+        (fake_response_unenrolled, "GET", (4, 67, 600, 30000)),
+        (fake_response_unenrolled, "POST", (4, 67, 600, 30000)),
+        (fake_response_unenrolled_no_rates, "GET", None),
+        (fake_response_unenrolled_no_rates, "PUT", None),
+        (fake_reponse_enrolled, "GET", (2, 32, 300, 15000)),
+        (fake_reponse_enrolled, "PUT", (4, 67, 600, 30000)),
+    ),
+)
+def test_get_rates_from_response_headers(
+    headers, request_method, expected_rates
+):
+    assert (
+        get_rates_from_response_headers(headers, request_method)
+        == expected_rates
+    )
+
 
 class LimiterTest(TestBase):
-    def test_get_rates_from_response_headers(self):
-        """Should return namedtuple with rates"""
-        request_rates = get_rates_from_response_headers(test_response)
-        self.assertEqual(600, request_rates.short_limit)
-        self.assertEqual(30000, request_rates.long_limit)
-        self.assertEqual(4, request_rates.short_usage)
-        self.assertEqual(67, request_rates.long_usage)
-
-    def test_get_rates_from_response_headers_missing_rates(self):
-        """Should return namedtuple with None values for rates in case of missing rates in headers"""
-        self.assertIsNone(
-            get_rates_from_response_headers(test_response_no_rates)
-        )
-
     def test_get_seconds_until_next_quarter(self):
         """Should return number of seconds to next quarter of an hour"""
         self.assertEqual(
@@ -92,53 +119,9 @@ class LimiterTest(TestBase):
         )
 
 
-class XRateLimitRuleTest(TestBase):
-    def test_rule_normal_response(self):
-        rule = XRateLimitRule(
-            {
-                "short": {
-                    "usage": 0,
-                    "limit": 600,
-                    "time": (60 * 15),
-                    "lastExceeded": None,
-                },
-                "long": {
-                    "usage": 0,
-                    "limit": 30000,
-                    "time": (60 * 60 * 24),
-                    "lastExceeded": None,
-                },
-            }
-        )
-        rule(test_response)
-        self.assertEqual(4, rule.rate_limits["short"]["usage"])
-        self.assertEqual(67, rule.rate_limits["long"]["usage"])
-
-    def test_rule_missing_rates_response(self):
-        rule = XRateLimitRule(
-            {
-                "short": {
-                    "usage": 0,
-                    "limit": 600,
-                    "time": (60 * 15),
-                    "lastExceeded": None,
-                },
-                "long": {
-                    "usage": 0,
-                    "limit": 30000,
-                    "time": (60 * 60 * 24),
-                    "lastExceeded": None,
-                },
-            }
-        )
-        rule(test_response_no_rates)
-        self.assertEqual(0, rule.rate_limits["short"]["usage"])
-        self.assertEqual(0, rule.rate_limits["long"]["usage"])
-
-
 class SleepingRateLimitRuleTest(TestBase):
     def setUp(self):
-        self.test_response = test_response.copy()
+        self.test_response = fake_response_unenrolled.copy()
 
     def test_invalid_priority(self):
         """Should raise ValueError in case of invalid priority"""

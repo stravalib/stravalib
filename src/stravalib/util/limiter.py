@@ -23,13 +23,11 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime
 from logging import Logger
-from typing import Callable, Literal, NamedTuple, NoReturn, TypedDict
+from typing import Callable, Literal, NamedTuple
 
 import arrow
 
-from stravalib import exc
 from stravalib.protocol import RequestMethod
 
 
@@ -50,7 +48,7 @@ class RequestRate(NamedTuple):
 
 
 def get_rates_from_response_headers(
-    headers: dict[str, str]
+    headers: dict[str, str], method: RequestMethod
 ) -> RequestRate | None:
     """Returns a namedtuple with values for short - and long usage and limit
     rates found in provided HTTP response headers
@@ -59,6 +57,8 @@ def get_rates_from_response_headers(
     ----------
     headers : dict
         HTTP response headers
+    method : RequestMethod
+        HTTP request method corresponding to the provided response headers
 
     Returns
     -------
@@ -66,17 +66,27 @@ def get_rates_from_response_headers(
         namedtuple with request rates or None if no rate-limit headers
         present in response.
     """
-    try:
+    usage_rates = limit_rates = []
+
+    if "X-ReadRateLimit-Usage" in headers and method == "GET":
+        usage_rates = [
+            int(v) for v in headers["X-ReadRateLimit-Usage"].split(",")
+        ]
+        limit_rates = [
+            int(v) for v in headers["X-ReadRateLimit-Limit"].split(",")
+        ]
+    elif "X-RateLimit-Usage" in headers:
         usage_rates = [int(v) for v in headers["X-RateLimit-Usage"].split(",")]
         limit_rates = [int(v) for v in headers["X-RateLimit-Limit"].split(",")]
 
+    if usage_rates and limit_rates:
         return RequestRate(
             short_usage=usage_rates[0],
             long_usage=usage_rates[1],
             short_limit=limit_rates[0],
             long_limit=limit_rates[1],
         )
-    except KeyError:
+    else:
         return None
 
 
@@ -126,149 +136,6 @@ def get_seconds_until_next_day(now: arrow.arrow.Arrow | None = None) -> int:
     if now is None:
         now = arrow.utcnow()
     return (now.ceil("day") - now).seconds
-
-
-class LimitStructure(TypedDict):
-    """Dictionary that holds rate limits for a specific time window size."""
-
-    usage: int
-    """Usage in the current period"""
-
-    limit: int
-    """Limit for the period"""
-
-    time: float
-    """Duration of the period"""
-
-    lastExceeded: datetime | None
-    """Last time the limit was exceeded"""
-
-
-class LimitsStructure(TypedDict):
-    """Dictionary that holds rate limiting information for both of Strava
-    15-minutes and
-    daily rate limits.
-    """
-
-    short: LimitStructure
-    """15-minutes rate limiting data"""
-
-    long: LimitStructure
-    """Daily rate limiting data"""
-
-
-class XRateLimitRule:
-    def __init__(
-        self, limits: LimitsStructure, force_limits: bool = False
-    ) -> None:
-        """
-        Parameters
-        ----------
-        limits : LimitsStructure
-            The limits structure.
-        force_limits : bool (default=False)
-            If False (default), this rule will set/update its limits
-            based on what the Strava API tells it. If True, the provided
-            limits will be enforced, i.e. ignoring the limits given by
-            the API.
-        """
-        self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
-        )
-        self.rate_limits = limits
-        # TODO: Should limit args be validated?
-        self.limit_time_invalid: float = 0.0
-        self.force_limits = force_limits
-
-    @property
-    def limit_timeout(self) -> float:
-        return self.limit_time_invalid
-
-    def __call__(
-        self, response_headers: dict[str, str], method: RequestMethod
-    ) -> None:
-        """Check limit rates for API calls and update current usage state
-
-        Parameters
-        ----------
-        response_headers : dict
-            A dictionary of strings from the response providing the current
-            rate-limit state.
-
-        Returns
-        -------
-        None
-            Updates the object's rate limit state attrs.
-        """
-        self._update_usage(response_headers)
-
-        self._check_limit_time_invalid(self.rate_limits["short"])
-        self._check_limit_rates(self.rate_limits["short"])
-        self._check_limit_time_invalid(self.rate_limits["long"])
-        self._check_limit_rates(self.rate_limits["long"])
-
-    def _update_usage(self, response_headers: dict[str, str]) -> None:
-        """Update current state of rate limit usage."""
-        rates = get_rates_from_response_headers(response_headers)
-
-        if rates:
-            self.log.debug(
-                "Updating rate-limit limits and usage from headers: {}".format(
-                    rates
-                )
-            )
-            self.rate_limits["short"]["usage"] = rates.short_usage
-            self.rate_limits["long"]["usage"] = rates.long_usage
-
-            if not self.force_limits:
-                self.rate_limits["short"]["limit"] = rates.short_limit
-                self.rate_limits["long"]["limit"] = rates.long_limit
-
-    def _check_limit_rates(self, limit: LimitStructure) -> None:
-        """Check the current limit rates for API calls."""
-        if limit["usage"] >= limit["limit"]:
-            self.log.debug("Rate limit of {} reached.".format(limit["limit"]))
-            limit["lastExceeded"] = datetime.now()
-            self._raise_rate_limit_exception(limit["limit"], limit["time"])
-
-    def _check_limit_time_invalid(self, limit: LimitStructure) -> None:
-        self.limit_time_invalid = 0
-        if limit["lastExceeded"] is not None:
-            delta = (datetime.now() - limit["lastExceeded"]).total_seconds()
-            if delta < limit["time"]:
-                self.limit_time_invalid = limit["time"] - delta
-                self.log.debug(
-                    "Rate limit invalid duration {} seconds.".format(
-                        self.limit_time_invalid
-                    )
-                )
-                self._raise_rate_limit_timeout(
-                    self.limit_timeout, limit["limit"]
-                )
-
-    def _raise_rate_limit_exception(
-        self, timeout: float, limit_rate: float
-    ) -> NoReturn:
-        """Raises an error for the user to see they have exceeded API
-        request limits"""
-        raise exc.RateLimitExceeded(
-            "Rate limit of {} exceeded. "
-            "Try again in {} seconds.".format(limit_rate, timeout),
-            limit=limit_rate,
-            timeout=timeout,
-        )
-
-    def _raise_rate_limit_timeout(
-        self, timeout: float, limit_rate: float
-    ) -> NoReturn:
-        """Inform user that rate limit exceeded and tell them when they can
-        try again."""
-        raise exc.RateLimitTimeout(
-            "Rate limit of {} exceeded. "
-            "Try again in {} seconds.".format(limit_rate, timeout),
-            limit=limit_rate,
-            timeout=timeout,
-        )
 
 
 class SleepingRateLimitRule:
@@ -349,8 +216,8 @@ class SleepingRateLimitRule:
     def __call__(
         self, response_headers: dict[str, str], method: RequestMethod
     ) -> None:
-        """Determines wait time until a call can be mde again"""
-        rates = get_rates_from_response_headers(response_headers)
+        """Determines wait time until a call can be made again"""
+        rates = get_rates_from_response_headers(response_headers, method)
 
         if rates:
             time.sleep(
@@ -400,28 +267,6 @@ class DefaultRateLimiter(RateLimiter):
 
         super().__init__()
 
-        self.rules.append(
-            XRateLimitRule(
-                {
-                    "short": {
-                        "usage": 0,
-                        # 60s * 15 = 15 min
-                        "limit": 600,
-                        "time": (60 * 15),
-                        "lastExceeded": None,
-                    },
-                    "long": {
-                        "usage": 0,
-                        # 60s * 60m * 24 = 1 day
-                        "limit": 30000,
-                        "time": (60 * 60 * 24),
-                        "lastExceeded": None,
-                    },
-                }
-            )
-        )
+        self.rules.append(SleepingRateLimitRule(priority="low"))
 
         # TODO: This should be added to our documentation
-        # XRateLimitRule used instead of timer based RateLimitRule
-        # self.rules.append(RateLimitRule(requests=40, seconds=60, raise_exc=False))
-        # self.rules.append(RateLimitRule(requests=30000, seconds=(3600 * 24), raise_exc=True))
