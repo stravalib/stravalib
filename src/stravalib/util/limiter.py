@@ -242,7 +242,9 @@ class DefaultRateLimiter(RateLimiter):
     allows 600 requests every 15 minutes, with up to 30,000 requests per day.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self, priority: Literal["low", "medium", "high"] = "high"
+    ) -> None:
         """Strava API usage is limited on a per-application basis using a short
         term, 15 minute, limit and a long term, daily, limit. The default rate
         limit allows 600 requests every 15 minutes, with up to 30,000 requests
@@ -252,6 +254,6 @@ class DefaultRateLimiter(RateLimiter):
 
         super().__init__()
 
-        self.rules.append(SleepingRateLimitRule(priority="low"))
+        self.rules.append(SleepingRateLimitRule(priority=priority))
 
         # TODO: This should be added to our documentation
