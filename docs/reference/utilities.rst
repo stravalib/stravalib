@@ -21,11 +21,7 @@ Summary Classes
 .. autosummary::
    :toctree: api/
 
-   XRateLimitRule
    SleepingRateLimitRule
-   RateLimitRule
    RateLimiter
    DefaultRateLimiter
    RequestRate
-   LimitStructure
-   LimitsStructure
