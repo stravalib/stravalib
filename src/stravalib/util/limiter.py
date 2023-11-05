@@ -155,7 +155,7 @@ class SleepingRateLimitRule:
 
         Parameters
         ----------
-        priority : str
+        priority : Literal["low", "medium", "high"]
             The priority for this rule. When 'low', the cool-down period
             after each request will be such that the long-term limits will
             not be exceeded. When 'medium', the cool-down period will be such
@@ -234,22 +234,24 @@ class RateLimiter:
 class DefaultRateLimiter(RateLimiter):
     """Implements something similar to the default rate limit for Strava apps.
 
-    To do this correctly we would actually need to change our logic to reset
-    the limit at midnight, etc.  Will make this more complex in the future.
+    See https://developers.strava.com/docs/rate-limits/ and
+    https://communityhub.strava.com/t5/developer-knowledge-base/our-developer-program/ta-p/8849.
 
-    Strava API usage is limited on a per-application basis using a short term,
-    15 minute, limit and a long term, daily, limit. The default rate limit
-    allows 600 requests every 15 minutes, with up to 30,000 requests per day.
+    Rate limits are enforced by throttling requests based on their method and
+    client/app-specific limits imposed by Strava.
     """
 
     def __init__(
         self, priority: Literal["low", "medium", "high"] = "high"
     ) -> None:
-        """Strava API usage is limited on a per-application basis using a short
-        term, 15 minute, limit and a long term, daily, limit. The default rate
-        limit allows 600 requests every 15 minutes, with up to 30,000 requests
-        per day. This limit allows applications to make 40 requests per minute
-        for about half the day.
+        """
+        Initializes the rate limiter based on the given priority.
+
+        Parameters
+        ----------
+        priority : Literal["low", "medium", "high"]
+            The priority given to the requests. Default is "high"
+            (i.e. no throttling).
         """
 
         super().__init__()
