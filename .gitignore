@@ -27,3 +27,6 @@ stravalib/docs/api
 .vscode/
 stravalib-2023/
 .nox/*
+
+# Ignore Sphinx auto-generated API stubs #
+docs/reference/api
