@@ -130,8 +130,17 @@ Rate Limits
 ===========
 
 Strava imposes rate limits on the usage of its API. This means that the number of
-requests sent to Strava has an upper limit per 15 minutes and per day. These limits
-are not fixed but depend on the client app.
+requests sent to Strava have an upper limit per 15 minutes and per day. Per strava's documentation: 
+
+> Strava API usage is limited on a per-application basis using a short term,
+15 minute, limit and a long term, daily, limit. The default rate limit allows
+600 requests every 15 minutes, with up to 30,000 requests per day.
+
+This limit allows applications to make 40 requests per minute for about
+half the day.
+
+These limits
+are not fixed but depend on the "size" of client app. Strava _may_ chose to adjust rate limits for apps as they grow. [Learn more about rate limits here.](https://developers.strava.com/docs/rate-limits/)
 
 When initializing a Client instance, the default rate limiter allows requests until
 the short - or daily limits are reached, after which it will wait until the end of
