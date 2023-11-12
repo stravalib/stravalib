@@ -154,5 +154,6 @@ initialize the client object as::
         my_access_token, rate_limiter=DefaultRateLimiter(priority='medium')
     )
 
-The ``medium`` priority ensures that requests are throttled to comply with the
-15-minute limit, while the ``low`` priority complies with the daily limit.
+
+The ``low`` priority complies with the daily limit. The ``medium`` priority ensures that requests are throttled to comply with the
+15-minute limit.
