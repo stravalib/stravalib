@@ -142,8 +142,8 @@ half the day.
 These limits
 are not fixed but depend on the "size" of client app. Strava _may_ chose to adjust rate limits for apps as they grow. [Learn more about rate limits here.](https://developers.strava.com/docs/rate-limits/)
 
-When initializing a Client instance, the default rate limiter allows requests until
-the short - or daily limits are reached, after which it will wait until the end of
+When initializing a `stravalib.Client` instance, the default rate limiter allows requests until
+the short - or daily limits are reached. Once limits are reached. the client object will wait until the end of
 the 15-minute or day period.
 
 In case you want to configure the limiter to throttle requests (i.e., making sure
