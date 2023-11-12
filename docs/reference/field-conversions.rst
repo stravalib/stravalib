@@ -15,5 +15,4 @@ Summary Functions
    optional_input
    enum_value
    enum_values
-   time_interval
    timezone

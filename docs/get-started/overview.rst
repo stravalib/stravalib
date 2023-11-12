@@ -124,3 +124,30 @@ or just cast to a numeric type (e.g. float).::
    # 22530.8
    print(float(unithelper.miles(activity.distance)))
    # 13.9999900581
+
+
+Rate Limits
+===========
+
+Strava imposes rate limits on the usage of its API. This means that the number of
+requests sent to Strava have an upper limit per 15 minutes and per day. These limits
+are not fixed but depend on the "size" of the client app. Strava _may_ choose to
+adjust rate limits for apps as they grow. [Learn more about rate limits here.](https://developers.strava.com/docs/rate-limits/)
+You can see the limits set for your app at [your account's settings.](https://www.strava.com/settings/api)
+
+When initializing a `stravalib.Client` instance, the default rate limiter allows requests until
+the short - or daily limits are reached. Once limits are reached. the client object will wait until the end of
+the 15-minute or day period.
+
+In case you want to configure the limiter to throttle requests (i.e., making sure
+the time between requests for the remaining period is evenly spread), you can
+initialize the client object as::
+
+   from stravalib.util.limiter import DefaultRateLimiter
+    client = stravalib.Client(
+        my_access_token, rate_limiter=DefaultRateLimiter(priority='medium')
+    )
+
+
+The ``low`` priority complies with the daily limit. The ``medium`` priority ensures that requests are throttled to comply with the
+15-minute limit.
