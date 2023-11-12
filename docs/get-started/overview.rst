@@ -149,7 +149,7 @@ the 15-minute or day period.
 In case you want to configure the limiter to throttle requests (i.e., making sure
 the time between requests for the remaining period is evenly spread), you can
 initialize the client object as::
-
+   from stravalib.util.limiter import DefaultRateLimiter
     client = stravalib.Client(
         my_access_token, rate_limiter=DefaultRateLimiter(priority='medium')
     )
