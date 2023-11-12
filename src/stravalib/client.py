@@ -1401,10 +1401,10 @@ class Client:
         """
         if len(bounds) == 2:
             bounds = (
-                bounds[0][0],  # type: ignore[index]
-                bounds[0][1],  # type: ignore[index]
-                bounds[1][0],  # type: ignore[index]
-                bounds[1][1],  # type: ignore[index]
+                bounds[0][0],
+                bounds[0][1],
+                bounds[1][0],
+                bounds[1][1],
             )
         elif len(bounds) != 4:
             raise ValueError(
