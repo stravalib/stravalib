@@ -53,7 +53,6 @@ classifiers = [
 dependencies = ["pint", "pytz", "arrow", "requests", "pydantic==1.10.9"]
 
 [project.urls]
-homepage = "https://example.com"
 documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
