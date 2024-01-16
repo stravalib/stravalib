@@ -348,6 +348,30 @@ class BoundClientEntity(BaseModel):
     bound_client: Optional[Any] = Field(None, exclude=True)
 
 
+class RelaxedActivityType(ActivityType):
+    @root_validator(pre=True)
+    def check_activity_type(cls, values):
+        v = values["__root__"]
+        if v not in get_args(ActivityType.__fields__["__root__"].type_):
+            LOGGER.warning(
+                f'Unexpected activity type. Given={v}, replacing by "Workout"'
+            )
+            values["__root__"] = "Workout"
+        return values
+
+
+class RelaxedSportType(SportType):
+    @root_validator(pre=True)
+    def check_sport_type(cls, values):
+        v = values["__root__"]
+        if v not in get_args(SportType.__fields__["__root__"].type_):
+            LOGGER.warning(
+                f'Unexpected sport type. Given={v}, replacing by "Workout"'
+            )
+            values["__root__"] = "Workout"
+        return values
+
+
 class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     """
     Enables backward compatibility for legacy namedtuple
@@ -935,7 +959,7 @@ class Segment(
     map: Optional[Map] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type: Optional[ActivityType] = None  # type: ignore[assignment]
+    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
@@ -952,6 +976,7 @@ class Segment(
         "elevation_high": uh.meters,
         "elevation_low": uh.meters,
         "total_elevation_gain": uh.meters,
+        "activity_type": enum_value,
     }
 
     _latlng_check = validator(
@@ -1045,6 +1070,8 @@ class Activity(
     segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
     splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
+    type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
+    sport_type: Optional[RelaxedSportType] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None
     laps: Optional[list[Lap]] = None
 
