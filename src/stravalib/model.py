@@ -350,7 +350,7 @@ class BoundClientEntity(BaseModel):
 
 class RelaxedActivityType(ActivityType):
     @root_validator(pre=True)
-    def check_activity_type(cls, values):
+    def check_activity_type(cls, values: dict[str, Any]) -> dict[str, Any]:
         v = values["__root__"]
         if v not in get_args(ActivityType.__fields__["__root__"].type_):
             LOGGER.warning(
@@ -362,7 +362,7 @@ class RelaxedActivityType(ActivityType):
 
 class RelaxedSportType(SportType):
     @root_validator(pre=True)
-    def check_sport_type(cls, values):
+    def check_sport_type(cls, values: dict[str, Any]) -> dict[str, Any]:
         v = values["__root__"]
         if v not in get_args(SportType.__fields__["__root__"].type_):
             LOGGER.warning(
@@ -1065,13 +1065,13 @@ class Activity(
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     gear: Optional[Gear] = None
+    type: Optional[RelaxedActivityType] = None
+    sport_type: Optional[RelaxedSportType] = None
     # Ignoring types here given there are overrides
     best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
     segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
     splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
-    type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
-    sport_type: Optional[RelaxedSportType] = None  # type: ignore[assignment]
     photos: Optional[ActivityPhotoMeta] = None
     laps: Optional[list[Lap]] = None
 
