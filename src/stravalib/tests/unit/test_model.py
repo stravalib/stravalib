@@ -225,6 +225,23 @@ def test_backward_compatible_attribute_lookup(
         assert not hasattr(lookup_expression, "bound_client")
 
 
+@pytest.mark.parametrize(
+    "klass,attr,given_type,expected_type",
+    (
+        (Activity, "type", "Run", "Run"),
+        (Activity, "sport_type", "Run", "Run"),
+        (Activity, "type", "FooBar", "Workout"),
+        (Activity, "sport_type", "FooBar", "Workout"),
+        (Segment, "activity_type", "Run", "Run"),
+        (Segment, "activity_type", "FooBar", "Workout"),
+    ),
+)
+def test_relaxed_activity_type_validation(
+    klass, attr, given_type, expected_type
+):
+    assert getattr(klass(**{attr: given_type}), attr) == expected_type
+
+
 class ModelTest(TestBase):
     def setUp(self):
         super(ModelTest, self).setUp()
