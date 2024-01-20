@@ -29,7 +29,7 @@ from typing import (
 import arrow
 import pint
 import pytz
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from requests import Session
 
 from stravalib import exc, model, strava_model, unithelper

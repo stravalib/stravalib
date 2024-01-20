@@ -27,8 +27,8 @@ from typing import (
     get_args,
 )
 
-from pydantic import BaseModel, Field, root_validator, validator
-from pydantic.datetime_parse import parse_datetime
+from pydantic.v1 import BaseModel, Field, root_validator, validator
+from pydantic.v1.datetime_parse import parse_datetime
 from typing_extensions import Self
 
 from stravalib import exc, strava_model
