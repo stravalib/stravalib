@@ -50,7 +50,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
 ]
 
-dependencies = ["pint", "pytz", "arrow", "requests", "pydantic==2.5.3"]
+dependencies = ["pint", "pytz", "arrow", "requests", "pydantic>=1.10.9"]
 
 [project.urls]
 homepage = "https://example.com"
