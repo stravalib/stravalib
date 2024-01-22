@@ -27,8 +27,6 @@ from typing import (
     get_args,
 )
 
-from pydantic.v1 import BaseModel, Field, root_validator, validator
-from pydantic.v1.datetime_parse import parse_datetime
 from typing_extensions import Self
 
 from stravalib import exc, strava_model
@@ -65,6 +63,16 @@ from stravalib.strava_model import (
     TimedZoneRange,
 )
 from stravalib.strava_model import Route as RouteStrava
+from stravalib.pydantic_version import pydantic_major_version
+if pydantic_major_version == '2':
+    try:
+        from pydantic.v1 import BaseModel, Field, root_validator, validator
+        from pydantic.v1.datetime_parse import parse_datetime
+    except ImportError:
+        raise ImportError("pydantic.v1 module not found. You might be using an unsupported version of Pydantic.")
+elif pydantic_major_version == '1':
+    from pydantic import BaseModel, Field, root_validator, validator
+    from pydantic.datetime_parse import parse_datetime
 
 if TYPE_CHECKING:
     from stravalib.client import BatchedResultsIterator

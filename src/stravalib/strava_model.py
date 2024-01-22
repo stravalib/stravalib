@@ -6,7 +6,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic.v1 import BaseModel, Field
+from stravalib.pydantic_version import pydantic_major_version
+if pydantic_major_version == '2':
+    try:
+        from pydantic.v1 import BaseModel, Field
+    except ImportError:
+        raise ImportError("pydantic.v1 module not found. You might be using an unsupported version of Pydantic.")
+elif pydantic_major_version == '1':
+    from pydantic import BaseModel, Field
 
 
 class ActivityTotal(BaseModel):
