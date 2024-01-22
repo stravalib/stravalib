@@ -4,7 +4,6 @@ from typing import List, Optional
 import pint
 import pytest
 import pytz
-from pydantic.v1 import BaseModel
 
 from stravalib import model
 from stravalib import unithelper as uh
@@ -25,7 +24,14 @@ from stravalib.model import (
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity, UnitConverter
-
+from stravalib.pydantic_version import pydantic_major_version
+if pydantic_major_version == '2':
+    try:
+        from pydantic.v1 import BaseModel
+    except ImportError:
+        raise ImportError("pydantic.v1 module not found. You might be using an unsupported version of Pydantic.")
+elif pydantic_major_version == '1':
+    from pydantic import BaseModel
 
 @pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
 class TestLegacyModelSerialization:
