@@ -4,7 +4,7 @@ from typing import List, Optional
 import pint
 import pytest
 import pytz
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 from stravalib import model
 from stravalib import unithelper as uh
