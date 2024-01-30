@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- Remove: functional test suite from stravalib (@lwasser, #457)
 
 ## v1.6
 
