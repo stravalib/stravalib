@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- Fix: Manifest.in file - remove example dir (@lwasser, #307)
 
 ## v1.6
 
