@@ -1,4 +1,5 @@
 # Change Log
+Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
 
 ## Unreleased
 
