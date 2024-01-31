@@ -1,7 +1,9 @@
 # Change Log
 
 ## Unreleased
-Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
+
+- Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
+- Fix: Manifest.in file - remove example dir (@lwasser, #307)
 
 ## v1.6
 
