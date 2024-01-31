@@ -16,8 +16,8 @@ def tests(session):
     session.install("-r", "requirements.txt")
     session.run(
         "pytest",
-        "--cov",
-        "src/stravalib",
+        "--cov=src/stravalib",
+        "--cov-report=xml:coverage.xml",
         "src/stravalib/tests/unit/",
         "src/stravalib/tests/integration/",
     )
