@@ -12,17 +12,6 @@ Athletes <athletes>
 
 ```
 
-```{toctree}
-:hidden:
-:caption: Contributing
-:maxdepth: 2
-
-Contributing Guide <../contributing/how-to-contribute>
-Development Guide <../contributing/development-guide>
-Build & Release Guide <../contributing/build-release-guide>
-New Contributor Resources <../contributing/resources-for-new-contributors>
-Change Log <../contributing/documentation-changelog>
-```
 
 ## Install stravalib
 

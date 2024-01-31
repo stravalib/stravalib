@@ -106,3 +106,12 @@ Get Started <get-started/index>
 
 Code/API Reference <reference>
 ```
+
+
+:::{toctree}
+:hidden:
+:caption: Contribute
+:maxdepth: 2
+
+Contribute <contributing/intro.md>
+:::

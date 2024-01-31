@@ -437,7 +437,7 @@ class Client:
 
         Returns
         -------
-        py:class:`stravalib.model.AthleteStats`
+        :class:`stravalib.model.AthleteStats`
             A model containing the Stats
 
         """
@@ -458,7 +458,7 @@ class Client:
 
         Returns
         -------
-        py:class:`list`
+        :class:`list`
             A list of :class:`stravalib.model.Club`
 
         """
@@ -973,7 +973,7 @@ class Client:
 
         Returns
         -------
-        py:class:`list`
+        :class:`list`
             A list of :class:`stravalib.model.BaseActivityZone` objects.
 
         """
@@ -1395,7 +1395,7 @@ class Client:
 
         Returns
         -------
-        py:class:`list`
+        :class:`list`
             An list of :class:`stravalib.model.Segment`.
 
         """
@@ -1544,18 +1544,20 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
+
                 This param is not officially supported by the Strava API and
                 may be removed in the future.
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
+
                 This param is not officially supported by the Strava API and may be
                 removed in the future.
 
         Returns
         -------
-        py:class:`dict`
+        :class:`dict`
             A dictionary of :class:`stravalib.model.Stream` from the activity
         """
         return self._get_streams(
@@ -1611,7 +1613,7 @@ class Client:
 
         Returns
         -------
-        py:class:`dict`
+        :class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the effort.
 
         """
@@ -1629,7 +1631,7 @@ class Client:
         resolution: Literal["low", "medium", "high"] | None = None,
         series_type: Literal["time", "distance"] | None = None,
     ) -> dict[StreamType, model.Stream]:
-        """Returns an streams for a segment.
+        """Returns streams for a segment.
 
         https://developers.strava.com/docs/reference/#api-Streams-getSegmentStreams
 
@@ -1654,18 +1656,20 @@ class Client:
             Indicates desired number of data points. 'low' (100), 'medium'
             (1000) or 'high' (10000).
             .. deprecated::
+
                 This param is not officially supported by the Strava API and may be
                 removed in the future.
         series_type : str, optional
             Relevant only if using resolution either 'time' or 'distance'.
             Used to index the streams if the stream is being reduced.
             .. deprecated::
+
                 This param is not officially supported by the Strava API and may be
                 removed in the future.
 
         Returns
         -------
-        py:class:`dict`
+        :class:`dict`
             An dictionary of :class:`stravalib.model.Stream` from the effort.
 
         """
@@ -1751,7 +1755,7 @@ class Client:
 
         Returns
         -------
-        py:class:`dict`
+        :class:`dict`
             A dictionary of :class:`stravalib.model.Stream` from the route.
 
         """
@@ -2118,7 +2122,7 @@ class ActivityUploader:
 
         Parameters
         ----------
-        response : py:class:`dict`
+        response : :class:`dict`
             The response object (dict).
         raise_exc : bool
 
