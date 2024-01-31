@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Remove: functional test suite from stravalib (@lwasser, #457)
+- Fix: Manifest.in file - remove example dir (@lwasser, #307)
 
 ## v1.6
 
