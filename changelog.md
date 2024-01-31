@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Remove: functional test suite from stravalib (@lwasser, #457)
 - Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
 - Fix: Manifest.in file - remove example dir (@lwasser, #307)
 
