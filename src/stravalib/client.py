@@ -944,19 +944,6 @@ class Client:
 
         return ActivityUploader(self, response=initial_response)
 
-    def delete_activity(self, activity_id: int) -> None:
-        """Deletes the specified activity.
-
-        https://developers.strava.com/docs/reference/#api-Activities
-
-        Parameters
-        ----------
-        activity_id : int
-            The activity to delete.
-
-        """
-        self.protocol.delete("/activities/{id}", id=activity_id)
-
     def get_activity_zones(
         self, activity_id: int
     ) -> list[model.BaseActivityZone]:
