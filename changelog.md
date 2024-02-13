@@ -6,6 +6,7 @@
 - Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
 - Fix: Manifest.in file - remove example dir (@lwasser, #307)
 - Fix: Codecov report wasn't generating correctly (@lwasser, #469)
+- Remove: `client.delete_activity` method is no longer supported by Strava (@lwasser, #238)
 
 ## v1.6
 
