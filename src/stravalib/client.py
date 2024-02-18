@@ -21,6 +21,7 @@ from typing import (
     Generic,
     Literal,
     NoReturn,
+    Optional,
     Protocol,
     TypeVar,
     cast,
@@ -638,10 +639,89 @@ class Client:
             "See https://developers.strava.com/docs/january-2018-update/"
         )
 
+    sport_type_docstring = """
+        Possible values (case-sensitive): AlpineSki, BackcountrySki,
+        Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+        EMountainBikeRide, Golf, GravelRide, Handcycle,
+        HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+        Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+        Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+        Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+        StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+        TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+        WeightTraining, Wheelchair, Windsurf, Workout, Yoga
+        """
+    activity_type_docstring = """
+        The activity type (case-insensitive).
+        Deprecated. Prefer to use sport_type. In a request where both type
+        and sport_type are present, this field will be ignored.
+        See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
+        Possible values: ride, run, swim, workout, hike, walk, nordicski,
+        alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+        rollerski, windsurf, workout, snowboard, snowshoe
+        """
+
+    def _validate_activity_type(
+        self,
+        params: dict[str, Any],
+        activity_type: Optional[str],
+        sport_type: Optional[str],
+    ) -> dict[str, Any]:
+        """Validate activity type and sport type.
+
+        Parameters
+        ----------
+        params : dict
+            A dictionary of activity values used to update or create an
+            activity.
+        activity_type : str, default=None
+            {activity_type_docstring}
+        sport_type : str, default=None
+            {sport_type_docstring}
+
+        Returns
+        -------
+        dict
+            Dictionary containing overlapping parameter values between the two
+            methods
+        Raises
+        ------
+        ValueError
+            If the activity_type or sport_type is invalid.
+        """
+
+        # Handle activity type throwing warning given sport type is preferred
+        if activity_type is not None:
+            if not activity_type.lower() in [
+                t.lower() for t in model.Activity.TYPES
+            ]:
+                raise ValueError(
+                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                )
+            params["type"] = activity_type.lower()
+            warn_param_deprecation(
+                "activity_type",
+                "sport_type",
+                "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
+            )
+
+        if sport_type is not None:
+            if not sport_type in model.Activity.SPORT_TYPES:
+                raise ValueError(
+                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                )
+            params["sport_type"] = sport_type
+            params.pop(
+                "type", None
+            )  # Ensure we don't confuse the Strava API w a deprecated type
+
+        return params
+
     def create_activity(
         self,
         name: str,
         activity_type: ActivityType,
+        sport_type: SportType,
         start_date_local: datetime | str,
         elapsed_time: int | timedelta,
         description: str | None = None,
@@ -657,10 +737,9 @@ class Client:
         name : str
             The name of the activity.
         activity_type : str
-            The activity type (case-insensitive).
-            Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
-            rollerski, windsurf, workout, snowboard, snowshoe
+            {activity_type_docstring}
+        sport_type : str, default=None
+            {sport_type_docstring}
         start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
@@ -700,6 +779,10 @@ class Client:
         if distance is not None:
             params["distance"] = distance
 
+        params = self._validate_activity_type(
+            params, activity_type, sport_type
+        )
+
         raw_activity = self.protocol.post("/activities", **params)
 
         return model.Activity.parse_obj(
@@ -712,11 +795,11 @@ class Client:
         name: str | None = None,
         activity_type: ActivityType | None = None,
         sport_type: SportType | None = None,
+        description: str | None = None,
         private: bool | None = None,
         commute: bool | None = None,
         trainer: bool | None = None,
         gear_id: int | None = None,
-        description: str | None = None,
         device_name: str | None = None,
         hide_from_home: bool | None = None,
     ) -> model.Activity:
@@ -731,24 +814,9 @@ class Client:
         name : str, default=None
             The name of the activity.
         activity_type : str, default=None
-            The activity type (case-insensitive).
-            Deprecated. Prefer to use sport_type. In a request where both type
-            and sport_type are present, this field will be ignored.
-            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
-            rollerski, windsurf, workout, snowboard, snowshoe
+            {activity_type_docstring}
         sport_type : str, default=None
-            Possible values (case-sensitive): AlpineSki, BackcountrySki,
-            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
-            EMountainBikeRide, Golf, GravelRide, Handcycle,
-            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
-            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
-            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
-            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
-            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
-            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
-            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
+            {sport_type_docstring}
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -783,30 +851,6 @@ class Client:
         if name is not None:
             params["name"] = name
 
-        if activity_type is not None:
-            if not activity_type.lower() in [
-                t.lower() for t in model.Activity.TYPES
-            ]:
-                raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
-                )
-            params["type"] = activity_type.lower()
-            warn_param_deprecation(
-                "activity_type",
-                "sport_type",
-                "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
-            )
-
-        if sport_type is not None:
-            if not sport_type in model.Activity.SPORT_TYPES:
-                raise ValueError(
-                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
-                )
-            params["sport_type"] = sport_type
-            params.pop(
-                "type", None
-            )  # Just to be sure we don't confuse the Strava API
-
         if private is not None:
             warn_param_unsupported("private")
             params["private"] = int(private)
@@ -829,6 +873,35 @@ class Client:
 
         if hide_from_home is not None:
             params["hide_from_home"] = int(hide_from_home)
+
+        # Validate sport and activity types
+        params = self._validate_activity_type(
+            params, activity_type, sport_type
+        )
+        # Potentially replace this
+        # if activity_type is not None:
+        #     if not activity_type.lower() in [
+        #         t.lower() for t in model.Activity.TYPES
+        #     ]:
+        #         raise ValueError(
+        #             f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+        #         )
+        #     params["type"] = activity_type.lower()
+        #     warn_param_deprecation(
+        #         "activity_type",
+        #         "sport_type",
+        #         "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
+        #     )
+
+        # if sport_type is not None:
+        #     if not sport_type in model.Activity.SPORT_TYPES:
+        #         raise ValueError(
+        #             f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+        #         )
+        #     params["sport_type"] = sport_type
+        #     params.pop(
+        #         "type", None
+        #     )  # Just to be sure we don't confuse the Strava API
 
         raw_activity = self.protocol.put(
             "/activities/{activity_id}", activity_id=activity_id, **params
