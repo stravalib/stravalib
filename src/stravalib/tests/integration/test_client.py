@@ -488,6 +488,7 @@ def test_update_athlete(
     (
         ({}, {}, None),
         ({"activity_type": "run"}, {"type": "run"}, None),
+        ({"sport_type": "TrailRun"}, {"sport_type": "TrailRun"}, None),
         ({"activity_type": "Run"}, {"type": "run"}, None),
         ({"activity_type": "sleep"}, {}, ValueError),
         (
@@ -515,12 +516,14 @@ def test_create_activity(
     default_call_kwargs = {
         "name": "test",
         "activity_type": "Run",
+        "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": 3600,
     }
     default_request_params = {
         "name": "test",
         "type": "run",
+        "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": "3600",
     }

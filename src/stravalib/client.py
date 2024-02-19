@@ -639,28 +639,6 @@ class Client:
             "See https://developers.strava.com/docs/january-2018-update/"
         )
 
-    sport_type_docstring = """
-        Possible values (case-sensitive): AlpineSki, BackcountrySki,
-        Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
-        EMountainBikeRide, Golf, GravelRide, Handcycle,
-        HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
-        Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
-        Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
-        Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
-        StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
-        TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
-        WeightTraining, Wheelchair, Windsurf, Workout, Yoga
-        """
-    activity_type_docstring = """
-        The activity type (case-insensitive).
-        Deprecated. Prefer to use sport_type. In a request where both type
-        and sport_type are present, this field will be ignored.
-        See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-        Possible values: ride, run, swim, workout, hike, walk, nordicski,
-        alpineski, backcountryski, iceskate, inlineskate, kitesurf,
-        rollerski, windsurf, workout, snowboard, snowshoe
-        """
-
     def _validate_activity_type(
         self,
         params: dict[str, Any],
@@ -675,9 +653,24 @@ class Client:
             A dictionary of activity values used to update or create an
             activity.
         activity_type : str, default=None
-            {activity_type_docstring}
+            The activity type (case-insensitive).
+            Deprecated. Prefer to use sport_type. In a request where both type
+            and sport_type are present, this field will be ignored.
+            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
+            Possible values: ride, run, swim, workout, hike, walk, nordicski,
+            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            rollerski, windsurf, workout, snowboard, snowshoe
         sport_type : str, default=None
-            {sport_type_docstring}
+            Possible values (case-sensitive): AlpineSki, BackcountrySki,
+            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+            EMountainBikeRide, Golf, GravelRide, Handcycle,
+            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
 
         Returns
         -------
@@ -737,9 +730,24 @@ class Client:
         name : str
             The name of the activity.
         activity_type : str
-            {activity_type_docstring}
+            The activity type (case-insensitive).
+            Deprecated. Prefer to use sport_type. In a request where both type
+            and sport_type are present, this field will be ignored.
+            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
+            Possible values: ride, run, swim, workout, hike, walk, nordicski,
+            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            rollerski, windsurf, workout, snowboard, snowshoe
         sport_type : str, default=None
-            {sport_type_docstring}
+            Possible values (case-sensitive): AlpineSki, BackcountrySki,
+            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+            EMountainBikeRide, Golf, GravelRide, Handcycle,
+            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
         start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
@@ -814,9 +822,24 @@ class Client:
         name : str, default=None
             The name of the activity.
         activity_type : str, default=None
-            {activity_type_docstring}
+            The activity type (case-insensitive).
+            Deprecated. Prefer to use sport_type. In a request where both type
+            and sport_type are present, this field will be ignored.
+            See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
+            Possible values: ride, run, swim, workout, hike, walk, nordicski,
+            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            rollerski, windsurf, workout, snowboard, snowshoe
         sport_type : str, default=None
-            {sport_type_docstring}
+            Possible values (case-sensitive): AlpineSki, BackcountrySki,
+            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
+            EMountainBikeRide, Golf, GravelRide, Handcycle,
+            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
+            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
+            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
+            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
+            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
+            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
+            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -841,8 +864,6 @@ class Client:
         Returns
         -------
             Updates the activity in the selected Strava account
-
-
         """
 
         # Convert the kwargs into a params dict
@@ -878,30 +899,6 @@ class Client:
         params = self._validate_activity_type(
             params, activity_type, sport_type
         )
-        # Potentially replace this
-        # if activity_type is not None:
-        #     if not activity_type.lower() in [
-        #         t.lower() for t in model.Activity.TYPES
-        #     ]:
-        #         raise ValueError(
-        #             f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
-        #         )
-        #     params["type"] = activity_type.lower()
-        #     warn_param_deprecation(
-        #         "activity_type",
-        #         "sport_type",
-        #         "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
-        #     )
-
-        # if sport_type is not None:
-        #     if not sport_type in model.Activity.SPORT_TYPES:
-        #         raise ValueError(
-        #             f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
-        #         )
-        #     params["sport_type"] = sport_type
-        #     params.pop(
-        #         "type", None
-        #     )  # Just to be sure we don't confuse the Strava API
 
         raw_activity = self.protocol.put(
             "/activities/{activity_id}", activity_id=activity_id, **params
@@ -941,7 +938,7 @@ class Client:
         description : str, optional, default=None
             The description for the activity
         activity_type : str, optional
-            case-insensitive type of activity.
+            Case-insensitive type of activity.
             possible values: ride, run, swim, workout, hike, walk,
             nordicski, alpineski, backcountryski, iceskate, inlineskate,
             kitesurf, rollerski, windsurf, workout, snowboard, snowshoe
@@ -964,7 +961,6 @@ class Client:
             been performed on a trainer.
         commute : bool, optional, default=None
             Whether the resulting activity should be tagged as a commute.
-
         """
         if not hasattr(activity_file, "read"):
             if isinstance(activity_file, str):
