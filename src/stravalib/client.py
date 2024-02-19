@@ -714,9 +714,9 @@ class Client:
     def create_activity(
         self,
         name: str,
-        sport_type: SportType,
         start_date_local: datetime | str,
         elapsed_time: int | timedelta,
+        sport_type: SportType | None = None,
         activity_type: ActivityType | None = None,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
