@@ -279,7 +279,7 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
         ({"sport_type": "TrailRun"}, {"sport_type": "TrailRun"}, None, None),
         (
             {"activity_type": "Run", "sport_type": "TrailRun"},
-            {"sport_type": "TrailRun"},
+            {"type": "run", "sport_type": "TrailRun"},
             DeprecationWarning,
             None,
         ),
