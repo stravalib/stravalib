@@ -710,13 +710,15 @@ class Client:
 
         return params
 
+    # TODO: according to the strava api docs we can add trainer and commute here
+    # with boolean 0/1 values
     def create_activity(
         self,
         name: str,
-        activity_type: ActivityType,
         sport_type: SportType,
         start_date_local: datetime | str,
         elapsed_time: int | timedelta,
+        activity_type: ActivityType | None = None,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
     ) -> model.Activity:
@@ -729,7 +731,7 @@ class Client:
         ----------
         name : str
             The name of the activity.
-        activity_type : str
+        activity_type : str, default=None
             The activity type (case-insensitive).
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
@@ -767,19 +769,21 @@ class Client:
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        if not activity_type.lower() in [
-            t.lower() for t in model.Activity.TYPES
-        ]:
-            raise ValueError(
-                f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
-            )
-
         params: dict[str, Any] = dict(
             name=name,
-            type=activity_type.lower(),
             start_date_local=start_date_local,
             elapsed_time=elapsed_time,
         )
+        # This is no longer the default. It's ok if the value is not provided
+        # but it should work if it is provided so it isn't a breaking change.
+        if activity_type is not None:
+            activity_type = activity_type.lower()
+            if activity_type not in [t.lower() for t in model.Activity.TYPES]:
+                raise ValueError(
+                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                )
+            else:
+                params["type"] = activity_type
 
         if description is not None:
             params["description"] = description

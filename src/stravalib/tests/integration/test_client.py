@@ -489,6 +489,7 @@ def test_update_athlete(
         ({}, {}, None),
         ({"activity_type": "run"}, {"type": "run"}, None),
         ({"sport_type": "TrailRun"}, {"sport_type": "TrailRun"}, None),
+        ({"sport_type": "funrun"}, {"sport_type": "funrun"}, ValueError),
         ({"activity_type": "Run"}, {"type": "run"}, None),
         ({"activity_type": "sleep"}, {}, ValueError),
         (
@@ -513,21 +514,23 @@ def test_create_activity(
     extra_expected_params,
     expected_exception,
 ):
+    # Should we ensure required argument vals are in the default calls?
     default_call_kwargs = {
         "name": "test",
-        "activity_type": "Run",
+        # "activity_type": "Run",
         "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": 3600,
     }
     default_request_params = {
         "name": "test",
-        "type": "run",
+        # "type": "run",
         "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": "3600",
     }
     call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
+    print(call_kwargs)
     expected_params = {**default_request_params, **extra_expected_params}
 
     def _call_and_assert():
