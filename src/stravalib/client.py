@@ -684,6 +684,8 @@ class Client:
         """
 
         # Handle activity type throwing warning given sport type is preferred
+        # This also ONLY adds activity type if the user wants to use it
+        # thus we won't need the "pop" from the dict anymore
         if activity_type is not None:
             if not activity_type.lower() in [
                 t.lower() for t in model.Activity.TYPES
@@ -704,14 +706,11 @@ class Client:
                     f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
                 )
             params["sport_type"] = sport_type
-            params.pop(
-                "type", None
-            )  # Ensure we don't confuse the Strava API w a deprecated type
 
         return params
 
-    # TODO: according to the strava api docs we can add trainer and commute here
-    # with boolean 0/1 values
+    # TODO: according to the strava api docs we can add an optional trainer
+    # and commute param here with boolean 0/1 values
     def create_activity(
         self,
         name: str,
@@ -774,16 +773,6 @@ class Client:
             start_date_local=start_date_local,
             elapsed_time=elapsed_time,
         )
-        # This is no longer the default. It's ok if the value is not provided
-        # but it should work if it is provided so it isn't a breaking change.
-        if activity_type is not None:
-            activity_type = activity_type.lower()
-            if activity_type not in [t.lower() for t in model.Activity.TYPES]:
-                raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
-                )
-            else:
-                params["type"] = activity_type
 
         if description is not None:
             params["description"] = description

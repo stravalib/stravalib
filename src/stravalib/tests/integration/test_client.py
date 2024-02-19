@@ -517,14 +517,12 @@ def test_create_activity(
     # Should we ensure required argument vals are in the default calls?
     default_call_kwargs = {
         "name": "test",
-        # "activity_type": "Run",
         "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": 3600,
     }
     default_request_params = {
         "name": "test",
-        # "type": "run",
         "sport_type": "TrailRun",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": "3600",
