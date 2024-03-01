@@ -21,7 +21,6 @@ from typing import (
     Generic,
     Literal,
     NoReturn,
-    Optional,
     Protocol,
     TypeVar,
     cast,
@@ -642,8 +641,8 @@ class Client:
     def _validate_activity_type(
         self,
         params: dict[str, Any],
-        activity_type: Optional[str],
-        sport_type: Optional[str],
+        activity_type: str | None,
+        sport_type: str | None,
     ) -> dict[str, Any]:
         """Validate activity type and sport type.
 
@@ -657,20 +656,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
-            rollerski, windsurf, workout, snowboard, snowshoe
+            For possible values see: :class:`stravalib.model.Activity.TYPES`
         sport_type : str, default=None
-            Possible values (case-sensitive): AlpineSki, BackcountrySki,
-            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
-            EMountainBikeRide, Golf, GravelRide, Handcycle,
-            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
-            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
-            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
-            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
-            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
-            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
-            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
+            For possible values (case-sensitive) see:
+            :class:`stravalib.model.Activity.SPORT_TYPES`
 
         Returns
         -------
@@ -735,20 +724,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
-            rollerski, windsurf, workout, snowboard, snowshoe
+            For possible values see: :class:`stravalib.model.Activity.TYPES`
         sport_type : str, default=None
-            Possible values (case-sensitive): AlpineSki, BackcountrySki,
-            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
-            EMountainBikeRide, Golf, GravelRide, Handcycle,
-            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
-            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
-            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
-            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
-            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
-            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
-            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
+            For possible values (case-sensitive) see: For possible values
+            see: :class:`stravalib.model.Activity.SPORT_TYPES`
         start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
@@ -819,20 +798,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            Possible values: ride, run, swim, workout, hike, walk, nordicski,
-            alpineski, backcountryski, iceskate, inlineskate, kitesurf,
+            For possible values see: :class:`stravalib.model.Activity.TYPES`
             rollerski, windsurf, workout, snowboard, snowshoe
         sport_type : str, default=None
-            Possible values (case-sensitive): AlpineSki, BackcountrySki,
-            Badminton, Canoeing, Crossfit, EBikeRide, Elliptical,
-            EMountainBikeRide, Golf, GravelRide, Handcycle,
-            HighIntensityIntervalTraining, Hike, IceSkate, InlineSkate,
-            Kayaking, Kitesurf, MountainBikeRide, NordicSki, Pickleball,
-            Pilates, Racquetball, Ride, RockClimbing, RollerSki, Rowing, Run,
-            Sail, Skateboard, Snowboard, Snowshoe, Soccer, Squash,
-            StairStepper, StandUpPaddling, Surfing, Swim, TableTennis, Tennis,
-            TrailRun, Velomobile, VirtualRide, VirtualRow, VirtualRun, Walk,
-            WeightTraining, Wheelchair, Windsurf, Workout, Yoga
+            For possible values see: :class:`stravalib.model.Activity.SPORT_TYPES`
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -1420,8 +1389,10 @@ class Client:
 
     def explore_segments(
         self,
-        bounds: tuple[float, float, float, float]
-        | tuple[tuple[float, float], tuple[float, float]],
+        bounds: (
+            tuple[float, float, float, float]
+            | tuple[tuple[float, float], tuple[float, float]]
+        ),
         activity_type: ActivityType | None = None,
         min_cat: int | None = None,
         max_cat: int | None = None,

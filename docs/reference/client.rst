@@ -71,6 +71,7 @@ Activity related methods
    Client.get_activity_photos
    Client.get_activity_laps
    Client.get_related_activities
+   Client._validate_activity_type
 
 Segment related methods
 -------------------------
