@@ -799,7 +799,6 @@ class Client:
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
             For possible values see: :class:`stravalib.model.Activity.TYPES`
-            rollerski, windsurf, workout, snowboard, snowshoe
         sport_type : str, default=None
             For possible values see: :class:`stravalib.model.Activity.SPORT_TYPES`
         private : bool, default=None
