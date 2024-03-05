@@ -672,10 +672,22 @@ class Client:
             If the activity_type or sport_type is invalid.
         """
 
+        # Check for sport_type first. If provided, it is favored over
+        # activity_type / type
+        if sport_type is not None:
+            if not sport_type in model.Activity.SPORT_TYPES:
+                raise ValueError(
+                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                )
+            params["sport_type"] = sport_type
+            params.pop("type", None)
+            return params
+
         # Handle activity type throwing warning given sport type is preferred
-        # This also ONLY adds activity type if the user wants to use it
+        # This also ONLY adds activity type if the user provides it over
+        # sport_type.
         # thus we won't need the "pop" from the dict anymore
-        if activity_type is not None:
+        elif activity_type is not None:
             if not activity_type.lower() in [
                 t.lower() for t in model.Activity.TYPES
             ]:
@@ -688,13 +700,6 @@ class Client:
                 "sport_type",
                 "https://developers.strava.com/docs/reference/#api-models-UpdatableActivity",
             )
-
-        if sport_type is not None:
-            if not sport_type in model.Activity.SPORT_TYPES:
-                raise ValueError(
-                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
-                )
-            params["sport_type"] = sport_type
 
         return params
 
@@ -762,6 +767,8 @@ class Client:
         params = self._validate_activity_type(
             params, activity_type, sport_type
         )
+        # TODO: throw warning if activity or sport_type not included
+        # in returned params
 
         raw_activity = self.protocol.post("/activities", **params)
 

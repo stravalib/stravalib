@@ -543,6 +543,54 @@ def test_create_activity(
         _call_and_assert()
 
 
+@pytest.mark.parametrize(
+    "sport_type, activity_type, expected_result, expected_exception",
+    (
+        ("TrailRun", None, "TrailRun", None),
+        ("funrun", None, None, ValueError),
+        # Did strava used to lower case types but sport_type is normal case?
+        (None, "Run", "run", None),
+        (None, "junoDog", None, ValueError),
+        # Case where we have both sport and activity type provided
+        # This should ONLY return Trail run. we'd want a test for two things
+        ("TrailRun", "Run", "TrailRun", None),
+        # Need to work on a method code check for this one - it should return
+        # a error i think for create activity?
+        (None, None, None, ValueError),
+    ),
+)
+def test_validate_activity_type(
+    client, activity_type, sport_type, expected_result, expected_exception
+):
+    # TODO: create fixture above for this?
+    params = {
+        "name": "New Activity",
+        "start_date_local": "2024-03-04T18:56:47Z",
+        "elapsed_time": 9000,
+        "description": "An activity description here.",
+        "distance": 5700,
+    }
+
+    if expected_exception:
+        # TODO: should we have a error message specific to this error here?
+        # value = "output error message"
+        with pytest.raises(expected_exception):
+            client._validate_activity_type(params, activity_type, sport_type)
+    else:
+        out = client._validate_activity_type(params, activity_type, sport_type)
+        # If both keys are in the dictionary - validate should only return one
+        # A keyerror should be returned
+        if sport_type and activity_type:
+            assert out["sport_type"] == expected_result
+            assert "type" not in out.keys()
+            # Run tests
+        # If only sport type is available
+        elif sport_type:
+            assert out["sport_type"] == expected_result
+        elif activity_type:
+            assert out["type"] == expected_result
+
+
 def test_activity_uploader(mock_strava_api, client):
     test_activity_id = 42
     init_upload_response = {
