@@ -643,6 +643,7 @@ class Client:
         params: dict[str, Any],
         activity_type: str | None,
         sport_type: str | None,
+        create: bool = False,
     ) -> dict[str, Any]:
         """Validate activity type and sport type.
 
@@ -660,6 +661,8 @@ class Client:
         sport_type : str, default=None
             For possible values (case-sensitive) see:
             :class:`stravalib.model.Activity.SPORT_TYPES`
+        create : bool, default=False
+            Flag indicating if the activity is being created (or updated).
 
         Returns
         -------
@@ -671,6 +674,11 @@ class Client:
         ValueError
             If the activity_type or sport_type is invalid.
         """
+
+        if create and not sport_type:
+            raise ValueError(
+                "The sport_type key is required to create a Strava activity"
+            )
 
         # Check for sport_type first. If provided, it is favored over
         # activity_type / type
@@ -686,7 +694,6 @@ class Client:
         # Handle activity type throwing warning given sport type is preferred
         # This also ONLY adds activity type if the user provides it over
         # sport_type.
-        # thus we won't need the "pop" from the dict anymore
         elif activity_type is not None:
             if not activity_type.lower() in [
                 t.lower() for t in model.Activity.TYPES
@@ -765,7 +772,7 @@ class Client:
             params["distance"] = distance
 
         params = self._validate_activity_type(
-            params, activity_type, sport_type
+            params, activity_type, sport_type, create=True
         )
         # TODO: throw warning if activity or sport_type not included
         # in returned params
