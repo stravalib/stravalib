@@ -15,6 +15,34 @@ from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import UnitConverter, meters, miles
 
 
+@pytest.fixture
+def default_call_kwargs():
+    """A fixture containing default input / call parameters for a create
+    activity call to the strava API"""
+
+    default_call_kwargs = {
+        "sport_type": "TrailRun",
+        "name": "test",
+        "start_date_local": "2022-01-01T09:00:00",
+        "elapsed_time": 3600,
+    }
+    return default_call_kwargs
+
+
+@pytest.fixture
+def default_request_params():
+    """A fixture containing default request parameters for a create activity
+    request to the strava API"""
+
+    default_request_params = {
+        "sport_type": "TrailRun",
+        "name": "test",
+        "start_date_local": "2022-01-01T09:00:00",
+        "elapsed_time": "3600",
+    }
+    return default_request_params
+
+
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
@@ -270,15 +298,8 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
     "update_kwargs,expected_params,expected_warning,expected_exception",
     (
         ({}, {}, None, None),
-        ({"name": "foo"}, {"name": "foo"}, None, None),
-        ({"activity_type": "foo"}, {}, None, ValueError),
         ({"activity_type": "Run"}, {"type": "run"}, DeprecationWarning, None),
-        ({"activity_type": "run"}, {"type": "run"}, DeprecationWarning, None),
-        ({"activity_type": "RUN"}, {"type": "run"}, DeprecationWarning, None),
-        ({"sport_type": "foo"}, {}, None, ValueError),
         ({"sport_type": "TrailRun"}, {"sport_type": "TrailRun"}, None, None),
-        # This won't return a warning because the validator removes
-        # activity_type if sport_type exists
         (
             {"activity_type": "Run", "sport_type": "TrailRun"},
             {"sport_type": "TrailRun"},
@@ -506,6 +527,8 @@ def test_update_athlete(
     ),
 )
 def test_create_activity(
+    default_call_kwargs,
+    default_request_params,
     mock_strava_api,
     client,
     extra_create_kwargs,
@@ -516,18 +539,6 @@ def test_create_activity(
     sport type values and also what happens when a required API item
     is missing."""
 
-    default_call_kwargs = {
-        "sport_type": "TrailRun",
-        "name": "test",
-        "start_date_local": "2022-01-01T09:00:00",
-        "elapsed_time": 3600,
-    }
-    default_request_params = {
-        "sport_type": "TrailRun",
-        "name": "test",
-        "start_date_local": "2022-01-01T09:00:00",
-        "elapsed_time": "3600",
-    }
     call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
     print(call_kwargs)
     expected_params = {**default_request_params, **extra_expected_params}

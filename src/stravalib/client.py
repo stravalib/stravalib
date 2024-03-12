@@ -643,9 +643,8 @@ class Client:
         params: dict[str, Any],
         activity_type: str | None,
         sport_type: str | None,
-        create: bool = False,
     ) -> dict[str, Any]:
-        """Validate activity type and sport type.
+        """Validate activity type and sport type values.
 
         Parameters
         ----------
@@ -661,8 +660,6 @@ class Client:
         sport_type : str, default=None
             For possible values (case-sensitive) see:
             :class:`stravalib.model.Activity.SPORT_TYPES`
-        create : bool, default=False
-            Flag indicating if the activity is being created (or updated).
 
         Returns
         -------
@@ -674,11 +671,6 @@ class Client:
         ValueError
             If the activity_type or sport_type is invalid.
         """
-
-        if create and not sport_type:
-            raise ValueError(
-                "The sport_type key is required to create a Strava activity"
-            )
 
         # Check for sport_type first. If provided, it is favored over
         # activity_type / type
@@ -772,7 +764,7 @@ class Client:
             params["distance"] = distance
 
         params = self._validate_activity_type(
-            params, activity_type, sport_type, create=True
+            params, activity_type, sport_type
         )
         # TODO: throw warning if activity or sport_type not included
         # in returned params

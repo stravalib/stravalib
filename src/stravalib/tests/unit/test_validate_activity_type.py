@@ -17,14 +17,14 @@ def params():
 
 
 @pytest.mark.parametrize(
-    "sport_type, activity_type, expected_result, expected_exception, create",
+    "sport_type, activity_type, expected_result, expected_exception",
     (
-        ("TrailRun", None, "TrailRun", None, False),
-        ("funrun", None, None, ValueError, False),
-        (None, "Run", "run", None, False),
-        (None, "junoDog", None, ValueError, False),
-        ("TrailRun", "Run", "TrailRun", None, False),
-        (None, None, None, ValueError, True),  # Create activity
+        ("TrailRun", None, "TrailRun", None),
+        ("funrun", None, None, ValueError),
+        (None, "Run", "run", None),
+        (None, "junoDog", None, ValueError),
+        ("TrailRun", "Run", "TrailRun", None),
+        (None, None, None, ValueError),
     ),
 )
 def test_validate_activity_type(
@@ -34,7 +34,6 @@ def test_validate_activity_type(
     sport_type,
     expected_result,
     expected_exception,
-    create,
 ):
     """Test the validation step for create and update activity.
 
@@ -47,13 +46,9 @@ def test_validate_activity_type(
         # TODO: should we have a error message specific to this error here?
         # value = "output error message"
         with pytest.raises(expected_exception):
-            client._validate_activity_type(
-                params, activity_type, sport_type, create
-            )
+            client._validate_activity_type(params, activity_type, sport_type)
     else:
-        out = client._validate_activity_type(
-            params, activity_type, sport_type, create
-        )
+        out = client._validate_activity_type(params, activity_type, sport_type)
         # If both keys are in the dictionary - validate should only return one
         # A keyerror should be returned
         if sport_type and activity_type:
