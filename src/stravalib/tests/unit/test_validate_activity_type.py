@@ -16,6 +16,8 @@ def params():
     return params
 
 
+# TODO: potentially redo this so each expected and return type is a dict.
+# then simplify the logic below
 @pytest.mark.parametrize(
     "sport_type, activity_type, expected_result, expected_exception",
     (
