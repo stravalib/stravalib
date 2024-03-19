@@ -21,7 +21,6 @@ def default_call_kwargs():
     activity call to the strava API"""
 
     default_call_kwargs = {
-        "sport_type": "TrailRun",
         "name": "test",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": 3600,
@@ -35,7 +34,6 @@ def default_request_params():
     request to the strava API"""
 
     default_request_params = {
-        "sport_type": "TrailRun",
         "name": "test",
         "start_date_local": "2022-01-01T09:00:00",
         "elapsed_time": "3600",
@@ -511,19 +509,43 @@ def test_update_athlete(
     (
         (
             {
+                "sport_type": "TrailRun",
                 "start_date_local": datetime.datetime(2022, 1, 1, 10, 0, 0),
             },
-            {"start_date_local": "2022-01-01T10:00:00Z"},
+            {
+                "sport_type": "TrailRun",
+                "start_date_local": "2022-01-01T10:00:00Z",
+            },
             None,
         ),
         (
-            {"elapsed_time": datetime.timedelta(minutes=1)},
-            {"elapsed_time": "60"},
+            {
+                "sport_type": "TrailRun",
+                "elapsed_time": datetime.timedelta(minutes=1),
+            },
+            {"sport_type": "TrailRun", "elapsed_time": "60"},
             None,
         ),
-        ({"distance": 1000}, {"distance": "1000"}, None),
-        ({"distance": miles(1)}, {"distance": "1609.344"}, None),
-        ({"description": "foo"}, {"description": "foo"}, None),
+        (
+            {"sport_type": "TrailRun", "distance": 1000},
+            {"sport_type": "TrailRun", "distance": "1000"},
+            None,
+        ),
+        (
+            {"sport_type": "TrailRun", "distance": miles(1)},
+            {"sport_type": "TrailRun", "distance": "1609.344"},
+            None,
+        ),
+        (
+            {"sport_type": "TrailRun", "description": "foo"},
+            {"sport_type": "TrailRun", "description": "foo"},
+            None,
+        ),
+        (
+            {"description": "foo"},
+            {"description": "foo"},
+            ValueError,
+        ),
     ),
 )
 def test_create_activity(

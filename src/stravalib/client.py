@@ -742,6 +742,14 @@ class Client:
             The distance in meters (float) or a :class:`pint.Quantity` instance.
 
         """
+
+        # Strava API requires either sport_type or activity_type to be defined
+        # to create an activity. Check for that here.
+        if sport_type is None and activity_type is None:
+            raise ValueError(
+                "Either 'sport_type' or 'activity_type' must be provided to create an activity."
+            )
+
         if isinstance(elapsed_time, timedelta):
             elapsed_time = elapsed_time.seconds
 
@@ -766,8 +774,6 @@ class Client:
         params = self._validate_activity_type(
             params, activity_type, sport_type
         )
-        # TODO: throw warning if activity or sport_type not included
-        # in returned params
 
         raw_activity = self.protocol.post("/activities", **params)
 

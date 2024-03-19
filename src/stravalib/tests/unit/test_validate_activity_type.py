@@ -21,12 +21,11 @@ def params():
 @pytest.mark.parametrize(
     "sport_type, activity_type, expected_result, expected_exception",
     (
-        ("TrailRun", None, "TrailRun", None),
+        ("TrailRun", None, {"sport_type": "TrailRun"}, None),
         ("funrun", None, None, ValueError),
-        (None, "Run", "run", None),
+        (None, "Run", {"type": "run"}, None),
         (None, "junoDog", None, ValueError),
-        ("TrailRun", "Run", "TrailRun", None),
-        (None, None, None, ValueError),
+        ("TrailRun", "Run", {"sport_type": "TrailRun"}, None),
     ),
 )
 def test_validate_activity_type(
@@ -50,15 +49,9 @@ def test_validate_activity_type(
         with pytest.raises(expected_exception):
             client._validate_activity_type(params, activity_type, sport_type)
     else:
-        out = client._validate_activity_type(params, activity_type, sport_type)
-        # If both keys are in the dictionary - validate should only return one
-        # A keyerror should be returned
-        if sport_type and activity_type:
-            assert out["sport_type"] == expected_result
-            assert "type" not in out.keys()
-            # Run tests
-        # If only sport type is available
-        elif sport_type:
-            assert out["sport_type"] == expected_result
-        elif activity_type:
-            assert out["type"] == expected_result
+        out_params = client._validate_activity_type(
+            params, activity_type, sport_type
+        )
+        # This is a "merge" or dict union introduced in 3.9
+        # It combines the two dictionaries updating overlapping key(/val) pairs
+        assert params | expected_result == out_params
