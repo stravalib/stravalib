@@ -316,6 +316,12 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
             None,
         ),
         ({"hide_from_home": False}, {"hide_from_home": "0"}, None, None),
+        (
+            {"name": "My awesome activity"},
+            {"name": "My awesome activity"},
+            None,
+            None,
+        ),
     ),
 )
 def test_update_activity(
