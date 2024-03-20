@@ -680,7 +680,6 @@ class Client:
                     f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
                 )
             params["sport_type"] = sport_type
-            params.pop("type", None)
             return params
 
         # Handle activity type throwing warning given sport type is preferred
