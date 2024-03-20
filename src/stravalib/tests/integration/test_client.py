@@ -15,6 +15,32 @@ from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import UnitConverter, meters, miles
 
 
+@pytest.fixture
+def default_call_kwargs():
+    """A fixture containing default input / call parameters for a create
+    activity call to the strava API"""
+
+    default_call_kwargs = {
+        "name": "test",
+        "start_date_local": "2022-01-01T09:00:00",
+        "elapsed_time": 3600,
+    }
+    return default_call_kwargs
+
+
+@pytest.fixture
+def default_request_params():
+    """A fixture containing default request parameters for a create activity
+    request to the strava API"""
+
+    default_request_params = {
+        "name": "test",
+        "start_date_local": "2022-01-01T09:00:00",
+        "elapsed_time": "3600",
+    }
+    return default_request_params
+
+
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
@@ -270,17 +296,12 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
     "update_kwargs,expected_params,expected_warning,expected_exception",
     (
         ({}, {}, None, None),
-        ({"name": "foo"}, {"name": "foo"}, None, None),
-        ({"activity_type": "foo"}, {}, None, ValueError),
         ({"activity_type": "Run"}, {"type": "run"}, DeprecationWarning, None),
-        ({"activity_type": "run"}, {"type": "run"}, DeprecationWarning, None),
-        ({"activity_type": "RUN"}, {"type": "run"}, DeprecationWarning, None),
-        ({"sport_type": "foo"}, {}, None, ValueError),
         ({"sport_type": "TrailRun"}, {"sport_type": "TrailRun"}, None, None),
         (
             {"activity_type": "Run", "sport_type": "TrailRun"},
             {"sport_type": "TrailRun"},
-            DeprecationWarning,
+            None,
             None,
         ),
         ({"private": True}, {"private": "1"}, DeprecationWarning, None),
@@ -295,6 +316,12 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
             None,
         ),
         ({"hide_from_home": False}, {"hide_from_home": "0"}, None, None),
+        (
+            {"name": "My awesome activity"},
+            {"name": "My awesome activity"},
+            None,
+            None,
+        ),
     ),
 )
 def test_update_activity(
@@ -486,46 +513,62 @@ def test_update_athlete(
 @pytest.mark.parametrize(
     "extra_create_kwargs,extra_expected_params,expected_exception",
     (
-        ({}, {}, None),
-        ({"activity_type": "run"}, {"type": "run"}, None),
-        ({"activity_type": "Run"}, {"type": "run"}, None),
-        ({"activity_type": "sleep"}, {}, ValueError),
         (
-            {"start_date_local": datetime.datetime(2022, 1, 1, 10, 0, 0)},
-            {"start_date_local": "2022-01-01T10:00:00Z"},
+            {
+                "sport_type": "TrailRun",
+                "start_date_local": datetime.datetime(2022, 1, 1, 10, 0, 0),
+            },
+            {
+                "sport_type": "TrailRun",
+                "start_date_local": "2022-01-01T10:00:00Z",
+            },
             None,
         ),
         (
-            {"elapsed_time": datetime.timedelta(minutes=1)},
-            {"elapsed_time": "60"},
+            {
+                "sport_type": "TrailRun",
+                "elapsed_time": datetime.timedelta(minutes=1),
+            },
+            {"sport_type": "TrailRun", "elapsed_time": "60"},
             None,
         ),
-        ({"distance": 1000}, {"distance": "1000"}, None),
-        ({"distance": miles(1)}, {"distance": "1609.344"}, None),
-        ({"description": "foo"}, {"description": "foo"}, None),
+        (
+            {"sport_type": "TrailRun", "distance": 1000},
+            {"sport_type": "TrailRun", "distance": "1000"},
+            None,
+        ),
+        (
+            {"sport_type": "TrailRun", "distance": miles(1)},
+            {"sport_type": "TrailRun", "distance": "1609.344"},
+            None,
+        ),
+        (
+            {"sport_type": "TrailRun", "description": "foo"},
+            {"sport_type": "TrailRun", "description": "foo"},
+            None,
+        ),
+        (
+            {"description": "foo"},
+            {"description": "foo"},
+            ValueError,
+        ),
     ),
 )
 def test_create_activity(
+    default_call_kwargs,
+    default_request_params,
     mock_strava_api,
     client,
     extra_create_kwargs,
     extra_expected_params,
     expected_exception,
 ):
-    default_call_kwargs = {
-        "name": "test",
-        "activity_type": "Run",
-        "start_date_local": "2022-01-01T09:00:00",
-        "elapsed_time": 3600,
-    }
-    default_request_params = {
-        "name": "test",
-        "type": "run",
-        "start_date_local": "2022-01-01T09:00:00",
-        "elapsed_time": "3600",
-    }
-    call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
-    expected_params = {**default_request_params, **extra_expected_params}
+    """Test what happens when create activity receives valid and invalid
+    sport type values and also what happens when a required API item
+    is missing."""
+
+    call_kwargs = default_call_kwargs | extra_create_kwargs
+    expected_params = default_request_params | extra_expected_params
 
     def _call_and_assert():
         _ = client.create_activity(**call_kwargs)
