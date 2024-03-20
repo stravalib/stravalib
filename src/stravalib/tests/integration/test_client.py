@@ -567,9 +567,8 @@ def test_create_activity(
     sport type values and also what happens when a required API item
     is missing."""
 
-    call_kwargs = {**default_call_kwargs, **extra_create_kwargs}
-    print(call_kwargs)
-    expected_params = {**default_request_params, **extra_expected_params}
+    call_kwargs = default_call_kwargs | extra_create_kwargs
+    expected_params = default_request_params | extra_expected_params
 
     def _call_and_assert():
         _ = client.create_activity(**call_kwargs)
