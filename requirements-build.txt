@@ -1,3 +1,0 @@
-# Package build
-build
-twine
