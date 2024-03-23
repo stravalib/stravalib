@@ -1,6 +1,5 @@
 import arrow
 import pytest
-
 from stravalib.util.limiter import (
     RequestRate,
     SleepingRateLimitRule,

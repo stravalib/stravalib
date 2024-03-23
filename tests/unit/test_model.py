@@ -5,7 +5,6 @@ import pint
 import pytest
 import pytz
 from pydantic import BaseModel
-
 from stravalib import model
 from stravalib import unithelper as uh
 from stravalib.model import (
@@ -23,8 +22,9 @@ from stravalib.model import (
     SubscriptionCallback,
 )
 from stravalib.strava_model import LatLng
-from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity, UnitConverter
+
+from .. import TestBase
 
 
 @pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))

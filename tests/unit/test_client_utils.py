@@ -4,9 +4,9 @@ from unittest import mock
 from urllib import parse as urlparse
 
 import pytz
-
 from stravalib.client import Client
-from stravalib.tests import RESOURCES_DIR, TestBase
+
+from .. import RESOURCES_DIR, TestBase
 
 
 class ClientUtilsTest(TestBase):
@@ -101,9 +101,10 @@ class TestClientUploadActivity(TestBase):
 
         """
 
-        with mock.patch(
-            "stravalib.protocol.ApiV3.post", return_value={}
-        ), open(os.path.join(RESOURCES_DIR, "sample.tcx")) as fp:
+        with (
+            mock.patch("stravalib.protocol.ApiV3.post", return_value={}),
+            open(os.path.join(RESOURCES_DIR, "sample.tcx")) as fp,
+        ):
             # test activity_file with type TextIOWrapper
             uploader = self.client.upload_activity(fp, data_type="tcx")
             self.assertTrue(uploader.is_processing)
