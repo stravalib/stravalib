@@ -15,10 +15,10 @@ def tests(session):
     session.install(".[tests]")
     session.run(
         "pytest",
-        "--cov=src/stravalib",
+        "--cov=src/stravalib/",
         "--cov-report=xml:coverage.xml",
-        "tests/unit/",
-        "tests/integration/",
+        "--cov-report=term",
+        "tests/",
     )
 
 
