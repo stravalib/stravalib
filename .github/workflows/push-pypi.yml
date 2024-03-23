@@ -26,9 +26,9 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install requirements
+      - name: Install dependencies
         run: |
-          python -m pip install -r requirements-build.txt
+          pip install build
           pip list
 
       - name: Build package

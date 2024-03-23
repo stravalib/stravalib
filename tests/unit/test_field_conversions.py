@@ -1,6 +1,5 @@
 import pytest
 import pytz
-
 from stravalib.field_conversions import (
     enum_value,
     enum_values,

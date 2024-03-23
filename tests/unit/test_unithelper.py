@@ -3,7 +3,6 @@ from dataclasses import dataclass
 import pint
 import pytest
 from pint import Unit
-
 from stravalib import unithelper as uh
 from stravalib.unithelper import UnitsQuantity
 

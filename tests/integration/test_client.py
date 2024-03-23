@@ -5,14 +5,14 @@ from unittest import mock
 
 import pytest
 import responses
-from responses import matchers
-
 import stravalib.unithelper as uh
+from responses import matchers
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.model import Athlete
-from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import UnitConverter, meters, miles
+
+from .. import RESOURCES_DIR
 
 
 @pytest.fixture
