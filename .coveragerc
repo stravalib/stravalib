@@ -1,6 +1,5 @@
 [run]
 branch = True
-include = */src/*
 omit =
     tests/*
     */_version_generated.py
