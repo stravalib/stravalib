@@ -37,14 +37,14 @@ repos:
 
   # Linting code using ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.3.5
     hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
 
   # Black for auto code formatting
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.3.0
     hooks:
       - id: black
         entry: bash -c 'black "$@"; git add -u' --
