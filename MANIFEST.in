@@ -1,4 +1,3 @@
 recursive-include docs *
 recursive-include src/stravalib/tests/ *
-include requirements.txt
 recursive-exclude examples *
