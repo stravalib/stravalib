@@ -17,8 +17,9 @@ def tests(session):
         "pytest",
         "--cov=src/stravalib",
         "--cov-report=xml:coverage.xml",
-        "tests/unit/",
-        "tests/integration/",
+        "--cov-report=term",
+        "src/stravalib/tests/unit/",
+        "src/stravalib/tests/integration/",
     )
 
 
