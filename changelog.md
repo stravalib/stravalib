@@ -8,6 +8,7 @@
 - Fix: Codecov report wasn't generating correctly (@lwasser, #469)
 - Remove: `client.delete_activity` method is no longer supported by Strava (@lwasser, #238)
 - Fix: Add sport type to create_activity and create type validator method. NOTE: this fix contains a breaking change in `Client.create_activity()` activity_type is now an optional keyword argument rather than a required positional argument (@lwasser, #279)
+- Fix: Fixes the Strava API update bot (@jsamoocha, #477)
 - Fix: Cleanup dependencies to only use pyproject toml (@lwasser, #466)
 
 ## v1.6

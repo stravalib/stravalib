@@ -18,10 +18,10 @@ jobs:
         with:
           model_file: "src/stravalib/strava_model.py"
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           add-paths: |
-            stravalib
+            src/stravalib
           commit-message: Strava API Change
           branch: api-change
           delete-branch: true
