@@ -21,7 +21,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           add-paths: |
-            stravalib
+            src/stravalib
           commit-message: Strava API Change
           branch: api-change
           delete-branch: true
