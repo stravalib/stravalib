@@ -50,12 +50,42 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
 ]
 
-dependencies = ["pint", "pytz", "arrow", "requests", "pydantic==1.10.9"]
+dependencies = ["pint", "pytz", "arrow", "requests", "pydantic<2.0"]
 
 [project.urls]
 documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
+
+
+[project.optional-dependencies]
+build = ["build"]
+tests = [
+  "pytest",
+  "pytest-cov",
+  "responses"
+]
+docs = [
+  "sphinx",
+  "pydata-sphinx-theme",
+  "autodoc_pydantic",
+  "sphinx_remove_toctrees",
+  "myst-nb",
+  "sphinx-autobuild",
+  "sphinx-inline-tabs",
+  "sphinx_copybutton",
+  "sphinx_design",
+  "sphinxext-opengraph",
+  # Needed for sphinx open graph
+  "matplotlib"
+]
+lint = [
+  "pre-commit",
+  "mypy",
+  "types-requests",
+  "types-pytz",
+  "types-Flask"
+]
 
 [tool.black]
 line-length = 79

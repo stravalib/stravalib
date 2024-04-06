@@ -65,10 +65,16 @@ development / editable mode (`-e`). Editable mode allows you to make updates
 to the package and test them in realtime.
 
 ```bash
-# install the package requirements
-$ pip install -r requirements.txt
-# Install stravalib in editable mode
-$ pip install -e .
+# Install the package in editable model and all requirements
+$ pip install -e ".[build, tests, docs]"
+```
+
+```{note}
+If you only want to install dependencies for building and testing the package (and exclude the docs requirements), you can run:
+
+`pip install -e ".[build, tests]"`
+
+Also note that some shells may not need the `".[build, tests]"` but it is needed for zsh shells and will likely work on most if not all shells with the quotes.
 ```
 
 ## Architecture Overview

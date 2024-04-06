@@ -10,7 +10,7 @@ We'll assume you're using python3.
 $ cd /path/to/stravalib
 $ python3 -m venv env
 $ source env/bin/activate
-(env) $ pip install -r requirements.txt && python setup.py develop
+(env) $ pip install -e ".[tests, build]"
 (env) $ pip install -r examples/strava-oauth/requirements.txt
 ```
 

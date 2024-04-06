@@ -12,26 +12,12 @@ nox.options.reuse_existing_virtualenvs = True
 @nox.session(python=["3.9", "3.10", "3.11"])
 def tests(session):
     """Install requirements in a venv and run tests."""
-    session.install(".[all]")
-    session.install("-r", "requirements.txt")
+    session.install(".[tests]")
     session.run(
         "pytest",
         "--cov=src/stravalib",
         "--cov-report=xml:coverage.xml",
-        "src/stravalib/tests/unit/",
-        "src/stravalib/tests/integration/",
-    )
-
-
-# Use this for conda/mamba = nox -s test_mamba
-@nox.session(venv_backend="mamba", python=["3.9", "3.10", "3.11"])
-def test_mamba(session):
-    session.install(".[all]")
-    session.install("-r", "requirements.txt")
-    session.run(
-        "pytest",
-        "--cov",
-        "src/stravalib",
+        "--cov-report=term",
         "src/stravalib/tests/unit/",
         "src/stravalib/tests/integration/",
     )
@@ -43,8 +29,7 @@ build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 @nox.session
 def docs(session):
-    session.install(".[all]")
-    session.install("-r", "requirements.txt")
+    session.install(".[docs]")
     cmd = ["sphinx-build"]
     cmd.extend(build_command + session.posargs)
     session.run(*cmd)
@@ -52,8 +37,7 @@ def docs(session):
 
 @nox.session(name="docs-live")
 def docs_live(session):
-    session.install("-r", "requirements.txt")
-    session.install(".[all]")
+    session.install(".[docs]")
 
     AUTOBUILD_IGNORE = [
         "_build",
@@ -70,8 +54,7 @@ def docs_live(session):
 # Use this for venv envs nox -s test
 @nox.session(python="3.10")
 def mypy(session):
-    session.install(".[all]")
-    session.install("-r", "requirements.txt")
+    session.install(".[lint]")
     session.run(
         "mypy",
     )
@@ -100,7 +83,7 @@ def build(session):
     """Build the package's SDist and wheel using PyPA build and
     setuptools / setuptools_scm"""
 
-    session.install("-r", "requirements-build.txt")
+    session.install(".[build]")
     session.run("python", "-m", "build")
 
 
@@ -112,16 +95,11 @@ def install_wheel(session):
 
     wheel_files = glob(os.path.join("dist", "*.whl"))
     print(wheel_files)
-    session.run(
-        "pip",
-        "install",
-        "--no-deps",
-        "dist/stravalib-1.4.post24-py3-none-any.whl",
-    )
+
     if wheel_files:
-        for wheel_path in wheel_files:
-            print("Installing:", wheel_path)
-            session.install(wheel_path)
+        most_recent_wheel = max(wheel_files, key=os.path.getmtime)
+        print("Installing:", most_recent_wheel)
+        session.install(most_recent_wheel)
     else:
         print("No wheel files found matching the pattern: *.whl")
 
