@@ -61,5 +61,10 @@ repos:
     hooks:
       - id: codespell
         files: ^.*\.(py|md|rst)$
+        exclude: >
+            (?x)^(
+                src/stravalib/strava_model.py|
+                src/stravalib/tests/resources/strava_swagger.json
+            )$
         additional_dependencies:
           - tomli
