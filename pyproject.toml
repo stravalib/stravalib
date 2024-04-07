@@ -125,9 +125,15 @@ warn_untyped_fields = true
 skip = './docs/_build, ./build, ./src/stravalib/tests/resources'
 
 [tool.ruff]
-select = [
+lint.select = [
   "F", # pyflakes
   "I", # isort
+  "UP", # pyupgrade
 ]
-ignore = ["F841"]
+lint.ignore = ["F841"]
 line-length = 79
+target-version = "py39"
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
