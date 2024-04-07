@@ -708,7 +708,7 @@ class SummaryPRSegmentEffort(BaseModel):
     """
     pr_elapsed_time: Optional[int] = None
     """
-    The elapsed time of the PR effort.
+    The elapsed time ot the PR effort.
     """
 
 
@@ -813,6 +813,33 @@ class Upload(BaseModel):
     status: Optional[str] = None
     """
     The status of this upload
+    """
+
+
+class Waypoint(BaseModel):
+    categories: Optional[list[str]] = Field(None, min_items=0)
+    """
+    Categories that the waypoint belongs to
+    """
+    description: Optional[str] = None
+    """
+    A description of the waypoint (optional)
+    """
+    distance_into_route: Optional[int] = None
+    """
+    The number meters along the route that the waypoint is located
+    """
+    latlng: Optional[LatLng] = None
+    """
+    The location along the route that the waypoint is closest to
+    """
+    target_latlng: Optional[LatLng] = None
+    """
+    A location off of the route that the waypoint is (optional)
+    """
+    title: Optional[str] = None
+    """
+    A title for the waypoint
     """
 
 
@@ -1044,9 +1071,9 @@ class ExplorerSegment(BaseModel):
     """
     The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category. If climb_category = 5, climb_category_desc = HC. If climb_category = 2, climb_category_desc = 3.
     """
-    climb_category_desc: Optional[
-        Literal["NC", "4", "3", "2", "1", "HC"]
-    ] = None
+    climb_category_desc: Optional[Literal["NC", "4", "3", "2", "1", "HC"]] = (
+        None
+    )
     """
     The description for the category of the climb
     """
@@ -1393,6 +1420,10 @@ class Route(BaseModel):
     updated_at: Optional[datetime] = None
     """
     The time at which the route was last updated
+    """
+    waypoints: Optional[list[Waypoint]] = Field(None, min_items=0)
+    """
+    The custom waypoints along this route
     """
 
 
