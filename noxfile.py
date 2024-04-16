@@ -51,7 +51,7 @@ def docs_live(session):
     session.run(*cmd)
 
 
-# Use this for venv envs nox -s test
+# Use this for venv envs nox -s mypy
 @nox.session(python="3.10")
 def mypy(session):
     session.install(".[lint]")

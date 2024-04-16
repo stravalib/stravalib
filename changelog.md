@@ -11,6 +11,7 @@
 - Fix: Fixes the Strava API update bot (@jsamoocha, #477)
 - Fix: Cleanup dependencies to only use pyproject toml (@lwasser, #466)
 - Add: Strava API change - Route objects have a new waypoints attribute (@bot, #480)
+- Remove: Deprecated deserialize method from deprecated mixin (@lwasser, #358)
 
 ## v1.6
 

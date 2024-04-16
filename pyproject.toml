@@ -125,9 +125,9 @@ warn_untyped_fields = true
 skip = './docs/_build, ./build, ./src/stravalib/tests/resources'
 
 [tool.ruff]
-select = [
+lint.select = [
   "F", # pyflakes
   "I", # isort
 ]
-ignore = ["F841"]
+lint.ignore = ["F841"]
 line-length = 79
