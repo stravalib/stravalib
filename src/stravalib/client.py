@@ -1871,7 +1871,7 @@ class Client:
             The JSON response expected by Strava to the challenge request.
 
         """
-        callback = model.SubscriptionCallback.deserialize(raw)
+        callback = model.SubscriptionCallback.parse_obj(raw)
         callback.validate_token(verify_token)
 
         assert callback.hub_challenge is not None
@@ -1962,8 +1962,7 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class ResultFetcher(Protocol):
-    def __call__(self, *, page: int, per_page: int) -> Iterable[Any]:
-        ...
+    def __call__(self, *, page: int, per_page: int) -> Iterable[Any]: ...
 
 
 class BatchedResultsIterator(Generic[T]):
@@ -2036,16 +2035,9 @@ class BatchedResultsIterator(Generic[T]):
 
         entities = []
         for raw in raw_results:
-            try:
-                new_entity = self.entity.parse_obj(
-                    {**raw, **{"bound_client": self.bind_client}}
-                )
-            except AttributeError:
-                # Entity doesn't have a parse_obj() method, so must be of a
-                # legacy type
-                new_entity = self.entity.deserialize(  # type: ignore[attr-defined]
-                    raw, bind_client=self.bind_client
-                )
+            new_entity = self.entity.parse_obj(
+                {**raw, **{"bound_client": self.bind_client}}
+            )
             entities.append(new_entity)
 
         self._buffer = collections.deque(entities)
