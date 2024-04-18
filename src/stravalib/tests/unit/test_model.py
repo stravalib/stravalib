@@ -348,7 +348,7 @@ class ModelTest(TestBase):
             "aspect_type": "create",
             "event_time": 1297286541,
         }
-        subupd = model.SubscriptionUpdate.parse_obj(d)
+        subupd = model.SubscriptionUpdate.deserialize(d)
         self.assertEqual(
             "2011-02-09 21:22:21",
             subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
