@@ -4,6 +4,7 @@ Exceptions & Error Handling
 Exceptions and error handling for stravalib.
 These are classes designed to capture and handle various errors encountered when interacting with the Strava API.
 """
+
 from __future__ import annotations
 
 import logging

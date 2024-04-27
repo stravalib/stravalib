@@ -19,6 +19,7 @@ From the Strava docs:
   This limit allows applications to make 40 requests per minute for about
   half the day.
 """
+
 from __future__ import annotations
 
 import logging

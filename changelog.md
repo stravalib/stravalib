@@ -23,7 +23,7 @@
 
 ### Breaking Changes
 If you have been using the `client.delete_activity` method then your code will
-no longer work as this method was removed due to being deprecated by Strava. We also are dropping support for Python 3.9 (end of life / no more security fixes in October 2024 and now only getting security fixes) in this release and adding support for 3.12. 
+no longer work as this method was removed due to being deprecated by Strava. We also are dropping support for Python 3.9 (end of life / no more security fixes in October 2024 and now only getting security fixes) in this release and adding support for 3.12.
 
 ### Contributors to this release
 

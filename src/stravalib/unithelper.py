@@ -3,6 +3,7 @@ Unit Helper
 ==============
 Helpers for converting Strava's units to something more practical.
 """
+
 from numbers import Number
 from typing import Any, Protocol, Union, cast, runtime_checkable
 

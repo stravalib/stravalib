@@ -2,6 +2,7 @@
 ==============
 Low-level classes for interacting directly with the Strava API webservers.
 """
+
 from __future__ import annotations
 
 import abc
@@ -59,8 +60,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         self,
         access_token: str | None = None,
         requests_session: requests.Session | None = None,
-        rate_limiter: Callable[[dict[str, str], RequestMethod], None]
-        | None = None,
+        rate_limiter: (
+            Callable[[dict[str, str], RequestMethod], None] | None
+        ) = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
