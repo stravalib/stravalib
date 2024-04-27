@@ -9,7 +9,7 @@ nox.options.reuse_existing_virtualenvs = True
 
 
 # Use this for venv envs nox -s test
-@nox.session(python=["3.9", "3.10", "3.11"])
+@nox.session(python=["3.10", "3.11", "3.12"])
 def tests(session):
     """Install requirements in a venv and run tests."""
     session.install(".[tests]")

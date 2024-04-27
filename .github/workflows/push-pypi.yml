@@ -24,7 +24,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -40,17 +40,6 @@ jobs:
 
       - name: Check the archives
         run: twine check dist/*
-
-      - name: Publish package on test PyPI on merge
-        # Test push to test pypi on merge to main
-        if: github.event_name == 'push'
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-          # Allow existing releases on test PyPI without errors.
-          # NOT TO BE USED in PyPI!
-          skip_existing: true
 
       - name: Publish package to PyPI
         # Only publish to real PyPI on release

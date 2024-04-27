@@ -32,22 +32,21 @@ maintainers = [
   { name = "Yihong" },
   { name = "Émile Nadeau" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
-  # Because license is listed below does it need to be here too?
   "License :: OSI Approved :: Apache Software License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = ["pint", "pytz", "arrow", "requests", "pydantic<2.0"]
