@@ -292,6 +292,10 @@ class BackwardCompatibilityMixin:
     return values based on what is defined in the following class attributes:
 
     * _field_conversions
+
+    Notes
+    ------
+    The class attributes below are not yet implemented:
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
     """
@@ -588,6 +592,8 @@ class Athlete(
     Notes
     ------
     Also provides access to detailed athlete stats upon request.
+    Many attributes in this object are undocumented by Strava and could be
+    modified at any time.
     """
 
     # Field overrides from superclass for type extensions:
@@ -813,6 +819,11 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     )
 
     def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        This representation varies according to the source of the photo (native,
+        from Instagram, or an unknown source. This representation includes the
+        class name, photo type, and a key identifier."""
         if self.source == 1:
             photo_type = "native"
             idfield = "unique_id"
@@ -995,7 +1006,9 @@ class AthletePrEffort(
 
     @property
     def elapsed_time(self) -> Optional[timedelta]:
-        # For backward compatibility
+        """A property that supports backwards compatibility with the
+        elapsed_time method used in previous versions of stravalib"""
+
         return self.pr_elapsed_time
 
 
@@ -1043,6 +1056,10 @@ class Segment(
 class SegmentEffortAchievement(BaseModel):
     """
     An undocumented structure being returned for segment efforts.
+
+    Notes
+    -----
+    Undocumented Strava elements can change at any time without notice.
     """
 
     rank: Optional[int] = None
@@ -1137,7 +1154,6 @@ class Activity(
         ActivityType.__fields__["__root__"].type_
     )
 
-    # TODO this and line 1055 above changed from str to Any
     SPORT_TYPES: ClassVar[tuple[Any, ...]] = get_args(
         SportType.__fields__["__root__"].type_
     )
@@ -1204,6 +1220,7 @@ class Activity(
 
     @lazy_property
     def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
+        """Retrieves the kudos provided for a specific activity."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_kudos(self.id)
 
