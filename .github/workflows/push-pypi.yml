@@ -22,18 +22,19 @@ jobs:
         run: git fetch origin 'refs/tags/*:refs/tags/*'
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: Install dependencies
         run: |
-          pip install build
+          python -m pip install --upgrade pip
+          python -m pip install build twine
           pip list
 
       - name: Build package
         run: |
-          python3 -m build
+          python -m build
           echo ""
           echo "Generated files:"
           ls -lh dist/
