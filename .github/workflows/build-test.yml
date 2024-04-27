@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +57,7 @@ jobs:
         run: |
           nox -s tests-${{ matrix.python-version }}
       - name: Upload coverage to Codecov
-        if: ${{ matrix.os == 'ubuntu-latest' &&  matrix.python-version == '3.10'}}
+        if: ${{ matrix.os == 'ubuntu-latest' &&  matrix.python-version == '3.11'}}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
