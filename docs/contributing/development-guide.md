@@ -99,6 +99,13 @@ to Strava and handling the received responses (including rate limiting).
 It is used by methods in `client.py` to de-serialize raw response data into
 the domain entities in `model.py`.
 
+## Python support
+We loosely follow the [Numpy guidelines defined in NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html)
+for Python version support. However, in some cases we may decide to
+support older versions of Python given visible community demand for
+such support.
+
+
 ## Code style, linting & typing
 
 We use the following tools to ensure consistent code format that follows
