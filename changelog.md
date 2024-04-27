@@ -1,17 +1,33 @@
 # Change Log
 
 ## Unreleased
-- Remove/Add: Drop Python 3.9, add Python 3.12 (@lwasser, #487)
-- Remove: functional test suite from stravalib (@lwasser, #457)
+
+## v1.7
+
+### Added
+- Add: Strava API change - Route objects have a new waypoints attribute (@bot, #480)
+
+### Fixed
 - Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
 - Fix: Manifest.in file - remove example dir (@lwasser, #307)
 - Fix: Codecov report wasn't generating correctly (@lwasser, #469)
-- Remove: `client.delete_activity` method is no longer supported by Strava (@lwasser, #238)
 - Fix: Add sport type to create_activity and create type validator method. NOTE: this fix contains a breaking change in `Client.create_activity()` activity_type is now an optional keyword argument rather than a required positional argument (@lwasser, #279)
 - Fix: Fixes the Strava API update bot (@jsamoocha, #477)
 - Fix: Cleanup dependencies to only use pyproject toml (@lwasser, #466)
-- Add: Strava API change - Route objects have a new waypoints attribute (@bot, #480)
 - Fix: use parse_obj rather than deserialize internally where possible (@lwasser, #358)
+
+## Removed
+- Remove: functional test suite from stravalib (@lwasser, #457)
+- Remove: `client.delete_activity` method is no longer supported by Strava (@lwasser, #238)
+- Remove/Add: Drop Python 3.9, add Python 3.12 (@lwasser, #487)
+
+### Breaking Changes
+If you have been using the `client.delete_activity` method then your code will
+no longer work as this method was removed due to being deprecated by Strava. We also are dropping support for Python 3.9 (end of life / no more security fixes in October 2024 and now only getting security fixes) in this release and adding support for 3.12.
+
+### Contributors to this release
+
+@jsamoocha, @lwasser, stravalib bot :)
 
 ## v1.6
 
