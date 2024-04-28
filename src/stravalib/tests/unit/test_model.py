@@ -357,12 +357,10 @@ class ModelTest(TestBase):
         )
 
 
-from datetime import datetime
-
 # Creating a timezone-aware datetime object
 dt = datetime(2022, 4, 28, 12, 0, tzinfo=timezone.utc)
 
-# Converting datetime to POSIX time
+# Convert datetime to POSIX time
 posix_time = int(dt.timestamp())
 
 
