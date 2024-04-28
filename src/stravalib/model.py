@@ -131,6 +131,11 @@ def check_valid_location(
     location: Optional[Union[list[float], str]]
 ) -> Optional[list[float]]:
     """
+    Validate a list of location xy values.
+
+    Converts a list of floating point values stored as strings to floats and
+    returns either a list of floats or None if no location data is found.
+
     Parameters
     ----------
     location : list of floats
@@ -231,7 +236,7 @@ class DeprecatedSerializableMixin(BaseModel):
 
     def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
         """
-        Deserializes v into self, resetting and/or overwriting existing
+        Deserializes a dict into self, resetting and/or overwriting existing
         fields.
 
         Parameters
@@ -287,6 +292,10 @@ class BackwardCompatibilityMixin:
     return values based on what is defined in the following class attributes:
 
     * _field_conversions
+
+    Notes
+    ------
+    The class attributes below are not yet implemented:
     * _deprecated_fields (TODO)
     * _unsupported_fields (TODO)
     """
@@ -351,6 +360,20 @@ class BoundClientEntity(BaseModel):
 class RelaxedActivityType(ActivityType):
     @root_validator(pre=True)
     def check_activity_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+        """Pydantic validator that checks whether an activity type value is
+        valid prior to populating the model. If the available activity type
+        is not valid, it assigns the value to be "Workout".
+
+        Parameters
+        ----------
+        values : dict[str, Any]
+            A dictionary containing an activity type key value pair.
+
+        Returns
+        -------
+        dict
+            A dictionary with a validated activity type value assigned.
+        """
         v = values["__root__"]
         if v not in get_args(ActivityType.__fields__["__root__"].type_):
             LOGGER.warning(
@@ -363,6 +386,20 @@ class RelaxedActivityType(ActivityType):
 class RelaxedSportType(SportType):
     @root_validator(pre=True)
     def check_sport_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+        """Pydantic validator that checks whether a sport type value is
+        valid prior to populating the model. If the existing sport type
+        is not valid, it assigns the value to be "Workout".
+
+        Parameters
+        ----------
+        values : dict[str, Any]
+            A dictionary containing an sport type key value pair.
+
+        Returns
+        -------
+        dict
+            A dictionary with a validated sport type value assigned.
+        """
         v = values["__root__"]
         if v not in get_args(SportType.__fields__["__root__"].type_):
             LOGGER.warning(
@@ -377,9 +414,6 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     Enables backward compatibility for legacy namedtuple
     """
 
-    # TODO: stravalib/model.py:377: error: Incompatible return value type (got "Optional[List[Optional[float]]]", expected "Optional[List[float]]")  [return-value]
-    # this error doesn't make sense as the types are correct based on what the
-    # error says it wants to see. so why is it throwing the error?
     @root_validator
     def check_valid_latlng(cls, values: list[float]) -> Optional[list[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
@@ -402,8 +436,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
     @property
     def lat(self) -> float:
-        """
-        The latitude value of an x,y coordinate.
+        """The latitude value of an x,y coordinate.
 
         Returns
         -------
@@ -559,6 +592,8 @@ class Athlete(
     Notes
     ------
     Also provides access to detailed athlete stats upon request.
+    Many attributes in this object are undocumented by Strava and could be
+    modified at any time.
     """
 
     # Field overrides from superclass for type extensions:
@@ -680,7 +715,7 @@ class Athlete(
                 # If the athlete is in detailed state it must be the authenticated athlete
                 self.is_authenticated = True
             else:
-                # We need to check this athlete's id matches the authenticated athlete's id
+                # Check if this athlete's id matches the authenticated athlete's id
                 authenticated_athlete = self.authenticated_athlete
                 if authenticated_athlete is None:
                     return False
@@ -690,35 +725,62 @@ class Athlete(
         return self.is_authenticated
 
 
-# TODO: better description
 class ActivityComment(Comment):
-    """Field overrides the athlete attribute to be of type :class:`Athlete`
-    rather than :class:`SummaryAthlete`
+    """
+    A class representing a comment on an activity.
+
+    This class overrides the `athlete` attribute to be of type :class:`Athlete`
+    instead of :class:`SummaryAthlete`.
+
+    Attributes
+    ----------
+    athlete : Athlete, optional
+        The athlete associated with the comment.
     """
 
     athlete: Optional[Athlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
-    """Represents the primary photo for an activity.
+    """
+    Represents the primary photo for an activity.
+
+    Attributes
+    ----------
+    use_primary_photo : bool, optional
+        Indicates whether the photo is used as the primary photo.
 
     Notes
     -----
-    Attributes for activity photos are undocumented
+    Attributes for activity photos are currently undocumented.
     """
 
     use_primary_photo: Optional[bool] = None
 
 
 class ActivityPhotoMeta(PhotosSummary):
-    """The photos structure returned with the activity. Not to be confused with
-    the full loaded photos for an activity.
+    """
+    Represents the metadata of photos returned with the activity.
+
+    Not to be confused with the fully loaded photos for an activity.
+
+    Attributes
+    ----------
+    primary : ActivityPhotoPrimary, optional
+        The primary photo for the activity.
+    use_primary_photo : bool, optional
+        Indicates whether the primary photo is used. Not currently documented
+        by Strava.
+
+    Notes
+    -----
+    Undocumented attributes could be changed by Strava at any time.
     """
 
     # Field overrides from superclass for type extensions:
     primary: Optional[ActivityPhotoPrimary] = None
 
-    # Undocumented attributes:
+    # Undocumented by strava
     use_primary_photo: Optional[bool] = None
 
 
@@ -757,6 +819,11 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     )
 
     def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        This representation varies according to the source of the photo (native,
+        from Instagram, or an unknown source. This representation includes the
+        class name, photo type, and a key identifier."""
         if self.source == 1:
             photo_type = "native"
             idfield = "unique_id"
@@ -939,7 +1006,9 @@ class AthletePrEffort(
 
     @property
     def elapsed_time(self) -> Optional[timedelta]:
-        # For backward compatibility
+        """A property that supports backwards compatibility with the
+        elapsed_time method used in previous versions of stravalib"""
+
         return self.pr_elapsed_time
 
 
@@ -987,6 +1056,10 @@ class Segment(
 class SegmentEffortAchievement(BaseModel):
     """
     An undocumented structure being returned for segment efforts.
+
+    Notes
+    -----
+    Undocumented Strava elements can change at any time without notice.
     """
 
     rank: Optional[int] = None
@@ -1081,7 +1154,6 @@ class Activity(
         ActivityType.__fields__["__root__"].type_
     )
 
-    # TODO this and line 1055 above changed from str to Any
     SPORT_TYPES: ClassVar[tuple[Any, ...]] = get_args(
         SportType.__fields__["__root__"].type_
     )
@@ -1129,6 +1201,7 @@ class Activity(
 
     @lazy_property
     def comments(self) -> BatchedResultsIterator[ActivityComment]:
+        """Retrieves comments for a specific activity id."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_comments(self.id)
 
@@ -1147,11 +1220,13 @@ class Activity(
 
     @lazy_property
     def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
+        """Retrieves the kudos provided for a specific activity."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_kudos(self.id)
 
     @lazy_property
     def full_photos(self) -> BatchedResultsIterator[ActivityPhoto]:
+        """Retrieves activity photos for a specific activity by id."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_photos(
             self.id, only_instagram=False
@@ -1179,7 +1254,7 @@ class BaseActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    # Using type that is currently mimicking legacy behavior...
+    # Using type that is currently mimicking legacy behavior.
     distribution_buckets: Optional[list[DistributionBucket]] = None  # type: ignore[assignment]
 
     # TODO: ignoring type given legacy support will be deprecated
