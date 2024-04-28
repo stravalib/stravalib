@@ -326,8 +326,11 @@ class Client:
             The athlete model object.
 
         """
+        # The api call is slow now
         raw = self.protocol.get("/athlete")
-        return model.Athlete.parse_obj({**raw, **{"bound_client": self}})
+        # The `parse_obj` method is deprecated; use `model_validate` instead.
+
+        return model.Athlete.model_validate({**raw, **{"bound_client": self}})
 
     def update_athlete(
         self,
@@ -382,7 +385,7 @@ class Client:
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.parse_obj(
+        return model.Athlete.model_validate(
             {**raw_athlete, **{"bound_client": self}}
         )
 
@@ -448,7 +451,7 @@ class Client:
         # TODO: Better error handling - this will return a 401 if this athlete
         #       is not the authenticated athlete.
 
-        return model.AthleteStats.parse_obj(raw)
+        return model.AthleteStats.model_validate(raw)
 
     def get_athlete_clubs(self) -> list[model.Club]:
         """List the clubs for the currently authenticated athlete.
@@ -467,7 +470,7 @@ class Client:
         # most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
         return [
-            model.Club.parse_obj({**raw, **{"bound_client": self}})
+            model.Club.model_validate({**raw, **{"bound_client": self}})
             for raw in club_structs
         ]
 
@@ -523,7 +526,7 @@ class Client:
 
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.parse_obj({**raw, **{"bound_client": self}})
+        return model.Club.model_validate({**raw, **{"bound_client": self}})
 
     def get_club_members(
         self, club_id: int, limit: int | None = None
@@ -616,7 +619,7 @@ class Client:
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.parse_obj({**raw, **{"bound_client": self}})
+        return model.Activity.model_validate({**raw, **{"bound_client": self}})
 
     # TODO: REMOVE from API altogether given deprecation of end point
     def get_friend_activities(self, limit: int | None = None) -> NoReturn:
@@ -776,7 +779,7 @@ class Client:
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.parse_obj(
+        return model.Activity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -876,7 +879,7 @@ class Client:
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.parse_obj(
+        return model.Activity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -1007,7 +1010,9 @@ class Client:
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
         return [
-            model.BaseActivityZone.parse_obj({**z, **{"bound_client": self}})
+            model.BaseActivityZone.model_validate(
+                {**z, **{"bound_client": self}}
+            )
             for z in zones
         ]
 
@@ -1198,7 +1203,7 @@ class Client:
             The Bike or Shoe subclass object.
 
         """
-        return model.Gear.parse_obj(
+        return model.Gear.model_validate(
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 
@@ -1218,7 +1223,7 @@ class Client:
             The specified effort on a segment.
 
         """
-        return model.SegmentEffort.parse_obj(
+        return model.SegmentEffort.model_validate(
             self.protocol.get("/segment_efforts/{id}", id=effort_id)
         )
 
@@ -1238,7 +1243,7 @@ class Client:
             A segment object.
 
         """
-        return model.Segment.parse_obj(
+        return model.Segment.model_validate(
             {
                 **self.protocol.get("/segments/{id}", id=segment_id),
                 **{"bound_client": self},
@@ -1461,7 +1466,7 @@ class Client:
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
-            model.SegmentExplorerResult.parse_obj(
+            model.SegmentExplorerResult.model_validate(
                 {**v, **{"bound_client": self}}
             )
             for v in raw["segments"]
@@ -1538,7 +1543,7 @@ class Client:
             stream_url, keys=types_arg, key_by_type=True, **extra_params
         )
         return {
-            stream_type: model.Stream.parse_obj(stream)
+            stream_type: model.Stream.model_validate(stream)
             for stream_type, stream in response.items()
         }
 
@@ -1764,7 +1769,7 @@ class Client:
 
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
-        return model.Route.parse_obj({**raw, **{"bound_client": self}})
+        return model.Route.model_validate({**raw, **{"bound_client": self}})
 
     def get_route_streams(
         self, route_id: int
@@ -1849,7 +1854,9 @@ class Client:
             verify_token=verify_token,
         )
         raw = self.protocol.post("/push_subscriptions", **params)
-        return model.Subscription.parse_obj({**raw, **{"bound_client": self}})
+        return model.Subscription.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
     # TODO: UPDATE - this method uses (de)serialize which is deprecated
     def handle_subscription_callback(
@@ -1871,7 +1878,7 @@ class Client:
             The JSON response expected by Strava to the challenge request.
 
         """
-        callback = model.SubscriptionCallback.parse_obj(raw)
+        callback = model.SubscriptionCallback.model_validate(raw)
         callback.validate_token(verify_token)
 
         assert callback.hub_challenge is not None
@@ -1894,7 +1901,7 @@ class Client:
             The subscription update model object.
 
         """
-        return model.SubscriptionUpdate.parse_obj(
+        return model.SubscriptionUpdate.model_validate(
             {**raw, **{"bound_client": self}}
         )
 
@@ -2035,7 +2042,15 @@ class BatchedResultsIterator(Generic[T]):
 
         entities = []
         for raw in raw_results:
-            new_entity = self.entity.parse_obj(
+            # Parse object is deprecated - use model_validate instead
+            # Getting a validation error bceause
+            # 4 validation errors for Activity
+            # end_latlng
+            # Input should be a valid dictionary or instance of LatLon
+            # [type=model_type, input_value=[39.96658810414374, -105.2557013835758], input_type=list]
+            # Here we are trying to populate the Activity data object with
+            # raw returned data. but it wants the input to be a dict or LatLon
+            new_entity = self.entity.model_validate(
                 {**raw, **{"bound_client": self.bind_client}}
             )
             entities.append(new_entity)

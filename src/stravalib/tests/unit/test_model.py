@@ -78,7 +78,12 @@ def test_backward_compatibility_mixin_field_conversions(
 @pytest.mark.parametrize(
     "model_class,raw,expected_value",
     (
-        (Activity, {"start_latlng": "5.4,4.3"}, LatLon(__root__=[5.4, 4.3])),
+        (
+            # Removing root
+            Activity,
+            {"start_latlng": "5.4,4.3"},
+            LatLon([5.4, 4.3]),
+        ),  # pydantic 2.x uses root and may
         (Activity, {"start_latlng": []}, None),
         (Segment, {"start_latlng": []}, None),
         (SegmentExplorerResult, {"start_latlng": []}, None),
