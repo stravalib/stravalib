@@ -27,8 +27,8 @@ from typing import (
     get_args,
 )
 
-from pydantic import BaseModel, Field, root_validator, validator
-from pydantic.datetime_parse import parse_datetime
+from dateutil import parser
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Self
 
 from stravalib import exc, strava_model
@@ -73,6 +73,32 @@ LOGGER = logging.getLogger(__name__)
 
 T = TypeVar("T")
 U = TypeVar("U", bound="BoundClientEntity")
+
+
+# Could naive_datetime also be run in a validator?
+def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
+    """Utility helper that parses a datetime value provided in
+    JSON, string, int or other formats and returns a datetime.datetime
+    object
+
+    Parameters
+    ----------
+    value : str, int
+        A value representing a date/time that may be presented in string,
+        int, deserialized or other format.
+
+    Returns
+    -------
+    datetime.datetime
+        A datetime object representing the datetime input value.
+    """
+    if value:
+        # Use dateutil.parser.parse for parsing date strings
+        dt = parser.parse(str(value))
+        # Remove timezone information, if any
+        return dt.replace(tzinfo=None)
+    else:
+        return None
 
 
 def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
@@ -127,6 +153,7 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 # Custom validators for some edge cases:
 
 
+# This is the first valid location check.
 def check_valid_location(
     location: Optional[Union[list[float], str]]
 ) -> Optional[list[float]]:
@@ -135,6 +162,7 @@ def check_valid_location(
 
     Converts a list of floating point values stored as strings to floats and
     returns either a list of floats or None if no location data is found.
+    This function is used to validate LatLon object inputs
 
     Parameters
     ----------
@@ -170,29 +198,6 @@ def check_valid_location(
 
 # Create alias for this type so docs are more readable
 AllDateTypes = Union[datetime, str, bytes, int, float]
-
-
-def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
-    """Utility helper that parses a datetime value provided in
-    JSON, string, int or other formats and returns a datetime.datetime
-    object
-
-    Parameters
-    ----------
-    value : str, int
-        A value representing a date/time that may be presented in string,
-        int, deserialized or other format.
-
-    Returns
-    -------
-    datetime.datetime
-        A datetime object representing the datetime input value.
-    """
-    if value:
-        dt = parse_datetime(value)
-        return dt.replace(tzinfo=None)
-    else:
-        return None
 
 
 class DeprecatedSerializableMixin(BaseModel):
@@ -328,8 +333,12 @@ class BackwardCompatibilityMixin:
         ):
             return value
         try:
+            # This wont return a attribute error if it's none
             if attr in self._field_conversions:
                 return self._field_conversions[attr](value)
+        except TypeError:
+            # Handle case where _field_conversions is None or not subscriptable
+            pass
         except AttributeError:
             # Current model class has no field conversions defined
             pass
@@ -358,7 +367,7 @@ class BoundClientEntity(BaseModel):
 
 
 class RelaxedActivityType(ActivityType):
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def check_activity_type(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Pydantic validator that checks whether an activity type value is
         valid prior to populating the model. If the available activity type
@@ -374,17 +383,21 @@ class RelaxedActivityType(ActivityType):
         dict
             A dictionary with a validated activity type value assigned.
         """
-        v = values["__root__"]
-        if v not in get_args(ActivityType.__fields__["__root__"].type_):
+        # The values object returned so far is always a strong rather than a
+        # object being RootModel being passed with a "root key"
+        # i may have broken something
+        # v = values["root"]
+        # Changing v to values for now
+        if values not in get_args(ActivityType.__fields__["root"].annotation):
             LOGGER.warning(
                 f'Unexpected activity type. Given={v}, replacing by "Workout"'
             )
-            values["__root__"] = "Workout"
+            values["root"] = "Workout"
         return values
 
 
 class RelaxedSportType(SportType):
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def check_sport_type(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Pydantic validator that checks whether a sport type value is
         valid prior to populating the model. If the existing sport type
@@ -400,12 +413,17 @@ class RelaxedSportType(SportType):
         dict
             A dictionary with a validated sport type value assigned.
         """
-        v = values["__root__"]
-        if v not in get_args(SportType.__fields__["__root__"].type_):
+        # This is now failing because values is a single value string
+        # v = values["__root__"]
+        # Here I modified v to be values. Will this break other things
+        # or make the code fragile?
+        if values not in SportType.__annotations__["root"]:
             LOGGER.warning(
-                f'Unexpected sport type. Given={v}, replacing by "Workout"'
+                f'Unexpected sport type. Given={values}, replacing by "Workout"'
             )
-            values["__root__"] = "Workout"
+            # This values["__root__"] wont work as values because it's now a
+            # string so simply reassign
+            values = "Workout"
         return values
 
 
@@ -414,7 +432,9 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     Enables backward compatibility for legacy namedtuple
     """
 
-    @root_validator
+    # It seems like we are validating LatLon twice which is a bit confusing.
+    # Once here and once when we ingest lat long into the Activity Object.
+    @model_validator(mode="before")
     def check_valid_latlng(cls, values: list[float]) -> Optional[list[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
@@ -430,6 +450,11 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         list or None
             list of lat/lon values or None
 
+        Notes
+        ------
+        This is the second validation of lat lon but it's a validator
+        the first is check is def check_valid_location above.
+
         """
         # Strava sometimes returns empty list in case of activities without GPS
         return values if values else None
@@ -443,7 +468,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         float
             The latitude value.
         """
-        return self.__root__[0]
+        return selfroot[0]
 
     @property
     def lon(self) -> float:
@@ -455,7 +480,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         float
             The longitude value.
         """
-        return self.__root__[1]
+        return self.root[1]
 
 
 class Club(
@@ -640,7 +665,7 @@ class Athlete(
     owner: Optional[bool] = None
     subscription_permissions: Optional[list[bool]] = None
 
-    @validator("athlete_type", pre=True)
+    @field_validator("athlete_type", mode="before")
     def to_str_representation(
         cls, raw_type: int
     ) -> Optional[Literal["cyclist", "runner"]]:
@@ -811,10 +836,8 @@ class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
     default_photo: Optional[bool] = None
     source: Optional[int] = None
 
-    _naive_local = validator("created_at_local", allow_reuse=True)(
-        naive_datetime
-    )
-    _check_latlng = validator("location", allow_reuse=True, pre=True)(
+    _naive_local = field_validator("created_at_local")(naive_datetime)
+    _check_latlng = field_validator("location", mode="before")(
         check_valid_location
     )
 
@@ -882,9 +905,7 @@ class ActivityLap(
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
 
-    _naive_local = validator("start_date_local", allow_reuse=True)(
-        naive_datetime
-    )
+    _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
 class Map(PolylineMap):
@@ -939,8 +960,8 @@ class SegmentExplorerResult(
 
     _field_conversions = {"elev_difference", uh.meters, "distance", uh.meters}
 
-    _check_latlng = validator(
-        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    _check_latlng = field_validator(
+        "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
 
     @lazy_property
@@ -979,9 +1000,7 @@ class AthleteSegmentStats(
     }
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
-    _naive_local = validator("start_date_local", allow_reuse=True)(
-        naive_datetime
-    )
+    _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
 class AthletePrEffort(
@@ -1000,9 +1019,7 @@ class AthletePrEffort(
     }
     pr_elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
-    _naive_local = validator("start_date_local", allow_reuse=True)(
-        naive_datetime
-    )
+    _naive_local = field_validator("start_date_local")(naive_datetime)
 
     @property
     def elapsed_time(self) -> Optional[timedelta]:
@@ -1048,8 +1065,8 @@ class Segment(
         "activity_type": enum_value,
     }
 
-    _latlng_check = validator(
-        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    _latlng_check = field_validator(
+        "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
 
 
@@ -1101,9 +1118,7 @@ class BaseEffort(
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
-    _naive_local = validator("start_date_local", allow_reuse=True)(
-        naive_datetime
-    )
+    _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
 class BestEffort(BaseEffort):
@@ -1151,11 +1166,11 @@ class Activity(
     # Added for backward compatibility
     # TODO maybe deprecate?
     TYPES: ClassVar[tuple[Any, ...]] = get_args(
-        ActivityType.__fields__["__root__"].type_
+        ActivityType.__fields__["root"].annotation
     )
 
     SPORT_TYPES: ClassVar[tuple[Any, ...]] = get_args(
-        SportType.__fields__["__root__"].type_
+        SportType.__fields__["root"].annotation
     )
 
     # Undocumented attributes:
@@ -1192,12 +1207,10 @@ class Activity(
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
-    _latlng_check = validator(
-        "start_latlng", "end_latlng", allow_reuse=True, pre=True
+    _latlng_check = field_validator(
+        "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
-    _naive_local = validator("start_date_local", allow_reuse=True)(
-        naive_datetime
-    )
+    _naive_local = field_validator("start_date_local")(naive_datetime)
 
     @lazy_property
     def comments(self) -> BatchedResultsIterator[ActivityComment]:
