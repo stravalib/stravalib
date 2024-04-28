@@ -174,8 +174,8 @@ AllDateTypes = Union[datetime, str, bytes, int, float]
 
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     """Utility helper that parses a datetime value provided in
-    JSON, string, int or other formats and returns a datetime.datetime
-    object
+    JSON, string, int or other formats and returns a `datetime.datetime`
+    object.
 
     Parameters
     ----------
@@ -187,8 +187,15 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     -------
     datetime.datetime
         A datetime object representing the datetime input value.
+
+    Notes
+    -----
+    Valid str, following formats work (from pydantic docs):
+
+    YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     """
     if value:
+        # TODO: parse_datetime was deprecated in Pydantic 2.0
         dt = parse_datetime(value)
         return dt.replace(tzinfo=None)
     else:

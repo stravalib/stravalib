@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+- Add: test for naive datetime (Pydantic method deprecated) (@lwasser)
+
 
 ## v1.7
 

@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 import pint
 import pytest
 import pytz
 from pydantic import BaseModel
+from pydantic.errors import DateTimeError
 
 from stravalib import model
 from stravalib import unithelper as uh
@@ -21,6 +22,7 @@ from stravalib.model import (
     Segment,
     SegmentExplorerResult,
     SubscriptionCallback,
+    naive_datetime,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
@@ -353,3 +355,50 @@ class ModelTest(TestBase):
             "2011-02-09 21:22:21",
             subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
         )
+
+
+from datetime import datetime
+
+# Creating a timezone-aware datetime object
+dt = datetime(2022, 4, 28, 12, 0, tzinfo=timezone.utc)
+
+# Converting datetime to POSIX time
+posix_time = int(dt.timestamp())
+
+
+# Test cases for the naive_datetime function
+@pytest.mark.parametrize(
+    "input_value, expected_output, exception",
+    [
+        ("2024-04-28T12:00:00Z", datetime(2024, 4, 28, 12, 0), None),
+        (
+            posix_time,
+            datetime(2022, 4, 28, 12, 0),
+            None,
+        ),
+        (
+            datetime(2024, 4, 28, 12, 0, tzinfo=timezone.utc),
+            datetime(2024, 4, 28, 12, 0),
+            None,
+        ),
+        # String format
+        ("April 28, 2024 12:00 PM", None, DateTimeError),
+        ("Foo", None, DateTimeError),
+    ],
+)
+def test_naive_datetime(input_value, expected_output, exception):
+    """Make sure our datetime parses properly reformats dates
+    in various formats. This test is important given the pydantic
+    `parse_datetime` method was removed in 2.x
+
+    # https://docs.pydantic.dev/1.10/usage/types/#datetime-types
+
+    Values
+    1. date time as a formatted string
+    2. datetime as a UNIX or POSIX format
+    """
+    if exception:
+        with pytest.raises(exception):
+            naive_datetime(input_value)
+    else:
+        assert naive_datetime(input_value) == expected_output
