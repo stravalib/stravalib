@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-- Add: test for naive datetime (Pydantic method deprecated) (@lwasser)
+- Add: test for naive datetime (Pydantic method deprecated) (#491, @lwasser)
 
 
 ## v1.7
