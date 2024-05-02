@@ -20,13 +20,26 @@ def test_optional_input():
 
 
 def test_enum_value():
-    assert enum_value(ActivityType(__root__="Run")) == "Run"
+    """Test that when there is one specific Sport or other type,
+    that enum_value returns that value only.
+
+    TODO: Question - do we need enum_value method with pydantic 2.x?
+    """
+
+    a = ActivityType("Run")
+    assert enum_value(a) == "Run"
 
 
 def test_enum_values():
-    assert enum_values(
-        [ActivityType(__root__="Run"), SportType(__root__="Ride")]
-    ) == ["Run", "Ride"]
+    """Club objects may have one or more ActivityTypes associated with them.
+
+    This tests that when provided with a list of types, enum values
+    parses multiple types and returns a list.
+    """
+
+    a = ActivityType("Run")
+    b = SportType("Ride")
+    assert enum_values([a, b]) == ["Run", "Ride"]
 
 
 @pytest.mark.parametrize(

@@ -27,18 +27,13 @@ from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity, UnitConverter
 
 
+# TODO: we likely can remove this entire class / test suite.
 @pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
 class TestLegacyModelSerialization:
 
     def test_legacy_deserialize(self, model_class, attr, value):
         with pytest.warns(DeprecationWarning):
             model_obj = model_class.deserialize({attr: value})
-            assert getattr(model_obj, attr) == value
-
-    def test_legacy_from_dict(self, model_class, attr, value):
-        with pytest.warns(DeprecationWarning):
-            model_obj = model_class()
-            model_obj.from_dict({attr: value})
             assert getattr(model_obj, attr) == value
 
     def test_legacy_to_dict(self, model_class, attr, value):
@@ -231,6 +226,7 @@ def test_backward_compatible_attribute_lookup(
         assert not hasattr(lookup_expression, "bound_client")
 
 
+# todo: TypeError: Cannot read properties of null (reading 'testsuites')
 @pytest.mark.parametrize(
     "klass,attr,given_type,expected_type",
     (
@@ -252,8 +248,19 @@ class ModelTest(TestBase):
     def setUp(self):
         super(ModelTest, self).setUp()
 
-    def test_entity_collections(self):
-        a = model.Athlete()
+    def test_entity_collections(self) -> None:
+        """Test that club information parsed from the API in a dict format can
+        be correctly ingested into the Athlete model.
+
+        Notes
+        -----
+        In Pydantic 2.x we use model_validate instead of parse_object.
+        Model_Validate always returns a new model. so in this test we
+        instantiate a new instance a when calling model_validate aligning with
+        Pydantic's immutability approach.
+
+        """
+
         d = {
             "clubs": [
                 {"resource_state": 2, "id": 7, "name": "Team Roaring Mouse"},
@@ -265,7 +272,7 @@ class ModelTest(TestBase):
                 },
             ]
         }
-        a.from_dict(d)
+        a = model.Athlete.model_validate(d)
 
         self.assertEqual(3, len(a.clubs))
         self.assertEqual("Team Roaring Mouse", a.clubs[0].name)

@@ -991,9 +991,9 @@ class Client:
     def get_activity_zones(
         self, activity_id: int
     ) -> list[model.BaseActivityZone]:
-        """Gets zones for activity.
+        """Gets activity zones for activity.
 
-        Requires premium account.
+        Activity zones relate to a users effort (heartrate and power).
 
         https://developers.strava.com/docs/reference/#api-Activities-getZonesByActivityId
 
@@ -1007,8 +1007,20 @@ class Client:
         :class:`list`
             A list of :class:`stravalib.model.BaseActivityZone` objects.
 
+        Notes
+        -----
+        Activity zones require a Strava premium account.
+
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
+        # For troubleshooting
+        for z in zones:
+            print(z)
+            a = model.BaseActivityZone.model_validate(
+                {**z, **{"bound_client": self}}
+            )
+            print(a)
+
         return [
             model.BaseActivityZone.model_validate(
                 {**z, **{"bound_client": self}}
@@ -2042,14 +2054,6 @@ class BatchedResultsIterator(Generic[T]):
 
         entities = []
         for raw in raw_results:
-            # Parse object is deprecated - use model_validate instead
-            # Getting a validation error bceause
-            # 4 validation errors for Activity
-            # end_latlng
-            # Input should be a valid dictionary or instance of LatLon
-            # [type=model_type, input_value=[39.96658810414374, -105.2557013835758], input_type=list]
-            # Here we are trying to populate the Activity data object with
-            # raw returned data. but it wants the input to be a dict or LatLon
             new_entity = self.entity.model_validate(
                 {**raw, **{"bound_client": self.bind_client}}
             )
