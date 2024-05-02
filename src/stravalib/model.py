@@ -237,38 +237,49 @@ class DeprecatedSerializableMixin(BaseModel):
             "parse_obj()",
             "https://docs.pydantic.dev/usage/models/#helper-functions",
         )
-        return cls.parse_obj(attribute_value_mapping)
+        return cls.model_validate(attribute_value_mapping)
 
-    def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
-        """
-        Deserializes a dict into self, resetting and/or overwriting existing
-        fields.
+    # def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
+    #     """
+    #     # TODO: turn this into a method that ONLY raises a
+    #     "deprecation use model_validate" message - then write a test that this
+    #     returns that message as expected
+    #     Deserializes a dict into self, resetting and/or overwriting existing
+    #     fields.
 
-        Parameters
-        ----------
-        attribute_value_mapping : dict
-            A dictionary that will be deserialized into the parent object.
+    #     Parameters
+    #     ----------
+    #     attribute_value_mapping : dict
+    #         A dictionary that will be deserialized into the parent object.
 
-        Deprecated
-        ----------
-        1.0.0
-            The `from_dict()` method is deprecated in favor of `parse_obj()` method.
-            For more details, refer to the Pydantic documentation:
-            https://docs.pydantic.dev/usage/models/#helper-functions
-        """
+    #     Deprecated
+    #     ----------
+    #     1.0.0
+    #         The `from_dict()` method is deprecated in favor of `parse_obj()` method.
+    #         For more details, refer to the Pydantic documentation:
+    #         https://docs.pydantic.dev/usage/models/#helper-functions
+    #     2.x
+    #         The `parse_obj()` method is not deprecated in favor of `model_validate()`
+    #         see: https://docs.pydantic.dev/latest/migration/#changes-to-pydanticbasemodel
+    #     """
 
-        exc.warn_method_deprecation(
-            self.__class__,
-            "from_dict()",
-            "parse_obj()",
-            "https://docs.pydantic.dev/usage/models/#helper-functions",
-        )
-        # Ugly hack is necessary because parse_obj does not behave in-place but
-        # returns a new object
-        self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
+    #     # TODO do we need a new warning or can we just remove this deprecated
+    #     # mixin altogether and document the change.
+    #     exc.warn_method_deprecation(
+    #         self.__class__,
+    #         "from_dict()",
+    #         "parse_obj()",
+    #         "https://docs.pydantic.dev/usage/models/#helper-functions",
+    #     )
+    #     # Ugly hack is necessary because parse_obj does not behave in-place but
+    #     # returns a new object
+
+    #     # self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
+    #     self.__init__(**self.model_validate(attribute_value_mapping).dict())
 
     def to_dict(self) -> dict[str, Any]:
         """
+        TODO: deprecate
         Returns a dict representation of self
 
         Returns
@@ -281,6 +292,8 @@ class DeprecatedSerializableMixin(BaseModel):
             The `to_dict()` method is deprecated in favor of `dict()` method.
             For more details, refer to the Pydantic documentation:
             https://docs.pydantic.dev/1.10/usage/exporting_models/
+
+            dict() is now deprecated in favor of `model_dump()`
         """
         exc.warn_method_deprecation(
             self.__class__,
@@ -333,7 +346,7 @@ class BackwardCompatibilityMixin:
         ):
             return value
         try:
-            # This wont return a attribute error if it's none
+            # This won't return a attribute error if it's none
             if attr in self._field_conversions:
                 return self._field_conversions[attr](value)
         except TypeError:
@@ -387,12 +400,13 @@ class RelaxedActivityType(ActivityType):
         # object being RootModel being passed with a "root key"
         # i may have broken something
         # v = values["root"]
-        # Changing v to values for now
+        # Changing v to values for now so we are validating a string
+        # against a Literal list
         if values not in get_args(ActivityType.__fields__["root"].annotation):
             LOGGER.warning(
-                f'Unexpected activity type. Given={v}, replacing by "Workout"'
+                f'Unexpected activity type. Given={values}, replacing by "Workout"'
             )
-            values["root"] = "Workout"
+            values = "Workout"
         return values
 
 
@@ -421,8 +435,8 @@ class RelaxedSportType(SportType):
             LOGGER.warning(
                 f'Unexpected sport type. Given={values}, replacing by "Workout"'
             )
-            # This values["__root__"] wont work as values because it's now a
-            # string so simply reassign
+            # This values["__root__"] won't work as values because it's now a
+            # string so reassign
             values = "Workout"
         return values
 

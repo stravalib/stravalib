@@ -16,6 +16,14 @@ from stravalib.unithelper import UnitConverter, meters, miles
 
 
 @pytest.fixture
+def zone_response():
+    file_path = os.path.join(RESOURCES_DIR, "example_zone_response.json")
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    return data
+
+
+@pytest.fixture
 def default_call_kwargs():
     """A fixture containing default input / call parameters for a create
     activity call to the strava API"""
@@ -157,18 +165,38 @@ def test_get_club_activities(mock_strava_api, client):
         response_update={"distance": 1000},
         n_results=2,
     )
+
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
     assert activities[0].distance == meters(1000)
 
 
-def test_get_activity_zones(mock_strava_api, client):
-    # Unfortunately, there is no example response for this endpoint in swagger.json
-    with open(
-        os.path.join(RESOURCES_DIR, "example_zone_response.json"), "r"
-    ) as zone_response_fp:
-        zone_response = json.load(zone_response_fp)
+def test_get_activity_zones(mock_strava_api, client, zone_response):
+    """Returns an activities associated zone (related to heart rate and power)
+
+    Notes
+    -----
+    There is no example response for this endpoint in swagger.json so
+    we created a sample json file with the return that we are currently
+    seeing. Thus this method could break at any time if Strava changes
+    the response output.
+
+    """
+    #
     mock_strava_api.get("/activities/{id}/zones", json=zone_response)
+    """
+    # TODO: failing here E  pydantic_core._pydantic_core.ValidationError: 10 validation errors for BaseActivityZone
+    E   distribution_buckets.0.max
+    E     Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=3.319925953425268, input_type=float]
+    E       For further information visit https://errors.pydantic.dev/2.7/v/int_from_float
+    E   distribution_buckets.1.max
+    E     Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=3.8569727988322966, input_type=float]
+    E       For further information visit https://errors.pydantic.dev/2.7/v/int_from_float
+    """
+    # TODO: Why is the example JSON file contain floating points if
+    # strava docs suggest only ints will be returned? i believe this
+    # test is failing because of the floats.
+    # https://developers.strava.com/docs/reference/#api-models-integer
     activity_zones = client.get_activity_zones(42)
     assert len(activity_zones) == 2
     assert activity_zones[0].type == "heartrate"
