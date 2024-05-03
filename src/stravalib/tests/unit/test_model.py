@@ -66,7 +66,7 @@ class TestLegacyModelSerialization:
 def test_backward_compatibility_mixin_field_conversions(
     model_class, raw, expected_value
 ):
-    obj = model_class.parse_obj(raw)
+    obj = model_class.model_validate(raw)
     assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
@@ -102,7 +102,7 @@ def test_backward_compatibility_mixin_field_conversions(
     ),
 )
 def test_deserialization_edge_cases(model_class, raw, expected_value):
-    obj = model_class.parse_obj(raw)
+    obj = model_class.model_validate(raw)
     assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
@@ -112,7 +112,7 @@ def test_subscription_callback_field_names():
         "hub.verify_token": "STRAVA",
         "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3",
     }
-    sub_callback = SubscriptionCallback.parse_obj(sub_callback_raw)
+    sub_callback = SubscriptionCallback.model_validate(sub_callback_raw)
     assert sub_callback.hub_mode == "subscribe"
     assert sub_callback.hub_verify_token == "STRAVA"
 
@@ -348,7 +348,7 @@ class ModelTest(TestBase):
             "created_at": "2015-04-29T18:11:09.400558047-07:00",
             "updated_at": "2015-04-29T18:11:09.400558047-07:00",
         }
-        sub = model.Subscription.parse_obj(d)
+        sub = model.Subscription.model_validate(d)
         self.assertEqual(d["id"], sub.id)
 
     def test_subscription_update_deser(self):

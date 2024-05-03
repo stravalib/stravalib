@@ -1540,10 +1540,10 @@ class Client:
             warn_param_unofficial("series_type")
             extra_params["series_type"] = series_type
         if not types:
-            types = strava_model.StreamType.schema()["enum"]
+            types = strava_model.StreamType.model_json_schema()["enum"]
         assert types is not None
         invalid_types = set(types).difference(
-            strava_model.StreamType.schema()["enum"]
+            strava_model.StreamType.model_json_schema()["enum"]
         )
         if invalid_types:
             raise ValueError(
