@@ -402,7 +402,9 @@ class RelaxedActivityType(ActivityType):
         # v = values["root"]
         # Changing v to values for now so we are validating a string
         # against a Literal list
-        if values not in get_args(ActivityType.__fields__["root"].annotation):
+        if values not in get_args(
+            ActivityType.model_fields["root"].annotation
+        ):
             LOGGER.warning(
                 f'Unexpected activity type. Given={values}, replacing by "Workout"'
             )
@@ -1180,11 +1182,11 @@ class Activity(
     # Added for backward compatibility
     # TODO maybe deprecate?
     TYPES: ClassVar[tuple[Any, ...]] = get_args(
-        ActivityType.__fields__["root"].annotation
+        ActivityType.model_fields["root"].annotation
     )
 
     SPORT_TYPES: ClassVar[tuple[Any, ...]] = get_args(
-        SportType.__fields__["root"].annotation
+        SportType.model_fields["root"].annotation
     )
 
     # Undocumented attributes:
