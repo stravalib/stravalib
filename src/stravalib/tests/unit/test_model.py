@@ -14,7 +14,7 @@ from stravalib.model import (
     BackwardCompatibilityMixin,
     BaseEffort,
     BoundClientEntity,
-    Club,
+    # Club, # CLUB IS not currently used in this module
     LatLon,
     RelaxedActivityType,
     RelaxedSportType,
@@ -25,50 +25,6 @@ from stravalib.model import (
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
 from stravalib.unithelper import Quantity
-
-
-# TODO: we likely can remove this entire class / test suite.
-@pytest.mark.parametrize("model_class,attr,value", ((Club, "name", "foo"),))
-class TestLegacyModelSerialization:
-
-    def test_legacy_deserialize(self, model_class, attr, value):
-        with pytest.warns(DeprecationWarning):
-            model_obj = model_class.deserialize({attr: value})
-            assert getattr(model_obj, attr) == value
-
-    def test_legacy_to_dict(self, model_class, attr, value):
-        with pytest.warns(DeprecationWarning):
-            model_obj = model_class(**{attr: value})
-            model_dict_legacy = model_obj.to_dict()
-            model_dict_modern = model_obj.dict()
-            assert model_dict_legacy == model_dict_modern
-
-
-# @pytest.mark.parametrize(
-#     "model_class,raw,expected_value",
-#     (
-#         (Club, {"name": "foo"}, "foo"),
-#         (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100)),
-#         (
-#             ActivityTotals,
-#             {"distance": 100.0},
-#             UnitConverter("meters")(100.0),
-#         ),
-#         (
-#             Activity,
-#             {"timezone": "Europe/Amsterdam"},
-#             pytz.timezone("Europe/Amsterdam"),
-#         ),
-#         (Club, {"activity_types": ["Run", "Ride"]}, ["Run", "Ride"]),
-#         (Activity, {"sport_type": "Run"}, "Run"),
-#     ),
-# )
-# def test_backward_compatibility_mixin_field_conversions(
-#     model_class, raw, expected_value
-# ):
-#     obj = model_class.model_validate(raw)
-#     assert getattr(obj, list(raw.keys())[0]) == expected_value
-# #
 
 
 @pytest.mark.parametrize(
@@ -366,7 +322,7 @@ class ModelTest(TestBase):
             "aspect_type": "create",
             "event_time": 1297286541,
         }
-        subupd = model.SubscriptionUpdate.deserialize(d)
+        subupd = model.SubscriptionUpdate.model_validate(d)
         self.assertEqual(
             "2011-02-09 21:22:21",
             subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
