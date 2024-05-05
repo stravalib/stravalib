@@ -1872,7 +1872,6 @@ class Client:
             {**raw, **{"bound_client": self}}
         )
 
-    # TODO: UPDATE - this method uses (de)serialize which is deprecated
     def handle_subscription_callback(
         self,
         raw: dict[str, Any],
@@ -1892,6 +1891,7 @@ class Client:
             The JSON response expected by Strava to the challenge request.
 
         """
+
         callback = model.SubscriptionCallback.model_validate(raw)
         callback.validate_token(verify_token)
 

@@ -199,110 +199,6 @@ def check_valid_location(
 AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
-# class DeprecatedSerializableMixin(BaseModel):
-#     """
-#     Provides backward compatibility with legacy BaseEntity
-
-#     Inherits from the `pydantic.BaseModel` class.
-#     """
-
-#     @classmethod
-#     def deserialize(cls, attribute_value_mapping: dict[str, Any]) -> Self:
-#         """
-#         Creates and returns a new object based on serialized (dict) struct.
-
-#         Parameters
-#         ----------
-#         attribute_value_mapping : dict
-#             A dictionary representing the serialized data.
-
-#         Returns
-#         -------
-#         DeprecatedSerializableMixin
-#             A new instance of the class created from the serialized data.
-
-#         Deprecated
-#         ----------
-#         1.0.0
-#             The `deserialize()` method is deprecated in favor of `parse_obj()` method.
-#             For more details, refer to the Pydantic documentation:
-#             https://docs.pydantic.dev/usage/models/#helper-functions
-
-
-#         """
-#         exc.warn_method_deprecation(
-#             cls,
-#             "deserialize()",
-#             "parse_obj()",
-#             "https://docs.pydantic.dev/usage/models/#helper-functions",
-#         )
-#         return cls.model_validate(attribute_value_mapping)
-
-#     # def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
-#     #     """
-#     #     # TODO: turn this into a method that ONLY raises a
-#     #     "deprecation use model_validate" message - then write a test that this
-#     #     returns that message as expected
-#     #     Deserializes a dict into self, resetting and/or overwriting existing
-#     #     fields.
-
-#     #     Parameters
-#     #     ----------
-#     #     attribute_value_mapping : dict
-#     #         A dictionary that will be deserialized into the parent object.
-
-#     #     Deprecated
-#     #     ----------
-#     #     1.0.0
-#     #         The `from_dict()` method is deprecated in favor of `parse_obj()` method.
-#     #         For more details, refer to the Pydantic documentation:
-#     #         https://docs.pydantic.dev/usage/models/#helper-functions
-#     #     2.x
-#     #         The `parse_obj()` method is not deprecated in favor of `model_validate()`
-#     #         see: https://docs.pydantic.dev/latest/migration/#changes-to-pydanticbasemodel
-#     #     """
-
-#     #     # TODO do we need a new warning or can we just remove this deprecated
-#     #     # mixin altogether and document the change.
-#     #     exc.warn_method_deprecation(
-#     #         self.__class__,
-#     #         "from_dict()",
-#     #         "parse_obj()",
-#     #         "https://docs.pydantic.dev/usage/models/#helper-functions",
-#     #     )
-#     #     # Ugly hack is necessary because parse_obj does not behave in-place but
-#     #     # returns a new object
-
-#     #     # self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
-#     #     self.__init__(**self.model_validate(attribute_value_mapping).dict())
-
-#     def to_dict(self) -> dict[str, Any]:
-#         """
-#         TODO: deprecate
-#         Returns a dict representation of self
-
-#         Returns
-#         -------
-#         dict
-#             A dictionary containing the data from the instance.
-
-#         Deprecated
-#         ----------
-#             The `to_dict()` method is deprecated in favor of `dict()` method.
-#             For more details, refer to the Pydantic documentation:
-#             https://docs.pydantic.dev/1.10/usage/exporting_models/
-
-#             dict() is now deprecated in favor of `model_dump()`
-#         """
-#         exc.warn_method_deprecation(
-#             self.__class__,
-#             "to_dict()",
-#             "dict()",
-#             "https://docs.pydantic.dev/1.10/usage/exporting_models/",
-#         )
-#         return self.dict()
-
-
 class BackwardCompatibilityMixin:
     """
     Mixin that intercepts attribute lookup and raises warnings or modifies
@@ -435,7 +331,7 @@ class RelaxedSportType(SportType):
         return values
 
 
-class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class LatLon(LatLng, BackwardCompatibilityMixin):
     """
     Enables backward compatibility for legacy namedtuple
     """
@@ -476,7 +372,7 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
         float
             The latitude value.
         """
-        return selfroot[0]
+        return self.root[0]
 
     @property
     def lon(self) -> float:
@@ -503,8 +399,6 @@ class Club(
     See Also
     --------
     DetailedClub : A class representing a club's detailed information.
-    DeprecatedSerializableMixin : A mixin to provide backward compatibility
-        with legacy BaseEntity.
     BackwardCompatibilityMixin : A mixin to provide backward compatibility with
         legacy BaseDetailedEntity.
     BoundClientEntity : A mixin to bind the club with a Strava API client.
@@ -577,9 +471,7 @@ class Shoe(Gear):
     pass
 
 
-class ActivityTotals(
-    ActivityTotal, DeprecatedSerializableMixin, BackwardCompatibilityMixin
-):
+class ActivityTotals(ActivityTotal, BackwardCompatibilityMixin):
     """An objecting containing a set of total values for an activity including
     elapsed time, moving time, distance and elevation gain."""
 
@@ -616,7 +508,6 @@ class AthleteStats(ActivityStats, BackwardCompatibilityMixin):
 
 class Athlete(
     DetailedAthlete,
-    DeprecatedSerializableMixin,
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
@@ -818,7 +709,7 @@ class ActivityPhotoMeta(PhotosSummary):
     use_primary_photo: Optional[bool] = None
 
 
-class ActivityPhoto(BackwardCompatibilityMixin, DeprecatedSerializableMixin):
+class ActivityPhoto(BaseModel, BackwardCompatibilityMixin):
     """A full photo record attached to an activity.
 
     Notes
@@ -892,7 +783,6 @@ class ActivityKudos(Athlete):
 class ActivityLap(
     Lap,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     # Field overrides from superclass for type extensions:
@@ -926,7 +816,6 @@ class Map(PolylineMap):
 class Split(
     strava_model.Split,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
 ):
     """
     A split -- may be metric or standard units (which has no bearing
@@ -950,7 +839,6 @@ class Split(
 class SegmentExplorerResult(
     ExplorerSegment,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -993,7 +881,6 @@ class SegmentExplorerResult(
 class AthleteSegmentStats(
     SummarySegmentEffort,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
 ):
     """
     A structure being returned for segment stats for current athlete.
@@ -1015,7 +902,6 @@ class AthleteSegmentStats(
 class AthletePrEffort(
     SummaryPRSegmentEffort,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
 ):
     # Undocumented attributes:
     distance: Optional[float] = None
@@ -1041,7 +927,6 @@ class AthletePrEffort(
 class Segment(
     DetailedSegment,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -1110,7 +995,6 @@ class SegmentEffortAchievement(BaseModel):
 class BaseEffort(
     DetailedSegmentEffort,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -1150,7 +1034,6 @@ class SegmentEffort(BaseEffort):
 class Activity(
     DetailedActivity,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -1277,7 +1160,6 @@ class DistributionBucket(TimedZoneRange):
 class BaseActivityZone(
     ActivityZone,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -1294,9 +1176,7 @@ class BaseActivityZone(
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
 
 
-class Stream(
-    BaseStream, BackwardCompatibilityMixin, DeprecatedSerializableMixin
-):
+class Stream(BaseStream, BackwardCompatibilityMixin):
     """
     Stream of readings from the activity, effort or segment.
     """
@@ -1311,7 +1191,6 @@ class Stream(
 class Route(
     RouteStrava,
     BackwardCompatibilityMixin,
-    DeprecatedSerializableMixin,
     BoundClientEntity,
 ):
     """
@@ -1326,9 +1205,7 @@ class Route(
     _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
 
-class Subscription(
-    BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
-):
+class Subscription(BackwardCompatibilityMixin, BoundClientEntity):
     """
     Represents a Webhook Event Subscription.
     """
@@ -1346,9 +1223,10 @@ class Subscription(
     updated_at: Optional[datetime] = None
 
 
-class SubscriptionCallback(
-    BackwardCompatibilityMixin, DeprecatedSerializableMixin
-):
+# Note: the DeprecatedSerializableMixin inherited from BaseModel
+# So we may have to add BaseModel to some of these smaller objects that
+# relied upon the mixin
+class SubscriptionCallback(BaseModel, BackwardCompatibilityMixin):
     """
     Represents a Webhook Event Subscription Callback.
     """
@@ -1383,9 +1261,7 @@ class SubscriptionCallback(
         assert self.hub_verify_token == verify_token
 
 
-class SubscriptionUpdate(
-    BackwardCompatibilityMixin, DeprecatedSerializableMixin, BoundClientEntity
-):
+class SubscriptionUpdate(BackwardCompatibilityMixin, BoundClientEntity):
     """
     Represents a Webhook Event Subscription Update.
     """
