@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
 from functools import wraps
 from typing import Callable, TypeVar
 
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
-
-from stravalib.strava_model import ActivityType, SportType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,56 +32,57 @@ def optional_input(
     return fn_wrapper
 
 
-@optional_input
-def enum_value(v: ActivityType | SportType) -> str:
-    """A method that collects the root value of a Activity or
-    SportType object.
+# # TODO: now preferred to return the enum type rather than a str
+# @optional_input
+# def enum_value(v: ActivityType | SportType) -> str:
+#     """A method that collects the root value of a Activity or
+#     SportType object.
 
-    We may not need this method if pydantic 2.x supports lists
+#     We may not need this method if pydantic 2.x supports lists
 
-    Parameters
-    ----------
-    v : ActivityType | SportType
-        An object of type ActivityType or SportType that contains a single
-        sport or activity type value.
+#     Parameters
+#     ----------
+#     v : ActivityType | SportType
+#         An object of type ActivityType or SportType that contains a single
+#         sport or activity type value.
 
-    Returns
-    -------
-    str
-        The type value associated with the activity.
-    """
-    try:
-        return v.root
-    except AttributeError:
-        LOGGER.warning(
-            f"{v} is not an enum, returning itself instead of its value"
-        )
-        return v  # type: ignore[return-value]
+#     Returns
+#     -------
+#     str
+#         The type value associated with the activity.
+#     """
+#     try:
+#         return v.root
+#     except AttributeError:
+#         LOGGER.warning(
+#             f"{v} is not an enum, returning itself instead of its value"
+#         )
+#         return v  # type: ignore[return-value]
 
 
-@optional_input
-def enum_values(enums: Sequence[ActivityType | SportType]) -> list[str | None]:
-    """A function that processes multiple enums and returns a list.
+# @optional_input
+# def enum_values(enums: Sequence[ActivityType | SportType]) -> list[str | None]:
+#     """A function that processes multiple enums and returns a list.
 
-    Parameters
-    ----------
-    enums : Sequence[ActivityType | SportType]
-        A sport or activity type object (RootModel base).
+#     Parameters
+#     ----------
+#     enums : Sequence[ActivityType | SportType]
+#         A sport or activity type object (RootModel base).
 
-    Returns
-    -------
-    list[str | None]
-        A list of valid sport or activity types
+#     Returns
+#     -------
+#     list[str | None]
+#         A list of valid sport or activity types
 
-    Notes
-    -----
-    # Pydantic (1.x) has config for using enum values, but unfortunately
-    # it doesn't work for lists of enums.
-    # See https://github.com/pydantic/pydantic/issues/5005
+#     Notes
+#     -----
+#     # Pydantic (1.x) has config for using enum values, but unfortunately
+#     # it doesn't work for lists of enums.
+#     # See https://github.com/pydantic/pydantic/issues/5005
 
-    TODO - look up pydantic 2.0 handling lists of enums
-    """
-    return [enum_value(e) for e in enums]
+#     TODO - look up pydantic 2.0 handling lists of enums
+#     """
+#     return [enum_value(e) for e in enums]
 
 
 @optional_input

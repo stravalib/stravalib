@@ -1010,6 +1010,8 @@ class Client:
         Notes
         -----
         Activity zones require a Strava premium account.
+        The Strava API has the return value for activity zones incorrectly
+        typed as `int` when it can return either `int` or `float`.
 
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)

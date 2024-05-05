@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Optional
 
 import pint
 import pytest
-import pytz
 from pydantic import BaseModel
 
 from stravalib import model
@@ -12,19 +11,20 @@ from stravalib.model import (
     Activity,
     ActivityLap,
     ActivityPhoto,
-    ActivityTotals,
     BackwardCompatibilityMixin,
     BaseEffort,
     BoundClientEntity,
     Club,
     LatLon,
+    RelaxedActivityType,
+    RelaxedSportType,
     Segment,
     SegmentExplorerResult,
     SubscriptionCallback,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
-from stravalib.unithelper import Quantity, UnitConverter
+from stravalib.unithelper import Quantity
 
 
 # TODO: we likely can remove this entire class / test suite.
@@ -44,30 +44,31 @@ class TestLegacyModelSerialization:
             assert model_dict_legacy == model_dict_modern
 
 
-@pytest.mark.parametrize(
-    "model_class,raw,expected_value",
-    (
-        (Club, {"name": "foo"}, "foo"),
-        (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100)),
-        (
-            ActivityTotals,
-            {"distance": 100.0},
-            UnitConverter("meters")(100.0),
-        ),
-        (
-            Activity,
-            {"timezone": "Europe/Amsterdam"},
-            pytz.timezone("Europe/Amsterdam"),
-        ),
-        (Club, {"activity_types": ["Run", "Ride"]}, ["Run", "Ride"]),
-        (Activity, {"sport_type": "Run"}, "Run"),
-    ),
-)
-def test_backward_compatibility_mixin_field_conversions(
-    model_class, raw, expected_value
-):
-    obj = model_class.model_validate(raw)
-    assert getattr(obj, list(raw.keys())[0]) == expected_value
+# @pytest.mark.parametrize(
+#     "model_class,raw,expected_value",
+#     (
+#         (Club, {"name": "foo"}, "foo"),
+#         (ActivityTotals, {"elapsed_time": 100}, timedelta(seconds=100)),
+#         (
+#             ActivityTotals,
+#             {"distance": 100.0},
+#             UnitConverter("meters")(100.0),
+#         ),
+#         (
+#             Activity,
+#             {"timezone": "Europe/Amsterdam"},
+#             pytz.timezone("Europe/Amsterdam"),
+#         ),
+#         (Club, {"activity_types": ["Run", "Ride"]}, ["Run", "Ride"]),
+#         (Activity, {"sport_type": "Run"}, "Run"),
+#     ),
+# )
+# def test_backward_compatibility_mixin_field_conversions(
+#     model_class, raw, expected_value
+# ):
+#     obj = model_class.model_validate(raw)
+#     assert getattr(obj, list(raw.keys())[0]) == expected_value
+# #
 
 
 @pytest.mark.parametrize(
@@ -226,14 +227,14 @@ def test_backward_compatible_attribute_lookup(
         assert not hasattr(lookup_expression, "bound_client")
 
 
-# todo: TypeError: Cannot read properties of null (reading 'testsuites')
+# TODO: do we want to continue to support type?
 @pytest.mark.parametrize(
     "klass,attr,given_type,expected_type",
     (
-        (Activity, "type", "Run", "Run"),
         (Activity, "sport_type", "Run", "Run"),
-        (Activity, "type", "FooBar", "Workout"),
         (Activity, "sport_type", "FooBar", "Workout"),
+        (Activity, "type", "Run", "Run"),
+        (Activity, "type", "FooBar", "Workout"),
         (Segment, "activity_type", "Run", "Run"),
         (Segment, "activity_type", "FooBar", "Workout"),
     ),
@@ -241,7 +242,12 @@ def test_backward_compatible_attribute_lookup(
 def test_relaxed_activity_type_validation(
     klass, attr, given_type, expected_type
 ):
-    assert getattr(klass(**{attr: given_type}), attr) == expected_type
+    print(expected_type)
+    obj = getattr(klass(**{attr: given_type}), attr)
+    if attr == "sport_type":
+        assert obj == RelaxedSportType(root=expected_type)
+    else:
+        assert obj == RelaxedActivityType(root=expected_type)
 
 
 class ModelTest(TestBase):

@@ -29,13 +29,12 @@ from typing import (
 
 from dateutil import parser
 from pydantic import BaseModel, Field, field_validator, model_validator
-from typing_extensions import Self
 
 from stravalib import exc, strava_model
 from stravalib import unithelper as uh
 from stravalib.field_conversions import (
-    enum_value,
-    enum_values,
+    # enum_value,
+    # enum_values,
     timezone,
 )
 from stravalib.strava_model import (
@@ -200,108 +199,108 @@ def check_valid_location(
 AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
-class DeprecatedSerializableMixin(BaseModel):
-    """
-    Provides backward compatibility with legacy BaseEntity
+# class DeprecatedSerializableMixin(BaseModel):
+#     """
+#     Provides backward compatibility with legacy BaseEntity
 
-    Inherits from the `pydantic.BaseModel` class.
-    """
+#     Inherits from the `pydantic.BaseModel` class.
+#     """
 
-    @classmethod
-    def deserialize(cls, attribute_value_mapping: dict[str, Any]) -> Self:
-        """
-        Creates and returns a new object based on serialized (dict) struct.
+#     @classmethod
+#     def deserialize(cls, attribute_value_mapping: dict[str, Any]) -> Self:
+#         """
+#         Creates and returns a new object based on serialized (dict) struct.
 
-        Parameters
-        ----------
-        attribute_value_mapping : dict
-            A dictionary representing the serialized data.
+#         Parameters
+#         ----------
+#         attribute_value_mapping : dict
+#             A dictionary representing the serialized data.
 
-        Returns
-        -------
-        DeprecatedSerializableMixin
-            A new instance of the class created from the serialized data.
+#         Returns
+#         -------
+#         DeprecatedSerializableMixin
+#             A new instance of the class created from the serialized data.
 
-        Deprecated
-        ----------
-        1.0.0
-            The `deserialize()` method is deprecated in favor of `parse_obj()` method.
-            For more details, refer to the Pydantic documentation:
-            https://docs.pydantic.dev/usage/models/#helper-functions
+#         Deprecated
+#         ----------
+#         1.0.0
+#             The `deserialize()` method is deprecated in favor of `parse_obj()` method.
+#             For more details, refer to the Pydantic documentation:
+#             https://docs.pydantic.dev/usage/models/#helper-functions
 
 
-        """
-        exc.warn_method_deprecation(
-            cls,
-            "deserialize()",
-            "parse_obj()",
-            "https://docs.pydantic.dev/usage/models/#helper-functions",
-        )
-        return cls.model_validate(attribute_value_mapping)
+#         """
+#         exc.warn_method_deprecation(
+#             cls,
+#             "deserialize()",
+#             "parse_obj()",
+#             "https://docs.pydantic.dev/usage/models/#helper-functions",
+#         )
+#         return cls.model_validate(attribute_value_mapping)
 
-    # def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
-    #     """
-    #     # TODO: turn this into a method that ONLY raises a
-    #     "deprecation use model_validate" message - then write a test that this
-    #     returns that message as expected
-    #     Deserializes a dict into self, resetting and/or overwriting existing
-    #     fields.
+#     # def from_dict(self, attribute_value_mapping: dict[str, Any]) -> None:
+#     #     """
+#     #     # TODO: turn this into a method that ONLY raises a
+#     #     "deprecation use model_validate" message - then write a test that this
+#     #     returns that message as expected
+#     #     Deserializes a dict into self, resetting and/or overwriting existing
+#     #     fields.
 
-    #     Parameters
-    #     ----------
-    #     attribute_value_mapping : dict
-    #         A dictionary that will be deserialized into the parent object.
+#     #     Parameters
+#     #     ----------
+#     #     attribute_value_mapping : dict
+#     #         A dictionary that will be deserialized into the parent object.
 
-    #     Deprecated
-    #     ----------
-    #     1.0.0
-    #         The `from_dict()` method is deprecated in favor of `parse_obj()` method.
-    #         For more details, refer to the Pydantic documentation:
-    #         https://docs.pydantic.dev/usage/models/#helper-functions
-    #     2.x
-    #         The `parse_obj()` method is not deprecated in favor of `model_validate()`
-    #         see: https://docs.pydantic.dev/latest/migration/#changes-to-pydanticbasemodel
-    #     """
+#     #     Deprecated
+#     #     ----------
+#     #     1.0.0
+#     #         The `from_dict()` method is deprecated in favor of `parse_obj()` method.
+#     #         For more details, refer to the Pydantic documentation:
+#     #         https://docs.pydantic.dev/usage/models/#helper-functions
+#     #     2.x
+#     #         The `parse_obj()` method is not deprecated in favor of `model_validate()`
+#     #         see: https://docs.pydantic.dev/latest/migration/#changes-to-pydanticbasemodel
+#     #     """
 
-    #     # TODO do we need a new warning or can we just remove this deprecated
-    #     # mixin altogether and document the change.
-    #     exc.warn_method_deprecation(
-    #         self.__class__,
-    #         "from_dict()",
-    #         "parse_obj()",
-    #         "https://docs.pydantic.dev/usage/models/#helper-functions",
-    #     )
-    #     # Ugly hack is necessary because parse_obj does not behave in-place but
-    #     # returns a new object
+#     #     # TODO do we need a new warning or can we just remove this deprecated
+#     #     # mixin altogether and document the change.
+#     #     exc.warn_method_deprecation(
+#     #         self.__class__,
+#     #         "from_dict()",
+#     #         "parse_obj()",
+#     #         "https://docs.pydantic.dev/usage/models/#helper-functions",
+#     #     )
+#     #     # Ugly hack is necessary because parse_obj does not behave in-place but
+#     #     # returns a new object
 
-    #     # self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
-    #     self.__init__(**self.model_validate(attribute_value_mapping).dict())
+#     #     # self.__init__(**self.parse_obj(attribute_value_mapping).dict())  # type: ignore[misc]
+#     #     self.__init__(**self.model_validate(attribute_value_mapping).dict())
 
-    def to_dict(self) -> dict[str, Any]:
-        """
-        TODO: deprecate
-        Returns a dict representation of self
+#     def to_dict(self) -> dict[str, Any]:
+#         """
+#         TODO: deprecate
+#         Returns a dict representation of self
 
-        Returns
-        -------
-        dict
-            A dictionary containing the data from the instance.
+#         Returns
+#         -------
+#         dict
+#             A dictionary containing the data from the instance.
 
-        Deprecated
-        ----------
-            The `to_dict()` method is deprecated in favor of `dict()` method.
-            For more details, refer to the Pydantic documentation:
-            https://docs.pydantic.dev/1.10/usage/exporting_models/
+#         Deprecated
+#         ----------
+#             The `to_dict()` method is deprecated in favor of `dict()` method.
+#             For more details, refer to the Pydantic documentation:
+#             https://docs.pydantic.dev/1.10/usage/exporting_models/
 
-            dict() is now deprecated in favor of `model_dump()`
-        """
-        exc.warn_method_deprecation(
-            self.__class__,
-            "to_dict()",
-            "dict()",
-            "https://docs.pydantic.dev/1.10/usage/exporting_models/",
-        )
-        return self.dict()
+#             dict() is now deprecated in favor of `model_dump()`
+#         """
+#         exc.warn_method_deprecation(
+#             self.__class__,
+#             "to_dict()",
+#             "dict()",
+#             "https://docs.pydantic.dev/1.10/usage/exporting_models/",
+#         )
+#         return self.dict()
 
 
 class BackwardCompatibilityMixin:
@@ -396,12 +395,9 @@ class RelaxedActivityType(ActivityType):
         dict
             A dictionary with a validated activity type value assigned.
         """
-        # The values object returned so far is always a strong rather than a
-        # object being RootModel being passed with a "root key"
-        # i may have broken something
-        # v = values["root"]
-        # Changing v to values for now so we are validating a string
-        # against a Literal list
+        # TODO: Values right now is being returned as a string (e.g. "Run")
+        # We probably want to pass in the RelatedActivityType object (or a list
+        # of objects?)
         if values not in get_args(
             ActivityType.model_fields["root"].annotation
         ):
@@ -429,16 +425,12 @@ class RelaxedSportType(SportType):
         dict
             A dictionary with a validated sport type value assigned.
         """
-        # This is now failing because values is a single value string
-        # v = values["__root__"]
-        # Here I modified v to be values. Will this break other things
-        # or make the code fragile?
+        # Do we want to deprecated SportType? os because it's still returned
+        # in the response do we keep it?
         if values not in SportType.__annotations__["root"]:
             LOGGER.warning(
                 f'Unexpected sport type. Given={values}, replacing by "Workout"'
             )
-            # This values["__root__"] won't work as values because it's now a
-            # string so reassign
             values = "Workout"
         return values
 
@@ -501,7 +493,6 @@ class LatLon(LatLng, BackwardCompatibilityMixin, DeprecatedSerializableMixin):
 
 class Club(
     DetailedClub,
-    DeprecatedSerializableMixin,
     BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
@@ -518,6 +509,11 @@ class Club(
         legacy BaseDetailedEntity.
     BoundClientEntity : A mixin to bind the club with a Strava API client.
 
+    Notes
+    -----
+    Clubs are the only object that can have multiple valid
+    `activity_types`. Activities only have one
+
     """
 
     # Undocumented attributes:
@@ -525,7 +521,8 @@ class Club(
     description: Optional[str] = None
     club_type: Optional[str] = None
 
-    _field_conversions = {"activity_types": enum_values}
+    # Removing this so activity_types isn't converted to strings
+    # _field_conversions = {"activity_types": enum_values}
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[Athlete]:
@@ -554,9 +551,7 @@ class Club(
         return self.bound_client.get_club_activities(self.id)
 
 
-class Gear(
-    DetailedGear, DeprecatedSerializableMixin, BackwardCompatibilityMixin
-):
+class Gear(DetailedGear, BackwardCompatibilityMixin):
     """
     Represents a piece of gear (equipment) used in physical activities.
     """
@@ -596,9 +591,7 @@ class ActivityTotals(
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
 
 
-class AthleteStats(
-    ActivityStats, DeprecatedSerializableMixin, BackwardCompatibilityMixin
-):
+class AthleteStats(ActivityStats, BackwardCompatibilityMixin):
     """
     Summary totals for rides, runs and swims, as shown in an athlete's public
     profile. Non-public activities are not counted for these totals.
@@ -1078,7 +1071,8 @@ class Segment(
         "elevation_high": uh.meters,
         "elevation_low": uh.meters,
         "total_elevation_gain": uh.meters,
-        "activity_type": enum_value,
+        # enum_value returns a string. but we can accept a ActivityType object
+        # "activity_type": enum_value,
     }
 
     _latlng_check = field_validator(
@@ -1217,8 +1211,8 @@ class Activity(
         "total_elevation_gain": uh.meters,
         "average_speed": uh.meters_per_second,
         "max_speed": uh.meters_per_second,
-        "type": enum_value,
-        "sport_type": enum_value,
+        # "type": enum_value,
+        # "sport_type": enum_value,
     }
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
@@ -1265,9 +1259,19 @@ class Activity(
 class DistributionBucket(TimedZoneRange):
     """
     A single distribution bucket object, used for activity zones.
+
+    Notes
+    -----
+    In this object, we override types for min/max values. The
+    strava API incorrectly types zones as being `int`. However it can
+    return `int` or `float`.
     """
 
     _field_conversions = {"time": uh.seconds}
+
+    # Overrides due to a bug in the Strava API docs
+    min: Optional[int | float] = None
+    max: Optional[int | float] = None
 
 
 class BaseActivityZone(
