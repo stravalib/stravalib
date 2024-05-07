@@ -276,7 +276,7 @@ To run tests for a specific python version use nox -s tests-python-version-here.
 
 For example, below we run tests for only Python 3.10.
 
-```python
+```bash
 nox -s tests-3.10
 ```
 

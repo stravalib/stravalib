@@ -272,9 +272,10 @@ class BoundClientEntity(BaseModel):
     bound_client: Optional[Any] = Field(None, exclude=True)
 
 
+# SHould this be typed differently?
 class RelaxedActivityType(ActivityType):
     @model_validator(mode="before")
-    def check_activity_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+    def check_activity_type(cls, values: str | Any) -> str | Any:
         """Pydantic validator that checks whether an activity type value is
         valid prior to populating the model. If the available activity type
         is not valid, it assigns the value to be "Workout".
@@ -289,9 +290,7 @@ class RelaxedActivityType(ActivityType):
         dict
             A dictionary with a validated activity type value assigned.
         """
-        # TODO: Values right now is being returned as a string (e.g. "Run")
-        # We probably want to pass in the RelatedActivityType object (or a list
-        # of objects?)
+
         if values not in get_args(
             ActivityType.model_fields["root"].annotation
         ):
@@ -302,9 +301,10 @@ class RelaxedActivityType(ActivityType):
         return values
 
 
+# TODO: should this type just be str (why would we accept Any here?)
 class RelaxedSportType(SportType):
     @model_validator(mode="before")
-    def check_sport_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+    def check_sport_type(cls, values: str | Any) -> str | Any:
         """Pydantic validator that checks whether a sport type value is
         valid prior to populating the model. If the existing sport type
         is not valid, it assigns the value to be "Workout".
@@ -1151,8 +1151,10 @@ class DistributionBucket(TimedZoneRange):
     _field_conversions = {"time": uh.seconds}
 
     # Overrides due to a bug in the Strava API docs
-    min: Optional[int | float] = None
-    max: Optional[int | float] = None
+    # Because the created strava_model.py has this typed as int we will need
+    # to override these types
+    min: Optional[int | float] = None  # type: ignore
+    max: Optional[int | float] = None  # type: ignore
 
 
 class BaseActivityZone(

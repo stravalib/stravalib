@@ -198,7 +198,6 @@ def test_backward_compatible_attribute_lookup(
 def test_relaxed_activity_type_validation(
     klass, attr, given_type, expected_type
 ):
-    print(expected_type)
     obj = getattr(klass(**{attr: given_type}), attr)
     if attr == "sport_type":
         assert obj == RelaxedSportType(root=expected_type)
