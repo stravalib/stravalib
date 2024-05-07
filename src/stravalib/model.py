@@ -242,11 +242,8 @@ class BackwardCompatibilityMixin:
             # This won't return a attribute error if it's none
             if attr in self._field_conversions:
                 return self._field_conversions[attr](value)
-        except TypeError:
+        except (TypeError, AttributeError):
             # Handle case where _field_conversions is None or not subscriptable
-            pass
-        except AttributeError:
-            # Current model class has no field conversions defined
             pass
         try:
             value.bound_client = self.bound_client
