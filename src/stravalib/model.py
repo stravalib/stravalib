@@ -33,8 +33,6 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from stravalib import exc, strava_model
 from stravalib import unithelper as uh
 from stravalib.field_conversions import (
-    # enum_value,
-    # enum_values,
     timezone,
 )
 from stravalib.strava_model import (
