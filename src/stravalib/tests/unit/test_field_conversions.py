@@ -6,7 +6,6 @@ from stravalib.field_conversions import (
     timezone,
 )
 
-# from stravalib.strava_model import ActivityType, SportType
 
 
 def test_optional_input():
