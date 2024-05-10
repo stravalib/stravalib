@@ -1085,8 +1085,6 @@ class Activity(
         "total_elevation_gain": uh.meters,
         "average_speed": uh.meters_per_second,
         "max_speed": uh.meters_per_second,
-        # "type": enum_value,
-        # "sport_type": enum_value,
     }
     moving_time: Optional[timedelta] = None  # type: ignore[assignment]
     elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
