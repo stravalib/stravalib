@@ -182,17 +182,9 @@ def test_get_activity_zones(mock_strava_api, client, zone_response):
     the response output.
 
     """
-    #
+
     mock_strava_api.get("/activities/{id}/zones", json=zone_response)
-    """
-    # TODO: failing here E  pydantic_core._pydantic_core.ValidationError: 10 validation errors for BaseActivityZone
-    E   distribution_buckets.0.max
-    E     Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=3.319925953425268, input_type=float]
-    E       For further information visit https://errors.pydantic.dev/2.7/v/int_from_float
-    E   distribution_buckets.1.max
-    E     Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=3.8569727988322966, input_type=float]
-    E       For further information visit https://errors.pydantic.dev/2.7/v/int_from_float
-    """
+
     # https://developers.strava.com/docs/reference/#api-models-integer
     activity_zones = client.get_activity_zones(42)
     assert len(activity_zones) == 2
