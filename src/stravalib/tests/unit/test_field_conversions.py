@@ -18,23 +18,6 @@ def test_optional_input():
     assert foo(None) is None
 
 
-# def test_enum_value():
-#     """Test that when there is one specific Sport or other type,
-#     that enum_value returns that value only.
-
-#     TODO: Question - do we need enum_value method with pydantic 2.x?
-#     """
-
-#     a = ActivityType("Run")
-#     assert enum_value(a) == "Run"
-
-
-# def test_enum_values():
-#     """Club objects may have one or more ActivityTypes associated with them.
-
-#     This tests that when provided with a list of types, enum values
-#     parses multiple types and returns a list.
-#     """
 
 
 
