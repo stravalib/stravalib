@@ -326,7 +326,6 @@ class Client:
             The athlete model object.
 
         """
-        # The api call is slow now
         raw = self.protocol.get("/athlete")
 
         return model.Athlete.model_validate({**raw, **{"bound_client": self}})
