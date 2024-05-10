@@ -1014,7 +1014,6 @@ class Client:
 
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
-        # For troubleshooting
 
         return [
             model.BaseActivityZone.model_validate(
