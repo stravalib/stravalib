@@ -193,9 +193,6 @@ def test_get_activity_zones(mock_strava_api, client, zone_response):
     E     Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=3.8569727988322966, input_type=float]
     E       For further information visit https://errors.pydantic.dev/2.7/v/int_from_float
     """
-    # TODO: Why is the example JSON file contain floating points if
-    # strava docs suggest only ints will be returned? i believe this
-    # test is failing because of the floats.
     # https://developers.strava.com/docs/reference/#api-models-integer
     activity_zones = client.get_activity_zones(42)
     assert len(activity_zones) == 2
