@@ -36,9 +36,6 @@ def test_optional_input():
 #     parses multiple types and returns a list.
 #     """
 
-#     a = ActivityType("Run")
-#     b = SportType("Ride")
-#     assert enum_values([a, b]) == ["Run", "Ride"]
 
 
 @pytest.mark.parametrize(
