@@ -117,6 +117,7 @@ best practices for Python code readability and consistency:
   Because black's default line length is 88 characters, we adjust it to 79
   characters in the config [to follow PEP 8 line width guidelines](https://peps.python.org/pep-0008/#maximum-line-length).
 - [isort](https://pycqa.github.io/isort/): ensure imports are ordered following [PEP 8 import guidelines](https://peps.python.org/pep-0008/#imports)
+- [FawltyDeps](https://github.com/tweag/FawltyDeps/): FawltyDeps is a linter that ensures that finds _undeclared_ or _unused_ 3rd party dependencies in the project.
 - [flake8](https://flake8.pycqa.org/en/latest/): flake8 is a linter. It identifies other PEP 8 issues in the code that Black will not address including comments that extend beyond 79
   characters and doc string line width. It also will identify unused imports and
   unused but declared variables.

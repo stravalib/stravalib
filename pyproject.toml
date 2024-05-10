@@ -60,9 +60,11 @@ changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
 [project.optional-dependencies]
 build = ["build"]
 tests = [
+  "nox",
   "pytest",
   "pytest-cov",
-  "responses"
+  "responses",
+  "typing-extensions"
 ]
 docs = [
   "sphinx",
@@ -80,6 +82,7 @@ docs = [
 ]
 lint = [
   "pre-commit",
+  "fawltydeps",
   "mypy",
   "types-requests",
   "types-pytz",
@@ -90,6 +93,37 @@ lint = [
 line-length = 79
 # When editing the config for black in this file, be sure to make
 # the same edits in the repo stravalib/strava_swagger2pydantic
+
+[tool.fawltydeps]
+ignore_undeclared = [
+  "stravalib",
+  "_typeshed",
+]
+ignore_unused = [
+  "autodoc_pydantic",
+  "black",
+  "build",
+  "fawltydeps",
+  "matplotlib",
+  "mypy",
+  "myst-nb",
+  "nox",
+  "pre-commit",
+  "pydata-sphinx-theme",
+  "pytest",
+  "pytest-cov",
+  "responses",
+  "sphinx",
+  "sphinx-autobuild",
+  "sphinx-inline-tabs",
+  "sphinx_copybutton",
+  "sphinx_design",
+  "sphinx_remove_toctrees",
+  "sphinxext-opengraph",
+  "types-Flask",
+  "types-pytz",
+  "types-requests",
+]
 
 [tool.isort]
 profile = "black"

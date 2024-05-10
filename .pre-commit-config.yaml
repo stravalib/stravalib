@@ -68,3 +68,9 @@ repos:
             )$
         additional_dependencies:
           - tomli
+
+  - repo: https://github.com/tweag/FawltyDeps
+    rev: v0.15.0
+    hooks:
+      - id: check-undeclared
+      - id: check-unused

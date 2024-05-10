@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+- Add: improved linting in CI, including `black`, `isort`, `flake8`, and `fawltydeps` (@obscurerichard, #496)
+
+### Contributors to this release
+
+@obscurerichard
+
 ## v1.7
 
 ### Added
