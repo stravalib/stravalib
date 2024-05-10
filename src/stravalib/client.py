@@ -328,7 +328,6 @@ class Client:
         """
         # The api call is slow now
         raw = self.protocol.get("/athlete")
-        # The `parse_obj` method is deprecated; use `model_validate` instead.
 
         return model.Athlete.model_validate({**raw, **{"bound_client": self}})
 
