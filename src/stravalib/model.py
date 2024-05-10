@@ -410,8 +410,6 @@ class Club(
     description: Optional[str] = None
     club_type: Optional[str] = None
 
-    # Removing this so activity_types isn't converted to strings
-    # _field_conversions = {"activity_types": enum_values}
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[Athlete]:
