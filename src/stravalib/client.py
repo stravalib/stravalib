@@ -1016,12 +1016,6 @@ class Client:
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
         # For troubleshooting
-        for z in zones:
-            print(z)
-            a = model.BaseActivityZone.model_validate(
-                {**z, **{"bound_client": self}}
-            )
-            print(a)
 
         return [
             model.BaseActivityZone.model_validate(
