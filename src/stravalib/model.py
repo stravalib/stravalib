@@ -949,8 +949,6 @@ class Segment(
         "elevation_high": uh.meters,
         "elevation_low": uh.meters,
         "total_elevation_gain": uh.meters,
-        # enum_value returns a string. but we can accept a ActivityType object
-        # "activity_type": enum_value,
     }
 
     _latlng_check = field_validator(
