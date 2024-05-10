@@ -7,7 +7,6 @@ from stravalib.field_conversions import (
 )
 
 
-
 def test_optional_input():
     @optional_input
     def foo(x):
@@ -15,9 +14,6 @@ def test_optional_input():
 
     assert foo(1) == 2
     assert foo(None) is None
-
-
-
 
 
 @pytest.mark.parametrize(

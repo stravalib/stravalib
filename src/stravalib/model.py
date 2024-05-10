@@ -407,7 +407,6 @@ class Club(
     description: Optional[str] = None
     club_type: Optional[str] = None
 
-
     @lazy_property
     def members(self) -> BatchedResultsIterator[Athlete]:
         """
