@@ -269,22 +269,21 @@ class BoundClientEntity(BaseModel):
     bound_client: Optional[Any] = Field(None, exclude=True)
 
 
-# SHould this be typed differently?
 class RelaxedActivityType(ActivityType):
     @model_validator(mode="before")
-    def check_activity_type(cls, values: str | Any) -> str | Any:
+    def check_activity_type(cls, values: str) -> str:
         """Pydantic validator that checks whether an activity type value is
         valid prior to populating the model. If the available activity type
         is not valid, it assigns the value to be "Workout".
 
         Parameters
         ----------
-        values : dict[str, Any]
+        values : str
             A dictionary containing an activity type key value pair.
 
         Returns
         -------
-        dict
+        str
             A dictionary with a validated activity type value assigned.
         """
 
@@ -298,26 +297,24 @@ class RelaxedActivityType(ActivityType):
         return values
 
 
-# TODO: should this type just be str (why would we accept Any here?)
 class RelaxedSportType(SportType):
     @model_validator(mode="before")
-    def check_sport_type(cls, values: str | Any) -> str | Any:
+    def check_sport_type(cls, values: str) -> str:
         """Pydantic validator that checks whether a sport type value is
         valid prior to populating the model. If the existing sport type
         is not valid, it assigns the value to be "Workout".
 
         Parameters
         ----------
-        values : dict[str, Any]
+        values : str
             A dictionary containing an sport type key value pair.
 
         Returns
         -------
-        dict
-            A dictionary with a validated sport type value assigned.
+        str
+            A str containing the validated sport type.
         """
-        # Do we want to deprecated SportType? os because it's still returned
-        # in the response do we keep it?
+
         if values not in SportType.__annotations__["root"]:
             LOGGER.warning(
                 f'Unexpected sport type. Given={values}, replacing by "Workout"'
