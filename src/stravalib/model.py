@@ -668,7 +668,7 @@ class ActivityPhoto(BaseModel):
         else:
             photo_type = "(no type)"
             idfield = "id"
-            idval = self.id
+            idval = self.uid
 
         return "<{clz} {type} {idfield}={id}>".format(
             clz=self.__class__.__name__,
@@ -792,7 +792,7 @@ class AthletePrEffort(
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
     @property
-    def elapsed_time(self) -> Optional[timedelta]:
+    def elapsed_time(self) -> Optional[int]:
         """A property that supports backwards compatibility with the
         elapsed_time method used in previous versions of stravalib"""
 
