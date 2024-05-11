@@ -1,30 +1,29 @@
 from datetime import datetime
-from typing import List, Optional
 
-import pint
 import pytest
-from pydantic import BaseModel
 
 from stravalib import model
-from stravalib import unithelper as uh
 from stravalib.model import (
     Activity,
     ActivityLap,
     ActivityPhoto,
-    BackwardCompatibilityMixin,
+    ActivityTotals,
+    AthletePrEffort,
+    AthleteSegmentStats,
+    AthleteStats,
     BaseEffort,
-    BoundClientEntity,
     # Club, # CLUB IS not currently used in this module
     LatLon,
     RelaxedActivityType,
     RelaxedSportType,
+    Route,
     Segment,
     SegmentExplorerResult,
+    Split,
     SubscriptionCallback,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
-from stravalib.unithelper import Quantity
 
 
 @pytest.mark.parametrize(
@@ -40,7 +39,7 @@ from stravalib.unithelper import Quantity
         (Segment, {"start_latlng": []}, None),
         (SegmentExplorerResult, {"start_latlng": []}, None),
         (ActivityPhoto, {"location": []}, None),
-        (Activity, {"timezone": "foobar"}, None),
+        # (Activity, {"timezone": "foobar"}, None),  TODO re-add this test when custom types are implemented
         (
             Activity,
             {"start_date_local": "2023-01-17T11:06:07Z"},
@@ -74,113 +73,9 @@ def test_subscription_callback_field_names():
     assert sub_callback.hub_verify_token == "STRAVA"
 
 
-# Below are some toy classes to test type extensions and attribute lookup:
-class A(BaseModel, BackwardCompatibilityMixin):
-    x: Optional[int] = None
-
-
-class ConversionA(A, BackwardCompatibilityMixin):
-    _field_conversions = {"x": uh.meters}
-
-
-class BoundA(A, BoundClientEntity):
-    pass
-
-
-class B(BaseModel, BackwardCompatibilityMixin):
-    a: Optional[A] = None
-    bound_a: Optional[BoundA] = None
-
-
-class BoundB(B, BoundClientEntity):
-    pass
-
-
-class C(BaseModel, BackwardCompatibilityMixin):
-    a: Optional[List[A]] = None
-    bound_a: Optional[List[BoundA]] = None
-
-
-class BoundC(C, BoundClientEntity):
-    pass
-
-
-class D(BaseModel, BackwardCompatibilityMixin):
-    a: Optional[LatLng] = None
-
-
-class ExtA(A):
-    def foo(self):
-        return self.x
-
-
 class ExtLatLng(LatLng):
     def foo(self):
         return f"[{self[0], self[1]}]"
-
-
-@pytest.mark.parametrize(
-    "lookup_expression,expected_result,expected_bound_client",
-    (
-        (A().x, None, False),
-        (B().a, None, False),
-        (A(x=1).x, 1, False),
-        (B(a=A(x=1)).a, A(x=1), False),
-        (C(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
-        (ConversionA(x=1).x, pint.Quantity("1 meter"), False),
-        (BoundA(x=1).x, 1, False),
-        (B(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
-        (
-            B(bound_a=BoundA(x=1, bound_client=1)).bound_a,
-            BoundA(x=1, bound_client=1),
-            True,
-        ),
-        (BoundB(a=A(x=1)).a, A(x=1), False),
-        (BoundB(a=A(x=1), bound_client=1).a, A(x=1), False),
-        (BoundB(bound_a=BoundA(x=1)).bound_a, BoundA(x=1), None),
-        (
-            BoundB(bound_a=BoundA(x=1), bound_client=1).bound_a,
-            BoundA(x=1, bound_client=1),
-            True,
-        ),
-        (C(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1], BoundA(x=2), None),
-        (
-            C(
-                bound_a=[
-                    BoundA(x=1, bound_client=1),
-                    BoundA(x=2, bound_client=1),
-                ]
-            ).bound_a[1],
-            BoundA(x=2, bound_client=1),
-            True,
-        ),
-        (BoundC(a=[A(x=1), A(x=2)]).a[1], A(x=2), False),
-        (BoundC(a=[A(x=1), A(x=2)], bound_client=1).a[1], A(x=2), False),
-        (
-            BoundC(bound_a=[BoundA(x=1), BoundA(x=2)]).bound_a[1],
-            BoundA(x=2),
-            None,
-        ),
-        (
-            BoundC(bound_a=[BoundA(x=1), BoundA(x=2)], bound_client=1).bound_a[
-                1
-            ],
-            BoundA(x=2, bound_client=1),
-            True,
-        ),
-    ),
-)
-def test_backward_compatible_attribute_lookup(
-    lookup_expression, expected_result, expected_bound_client
-):
-    assert lookup_expression == expected_result
-
-    if expected_bound_client:
-        assert lookup_expression.bound_client is not None
-    elif expected_bound_client is None:
-        assert lookup_expression.bound_client is None
-    elif not expected_bound_client:
-        assert not hasattr(lookup_expression, "bound_client")
 
 
 # TODO: do we want to continue to support type?
@@ -203,6 +98,80 @@ def test_relaxed_activity_type_validation(
         assert obj == RelaxedSportType(root=expected_type)
     else:
         assert obj == RelaxedActivityType(root=expected_type)
+
+
+# TODO: these classes are just temporary placeholders and should be replace with
+# actual custom types.
+
+
+class DistanceType:
+    pass
+
+
+class TimeDeltaType:
+    pass
+
+
+class TimezoneType:
+    pass
+
+
+class VelocityType:
+    pass
+
+
+@pytest.mark.skip(reason="not implemented yet")
+@pytest.mark.parametrize(
+    "model_type,attr,expected_base_type,expected_extended_type",
+    (
+        (ActivityTotals, "distance", float, DistanceType),
+        (ActivityTotals, "elevation_gain", float, DistanceType),
+        (ActivityTotals, "elapsed_time", int, TimeDeltaType),
+        (ActivityTotals, "moving_time", int, TimeDeltaType),
+        (AthleteStats, "biggest_ride_distance", float, DistanceType),
+        (AthleteStats, "biggest_climb_elevation_gain", float, DistanceType),
+        (ActivityLap, "distance", float, DistanceType),
+        (ActivityLap, "total_elevation_gain", float, DistanceType),
+        (ActivityLap, "average_speed", float, VelocityType),
+        (ActivityLap, "max_speed", float, VelocityType),
+        (ActivityLap, "elapsed_time", int, TimeDeltaType),
+        (ActivityLap, "moving_time", int, TimeDeltaType),
+        (Split, "distance", float, DistanceType),
+        (Split, "elevation_difference", float, DistanceType),
+        (Split, "average_speed", float, VelocityType),
+        (Split, "average_grade_adjusted_speed", float, VelocityType),
+        (Split, "elapsed_time", int, TimeDeltaType),
+        (Split, "moving_time", int, TimeDeltaType),
+        (SegmentExplorerResult, "elev_difference", float, DistanceType),
+        (SegmentExplorerResult, "distance", float, DistanceType),
+        (AthleteSegmentStats, "distance", float, DistanceType),
+        (AthleteSegmentStats, "elapsed_time", int, TimeDeltaType),
+        (AthletePrEffort, "distance", float, DistanceType),
+        (AthletePrEffort, "pr_elapsed_time", int, TimeDeltaType),
+        (Segment, "distance", float, DistanceType),
+        (Segment, "elevation_high", float, DistanceType),
+        (Segment, "elevation_low", float, DistanceType),
+        (Segment, "total_elevation_gain", float, DistanceType),
+        (BaseEffort, "distance", float, DistanceType),
+        (BaseEffort, "elapsed_time", int, TimeDeltaType),
+        (BaseEffort, "moving_time", int, TimeDeltaType),
+        (Activity, "distance", float, DistanceType),
+        (Activity, "timezone", str, TimezoneType),
+        (Activity, "total_elevation_gain", float, DistanceType),
+        (Activity, "average_speed", float, VelocityType),
+        (Activity, "max_speed", float, VelocityType),
+        (Activity, "elapsed_time", int, TimeDeltaType),
+        (Activity, "moving_time", int, TimeDeltaType),
+        (Route, "distance", float, DistanceType),
+        (Route, "elevation_gain", float, DistanceType),
+    ),
+)
+def test_extended_types(
+    model_type, attr, expected_base_type, expected_extended_type
+):
+    obj = model_type.model_validate(dict(**{attr: 42}))
+    assert isinstance(getattr(obj, attr), expected_base_type)
+    assert isinstance(getattr(obj, attr), expected_extended_type)
 
 
 class ModelTest(TestBase):
@@ -237,68 +206,6 @@ class ModelTest(TestBase):
 
         self.assertEqual(3, len(a.clubs))
         self.assertEqual("Team Roaring Mouse", a.clubs[0].name)
-
-    def test_speed_units(self):
-        a = model.Activity()
-
-        a.max_speed = 1000  # m/s
-        a.average_speed = 1000  # m/s
-        self.assertAlmostEqual(3600.0, float(uh.kph(a.max_speed)))
-        self.assertAlmostEqual(3600.0, float(uh.kph(a.average_speed)))
-
-        a.max_speed = uh.mph(1.0)
-        # print repr(a.max_speed)
-
-        self.assertAlmostEqual(1.61, float(uh.kph(a.max_speed)), places=2)
-
-    def test_time_intervals(self):
-        segment = model.Segment()
-        # s.pr_time = XXXX
-
-        split = model.Split()
-        split.moving_time = 3.1
-        split.elapsed_time = 5.73
-
-    def test_distance_units(self):
-        # Gear
-        g = model.Gear()
-        g.distance = 1000
-        self.assertEqual(1.0, float(uh.kilometers(g.distance)))
-
-        # Metric Split
-        split = model.Split()
-        split.distance = 1000  # meters
-        split.elevation_difference = 1000  # meters
-        self.assertIsInstance(split.distance, Quantity)
-        self.assertIsInstance(split.elevation_difference, Quantity)
-        self.assertEqual(1.0, float(uh.kilometers(split.distance)))
-        self.assertEqual(1.0, float(uh.kilometers(split.elevation_difference)))
-        split = None
-
-        # Segment
-        s = model.Segment()
-        s.distance = 1000
-        s.elevation_high = 2000
-        s.elevation_low = 1000
-        self.assertIsInstance(s.distance, Quantity)
-        self.assertIsInstance(s.elevation_high, Quantity)
-        self.assertIsInstance(s.elevation_low, Quantity)
-        self.assertEqual(1.0, float(uh.kilometers(s.distance)))
-        self.assertEqual(2.0, float(uh.kilometers(s.elevation_high)))
-        self.assertEqual(1.0, float(uh.kilometers(s.elevation_low)))
-
-        # Activity
-        a = model.Activity()
-        a.distance = 1000  # m
-        a.total_elevation_gain = 1000  # m
-        self.assertIsInstance(a.distance, Quantity)
-        self.assertIsInstance(a.total_elevation_gain, Quantity)
-        self.assertEqual(1.0, float(uh.kilometers(a.distance)))
-        self.assertEqual(1.0, float(uh.kilometers(a.total_elevation_gain)))
-
-    def test_weight_units(self):
-        """ """
-        # PowerActivityZone
 
     def test_subscription_deser(self):
         d = {
