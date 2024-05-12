@@ -10,6 +10,7 @@ from responses import matchers
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.model import Athlete
+from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
 
@@ -813,6 +814,7 @@ def test_get_activities(
     activity_list = list(client.get_activities(**kwargs))
     assert len(activity_list) == expected_n_activities
     if expected_n_activities > 0:
+        assert isinstance(activity_list[0], SummaryActivity)
         assert activity_list[0].name == "test_activity"
 
 

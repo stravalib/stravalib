@@ -271,7 +271,7 @@ class Client:
         before: datetime | str | None = None,
         after: datetime | str | None = None,
         limit: int | None = None,
-    ) -> BatchedResultsIterator[model.Activity]:
+    ) -> BatchedResultsIterator[model.SummaryActivity]:
         """Get activities for authenticated user sorted by newest first.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
@@ -290,7 +290,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
+            An iterator of :class:`stravalib.model.SummaryActivity` objects.
 
         """
 
@@ -302,7 +302,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Activity,
+            entity=model.SummaryActivity,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,

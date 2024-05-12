@@ -38,7 +38,6 @@ from stravalib.strava_model import (
     ActivityZone,
     BaseStream,
     Comment,
-    DetailedActivity,
     DetailedAthlete,
     DetailedClub,
     DetailedGear,
@@ -889,22 +888,65 @@ class SegmentEffort(BaseEffort):
     achievements: Optional[list[SegmentEffortAchievement]] = None
 
 
+class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
+    @lazy_property
+    def comments(self) -> BatchedResultsIterator[ActivityComment]:
+        """Retrieves comments for a specific activity id."""
+        assert self.bound_client is not None
+        return self.bound_client.get_activity_comments(self.id)
+
+    @lazy_property
+    def zones(self) -> list[BaseActivityZone]:
+        """Retrieve a list of zones for an activity.
+
+        Returns
+        -------
+        py:class:`list`
+            A list of :class:`stravalib.model.BaseActivityZone` objects.
+        """
+
+        assert self.bound_client is not None
+        return self.bound_client.get_activity_zones(self.id)
+
+    @lazy_property
+    def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
+        """Retrieves the kudos provided for a specific activity."""
+        assert self.bound_client is not None
+        return self.bound_client.get_activity_kudos(self.id)
+
+    @lazy_property
+    def full_photos(self) -> BatchedResultsIterator[ActivityPhoto]:
+        """Retrieves activity photos for a specific activity by id."""
+        assert self.bound_client is not None
+        return self.bound_client.get_activity_photos(
+            self.id, only_instagram=False
+        )
+
+
+class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
+    # field overrides from superclass for type extensions:
+    athlete: Optional[Athlete] = (
+        None  # TODO: this should also become a MetaAthlete
+    )
+    start_latlng: Optional[LatLon] = (
+        None  # Do we still need these overrides for latlon?
+    )
+    end_latlng: Optional[LatLon] = None
+    map: Optional[Map] = None
+    type: Optional[RelaxedActivityType] = None
+    sport_type: Optional[RelaxedSportType] = None
+
+
 class Activity(
-    DetailedActivity,
-    BoundClientEntity,
+    SummaryActivity,
+    strava_model.DetailedActivity,
 ):
     """
     Represents an activity (ride, run, etc.).
     """
 
     # field overrides from superclass for type extensions:
-    athlete: Optional[Athlete] = None
-    start_latlng: Optional[LatLon] = None
-    end_latlng: Optional[LatLon] = None
-    map: Optional[Map] = None
     gear: Optional[Gear] = None
-    type: Optional[RelaxedActivityType] = None
-    sport_type: Optional[RelaxedSportType] = None
     # Ignoring types here given there are overrides
     best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
     segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
@@ -949,39 +991,6 @@ class Activity(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
     _naive_local = field_validator("start_date_local")(naive_datetime)
-
-    @lazy_property
-    def comments(self) -> BatchedResultsIterator[ActivityComment]:
-        """Retrieves comments for a specific activity id."""
-        assert self.bound_client is not None
-        return self.bound_client.get_activity_comments(self.id)
-
-    @lazy_property
-    def zones(self) -> list[BaseActivityZone]:
-        """Retrieve a list of zones for an activity.
-
-        Returns
-        -------
-        py:class:`list`
-            A list of :class:`stravalib.model.BaseActivityZone` objects.
-        """
-
-        assert self.bound_client is not None
-        return self.bound_client.get_activity_zones(self.id)
-
-    @lazy_property
-    def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
-        """Retrieves the kudos provided for a specific activity."""
-        assert self.bound_client is not None
-        return self.bound_client.get_activity_kudos(self.id)
-
-    @lazy_property
-    def full_photos(self) -> BatchedResultsIterator[ActivityPhoto]:
-        """Retrieves activity photos for a specific activity by id."""
-        assert self.bound_client is not None
-        return self.bound_client.get_activity_photos(
-            self.id, only_instagram=False
-        )
 
 
 class DistributionBucket(TimedZoneRange):
