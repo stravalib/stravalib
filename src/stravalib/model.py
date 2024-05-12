@@ -31,10 +31,6 @@ from dateutil import parser
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from stravalib import exc, strava_model
-from stravalib import unithelper as uh
-from stravalib.field_conversions import (
-    timezone,
-)
 from stravalib.strava_model import (
     ActivityStats,
     ActivityTotal,
@@ -197,69 +193,6 @@ def check_valid_location(
 AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
-class BackwardCompatibilityMixin:
-    """
-    Mixin that intercepts attribute lookup and raises warnings or modifies
-    return values based on what is defined in the following class attributes:
-
-    * _field_conversions
-
-    Notes
-    ------
-    The class attributes below are not yet implemented:
-    * _deprecated_fields (TODO)
-    * _unsupported_fields (TODO)
-    """
-
-    pass
-
-    def __getattribute__(self, attr: str) -> Any:
-        """A method to retrieve attributes from the object.
-
-        Parameters
-        ----------
-        attr : str
-            The name of the attribute to retrieve.
-
-        Returns
-        -------
-        Any
-            The value of the requested attribute.
-
-        Notes
-        -----
-        This method is called whenever an attribute is accessed on the object.
-        It is used to control attribute retrieval and perform additional
-        actions.
-
-        """
-        value = object.__getattribute__(self, attr)
-        if attr in ["_field_conversions", "bound_client"] or attr.startswith(
-            "_"
-        ):
-            return value
-        try:
-            # This won't return a attribute error if it's none
-            if attr in self._field_conversions:
-                return self._field_conversions[attr](value)
-        except (TypeError, AttributeError):
-            # Handle case where _field_conversions is None or not subscriptable
-            pass
-        try:
-            value.bound_client = self.bound_client
-            return value
-        except (AttributeError, ValueError):
-            pass
-        try:
-            for v in value:
-                v.bound_client = self.bound_client
-            return value
-        except (AttributeError, ValueError, TypeError):
-            # TypeError if v is not iterable
-            pass
-        return value
-
-
 class BoundClientEntity(BaseModel):
     """A class that bounds the Client object to the model."""
 
@@ -323,7 +256,7 @@ class RelaxedSportType(SportType):
         return values
 
 
-class LatLon(LatLng, BackwardCompatibilityMixin):
+class LatLon(LatLng):
     """
     Enables backward compatibility for legacy namedtuple
     """
@@ -381,7 +314,6 @@ class LatLon(LatLng, BackwardCompatibilityMixin):
 
 class Club(
     DetailedClub,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -434,12 +366,12 @@ class Club(
         return self.bound_client.get_club_activities(self.id)
 
 
-class Gear(DetailedGear, BackwardCompatibilityMixin):
+class Gear(DetailedGear):
     """
     Represents a piece of gear (equipment) used in physical activities.
     """
 
-    _field_conversions = {"distance": uh.meters}
+    pass
 
 
 class Bike(Gear):
@@ -460,19 +392,14 @@ class Shoe(Gear):
     pass
 
 
-class ActivityTotals(ActivityTotal, BackwardCompatibilityMixin):
+class ActivityTotals(ActivityTotal):
     """An objecting containing a set of total values for an activity including
     elapsed time, moving time, distance and elevation gain."""
 
-    _field_conversions = {
-        "distance": uh.meters,
-        "elevation_gain": uh.meters,
-    }
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
+    pass
 
 
-class AthleteStats(ActivityStats, BackwardCompatibilityMixin):
+class AthleteStats(ActivityStats):
     """
     Summary totals for rides, runs and swims, as shown in an athlete's public
     profile. Non-public activities are not counted for these totals.
@@ -489,15 +416,9 @@ class AthleteStats(ActivityStats, BackwardCompatibilityMixin):
     all_run_totals: Optional[ActivityTotals] = None
     all_swim_totals: Optional[ActivityTotals] = None
 
-    _field_conversions = {
-        "biggest_ride_distance": uh.meters,
-        "biggest_climb_elevation_gain": uh.meters,
-    }
-
 
 class Athlete(
     DetailedAthlete,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """Represents high level athlete information including
@@ -698,7 +619,7 @@ class ActivityPhotoMeta(PhotosSummary):
     use_primary_photo: Optional[bool] = None
 
 
-class ActivityPhoto(BaseModel, BackwardCompatibilityMixin):
+class ActivityPhoto(BaseModel):
     """A full photo record attached to an activity.
 
     Notes
@@ -747,7 +668,7 @@ class ActivityPhoto(BaseModel, BackwardCompatibilityMixin):
         else:
             photo_type = "(no type)"
             idfield = "id"
-            idval = self.id
+            idval = self.uid
 
         return "<{clz} {type} {idfield}={id}>".format(
             clz=self.__class__.__name__,
@@ -771,7 +692,6 @@ class ActivityKudos(Athlete):
 
 class ActivityLap(
     Lap,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     # Field overrides from superclass for type extensions:
@@ -784,15 +704,6 @@ class ActivityLap(
     max_heartrate: Optional[float] = None
     device_watts: Optional[bool] = None
 
-    _field_conversions = {
-        "distance": uh.meters,
-        "total_elevation_gain": uh.meters,
-        "average_speed": uh.meters_per_second,
-        "max_speed": uh.meters_per_second,
-    }
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
-
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
@@ -804,7 +715,6 @@ class Map(PolylineMap):
 
 class Split(
     strava_model.Split,
-    BackwardCompatibilityMixin,
 ):
     """
     A split -- may be metric or standard units (which has no bearing
@@ -815,19 +725,9 @@ class Split(
     average_heartrate: Optional[float] = None
     average_grade_adjusted_speed: Optional[float] = None
 
-    _field_conversions = {
-        "distance": uh.meters,
-        "elevation_difference": uh.meters,
-        "average_speed": uh.meters_per_second,
-        "average_grade_adjusted_speed": uh.meters_per_second,
-    }
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
-
 
 class SegmentExplorerResult(
     ExplorerSegment,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -843,8 +743,6 @@ class SegmentExplorerResult(
 
     # Undocumented attributes:
     starred: Optional[bool] = None
-
-    _field_conversions = {"elev_difference", uh.meters, "distance", uh.meters}
 
     _check_latlng = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -869,7 +767,6 @@ class SegmentExplorerResult(
 
 class AthleteSegmentStats(
     SummarySegmentEffort,
-    BackwardCompatibilityMixin,
 ):
     """
     A structure being returned for segment stats for current athlete.
@@ -880,17 +777,11 @@ class AthleteSegmentStats(
     pr_elapsed_time: Optional[timedelta] = None
     pr_date: Optional[date] = None
 
-    _field_conversions = {
-        "distance": uh.meters,
-    }
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
 class AthletePrEffort(
     SummaryPRSegmentEffort,
-    BackwardCompatibilityMixin,
 ):
     # Undocumented attributes:
     distance: Optional[float] = None
@@ -898,15 +789,10 @@ class AthletePrEffort(
     start_date_local: Optional[datetime] = None
     is_kom: Optional[bool] = None
 
-    _field_conversions = {
-        "distance": uh.meters,
-    }
-    pr_elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
     @property
-    def elapsed_time(self) -> Optional[timedelta]:
+    def elapsed_time(self) -> Optional[int]:
         """A property that supports backwards compatibility with the
         elapsed_time method used in previous versions of stravalib"""
 
@@ -915,7 +801,6 @@ class AthletePrEffort(
 
 class Segment(
     DetailedSegment,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -939,13 +824,6 @@ class Segment(
     pr_time: Optional[timedelta] = None
     starred_date: Optional[datetime] = None
     elevation_profile: Optional[str] = None
-
-    _field_conversions = {
-        "distance": uh.meters,
-        "elevation_high": uh.meters,
-        "elevation_low": uh.meters,
-        "total_elevation_gain": uh.meters,
-    }
 
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -981,7 +859,6 @@ class SegmentEffortAchievement(BaseModel):
 
 class BaseEffort(
     DetailedSegmentEffort,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -992,12 +869,6 @@ class BaseEffort(
     segment: Optional[Segment] = None
     activity: Optional[Activity] = None
     athlete: Optional[Athlete] = None
-
-    _field_conversions = {
-        "distance": uh.meters,
-    }
-    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
@@ -1020,7 +891,6 @@ class SegmentEffort(BaseEffort):
 
 class Activity(
     DetailedActivity,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -1075,16 +945,6 @@ class Activity(
     segment_leaderboard_opt_out: Optional[bool] = None
     perceived_exertion: Optional[int] = None
 
-    _field_conversions = {
-        "timezone": timezone,
-        "distance": uh.meters,
-        "total_elevation_gain": uh.meters,
-        "average_speed": uh.meters_per_second,
-        "max_speed": uh.meters_per_second,
-    }
-    moving_time: Optional[timedelta] = None  # type: ignore[assignment]
-    elapsed_time: Optional[timedelta] = None  # type: ignore[assignment]
-
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
@@ -1135,8 +995,6 @@ class DistributionBucket(TimedZoneRange):
     return `int` or `float`.
     """
 
-    _field_conversions = {"time": uh.seconds}
-
     # Overrides due to a bug in the Strava API docs
     # Because the created strava_model.py has this typed as int we will need
     # to override these types
@@ -1146,7 +1004,6 @@ class DistributionBucket(TimedZoneRange):
 
 class BaseActivityZone(
     ActivityZone,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -1163,7 +1020,7 @@ class BaseActivityZone(
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
 
 
-class Stream(BaseStream, BackwardCompatibilityMixin):
+class Stream(BaseStream):
     """
     Stream of readings from the activity, effort or segment.
     """
@@ -1177,7 +1034,6 @@ class Stream(BaseStream, BackwardCompatibilityMixin):
 
 class Route(
     RouteStrava,
-    BackwardCompatibilityMixin,
     BoundClientEntity,
 ):
     """
@@ -1189,10 +1045,8 @@ class Route(
     map: Optional[Map] = None
     segments: Optional[list[Segment]]  # type: ignore[assignment]
 
-    _field_conversions = {"distance": uh.meters, "elevation_gain": uh.meters}
 
-
-class Subscription(BackwardCompatibilityMixin, BoundClientEntity):
+class Subscription(BaseModel):
     """
     Represents a Webhook Event Subscription.
     """
@@ -1210,10 +1064,7 @@ class Subscription(BackwardCompatibilityMixin, BoundClientEntity):
     updated_at: Optional[datetime] = None
 
 
-# Note: the DeprecatedSerializableMixin inherited from BaseModel
-# So we may have to add BaseModel to some of these smaller objects that
-# relied upon the mixin
-class SubscriptionCallback(BaseModel, BackwardCompatibilityMixin):
+class SubscriptionCallback(BaseModel):
     """
     Represents a Webhook Event Subscription Callback.
     """
@@ -1248,7 +1099,7 @@ class SubscriptionCallback(BaseModel, BackwardCompatibilityMixin):
         assert self.hub_verify_token == verify_token
 
 
-class SubscriptionUpdate(BackwardCompatibilityMixin, BoundClientEntity):
+class SubscriptionUpdate(BaseModel):
     """
     Represents a Webhook Event Subscription Update.
     """

@@ -7,12 +7,11 @@ import pytest
 import responses
 from responses import matchers
 
-import stravalib.unithelper as uh
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.model import Athlete
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import UnitConverter, meters, miles
+from stravalib.unithelper import miles
 
 
 @pytest.fixture
@@ -156,7 +155,7 @@ def test_get_activity_laps(mock_strava_api, client):
     )
     laps = list(client.get_activity_laps(42))
     assert len(laps) == 2
-    assert laps[0].distance == meters(1000)
+    assert laps[0].distance == 1000
 
 
 def test_get_club_activities(mock_strava_api, client):
@@ -168,7 +167,7 @@ def test_get_club_activities(mock_strava_api, client):
 
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
-    assert activities[0].distance == meters(1000)
+    assert activities[0].distance == 1000
 
 
 def test_get_activity_zones(mock_strava_api, client, zone_response):
@@ -783,9 +782,7 @@ def test_get_athlete_stats(
             client.get_athlete_stats(athlete_id)
     else:
         stats = client.get_athlete_stats(athlete_id)
-        assert stats.biggest_ride_distance == UnitConverter("meters")(
-            expected_biggest_ride_distance
-        )
+        assert stats.biggest_ride_distance == expected_biggest_ride_distance
 
 
 def test_get_gear(mock_strava_api, client):
@@ -826,10 +823,10 @@ def test_get_activities_quantity_addition(mock_strava_api, client):
         n_results=2,
     )
     act_list = list(client.get_activities(limit=2))
-    total_d = uh.meters(0)
+    total_d = 0
     total_d += act_list[0].distance
     total_d += act_list[1].distance
-    assert total_d == uh.meters(2000.0)
+    assert total_d == 2000.0
 
 
 def test_get_segment(mock_strava_api, client):
