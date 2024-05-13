@@ -638,18 +638,6 @@ class ActivityPhoto(BaseModel):
         )
 
 
-class ActivityKudos(Athlete):
-    """
-    Represents kudos an athlete received on an activity.
-
-    Notes
-    -----
-    Activity kudos are a subset of athlete properties.
-    """
-
-    pass
-
-
 class ActivityLap(
     Lap,
     BoundClientEntity,
@@ -870,7 +858,7 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
         return self.bound_client.get_activity_zones(self.id)
 
     @lazy_property
-    def kudos(self) -> BatchedResultsIterator[ActivityKudos]:
+    def kudos(self) -> BatchedResultsIterator[SummaryAthlete]:
         """Retrieves the kudos provided for a specific activity."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_kudos(self.id)

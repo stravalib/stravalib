@@ -9,6 +9,7 @@ from responses import matchers
 
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
+from stravalib.model import Athlete, SummaryAthlete
 from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
@@ -51,6 +52,7 @@ def default_request_params():
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
+    assert isinstance(athlete, Athlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
 
@@ -990,5 +992,6 @@ def test_get_activity_kudos(mock_strava_api, client):
         n_results=2,
     )
     kudoer_list = list(client.get_activity_kudos(42))
+    assert isinstance(kudoer_list[0], SummaryAthlete)
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"

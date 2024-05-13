@@ -528,7 +528,7 @@ class Client:
 
     def get_club_members(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Athlete]:
+    ) -> BatchedResultsIterator[strava_model.ClubAthlete]:
         """Gets the member objects for specified club ID.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubMembersById
@@ -551,7 +551,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Athlete,
+            entity=strava_model.ClubAthlete,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -1062,7 +1062,7 @@ class Client:
 
     def get_activity_kudos(
         self, activity_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.ActivityKudos]:
+    ) -> BatchedResultsIterator[model.SummaryAthlete]:
         """Gets the kudos for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getKudoersByActivityId
@@ -1085,7 +1085,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityKudos,
+            entity=model.SummaryAthlete,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
