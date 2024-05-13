@@ -32,13 +32,11 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
-    ActivityStats,
     ActivityTotal,
     ActivityType,
     ActivityZone,
     BaseStream,
     Comment,
-    DetailedAthlete,
     DetailedClub,
     DetailedGear,
     DetailedSegment,
@@ -398,7 +396,7 @@ class ActivityTotals(ActivityTotal):
     pass
 
 
-class AthleteStats(ActivityStats):
+class AthleteStats(strava_model.ActivityStats):
     """
     Summary totals for rides, runs and swims, as shown in an athlete's public
     profile. Non-public activities are not counted for these totals.
@@ -416,10 +414,15 @@ class AthleteStats(ActivityStats):
     all_swim_totals: Optional[ActivityTotals] = None
 
 
-class Athlete(
-    DetailedAthlete,
-    BoundClientEntity,
-):
+class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
+    pass
+
+
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
+    pass
+
+
+class Athlete(SummaryAthlete, strava_model.DetailedAthlete):
     """Represents high level athlete information including
     their name, email, clubs they belong to, bikes, shoes, etc.
 
@@ -436,7 +439,6 @@ class Athlete(
     shoes: Optional[list[SummaryGear]] = None
 
     # Undocumented attributes:
-    is_authenticated: Optional[bool] = None
     athlete_type: Optional[Literal["cyclist", "runner"]] = None
     friend: Optional[str] = None
     follower: Optional[str] = None
@@ -500,20 +502,6 @@ class Athlete(
             return None
 
     @lazy_property
-    def authenticated_athlete(self) -> Athlete:
-        """
-        Returns an `Athlete` object containing Strava account data
-        for the (authenticated) athlete.
-
-        Returns
-        -------
-        Athlete
-            The detailed information of the authenticated athlete.
-        """
-        assert self.bound_client is not None, "Bound client is not set."
-        return self.bound_client.get_athlete()
-
-    @lazy_property
     def stats(self) -> AthleteStats:
         """
         Grabs statistics for an (authenticated) athlete.
@@ -527,36 +515,9 @@ class Athlete(
         `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
         missing.
         """
-        if not self.is_authenticated_athlete():
-            raise exc.NotAuthenticatedAthlete(
-                "Statistics are only available for the authenticated athlete"
-            )
+
         assert self.bound_client is not None, "Bound client is not set."
-
         return self.bound_client.get_athlete_stats(self.id)
-
-    def is_authenticated_athlete(self) -> bool:
-        """Check if the athlete is authenticated
-
-        Returns
-        -------
-        bool
-            Whether the athlete is the authenticated athlete (or not).
-        """
-
-        if self.is_authenticated is None:
-            if self.resource_state == 3:
-                # If the athlete is in detailed state it must be the authenticated athlete
-                self.is_authenticated = True
-            else:
-                # Check if this athlete's id matches the authenticated athlete's id
-                authenticated_athlete = self.authenticated_athlete
-                if authenticated_athlete is None:
-                    return False
-
-                self.is_authenticated = authenticated_athlete.id == self.id
-
-        return self.is_authenticated
 
 
 class ActivityComment(Comment):
@@ -925,9 +886,7 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     # field overrides from superclass for type extensions:
-    athlete: Optional[Athlete] = (
-        None  # TODO: this should also become a MetaAthlete
-    )
+    athlete: Optional[MetaAthlete] = None
     start_latlng: Optional[LatLon] = (
         None  # Do we still need these overrides for latlon?
     )
