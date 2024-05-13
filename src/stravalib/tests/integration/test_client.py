@@ -172,6 +172,19 @@ def test_get_club_activities(mock_strava_api, client):
     assert activities[0].distance == 1000
 
 
+def test_get_club_admins(mock_strava_api, client):
+    mock_strava_api.get(
+        "/clubs/{id}/admins",
+        response_update={"firstname": "Jane"},
+        n_results=2,
+    )
+
+    admins = list(client.get_club_admins(42))
+    assert isinstance(admins[0], SummaryAthlete)
+    assert len(admins) == 2
+    assert admins[0].firstname == "Jane"
+
+
 def test_get_activity_zones(mock_strava_api, client, zone_response):
     """Returns an activities associated zone (related to heart rate and power)
 

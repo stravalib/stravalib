@@ -588,6 +588,38 @@ class Client:
             limit=limit,
         )
 
+    def get_club_admins(
+        self, club_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.SummaryAthlete]:
+        """Gets the activities associated with specified club.
+
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubAdminsById
+
+        Parameters
+        ----------
+        club_id : int
+            The numeric ID for the club.
+        limit : int
+            Maximum number of admins to return. (default unlimited)
+
+        Returns
+        -------
+        class:`BatchedResultsIterator`
+            An iterator of :class:`stravalib.model.SummaryAthlete` objects.
+
+        """
+
+        result_fetcher = functools.partial(
+            self.protocol.get, "/clubs/{id}/admins", id=club_id
+        )
+
+        return BatchedResultsIterator(
+            entity=model.SummaryAthlete,
+            bind_client=self,
+            result_fetcher=result_fetcher,
+            limit=limit,
+        )
+
     def get_activity(
         self, activity_id: int, include_all_efforts: bool = False
     ) -> model.Activity:
