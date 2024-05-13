@@ -54,7 +54,6 @@ from stravalib.strava_model import (
     SummarySegmentEffort,
     TimedZoneRange,
 )
-from stravalib.strava_model import Route as RouteStrava
 
 if TYPE_CHECKING:
     from stravalib.client import BatchedResultsIterator
@@ -524,16 +523,13 @@ class ActivityComment(Comment):
     """
     A class representing a comment on an activity.
 
-    This class overrides the `athlete` attribute to be of type :class:`Athlete`
-    instead of :class:`SummaryAthlete`.
-
     Attributes
     ----------
     athlete : Athlete, optional
         The athlete associated with the comment.
     """
 
-    athlete: Optional[Athlete] = None
+    athlete: Optional[SummaryAthlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
@@ -989,7 +985,7 @@ class Stream(BaseStream):
 
 
 class Route(
-    RouteStrava,
+    strava_model.Route,
     BoundClientEntity,
 ):
     """
@@ -997,7 +993,7 @@ class Route(
     """
 
     # Superclass field overrides for using extended types
-    athlete: Optional[Athlete] = None
+    athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
     segments: Optional[list[Segment]]  # type: ignore[assignment]
 
