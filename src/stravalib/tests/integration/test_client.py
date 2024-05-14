@@ -9,7 +9,7 @@ from responses import matchers
 
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
-from stravalib.model import Athlete
+from stravalib.model import Athlete, SummaryAthlete
 from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
@@ -52,6 +52,7 @@ def default_request_params():
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
+    assert isinstance(athlete, Athlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
 
@@ -169,6 +170,19 @@ def test_get_club_activities(mock_strava_api, client):
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
     assert activities[0].distance == 1000
+
+
+def test_get_club_admins(mock_strava_api, client):
+    mock_strava_api.get(
+        "/clubs/{id}/admins",
+        response_update={"firstname": "Jane"},
+        n_results=2,
+    )
+
+    admins = list(client.get_club_admins(42))
+    assert isinstance(admins[0], SummaryAthlete)
+    assert len(admins) == 2
+    assert admins[0].firstname == "Jane"
 
 
 def test_get_activity_zones(mock_strava_api, client, zone_response):
@@ -991,30 +1005,6 @@ def test_get_activity_kudos(mock_strava_api, client):
         n_results=2,
     )
     kudoer_list = list(client.get_activity_kudos(42))
+    assert isinstance(kudoer_list[0], SummaryAthlete)
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"
-
-
-class TestIsAuthenticatedAthlete:
-    def test_default(self, mock_strava_api, client):
-        mock_strava_api.get("/athlete", response_update={"id": 42})
-        athlete = client.get_athlete()
-        assert athlete.is_authenticated_athlete()
-
-    def test_caching(self):
-        athlete = Athlete(is_authenticated=True)
-        assert athlete.is_authenticated_athlete()
-
-    @pytest.mark.parametrize(
-        "match_id,expected_result", ((False, False), (True, True))
-    )
-    def test_from_summary(
-        self, mock_strava_api, client, match_id, expected_result
-    ):
-        mock_strava_api.get(
-            "/clubs/{id}/members",
-            response_update={"id": 42 if match_id else 21},
-        )
-        mock_strava_api.get("/athlete", response_update={"id": 42})
-        club_members = list(client.get_club_members(99))
-        assert club_members[0].is_authenticated_athlete() == expected_result
