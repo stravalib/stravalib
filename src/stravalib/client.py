@@ -591,7 +591,7 @@ class Client:
     def get_club_admins(
         self, club_id: int, limit: int | None = None
     ) -> BatchedResultsIterator[model.SummaryAthlete]:
-        """Gets the activities associated with specified club.
+        """Returns a list of the administrators of a given club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubAdminsById
 
