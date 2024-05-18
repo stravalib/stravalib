@@ -9,7 +9,7 @@ from responses import matchers
 
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
-from stravalib.model import Athlete, SummaryAthlete
+from stravalib.model import Athlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
@@ -719,10 +719,11 @@ def test_get_starred_segments(
         n_results=n_raw_results,
     )
     kwargs = {"limit": limit} if limit is not None else {}
-    activity_list = list(client.get_starred_segments(**kwargs))
-    assert len(activity_list) == expected_n_segments
+    segment_list = list(client.get_starred_segments(**kwargs))
+    assert len(segment_list) == expected_n_segments
     if expected_n_segments > 0:
-        assert activity_list[0].name == "test_segment"
+        assert isinstance(segment_list[0], SummarySegment)
+        assert segment_list[0].name == "test_segment"
 
 
 def test_get_club(mock_strava_api, client):

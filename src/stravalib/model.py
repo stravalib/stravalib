@@ -39,7 +39,6 @@ from stravalib.strava_model import (
     Comment,
     DetailedClub,
     DetailedGear,
-    DetailedSegment,
     DetailedSegmentEffort,
     ExplorerSegment,
     Lap,
@@ -743,21 +742,26 @@ class AthletePrEffort(
         return self.pr_elapsed_time
 
 
-class Segment(
-    DetailedSegment,
-    BoundClientEntity,
-):
+class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
+    # Field overrides from superclass for type extensions:
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+    athlete_segment_stats: Optional[AthleteSegmentStats] = None
+    athlete_pr_effort: Optional[AthletePrEffort] = None
+    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
+
+    _latlng_check = field_validator(
+        "start_latlng", "end_latlng", mode="before"
+    )(check_valid_location)
+
+
+class Segment(SummarySegment, strava_model.DetailedSegment):
     """
     Represents a single Strava segment.
     """
 
     # Field overrides from superclass for type extensions:
-    start_latlng: Optional[LatLon] = None
-    end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
-    athlete_segment_stats: Optional[AthleteSegmentStats] = None
-    athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
@@ -768,10 +772,6 @@ class Segment(
     pr_time: Optional[timedelta] = None
     starred_date: Optional[datetime] = None
     elevation_profile: Optional[str] = None
-
-    _latlng_check = field_validator(
-        "start_latlng", "end_latlng", mode="before"
-    )(check_valid_location)
 
 
 class SegmentEffortAchievement(BaseModel):
