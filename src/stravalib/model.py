@@ -810,7 +810,7 @@ class BaseEffort(
     """
 
     # Field overrides from superclass for type extensions:
-    segment: Optional[Segment] = None
+    segment: Optional[SummarySegment] = None
     activity: Optional[Activity] = None
     athlete: Optional[Athlete] = None
 
@@ -995,7 +995,7 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
-    segments: Optional[list[Segment]]  # type: ignore[assignment]
+    segments: Optional[list[SummarySegment]]  # type: ignore[assignment]
 
 
 class Subscription(BaseModel):
