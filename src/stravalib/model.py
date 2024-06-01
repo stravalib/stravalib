@@ -253,13 +253,15 @@ class RelaxedSportType(SportType):
 
 class LatLon(LatLng):
     """
-    Enables backward compatibility for legacy namedtuple
+    Stores lat / lon values or None.
     """
 
-    # It seems like we are validating LatLon twice which is a bit confusing.
+    # It seems like we are validating LatLon in different ways.
     # Once here and once when we ingest lat long into the Activity Object.
     @model_validator(mode="before")
-    def check_valid_latlng(cls, values: list[float]) -> Optional[list[float]]:
+    def check_valid_latlng(
+        cls, values: list[float | None]
+    ) -> Optional[list[float]]:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -281,7 +283,8 @@ class LatLon(LatLng):
 
         """
         # Strava sometimes returns empty list in case of activities without GPS
-        return values if values else None
+        a = values if values else None
+        return a
 
     @property
     def lat(self) -> float:
@@ -687,6 +690,7 @@ class SegmentExplorerResult(
     # Undocumented attributes:
     starred: Optional[bool] = None
 
+    # Could we avoid this step and just assign variables in the validator? the validator
     _check_latlng = field_validator(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
@@ -871,9 +875,8 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     # field overrides from superclass for type extensions:
     athlete: Optional[MetaAthlete] = None
-    start_latlng: Optional[LatLon] = (
-        None  # Do we still need these overrides for latlon?
-    )
+    # These force validator to run on lat/lon
+    start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     type: Optional[RelaxedActivityType] = None
