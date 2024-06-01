@@ -651,26 +651,6 @@ class Client:
         )
         return model.Activity.model_validate({**raw, **{"bound_client": self}})
 
-    # TODO: REMOVE from API altogether given deprecation of end point
-    def get_friend_activities(self, limit: int | None = None) -> NoReturn:
-        """DEPRECATED This endpoint was removed by Strava in Jan 2018.
-
-        Parameters
-        ----------
-        limit : int
-            Maximum number of activities to return. (default unlimited)
-
-        Returns
-        -------
-        class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
-
-        """
-        raise NotImplementedError(
-            "The /activities/following endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
-        )
-
     def _validate_activity_type(
         self,
         params: dict[str, Any],
@@ -1198,30 +1178,6 @@ class Client:
             entity=model.ActivityLap,
             bind_client=self,
             result_fetcher=result_fetcher,
-        )
-
-    # TODO remove this method given deprecation of end point
-    def get_related_activities(
-        self, activity_id: int, limit: int | None = None
-    ) -> NoReturn:
-        """Deprecated. This endpoint was removed by strava in Jan 2018.
-
-        Parameters
-        ----------
-        activity_id : int
-            The activity for which to fetch related activities.
-        limit : int, default=None
-             Rate limit value for getting activities
-
-        Returns
-        -------
-        class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
-
-        """
-        raise NotImplementedError(
-            "The /activities/{id}/related endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
         )
 
     def get_gear(self, gear_id: str) -> model.Gear:
