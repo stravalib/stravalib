@@ -1289,7 +1289,7 @@ class Client:
 
     def get_starred_segments(
         self, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Segment]:
+    ) -> BatchedResultsIterator[model.SummarySegment]:
         """Returns a summary representation of the segments starred by the
          authenticated user. Pagination is supported.
 
@@ -1303,7 +1303,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+            An iterator of :class:`stravalib.model.SummarySegment` starred by authenticated user.
 
         """
 
@@ -1316,7 +1316,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Segment,
+            entity=model.SummarySegment,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
