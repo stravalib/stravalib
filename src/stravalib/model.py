@@ -141,7 +141,7 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 # Custom validators for some edge cases:
 
 
-# This is the first valid location check.
+# This method checks a list of floats - ie a stream not just a single lat/lon
 def check_valid_location(
     location: Optional[Union[list[float], str]]
 ) -> Optional[list[float]]:
@@ -256,10 +256,7 @@ class LatLon(LatLng):
     Stores lat / lon values or None.
     """
 
-    root: list[float] | None = Field(..., max_length=2, min_length=2)
-
-    # It seems like we are validating LatLon in different ways.
-    # Once here and once when we ingest lat long into the Activity Object.
+    # TODO: double check for duplicate tests
     @model_validator(mode="before")
     def check_valid_latlng(
         cls, values: list[float | None]
@@ -884,6 +881,10 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     type: Optional[RelaxedActivityType] = None
     sport_type: Optional[RelaxedSportType] = None
 
+    _latlng_check = field_validator(
+        "start_latlng", "end_latlng", mode="before"
+    )(check_valid_location)
+
 
 class Activity(
     SummaryActivity,
@@ -935,9 +936,6 @@ class Activity(
     segment_leaderboard_opt_out: Optional[bool] = None
     perceived_exertion: Optional[int] = None
 
-    _latlng_check = field_validator(
-        "start_latlng", "end_latlng", mode="before"
-    )(check_valid_location)
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
