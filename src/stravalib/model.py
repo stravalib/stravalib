@@ -256,11 +256,8 @@ class LatLon(LatLng):
     Stores lat / lon values or None.
     """
 
-    # TODO: double check for duplicate tests
     @model_validator(mode="before")
-    def check_valid_latlng(
-        cls, values: list[float | None]
-    ) -> Optional[list[float]]:
+    def check_valid_latlng(cls, values: list[float]) -> list[float] | None:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -274,11 +271,6 @@ class LatLon(LatLng):
         -------
         list or None
             list of lat/lon values or None
-
-        Notes
-        ------
-        This is the second validation of lat lon but it's a validator
-        the first is check is def check_valid_location above.
 
         """
 
