@@ -1062,8 +1062,3 @@ class SubscriptionUpdate(BaseModel):
     aspect_type: Optional[str] = None
     event_time: Optional[datetime] = None
     updates: Optional[dict[str, Any]] = None
-
-
-SegmentEffort.update_forward_refs()
-ActivityLap.update_forward_refs()
-BestEffort.update_forward_refs()
