@@ -256,6 +256,8 @@ class LatLon(LatLng):
     Stores lat / lon values or None.
     """
 
+    root: list[float] | None = Field(..., max_length=2, min_length=2)
+
     # It seems like we are validating LatLon in different ways.
     # Once here and once when we ingest lat long into the Activity Object.
     @model_validator(mode="before")
@@ -282,9 +284,9 @@ class LatLon(LatLng):
         the first is check is def check_valid_location above.
 
         """
+
         # Strava sometimes returns empty list in case of activities without GPS
-        a = values if values else None
-        return a
+        return values if values else None
 
     @property
     def lat(self) -> float:

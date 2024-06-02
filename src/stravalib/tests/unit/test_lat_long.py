@@ -13,7 +13,7 @@ from stravalib.model import LatLon, SummaryActivity
             LatLon(root=[10.2, 1.02]),
         ),
         (None, None, None, None),
-        ([], [], None, None),
+        ([], [], LatLon(root=None), LatLon(root=None)),
     ],
 )
 def test_summary_activity_latlng(
