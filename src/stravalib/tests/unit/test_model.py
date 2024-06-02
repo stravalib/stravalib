@@ -18,9 +18,11 @@ from stravalib.model import (
     RelaxedSportType,
     Route,
     Segment,
+    SegmentEffort,
     SegmentExplorerResult,
     Split,
     SubscriptionCallback,
+    SummarySegmentEffort,
 )
 from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
@@ -52,6 +54,16 @@ from stravalib.tests import TestBase
         ),
         (
             ActivityLap,
+            {"start_date_local": "2023-01-17T11:06:07Z"},
+            datetime(2023, 1, 17, 11, 6, 7),
+        ),
+        (
+            SummarySegmentEffort,
+            {"start_date_local": "2023-01-17T11:06:07Z"},
+            datetime(2023, 1, 17, 11, 6, 7),
+        ),
+        (
+            SegmentEffort,
             {"start_date_local": "2023-01-17T11:06:07Z"},
             datetime(2023, 1, 17, 11, 6, 7),
         ),
