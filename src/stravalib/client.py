@@ -2035,10 +2035,6 @@ class BatchedResultsIterator(Generic[T]):
 
         entities = []
         for raw in raw_results:
-            # Note: this fails to validate if the start and end latlng are empty
-            # i'm actually not sure why it's empty - this was a tiny run from
-            # the gym. it almost looks like the gps was off but i see the map
-            # data
             new_entity = self.entity.model_validate(
                 {**raw, **{"bound_client": self.bind_client}}
             )

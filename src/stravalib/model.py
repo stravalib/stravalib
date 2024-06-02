@@ -681,7 +681,6 @@ class SegmentExplorerResult(
     # Undocumented attributes:
     starred: Optional[bool] = None
 
-    # Could we avoid this step and just assign variables in the validator? the validator
     _check_latlng = field_validator(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
