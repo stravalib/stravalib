@@ -322,7 +322,11 @@ class Club(
     Notes
     -----
     Clubs are the only object that can have multiple valid
-    `activity_types`. Activities only have one
+    `activity_types`. Activities only have one.
+
+    Endpoint docs are found here:
+    https://developers.strava.com/docs/reference/#api-models-SummaryClub
+
 
     """
 
