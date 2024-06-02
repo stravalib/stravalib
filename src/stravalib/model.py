@@ -39,7 +39,6 @@ from stravalib.strava_model import (
     Comment,
     DetailedClub,
     DetailedGear,
-    DetailedSegmentEffort,
     ExplorerSegment,
     Lap,
     LatLng,
@@ -50,7 +49,6 @@ from stravalib.strava_model import (
     SummaryClub,
     SummaryGear,
     SummaryPRSegmentEffort,
-    SummarySegmentEffort,
     TimedZoneRange,
 )
 
@@ -708,21 +706,6 @@ class SegmentExplorerResult(
         return self.bound_client.get_segment(self.id)
 
 
-class AthleteSegmentStats(
-    SummarySegmentEffort,
-):
-    """
-    A structure being returned for segment stats for current athlete.
-    """
-
-    # Undocumented attributes:
-    effort_count: Optional[int] = None
-    pr_elapsed_time: Optional[timedelta] = None
-    pr_date: Optional[date] = None
-
-    _naive_local = field_validator("start_date_local")(naive_datetime)
-
-
 class AthletePrEffort(
     SummaryPRSegmentEffort,
 ):
@@ -801,8 +784,13 @@ class SegmentEffortAchievement(BaseModel):
     effort_count: Optional[int] = None
 
 
+class SummarySegmentEffort(strava_model.SummarySegmentEffort):
+    _naive_local = field_validator("start_date_local")(naive_datetime)
+
+
 class BaseEffort(
-    DetailedSegmentEffort,
+    SummarySegmentEffort,
+    strava_model.DetailedSegmentEffort,
     BoundClientEntity,
 ):
     """
@@ -811,10 +799,8 @@ class BaseEffort(
 
     # Field overrides from superclass for type extensions:
     segment: Optional[SummarySegment] = None
-    activity: Optional[Activity] = None
-    athlete: Optional[Athlete] = None
-
-    _naive_local = field_validator("start_date_local")(naive_datetime)
+    activity: Optional[MetaActivity] = None
+    athlete: Optional[MetaAthlete] = None
 
 
 class BestEffort(BaseEffort):
@@ -831,6 +817,19 @@ class SegmentEffort(BaseEffort):
     """
 
     achievements: Optional[list[SegmentEffortAchievement]] = None
+
+
+class AthleteSegmentStats(
+    SummarySegmentEffort,
+):
+    """
+    A structure being returned for segment stats for current athlete.
+    """
+
+    # Undocumented attributes:
+    effort_count: Optional[int] = None
+    pr_elapsed_time: Optional[timedelta] = None
+    pr_date: Optional[date] = None
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
