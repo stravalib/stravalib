@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 
@@ -82,13 +82,13 @@ def test_deserialization_edge_cases(model_class, raw, expected_value):
             SummarySegmentEffort,
             {"pr_elapsed_time": 42},
             "elapsed_time",
-            timedelta(seconds=42),
+            42,
         ),
         (
             SummarySegmentEffort,
             {"elapsed_time": 42},
             "elapsed_time",
-            timedelta(seconds=42),
+            42,
         ),
         (AthletePrEffort, {"pr_activity_id": 42}, "activity_id", 42),
         (AthletePrEffort, {"activity_id": 42}, "activity_id", 42),
@@ -96,13 +96,13 @@ def test_deserialization_edge_cases(model_class, raw, expected_value):
             AthletePrEffort,
             {"pr_elapsed_time": 42},
             "elapsed_time",
-            timedelta(seconds=42),
+            42,
         ),
         (
             AthletePrEffort,
             {"elapsed_time": 42},
             "elapsed_time",
-            timedelta(seconds=42),
+            42,
         ),
     ),
 )
