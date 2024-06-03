@@ -28,7 +28,13 @@ from typing import (
 )
 
 from dateutil import parser
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
@@ -48,7 +54,6 @@ from stravalib.strava_model import (
     SportType,
     SummaryClub,
     SummaryGear,
-    SummaryPRSegmentEffort,
     TimedZoneRange,
 )
 
@@ -707,11 +712,19 @@ class SegmentExplorerResult(
 
 
 class AthletePrEffort(
-    SummaryPRSegmentEffort,
+    strava_model.SummaryPRSegmentEffort,
 ):
+    # Override fields from superclass to match actual responses by Strava API:
+    activity_id: Optional[int] = Field(
+        validation_alias=AliasChoices("pr_activity_id", "activity_id"),
+        default=None,
+    )
+    elapsed_time: Optional[timedelta] = Field(
+        validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
+        default=None,
+    )
+
     # Undocumented attributes:
-    activity_id: Optional[int] = None  # see pr_activity_id in superclass
-    elapsed_time: Optional[int] = None  # see pr_elapsed_time in superclass
     distance: Optional[float] = None
     start_date: Optional[datetime] = None
     start_date_local: Optional[datetime] = None
@@ -724,9 +737,11 @@ class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
     # Field overrides from superclass for type extensions:
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
-    athlete_segment_stats: Optional[AthleteSegmentStats] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
     activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
+    athlete_segment_stats: Optional[AthleteSegmentStats] = (
+        None  # Actually, this is only part of a (detailed) segment response
+    )
 
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -780,6 +795,16 @@ class SegmentEffortAchievement(BaseModel):
 
 
 class SummarySegmentEffort(strava_model.SummarySegmentEffort):
+    # Override superclass fields to match actual Strava API responses
+    activity_id: Optional[int] = Field(
+        validation_alias=AliasChoices("pr_activity_id", "activity_id"),
+        default=None,
+    )
+    elapsed_time: Optional[timedelta] = Field(
+        validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
+        default=None,
+    )
+
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
@@ -823,7 +848,6 @@ class AthleteSegmentStats(
 
     # Undocumented attributes:
     effort_count: Optional[int] = None
-    pr_elapsed_time: Optional[timedelta] = None
     pr_date: Optional[date] = None
 
 

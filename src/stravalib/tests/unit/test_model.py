@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -24,7 +24,6 @@ from stravalib.model import (
     SubscriptionCallback,
     SummarySegmentEffort,
 )
-from stravalib.strava_model import LatLng
 from stravalib.tests import TestBase
 
 
@@ -74,6 +73,46 @@ def test_deserialization_edge_cases(model_class, raw, expected_value):
     assert getattr(obj, list(raw.keys())[0]) == expected_value
 
 
+@pytest.mark.parametrize(
+    "model_class,raw,parsed_attr,expected_parsed_attr_value",
+    (
+        (SummarySegmentEffort, {"pr_activity_id": 42}, "activity_id", 42),
+        (SummarySegmentEffort, {"activity_id": 42}, "activity_id", 42),
+        (
+            SummarySegmentEffort,
+            {"pr_elapsed_time": 42},
+            "elapsed_time",
+            timedelta(seconds=42),
+        ),
+        (
+            SummarySegmentEffort,
+            {"elapsed_time": 42},
+            "elapsed_time",
+            timedelta(seconds=42),
+        ),
+        (AthletePrEffort, {"pr_activity_id": 42}, "activity_id", 42),
+        (AthletePrEffort, {"activity_id": 42}, "activity_id", 42),
+        (
+            AthletePrEffort,
+            {"pr_elapsed_time": 42},
+            "elapsed_time",
+            timedelta(seconds=42),
+        ),
+        (
+            AthletePrEffort,
+            {"elapsed_time": 42},
+            "elapsed_time",
+            timedelta(seconds=42),
+        ),
+    ),
+)
+def test_strava_api_field_name_inconsistencies(
+    model_class, raw, parsed_attr, expected_parsed_attr_value
+):
+    obj = model_class.model_validate(raw)
+    assert getattr(obj, parsed_attr) == expected_parsed_attr_value
+
+
 def test_subscription_callback_field_names():
     sub_callback_raw = {
         "hub.mode": "subscribe",
@@ -83,11 +122,6 @@ def test_subscription_callback_field_names():
     sub_callback = SubscriptionCallback.model_validate(sub_callback_raw)
     assert sub_callback.hub_mode == "subscribe"
     assert sub_callback.hub_verify_token == "STRAVA"
-
-
-class ExtLatLng(LatLng):
-    def foo(self):
-        return f"[{self[0], self[1]}]"
 
 
 # TODO: do we want to continue to support type?
