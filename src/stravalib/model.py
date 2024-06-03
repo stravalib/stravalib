@@ -710,19 +710,14 @@ class AthletePrEffort(
     SummaryPRSegmentEffort,
 ):
     # Undocumented attributes:
+    activity_id: Optional[int] = None  # see pr_activity_id in superclass
+    elapsed_time: Optional[int] = None  # see pr_elapsed_time in superclass
     distance: Optional[float] = None
     start_date: Optional[datetime] = None
     start_date_local: Optional[datetime] = None
     is_kom: Optional[bool] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
-
-    @property
-    def elapsed_time(self) -> Optional[int]:
-        """A property that supports backwards compatibility with the
-        elapsed_time method used in previous versions of stravalib"""
-
-        return self.pr_elapsed_time
 
 
 class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
