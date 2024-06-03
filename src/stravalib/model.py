@@ -719,7 +719,7 @@ class AthletePrEffort(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
         default=None,
     )
-    elapsed_time: Optional[timedelta] = Field(
+    elapsed_time: Optional[int] = Field(
         validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
         default=None,
     )
@@ -800,7 +800,7 @@ class SummarySegmentEffort(strava_model.SummarySegmentEffort):
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
         default=None,
     )
-    elapsed_time: Optional[timedelta] = Field(
+    elapsed_time: Optional[int] = Field(
         validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
         default=None,
     )
