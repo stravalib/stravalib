@@ -144,7 +144,7 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 # Custom validators for some edge cases:
 
 
-# This is the first valid location check.
+# This method checks a list of floats - ie a stream not just a single lat/lon
 def check_valid_location(
     location: Optional[Union[list[float], str]]
 ) -> Optional[list[float]]:
@@ -256,13 +256,11 @@ class RelaxedSportType(SportType):
 
 class LatLon(LatLng):
     """
-    Enables backward compatibility for legacy namedtuple
+    Stores lat / lon values or None.
     """
 
-    # It seems like we are validating LatLon twice which is a bit confusing.
-    # Once here and once when we ingest lat long into the Activity Object.
     @model_validator(mode="before")
-    def check_valid_latlng(cls, values: list[float]) -> Optional[list[float]]:
+    def check_valid_latlng(cls, values: list[float]) -> list[float] | None:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -277,12 +275,8 @@ class LatLon(LatLng):
         list or None
             list of lat/lon values or None
 
-        Notes
-        ------
-        This is the second validation of lat lon but it's a validator
-        the first is check is def check_valid_location above.
-
         """
+
         # Strava sometimes returns empty list in case of activities without GPS
         return values if values else None
 
@@ -889,13 +883,16 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     # field overrides from superclass for type extensions:
     athlete: Optional[MetaAthlete] = None
-    start_latlng: Optional[LatLon] = (
-        None  # Do we still need these overrides for latlon?
-    )
+    # These force validator to run on lat/lon
+    start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
     map: Optional[Map] = None
     type: Optional[RelaxedActivityType] = None
     sport_type: Optional[RelaxedSportType] = None
+
+    _latlng_check = field_validator(
+        "start_latlng", "end_latlng", mode="before"
+    )(check_valid_location)
 
 
 class Activity(
@@ -948,9 +945,6 @@ class Activity(
     segment_leaderboard_opt_out: Optional[bool] = None
     perceived_exertion: Optional[int] = None
 
-    _latlng_check = field_validator(
-        "start_latlng", "end_latlng", mode="before"
-    )(check_valid_location)
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 

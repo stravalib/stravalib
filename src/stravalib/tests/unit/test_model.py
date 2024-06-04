@@ -31,16 +31,31 @@ from stravalib.tests import TestBase
     "model_class,raw,expected_value",
     (
         (
-            # Removing root
+            Activity,
+            {"start_latlng": []},
+            None,
+        ),
+        (
+            Activity,
+            {"end_latlng": []},
+            None,
+        ),
+        (
+            Activity,
+            {"end_latlng": "5.4,4.3"},
+            LatLon([5.4, 4.3]),
+        ),
+        (
             Activity,
             {"start_latlng": "5.4,4.3"},
             LatLon([5.4, 4.3]),
-        ),  # pydantic 2.x uses root and may
+        ),
         (Activity, {"start_latlng": []}, None),
         (Segment, {"start_latlng": []}, None),
         (SegmentExplorerResult, {"start_latlng": []}, None),
         (ActivityPhoto, {"location": []}, None),
-        # (Activity, {"timezone": "foobar"}, None),  TODO re-add this test when custom types are implemented
+        # TODO re-add this Activity test when custom types are implemented
+        # (Activity, {"timezone": "foobar"}, None),
         (
             Activity,
             {"start_date_local": "2023-01-17T11:06:07Z"},
