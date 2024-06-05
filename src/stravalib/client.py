@@ -469,8 +469,6 @@ class Client:
         """
 
         result_fetcher = functools.partial(self.protocol.get, "/athlete/clubs")
-        # club_structs = self.protocol.get("/athlete/clubs")
-
         return BatchedResultsIterator(
             entity=model.SummaryClub,
             bind_client=self,
