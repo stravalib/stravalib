@@ -468,8 +468,6 @@ class Client:
 
         """
 
-        # TODO: This should return a BatchedResultsIterator or otherwise at
-        # most 30 clubs are returned!
         result_fetcher = functools.partial(self.protocol.get, "/athlete/clubs")
         # club_structs = self.protocol.get("/athlete/clubs")
 
