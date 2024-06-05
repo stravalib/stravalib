@@ -726,6 +726,8 @@ class SummaryAthlete(MetaAthlete):
 
 
 class SummaryClub(MetaClub):
+    # Activity types is listed in the spec but not shown in the response
+    # https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
     activity_types: Optional[list[ActivityType]] = None
     """
     The activity types that count for a club. This takes precedence over sport_type.
@@ -780,6 +782,9 @@ class SummaryClub(MetaClub):
     """
     Whether the club is verified or not.
     """
+
+    # Undocumented attributes
+    profile: Optional[str] = None
 
 
 class SummaryGear(BaseModel):
