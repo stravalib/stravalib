@@ -451,7 +451,7 @@ class Client:
 
         return model.AthleteStats.model_validate(raw)
 
-    def get_athlete_clubs(self) -> list[model.Club]:
+    def get_athlete_clubs(self) -> list[model.SummaryClub]:
         """List the clubs for the currently authenticated athlete.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
@@ -468,7 +468,7 @@ class Client:
         # most 30 clubs are returned!
         club_structs = self.protocol.get("/athlete/clubs")
         return [
-            model.Club.model_validate({**raw, **{"bound_client": self}})
+            model.SummaryClub.model_validate({**raw, **{"bound_client": self}})
             for raw in club_structs
         ]
 
