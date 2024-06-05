@@ -52,7 +52,6 @@ from stravalib.strava_model import (
     PolylineMap,
     Primary,
     SportType,
-    SummaryClub,
     SummaryGear,
     TimedZoneRange,
 )
@@ -360,6 +359,16 @@ class Club(
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_activities(self.id)
+
+
+class SummaryClub(strava_model.SummaryClub):
+    """Represents the summaryClub object with undocumented attributes
+    included
+
+    """
+
+    # Undocumented attributes
+    profile: Optional[str] = None
 
 
 class Gear(DetailedGear):

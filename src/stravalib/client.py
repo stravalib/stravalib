@@ -285,7 +285,7 @@ class Client:
             Result will start with activities whose start date is after
             specified value. (UTC)
         limit : int or None, default=None
-            How many maximum activities to return.
+            Maximum number of activities to return.
 
         Returns
         -------
@@ -451,26 +451,35 @@ class Client:
 
         return model.AthleteStats.model_validate(raw)
 
-    def get_athlete_clubs(self) -> list[model.SummaryClub]:
+    # TODO - create model.summaryClub
+    def get_athlete_clubs(
+        self, limit: int | None = None
+    ) -> BatchedResultsIterator[model.SummaryClub]:
         """List the clubs for the currently authenticated athlete.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
 
+        limit : int or None, default=None
+            Maximum number of club objects to return.
 
         Returns
         -------
-        :class:`list`
-            A list of :class:`stravalib.model.Club`
+        class:`BatchedResultsIterator`
+            An iterator of :class:`stravalib.model.SummaryClub` objects
 
         """
 
         # TODO: This should return a BatchedResultsIterator or otherwise at
         # most 30 clubs are returned!
-        club_structs = self.protocol.get("/athlete/clubs")
-        return [
-            model.SummaryClub.model_validate({**raw, **{"bound_client": self}})
-            for raw in club_structs
-        ]
+        result_fetcher = functools.partial(self.protocol.get, "/athlete/clubs")
+        # club_structs = self.protocol.get("/athlete/clubs")
+
+        return BatchedResultsIterator(
+            entity=model.SummaryClub,
+            bind_client=self,
+            result_fetcher=result_fetcher,
+            limit=limit,
+        )
 
     def join_club(self, club_id: int) -> None:
         """Joins the club on behalf of authenticated athlete.
