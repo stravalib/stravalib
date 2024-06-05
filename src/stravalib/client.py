@@ -451,7 +451,6 @@ class Client:
 
         return model.AthleteStats.model_validate(raw)
 
-    # TODO - create model.summaryClub
     def get_athlete_clubs(
         self, limit: int | None = None
     ) -> BatchedResultsIterator[model.SummaryClub]:
