@@ -334,11 +334,6 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     activity_types_icon: Optional[str] = None
     dimensions: Optional[list[str]] = None
     localized_sport_type: Optional[str] = None
-    # These items BELOW should come from detailed club but
-    # they are returned in the clubs/{id} endpoint. why?
-    # membership: Optional[bool] = None
-    # admin: Optional[bool] = None
-    # owner: Optional[bool] = None
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[Athlete]:
