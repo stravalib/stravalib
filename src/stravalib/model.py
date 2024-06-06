@@ -43,7 +43,6 @@ from stravalib.strava_model import (
     ActivityZone,
     BaseStream,
     Comment,
-    DetailedClub,
     DetailedGear,
     ExplorerSegment,
     Lap,
@@ -303,10 +302,11 @@ class LatLon(LatLng):
         return self.root[1]
 
 
-class Club(
-    DetailedClub,
-    BoundClientEntity,
-):
+class MetaClub(strava_model.MetaClub, BoundClientEntity):
+    pass
+
+
+class SummaryClub(MetaClub, strava_model.SummaryClub):
     """
     Represents a single club with detailed information about the club including
     club name, id, location, activity types, etc.
@@ -314,8 +314,6 @@ class Club(
     See Also
     --------
     DetailedClub : A class representing a club's detailed information.
-    BackwardCompatibilityMixin : A mixin to provide backward compatibility with
-        legacy BaseDetailedEntity.
     BoundClientEntity : A mixin to bind the club with a Strava API client.
 
     Notes
@@ -333,6 +331,14 @@ class Club(
     profile: Optional[str] = None
     description: Optional[str] = None
     club_type: Optional[str] = None
+    activity_types_icon: Optional[str] = None
+    dimensions: Optional[list[str]] = None
+    localized_sport_type: Optional[str] = None
+    # These items BELOW should come from detailed club but
+    # they are returned in the clubs/{id} endpoint. why?
+    # membership: Optional[bool] = None
+    # admin: Optional[bool] = None
+    # owner: Optional[bool] = None
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[Athlete]:
@@ -361,14 +367,8 @@ class Club(
         return self.bound_client.get_club_activities(self.id)
 
 
-class SummaryClub(strava_model.SummaryClub):
-    """Represents the summaryClub object with undocumented attributes
-    included
-
-    """
-
-    # Undocumented attributes
-    profile: Optional[str] = None
+class DetailedClub(SummaryClub, strava_model.DetailedClub):
+    pass
 
 
 class Gear(DetailedGear):

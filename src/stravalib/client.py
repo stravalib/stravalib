@@ -512,7 +512,7 @@ class Client:
         """
         self.protocol.post("clubs/{id}/leave", id=club_id)
 
-    def get_club(self, club_id: int) -> model.Club:
+    def get_club(self, club_id: int) -> model.DetailedClub:
         """Return a specific club object.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubById
@@ -524,11 +524,13 @@ class Client:
 
         Returns
         -------
-        class: `model.Club` object containing the club data.
+        class: `model.DetailedClub` object containing the club data.
 
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.model_validate({**raw, **{"bound_client": self}})
+        return model.DetailedClub.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
     def get_club_members(
         self, club_id: int, limit: int | None = None
