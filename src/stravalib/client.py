@@ -628,7 +628,7 @@ class Client:
 
     def get_activity(
         self, activity_id: int, include_all_efforts: bool = False
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Gets specified activity.
 
         Will be detail-level if owned by authenticated user; otherwise
@@ -646,7 +646,7 @@ class Client:
 
         Returns
         -------
-        class: `model.Activity`
+        class: `model.DetailedActivity`
             An Activity object containing the requested activity data.
 
         """
@@ -655,7 +655,9 @@ class Client:
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.model_validate({**raw, **{"bound_client": self}})
+        return model.DetailedActivity.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
     def _validate_activity_type(
         self,
