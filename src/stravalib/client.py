@@ -565,7 +565,7 @@ class Client:
 
     def get_club_activities(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Activity]:
+    ) -> BatchedResultsIterator[model.ClubActivity]:
         """Gets the activities associated with specified club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
@@ -588,7 +588,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Activity,
+            entity=model.ClubActivity,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
