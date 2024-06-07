@@ -365,7 +365,7 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
         return self.bound_client.get_club_members(self.id)
 
     @lazy_property
-    def activities(self) -> BatchedResultsIterator[Activity]:
+    def activities(self) -> BatchedResultsIterator[DetailedActivity]:
         """
         Lazy property to retrieve club activities.
 
@@ -434,7 +434,8 @@ class AthleteStats(strava_model.ActivityStats):
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
-    pass
+    # Undocumented
+    resource_state: Optional[int]
 
 
 class Athlete(strava_model.DetailedAthlete):
@@ -655,7 +656,7 @@ class ActivityLap(
     BoundClientEntity,
 ):
     # Field overrides from superclass for type extensions:
-    activity: Optional[Activity] = None
+    activity: Optional[DetailedActivity] = None
     athlete: Optional[Athlete] = None
 
     # Undocumented attributes:
@@ -915,8 +916,53 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     )(check_valid_location)
 
 
-# TODO: should this be named Detailed Activity?
-class Activity(
+class Trend(BaseModel):
+    speeds: Optional[list[float]] = None
+    current_activity_index: Optional[int] = None
+    min_speed: Optional[float] = None
+    mid_speed: Optional[float] = None
+    max_speed: Optional[float] = None
+    direction: Optional[int] = None
+
+
+class SimilarActivities(BaseModel):
+    """
+
+    "similar_activities": {
+        "effort_count": 1,
+        "average_speed": 3.0209021935096154,
+        "min_average_speed": 3.0209021935096154,
+        "mid_average_speed": 3.0209021935096154,
+        "max_average_speed": 3.0209021935096154,
+        "pr_rank": null,
+        "frequency_milestone": null,
+        "trend": {
+            "speeds": [
+                3.0209021935096154
+            ],
+            "current_activity_index": 0,
+            "min_speed": 3.0209021935096154,
+            "mid_speed": 3.0209021935096154,
+            "max_speed": 3.0209021935096154,
+            "direction": 0
+        },
+        "resource_state": 2
+    },
+
+    """
+
+    effort_count: Optional[int] = None
+    average_speed: Optional[float] = None
+    min_average_speed: Optional[float] = None
+    mid_average_speed: Optional[float] = None
+    max_average_speed: Optional[float] = None
+    pr_rank: Optional[int] = None
+    frequency_milestone: Optional[Any] = None
+    resource_state: Optional[int] = None
+    trend: Optional[Trend] = None
+
+
+class DetailedActivity(
     SummaryActivity,
     strava_model.DetailedActivity,
 ):
@@ -925,13 +971,18 @@ class Activity(
     """
 
     # field overrides from superclass for type extensions:
+    # TODO: should be SummaryGear - check returns
     gear: Optional[Gear] = None
-    # Ignoring types here given there are overrides
     best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
+    # TODO: returning empty list should be  DetailedSegmentEffort object
+    # TODO: test on activity with actual segments
     segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
+    # TODO: Returns Split object - check returns for that object
     splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
+    # TODO: should be PhotosSummary
     photos: Optional[ActivityPhotoMeta] = None
+    # TODO: check Lap returns against spec
     laps: Optional[list[Lap]] = None
 
     # Added for backward compatibility
@@ -955,6 +1006,8 @@ class Activity(
     pr_count: Optional[int] = None
     suffer_score: Optional[int] = None
     has_heartrate: Optional[bool] = None
+    heartrate_opt_out: Optional[bool] = None
+    display_hide_heartrate_option: Optional[bool] = None
     average_heartrate: Optional[float] = None
     max_heartrate: Optional[int] = None
     average_cadence: Optional[float] = None
@@ -965,6 +1018,14 @@ class Activity(
     from_accepted_tag: Optional[bool] = None
     segment_leaderboard_opt_out: Optional[bool] = None
     perceived_exertion: Optional[int] = None
+    prefer_perceived_exertion: Optional[bool]
+    visibility: Optional[str] = None
+    # TODO: add stats_visibilty - object type?
+    # stats_visibility
+    # TODO: similar_activities - new type?
+    similar_activities: Optional[SimilarActivities] = None
+    available_zones: Optional[list[str]] = None
+    private_note: Optional[str] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
