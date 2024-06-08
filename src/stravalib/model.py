@@ -51,6 +51,7 @@ from stravalib.strava_model import (
     PolylineMap,
     Primary,
     SportType,
+    SummaryAthlete,
     SummaryGear,
     TimedZoneRange,
 )
@@ -421,11 +422,7 @@ class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
     pass
 
 
-class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
-    pass
-
-
-class Athlete(SummaryAthlete, strava_model.DetailedAthlete):
+class Athlete(strava_model.DetailedAthlete):
     """Represents high level athlete information including
     their name, email, clubs they belong to, bikes, shoes, etc.
 
@@ -957,15 +954,6 @@ class Activity(
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
-class ClubAthlete(strava_model.MetaAthlete):
-    """This is an object that contains the items returned via
-    the actual strava api"""
-
-    resource_state: int
-    firstname: Optional[str]
-    lastname: Optional[str]
-
-
 class ClubActivity(strava_model.ClubActivity):
     """Represents an activity returned from a club.
 
@@ -973,13 +961,14 @@ class ClubActivity(strava_model.ClubActivity):
     -----
     The actual strava API specification suggests that this should
     return a MetaAthlete Object for the activities' athlete information.
-    However, that is actually returned is resource_state, first name and
+    However, while that object should return the correct values, it is missing what is
+     actually returned returns is actually returned is resource_state, first name and
     last initial. So this object doesn't match the spec but does match the
     actual return.
     """
 
     # Spec calls for a return of a metaAthlete object (which only has id in it)
-    athlete: Optional[ClubAthlete] = None
+    athlete: Optional[strava_model.ClubAthlete] = None
 
     pass
 
