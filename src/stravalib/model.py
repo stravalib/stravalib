@@ -435,7 +435,7 @@ class AthleteStats(strava_model.ActivityStats):
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
     # Undocumented
-    resource_state: Optional[int]
+    resource_state: Optional[int] = None
 
 
 class Athlete(strava_model.DetailedAthlete):
@@ -1018,7 +1018,7 @@ class DetailedActivity(
     from_accepted_tag: Optional[bool] = None
     segment_leaderboard_opt_out: Optional[bool] = None
     perceived_exertion: Optional[int] = None
-    prefer_perceived_exertion: Optional[bool]
+    prefer_perceived_exertion: Optional[bool] = None
     visibility: Optional[str] = None
     # TODO: add stats_visibilty - object type?
     # stats_visibility

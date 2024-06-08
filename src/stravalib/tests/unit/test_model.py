@@ -5,7 +5,6 @@ from dateutil.parser import ParserError
 
 from stravalib import model
 from stravalib.model import (
-    Activity,
     ActivityLap,
     ActivityPhoto,
     ActivityTotals,
@@ -13,6 +12,7 @@ from stravalib.model import (
     AthleteSegmentStats,
     AthleteStats,
     BaseEffort,
+    DetailedActivity,
     # Club, # CLUB IS not currently used in this module
     LatLon,
     RelaxedActivityType,
@@ -33,33 +33,33 @@ from stravalib.tests import TestBase
     "model_class,raw,expected_value",
     (
         (
-            Activity,
+            DetailedActivity,
             {"start_latlng": []},
             None,
         ),
         (
-            Activity,
+            DetailedActivity,
             {"end_latlng": []},
             None,
         ),
         (
-            Activity,
+            DetailedActivity,
             {"end_latlng": "5.4,4.3"},
             LatLon([5.4, 4.3]),
         ),
         (
-            Activity,
+            DetailedActivity,
             {"start_latlng": "5.4,4.3"},
             LatLon([5.4, 4.3]),
         ),
-        (Activity, {"start_latlng": []}, None),
+        (DetailedActivity, {"start_latlng": []}, None),
         (Segment, {"start_latlng": []}, None),
         (SegmentExplorerResult, {"start_latlng": []}, None),
         (ActivityPhoto, {"location": []}, None),
         # TODO re-add this Activity test when custom types are implemented
-        # (Activity, {"timezone": "foobar"}, None),
+        # (DetailedActivity, {"timezone": "foobar"}, None),
         (
-            Activity,
+            DetailedActivity,
             {"start_date_local": "2023-01-17T11:06:07Z"},
             datetime(2023, 1, 17, 11, 6, 7),
         ),
@@ -145,10 +145,10 @@ def test_subscription_callback_field_names():
 @pytest.mark.parametrize(
     "klass,attr,given_type,expected_type",
     (
-        (Activity, "sport_type", "Run", "Run"),
-        (Activity, "sport_type", "FooBar", "Workout"),
-        (Activity, "type", "Run", "Run"),
-        (Activity, "type", "FooBar", "Workout"),
+        (DetailedActivity, "sport_type", "Run", "Run"),
+        (DetailedActivity, "sport_type", "FooBar", "Workout"),
+        (DetailedActivity, "type", "Run", "Run"),
+        (DetailedActivity, "type", "FooBar", "Workout"),
         (Segment, "activity_type", "Run", "Run"),
         (Segment, "activity_type", "FooBar", "Workout"),
     ),
@@ -218,13 +218,13 @@ class VelocityType:
         (BaseEffort, "distance", float, DistanceType),
         (BaseEffort, "elapsed_time", int, TimeDeltaType),
         (BaseEffort, "moving_time", int, TimeDeltaType),
-        (Activity, "distance", float, DistanceType),
-        (Activity, "timezone", str, TimezoneType),
-        (Activity, "total_elevation_gain", float, DistanceType),
-        (Activity, "average_speed", float, VelocityType),
-        (Activity, "max_speed", float, VelocityType),
-        (Activity, "elapsed_time", int, TimeDeltaType),
-        (Activity, "moving_time", int, TimeDeltaType),
+        (DetailedActivity, "distance", float, DistanceType),
+        (DetailedActivity, "timezone", str, TimezoneType),
+        (DetailedActivity, "total_elevation_gain", float, DistanceType),
+        (DetailedActivity, "average_speed", float, VelocityType),
+        (DetailedActivity, "max_speed", float, VelocityType),
+        (DetailedActivity, "elapsed_time", int, TimeDeltaType),
+        (DetailedActivity, "moving_time", int, TimeDeltaType),
         (Route, "distance", float, DistanceType),
         (Route, "elevation_gain", float, DistanceType),
     ),
@@ -247,9 +247,9 @@ class ModelTest(TestBase):
 
         Notes
         -----
-        In Pydantic 2.x we use model_validate instead of parse_object.
-        Model_Validate always returns a new model. so in this test we
-        instantiate a new instance a when calling model_validate aligning with
+        In Pydantic 2.x we use `model_validate` instead of `parse_object`.
+        Model_Validate always returns a new model. In this test we
+        instantiate a new instance a when calling `model_validate` aligning with
         Pydantic's immutability approach.
 
         """
