@@ -1022,7 +1022,6 @@ class DetailedActivity(
     visibility: Optional[str] = None
     # TODO: add stats_visibilty - object type?
     # stats_visibility
-    # TODO: similar_activities - new type?
     similar_activities: Optional[SimilarActivities] = None
     available_zones: Optional[list[str]] = None
     private_note: Optional[str] = None
