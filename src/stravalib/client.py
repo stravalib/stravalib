@@ -565,7 +565,7 @@ class Client:
 
     def get_club_activities(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.ClubActivity]:
+    ) -> BatchedResultsIterator[model.DetailedActivity]:
         """Gets the activities associated with specified club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
@@ -580,7 +580,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
+            An iterator of :class:`stravalib.model.DetailedActivity` objects.
 
         """
         result_fetcher = functools.partial(
@@ -677,10 +677,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
             For possible values (case-sensitive) see:
-            :class:`stravalib.model.Activity.SPORT_TYPES`
+            :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
 
         Returns
         -------
@@ -696,9 +696,9 @@ class Client:
         # Check for sport_type first. If provided, it is favored over
         # activity_type / type
         if sport_type is not None:
-            if not sport_type in model.Activity.SPORT_TYPES:
+            if not sport_type in model.DetailedActivity.SPORT_TYPES:
                 raise ValueError(
-                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                    f"Invalid activity type: {sport_type}. Possible values: {model.DetailedActivity.SPORT_TYPES!r}"
                 )
             params["sport_type"] = sport_type
             return params
@@ -708,10 +708,10 @@ class Client:
         # sport_type.
         elif activity_type is not None:
             if not activity_type.lower() in [
-                t.lower() for t in model.Activity.TYPES
+                t.lower() for t in model.DetailedActivity.TYPES
             ]:
                 raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                    f"Invalid activity type: {activity_type}. Possible values: {model.DetailedActivity.TYPES!r}"
                 )
             params["type"] = activity_type.lower()
             warn_param_deprecation(
@@ -733,7 +733,7 @@ class Client:
         activity_type: ActivityType | None = None,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Create a new manual activity.
 
         If you would like to create an activity from an uploaded GPS file, see the
@@ -748,10 +748,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
             For possible values (case-sensitive) see: For possible values
-            see: :class:`stravalib.model.Activity.SPORT_TYPES`
+            see: :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
         start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
@@ -797,7 +797,7 @@ class Client:
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.model_validate(
+        return model.DetailedActivity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -814,7 +814,7 @@ class Client:
         gear_id: int | None = None,
         device_name: str | None = None,
         hide_from_home: bool | None = None,
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Updates the properties of a specific activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
@@ -830,9 +830,9 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
-            For possible values see: :class:`stravalib.model.Activity.SPORT_TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -897,7 +897,7 @@ class Client:
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.model_validate(
+        return model.DetailedActivity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -980,10 +980,10 @@ class Client:
             params["description"] = description
         if activity_type is not None:
             if not activity_type.lower() in [
-                t.lower() for t in model.Activity.TYPES
+                t.lower() for t in model.DetailedActivity.TYPES
             ]:
                 raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                    f"Invalid activity type: {activity_type}. Possible values: {model.DetailedActivity.TYPES!r}"
                 )
             warn_param_unofficial("activity_type")
             params["activity_type"] = activity_type.lower()
@@ -2227,7 +2227,7 @@ class ActivityUploader:
 
     def wait(
         self, timeout: float | None = None, poll_interval: float = 1.0
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Wait for the upload to complete or to err out.
 
         Will return the resulting Activity or raise an exception if the
@@ -2244,7 +2244,7 @@ class ActivityUploader:
 
         Returns
         -------
-        class:`stravalib.model.Activity`
+        class:`stravalib.model.DetailedActivity
 
         Raises
         ------
