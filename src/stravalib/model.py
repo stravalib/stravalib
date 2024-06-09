@@ -962,7 +962,7 @@ class ClubActivity(strava_model.ClubActivity):
     The actual strava API specification suggests that this should
     return a MetaAthlete Object for the activities' athlete information.
     However, while that object should return the correct values, it is missing what is
-     actually returned returns is actually returned is resource_state, first name and
+     actually returned, i.e., resource_state, first name and
     last initial. So this object doesn't match the spec but does match the
     actual return.
     """
