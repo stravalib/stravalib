@@ -563,9 +563,10 @@ class Client:
             limit=limit,
         )
 
+    # Should be ClubActivity
     def get_club_activities(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.DetailedActivity]:
+    ) -> BatchedResultsIterator[model.ClubActivity]:
         """Gets the activities associated with specified club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
@@ -580,7 +581,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.DetailedActivity` objects.
+            An iterator of :class:`stravalib.model.ClubActivity` objects.
 
         """
         result_fetcher = functools.partial(
@@ -724,6 +725,7 @@ class Client:
 
     # TODO: according to the strava api docs we can add an optional trainer
     # and commute param here with boolean 0/1 values
+    # TODO: double check type for create / put
     def create_activity(
         self,
         name: str,
@@ -761,6 +763,9 @@ class Client:
         distance : class:`pint.Quantity` or float (meters), default=None
             The distance in meters (float) or a :class:`pint.Quantity` instance.
 
+        Notes
+        -----
+        See: https://developers.strava.com/docs/reference/#api-Uploads-createUpload
         """
 
         # Strava API requires either sport_type or activity_type to be defined
@@ -801,6 +806,7 @@ class Client:
             {**raw_activity, **{"bound_client": self}}
         )
 
+    # TODO: response is detailed activity, param sent is UpdateableActivity
     def update_activity(
         self,
         activity_id: int,
