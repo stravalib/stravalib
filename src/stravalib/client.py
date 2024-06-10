@@ -749,7 +749,7 @@ class Client:
             The name of the activity.
         activity_type : str, default=None
             The activity type (case-insensitive).
-            Deprecated (and undocumented). Prefer to use sport_type. In a request where both type
+            Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
             For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
