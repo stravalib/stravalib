@@ -526,6 +526,10 @@ class Client:
         -------
         class: `model.DetailedClub` object containing the club data.
 
+        Notes
+        ------
+
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubById
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
         return model.DetailedClub.model_validate(
@@ -563,7 +567,6 @@ class Client:
             limit=limit,
         )
 
-    # Should be ClubActivity
     def get_club_activities(
         self, club_id: int, limit: int | None = None
     ) -> BatchedResultsIterator[model.ClubActivity]:
@@ -723,9 +726,6 @@ class Client:
 
         return params
 
-    # TODO: according to the strava api docs we can add an optional trainer
-    # and commute param here with boolean 0/1 values
-    # TODO: double check type for create / put
     def create_activity(
         self,
         name: str,
@@ -735,6 +735,8 @@ class Client:
         activity_type: ActivityType | None = None,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
+        trainer: bool | None = None,
+        commute: bool | None = None,
     ) -> model.DetailedActivity:
         """Create a new manual activity.
 
@@ -747,7 +749,7 @@ class Client:
             The name of the activity.
         activity_type : str, default=None
             The activity type (case-insensitive).
-            Deprecated. Prefer to use sport_type. In a request where both type
+            Deprecated (and undocumented). Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
             For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
@@ -762,10 +764,15 @@ class Client:
             The description for the activity.
         distance : class:`pint.Quantity` or float (meters), default=None
             The distance in meters (float) or a :class:`pint.Quantity` instance.
+        trainer : bool
+            Whether this activity was completed using a trainer (or not)
+        commute : bool
+            Whether the activity is a commute or not.
 
         Notes
         -----
         See: https://developers.strava.com/docs/reference/#api-Uploads-createUpload
+        See: https://developers.strava.com/docs/reference/#api-Activities-createActivity
         """
 
         # Strava API requires either sport_type or activity_type to be defined
@@ -790,11 +797,16 @@ class Client:
             elapsed_time=elapsed_time,
         )
 
-        if description is not None:
-            params["description"] = description
+        update_params = {
+            "description": description,
+            "distance": distance,
+            "commute": commute,
+            "trainer": trainer,
+        }
 
-        if distance is not None:
-            params["distance"] = distance
+        for key, value in update_params.items():
+            if value is not None:
+                params[key] = value
 
         params = self._validate_activity_type(
             params, activity_type, sport_type
@@ -806,7 +818,8 @@ class Client:
             {**raw_activity, **{"bound_client": self}}
         )
 
-    # TODO: response is detailed activity, param sent is UpdateableActivity
+    # TODO: response is detailed activity, param sent should
+    # be UpdateableActivity
     def update_activity(
         self,
         activity_id: int,
@@ -822,8 +835,6 @@ class Client:
         hide_from_home: bool | None = None,
     ) -> model.DetailedActivity:
         """Updates the properties of a specific activity.
-
-        https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
 
         Parameters
         ----------
@@ -863,6 +874,11 @@ class Client:
         Returns
         -------
             Updates the activity in the selected Strava account
+
+        Notes
+        ------
+        See: https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
+
         """
 
         # Convert the kwargs into a params dict
