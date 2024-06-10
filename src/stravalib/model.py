@@ -351,36 +351,6 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     dimensions: Optional[list[str]] = None
     localized_sport_type: Optional[str] = None
 
-    # TODO: I don't understand where these lazy properties are called.
-    # Technically the activities and members endpoints are
-    # separate endpoints -- clubs/{id}/activities vs clubs/{id}
-    # DELETE??
-    # @lazy_property
-    # def members(self) -> BatchedResultsIterator[ClubAthlete]:
-    #     """
-    #     Lazy property to retrieve club members stored as ClubAthlete objects.
-
-    #     Returns
-    #     -------
-    #     list
-    #         A list of club members stored as Athlete objects.
-    #     """
-    #     assert self.bound_client is not None, "Bound client is not set."
-    #     return self.bound_client.get_club_members(self.id)
-
-    # @lazy_property
-    # def activities(self) -> BatchedResultsIterator[DetailedActivity]:
-    #     """
-    #     Lazy property to retrieve club activities.
-
-    #     Returns
-    #     -------
-    #     Iterator
-    #         An iterator of Activity objects representing club activities.
-    #     """
-    #     assert self.bound_client is not None, "Bound client is not set."
-    #     return self.bound_client.get_club_activities(self.id)
-
 
 # TODO: can we simply
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
