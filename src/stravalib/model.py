@@ -69,7 +69,7 @@ U = TypeVar("U", bound="BoundClientEntity")
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     """Utility helper that parses a datetime value provided in
     JSON, string, int or other formats and returns a datetime.datetime
-    object
+    object.
 
     Parameters
     ----------
@@ -81,14 +81,29 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     -------
     datetime.datetime
         A datetime object representing the datetime input value.
+
+    Notes
+    -----
+    Valid str, following formats work (from pydantic docs):
+
+    YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     """
-    if value:
-        # Use dateutil.parser.parse for parsing date strings
-        dt = parser.parse(str(value))
-        # Remove timezone information, if any
-        return dt.replace(tzinfo=None)
-    else:
+    if not value:
         return None
+
+    # Allow for timestamps to be passed as strings, e.g '1714305600'.
+    try:
+        value_is_int = isinstance(value, int) or float(value).is_integer()
+    except (ValueError, TypeError):
+        value_is_int = False
+
+    dt = (
+        parser.parse(str(value))
+        if not value_is_int
+        else datetime.fromtimestamp(int(value))
+    )
+    # Remove timezone information, if any
+    return dt.replace(tzinfo=None)
 
 
 def lazy_property(fn: Callable[[U], T]) -> Optional[T]:

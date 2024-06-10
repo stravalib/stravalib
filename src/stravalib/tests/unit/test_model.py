@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pytest
+from dateutil.parser import ParserError
 
 from stravalib import model
 from stravalib.model import (
@@ -23,6 +24,7 @@ from stravalib.model import (
     Split,
     SubscriptionCallback,
     SummarySegmentEffort,
+    naive_datetime,
 )
 from stravalib.tests import TestBase
 
@@ -294,3 +296,51 @@ class ModelTest(TestBase):
             "2011-02-09 21:22:21",
             subupd.event_time.strftime("%Y-%m-%d %H:%M:%S"),
         )
+
+
+# Test cases for the naive_datetime function
+@pytest.mark.parametrize(
+    "input_value, expected_output, exception",
+    [
+        (
+            "2024-04-28T12:00:00Z",
+            datetime(2024, 4, 28, 12, 0),
+            None
+        ),
+        (
+            int(datetime(2022, 4, 28, 12, 0).timestamp()),
+            datetime(2022, 4, 28, 12, 0),
+            None,
+        ),
+        (
+            str(int(datetime(2022, 4, 28, 12, 0).timestamp())),
+            datetime(2022, 4, 28, 12, 0),
+            None,
+        ),
+        (
+            datetime(2024, 4, 28, 12, 0, tzinfo=timezone.utc),
+            datetime(2024, 4, 28, 12, 0),
+            None,
+        ),
+        (
+            "April 28, 2024 12:00 PM UTC",
+            datetime(2024, 4, 28, 12, 0),
+            None,
+        ),
+        ("Foo", None, ParserError),
+    ],
+)
+def test_naive_datetime(input_value, expected_output, exception):
+    """Make sure our datetime parses properly reformats dates
+    in various formats. This test is important given the pydantic
+    `parse_datetime` method was removed in 2.x
+    # https://docs.pydantic.dev/1.10/usage/types/#datetime-types
+    Values
+    1. date time as a formatted string
+    2. datetime as a UNIX or POSIX format
+    """
+    if exception:
+        with pytest.raises(exception):
+            naive_datetime(input_value)
+    else:
+        assert naive_datetime(input_value) == expected_output
