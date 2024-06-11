@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- Fix: Add `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
 
 ## v1.7
 
