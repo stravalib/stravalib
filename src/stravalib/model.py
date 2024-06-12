@@ -45,7 +45,6 @@ from stravalib.strava_model import (
     Comment,
     DetailedGear,
     ExplorerSegment,
-    Lap,
     LatLng,
     PhotosSummary,
     PolylineMap,
@@ -649,13 +648,12 @@ class ActivityPhoto(BaseModel):
         )
 
 
-# TODO: this object doesn't exist in the spec / Lap does.
-class ActivityLap(
-    Lap,
+class Lap(
+    strava_model.Lap,
     BoundClientEntity,
 ):
     # Field overrides from superclass for type extensions:
-    activity: Optional[DetailedActivity] = None
+    activity: Optional[MetaActivity] = None
     athlete: Optional[Athlete] = None
 
     # Undocumented attributes:

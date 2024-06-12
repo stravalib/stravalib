@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 from dateutil.parser import ParserError
 
 from stravalib import model
 from stravalib.model import (
-    ActivityLap,
     ActivityPhoto,
     ActivityTotals,
     AthletePrEffort,
@@ -13,7 +12,7 @@ from stravalib.model import (
     AthleteStats,
     BaseEffort,
     DetailedActivity,
-    # Club, # CLUB IS not currently used in this module
+    Lap,
     LatLon,
     RelaxedActivityType,
     RelaxedSportType,
@@ -69,7 +68,7 @@ from stravalib.tests import TestBase
             datetime(2023, 1, 17, 11, 6, 7),
         ),
         (
-            ActivityLap,
+            Lap,
             {"start_date_local": "2023-01-17T11:06:07Z"},
             datetime(2023, 1, 17, 11, 6, 7),
         ),
@@ -193,12 +192,12 @@ class VelocityType:
         (ActivityTotals, "moving_time", int, TimeDeltaType),
         (AthleteStats, "biggest_ride_distance", float, DistanceType),
         (AthleteStats, "biggest_climb_elevation_gain", float, DistanceType),
-        (ActivityLap, "distance", float, DistanceType),
-        (ActivityLap, "total_elevation_gain", float, DistanceType),
-        (ActivityLap, "average_speed", float, VelocityType),
-        (ActivityLap, "max_speed", float, VelocityType),
-        (ActivityLap, "elapsed_time", int, TimeDeltaType),
-        (ActivityLap, "moving_time", int, TimeDeltaType),
+        (Lap, "distance", float, DistanceType),
+        (Lap, "total_elevation_gain", float, DistanceType),
+        (Lap, "average_speed", float, VelocityType),
+        (Lap, "max_speed", float, VelocityType),
+        (Lap, "elapsed_time", int, TimeDeltaType),
+        (Lap, "moving_time", int, TimeDeltaType),
         (Split, "distance", float, DistanceType),
         (Split, "elevation_difference", float, DistanceType),
         (Split, "average_speed", float, VelocityType),
@@ -302,11 +301,7 @@ class ModelTest(TestBase):
 @pytest.mark.parametrize(
     "input_value, expected_output, exception",
     [
-        (
-            "2024-04-28T12:00:00Z",
-            datetime(2024, 4, 28, 12, 0),
-            None
-        ),
+        ("2024-04-28T12:00:00Z", datetime(2024, 4, 28, 12, 0), None),
         (
             int(datetime(2022, 4, 28, 12, 0).timestamp()),
             datetime(2022, 4, 28, 12, 0),
