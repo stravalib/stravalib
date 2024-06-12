@@ -915,15 +915,6 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     )(check_valid_location)
 
 
-class Trend(BaseModel):
-    speeds: Optional[list[float]] = None
-    current_activity_index: Optional[int] = None
-    min_speed: Optional[float] = None
-    mid_speed: Optional[float] = None
-    max_speed: Optional[float] = None
-    direction: Optional[int] = None
-
-
 class DetailedActivity(
     SummaryActivity,
     strava_model.DetailedActivity,
