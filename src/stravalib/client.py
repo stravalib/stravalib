@@ -1182,7 +1182,7 @@ class Client:
 
     def get_activity_laps(
         self, activity_id: int
-    ) -> BatchedResultsIterator[model.ActivityLap]:
+    ) -> BatchedResultsIterator[model.Lap]:
         """Gets the laps from an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLapsByActivityId
@@ -1203,7 +1203,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityLap,
+            entity=model.Lap,
             bind_client=self,
             result_fetcher=result_fetcher,
         )
