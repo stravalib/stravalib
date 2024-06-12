@@ -347,12 +347,34 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     profile: Optional[str] = None
     description: Optional[str] = None
     club_type: Optional[str] = None
-    activity_types_icon: Optional[str] = None
-    dimensions: Optional[list[str]] = None
-    localized_sport_type: Optional[str] = None
+
+    @lazy_property
+    def members(self) -> BatchedResultsIterator[Athlete]:
+        """
+        Lazy property to retrieve club members stored as Athlete objects.
+
+        Returns
+        -------
+        list
+            A list of club members stored as Athlete objects.
+        """
+        assert self.bound_client is not None, "Bound client is not set."
+        return self.bound_client.get_club_members(self.id)
+
+    @lazy_property
+    def activities(self) -> BatchedResultsIterator[ClubActivity]:
+        """
+        Lazy property to retrieve club activities.
+
+        Returns
+        -------
+        Iterator
+            An iterator of Activity objects representing club activities.
+        """
+        assert self.bound_client is not None, "Bound client is not set."
+        return self.bound_client.get_club_activities(self.id)
 
 
-# TODO: can we simply
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
     pass
 
@@ -902,43 +924,6 @@ class Trend(BaseModel):
     direction: Optional[int] = None
 
 
-class SimilarActivities(BaseModel):
-    """
-
-    "similar_activities": {
-        "effort_count": 1,
-        "average_speed": 3.0209021935096154,
-        "min_average_speed": 3.0209021935096154,
-        "mid_average_speed": 3.0209021935096154,
-        "max_average_speed": 3.0209021935096154,
-        "pr_rank": null,
-        "frequency_milestone": null,
-        "trend": {
-            "speeds": [
-                3.0209021935096154
-            ],
-            "current_activity_index": 0,
-            "min_speed": 3.0209021935096154,
-            "mid_speed": 3.0209021935096154,
-            "max_speed": 3.0209021935096154,
-            "direction": 0
-        },
-        "resource_state": 2
-    },
-
-    """
-
-    effort_count: Optional[int] = None
-    average_speed: Optional[float] = None
-    min_average_speed: Optional[float] = None
-    mid_average_speed: Optional[float] = None
-    max_average_speed: Optional[float] = None
-    pr_rank: Optional[int] = None
-    frequency_milestone: Optional[Any] = None
-    resource_state: Optional[int] = None
-    trend: Optional[Trend] = None
-
-
 class DetailedActivity(
     SummaryActivity,
     strava_model.DetailedActivity,
@@ -997,10 +982,6 @@ class DetailedActivity(
     perceived_exertion: Optional[int] = None
     prefer_perceived_exertion: Optional[bool] = None
     visibility: Optional[str] = None
-    # TODO: add stats_visibilty - object type?
-    # stats_visibility
-    similar_activities: Optional[SimilarActivities] = None
-    available_zones: Optional[list[str]] = None
     private_note: Optional[str] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
