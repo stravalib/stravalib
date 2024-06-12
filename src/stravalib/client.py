@@ -818,8 +818,6 @@ class Client:
             {**raw_activity, **{"bound_client": self}}
         )
 
-    # TODO: response is detailed activity, param sent should
-    # be UpdateableActivity
     def update_activity(
         self,
         activity_id: int,
