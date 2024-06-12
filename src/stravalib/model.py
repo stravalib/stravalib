@@ -968,8 +968,6 @@ class DetailedActivity(
     pr_count: Optional[int] = None
     suffer_score: Optional[int] = None
     has_heartrate: Optional[bool] = None
-    heartrate_opt_out: Optional[bool] = None
-    display_hide_heartrate_option: Optional[bool] = None
     average_heartrate: Optional[float] = None
     max_heartrate: Optional[int] = None
     average_cadence: Optional[float] = None
