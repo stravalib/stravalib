@@ -40,7 +40,6 @@ from stravalib import exc, strava_model
 from stravalib.strava_model import (
     ActivityTotal,
     ActivityType,
-    ActivityZone,
     BaseStream,
     Comment,
     DetailedGear,
@@ -52,7 +51,6 @@ from stravalib.strava_model import (
     SportType,
     SummaryAthlete,
     SummaryGear,
-    TimedZoneRange,
 )
 
 if TYPE_CHECKING:
@@ -652,9 +650,6 @@ class Lap(
     strava_model.Lap,
     BoundClientEntity,
 ):
-    # Field overrides from superclass for type extensions:
-    activity: Optional[MetaActivity] = None
-    athlete: Optional[Athlete] = None
 
     # Undocumented attributes:
     average_watts: Optional[float] = None
@@ -871,13 +866,13 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
         return self.bound_client.get_activity_comments(self.id)
 
     @lazy_property
-    def zones(self) -> list[BaseActivityZone]:
+    def zones(self) -> list[ActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
         -------
         py:class:`list`
-            A list of :class:`stravalib.model.BaseActivityZone` objects.
+            A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
         assert self.bound_client is not None
@@ -933,7 +928,6 @@ class DetailedActivity(
     splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
     # TODO: should be PhotosSummary
     photos: Optional[ActivityPhotoMeta] = None
-    # TODO: check Lap returns against spec
     laps: Optional[list[Lap]] = None
 
     # Added for backward compatibility
@@ -993,39 +987,42 @@ class ClubActivity(strava_model.ClubActivity):
     pass
 
 
-class DistributionBucket(TimedZoneRange):
+class TimedZoneDistribution(strava_model.TimedZoneRange):
     """
     A single distribution bucket object, used for activity zones.
 
     Notes
     -----
-    In this object, we override types for min/max values. The
-    strava API incorrectly types zones as being `int`. However it can
-    return `int` or `float`.
+    Min/max value types are overridden. The
+    Strava API incorrectly types zones as being `int`. However it can
+    return `int` or `float` (floats are returned for pace, ints for heartrate
+    and power).
     """
 
-    # Overrides due to a bug in the Strava API docs
-    # Because the created strava_model.py has this typed as int we will need
-    # to override these types
+    # Type overrides to support pace values returned as ints
     min: Optional[int | float] = None  # type: ignore
     max: Optional[int | float] = None  # type: ignore
 
 
-class BaseActivityZone(
-    ActivityZone,
+# TODO called ActivityZone in the API
+class ActivityZone(
+    strava_model.ActivityZone,
     BoundClientEntity,
 ):
     """
     Base class for activity zones.
 
-    A collection of :class:`stravalib.model.DistributionBucket` objects.
+    A collection of :class:`stravalib.strava_model.TimedZoneDistribution` objects.
     """
 
     # Field overrides from superclass for type extensions:
+    # TODO: what was the legacy behavior and is it ok to break it?
     # Using type that is currently mimicking legacy behavior.
-    distribution_buckets: Optional[list[DistributionBucket]] = None  # type: ignore[assignment]
 
-    # TODO: ignoring type given legacy support will be deprecated
+    # This should return a list of TimedZoneDistribution objects
+    distribution_buckets: Optional[list[TimedZoneDistribution]] = None  # type: ignore[assignment]
+
+    # strava_model only contains heartrate and power (ints), but also returns pace (float)
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
 
 
