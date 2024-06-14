@@ -1026,9 +1026,7 @@ class Client:
 
         return ActivityUploader(self, response=initial_response)
 
-    def get_activity_zones(
-        self, activity_id: int
-    ) -> list[model.BaseActivityZone]:
+    def get_activity_zones(self, activity_id: int) -> list[model.ActivityZone]:
         """Gets activity zones for activity.
 
         Activity zones relate to a users effort (heartrate and power).
@@ -1043,7 +1041,7 @@ class Client:
         Returns
         -------
         :class:`list`
-            A list of :class:`stravalib.model.BaseActivityZone` objects.
+            A list of :class:`stravalib.model.ActivityZone` objects.
 
         Notes
         -----
@@ -1055,9 +1053,7 @@ class Client:
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
 
         return [
-            model.BaseActivityZone.model_validate(
-                {**z, **{"bound_client": self}}
-            )
+            model.ActivityZone.model_validate({**z, **{"bound_client": self}})
             for z in zones
         ]
 
@@ -1195,7 +1191,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.ActivityLaps` objects.
+            An iterator of :class:`stravalib.model.Lap` objects.
 
         """
         result_fetcher = functools.partial(
