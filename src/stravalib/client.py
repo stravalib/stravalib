@@ -1208,7 +1208,7 @@ class Client:
             result_fetcher=result_fetcher,
         )
 
-    def get_gear(self, gear_id: str) -> model.Gear:
+    def get_gear(self, gear_id: str) -> strava_model.DetailedGear:
         """Get details for an item of gear.
 
         https://developers.strava.com/docs/reference/#api-Gears
@@ -1220,11 +1220,10 @@ class Client:
 
         Returns
         -------
-        class:`stravalib.model.Gear`
-            The Bike or Shoe subclass object.
+        class:`stravalib.strava_model.DetailedGear`
 
         """
-        return model.Gear.model_validate(
+        return strava_model.DetailedGear.model_validate(
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 

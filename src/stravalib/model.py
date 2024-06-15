@@ -43,7 +43,6 @@ from stravalib.strava_model import (
     ActivityZone,
     BaseStream,
     Comment,
-    DetailedGear,
     ExplorerSegment,
     LatLng,
     PhotosSummary,
@@ -378,32 +377,6 @@ class DetailedClub(SummaryClub, strava_model.DetailedClub):
     pass
 
 
-class Gear(DetailedGear):
-    """
-    Represents a piece of gear (equipment) used in physical activities.
-    """
-
-    pass
-
-
-class Bike(Gear):
-    """
-    Represents a bike as a "type" / using the structure of
-    `stravalib.model.Gear`.
-    """
-
-    pass
-
-
-class Shoe(Gear):
-    """
-    Represents a Shoes as a "type" / using the structure of
-    `stravalib.model.Gear`.
-    """
-
-    pass
-
-
 class ActivityTotals(ActivityTotal):
     """An objecting containing a set of total values for an activity including
     elapsed time, moving time, distance and elevation gain."""
@@ -448,8 +421,6 @@ class Athlete(strava_model.DetailedAthlete):
 
     # Field overrides from superclass for type extensions:
     clubs: Optional[list[SummaryClub]] = None
-    bikes: Optional[list[SummaryGear]] = None
-    shoes: Optional[list[SummaryGear]] = None
 
     # Undocumented attributes:
     athlete_type: Optional[Literal["cyclist", "runner"]] = None
@@ -922,8 +893,7 @@ class DetailedActivity(
     """
 
     # field overrides from superclass for type extensions:
-    # TODO: should be SummaryGear - check returns
-    gear: Optional[Gear] = None
+    gear: Optional[SummaryGear] = None
     best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
     # TODO: returning empty list should be  DetailedSegmentEffort object
     # TODO: test on activity with actual segments
