@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 import pytest
-from dateutil.parser import ParserError
 
 from stravalib import model
 from stravalib.model import (
@@ -322,7 +321,7 @@ class ModelTest(TestBase):
             datetime(2024, 4, 28, 12, 0),
             None,
         ),
-        ("Foo", None, ParserError),
+        ("Foo", None, ValueError),
     ],
 )
 def test_naive_datetime(input_value, expected_output, exception):

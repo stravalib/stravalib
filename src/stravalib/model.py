@@ -28,6 +28,7 @@ from typing import (
 )
 
 from dateutil import parser
+from dateutil.parser import ParserError
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -62,6 +63,16 @@ T = TypeVar("T")
 U = TypeVar("U", bound="BoundClientEntity")
 
 
+# Create alias for this type so docs are more readable
+AllDateTypes = Union[
+    datetime,
+    str,
+    bytes,
+    int,
+    float,
+]
+
+
 # Could naive_datetime also be run in a validator?
 def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     """Utility helper that parses a datetime value provided in
@@ -85,22 +96,29 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
 
     YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     """
+
     if not value:
         return None
 
-    # Allow for timestamps to be passed as strings, e.g '1714305600'.
-    try:
-        value_is_int = isinstance(value, int) or float(value).is_integer()
-    except (ValueError, TypeError):
-        value_is_int = False
-
-    dt = (
-        parser.parse(str(value))
-        if not value_is_int
-        else datetime.fromtimestamp(int(value))
-    )
-    # Remove timezone information, if any
-    return dt.replace(tzinfo=None)
+    if isinstance(value, (int, float)):
+        dt = datetime.fromtimestamp(value)
+        return dt.replace(tzinfo=None)
+    elif isinstance(value, str):
+        try:
+            dt = parser.parse(value)
+            return dt.replace(tzinfo=None)
+        except ParserError:
+            # Maybe timestamp was passed as string, e.g '1714305600'?
+            try:
+                dt = datetime.fromtimestamp(float(value))
+                return dt.replace(tzinfo=None)
+            except ValueError:
+                LOGGER.error(f"Invalid datetime value: {value}")
+                raise
+    elif isinstance(value, datetime):
+        return value.replace(tzinfo=None)
+    else:
+        raise ValueError(f"Unsupported value type: {type(value)}")
 
 
 def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
@@ -196,10 +214,6 @@ def check_valid_location(
             return None
     else:
         return location if location else None
-
-
-# Create alias for this type so docs are more readable
-AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
 class BoundClientEntity(BaseModel):
