@@ -651,6 +651,10 @@ class Lap(
     BoundClientEntity,
 ):
 
+    # Field overrides from superclass for type extensions:
+    activity: Optional[MetaActivity] = None
+    athlete: Optional[MetaAthlete] = None
+
     # Undocumented attributes:
     average_watts: Optional[float] = None
     average_heartrate: Optional[float] = None
@@ -1004,7 +1008,6 @@ class TimedZoneDistribution(strava_model.TimedZoneRange):
     max: Optional[int | float] = None  # type: ignore
 
 
-# TODO called ActivityZone in the API
 class ActivityZone(
     strava_model.ActivityZone,
     BoundClientEntity,
@@ -1016,10 +1019,6 @@ class ActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    # TODO: what was the legacy behavior and is it ok to break it?
-    # Using type that is currently mimicking legacy behavior.
-
-    # This should return a list of TimedZoneDistribution objects
     distribution_buckets: Optional[list[TimedZoneDistribution]] = None  # type: ignore[assignment]
 
     # strava_model only contains heartrate and power (ints), but also returns pace (float)
