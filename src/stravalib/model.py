@@ -809,7 +809,6 @@ class SummarySegmentEffort(strava_model.SummarySegmentEffort):
 class BaseEffort(
     SummarySegmentEffort,
     strava_model.DetailedSegmentEffort,
-    BoundClientEntity,
 ):
     """
     Base class for a best effort or segment effort.
