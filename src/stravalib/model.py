@@ -49,7 +49,6 @@ from stravalib.strava_model import (
     PolylineMap,
     Primary,
     SportType,
-    SummaryAthlete,
     SummaryGear,
     TimedZoneRange,
 )
@@ -347,7 +346,7 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     club_type: Optional[str] = None
 
     @lazy_property
-    def members(self) -> BatchedResultsIterator[Athlete]:
+    def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
         """
         Lazy property to retrieve club members stored as Athlete objects.
 
@@ -407,8 +406,10 @@ class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
     resource_state: Optional[int] = None
 
 
-# TODO: rename to detailed athlete
-class Athlete(strava_model.DetailedAthlete):
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
+
+
+class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     """Represents high level athlete information including
     their name, email, clubs they belong to, bikes, shoes, etc.
 
@@ -625,7 +626,7 @@ class Lap(
 ):
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
-    athlete: Optional[Athlete] = None
+    athlete: Optional[MetaAthlete] = None
 
     # Undocumented attributes:
     average_watts: Optional[float] = None

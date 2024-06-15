@@ -264,7 +264,7 @@ class ModelTest(TestBase):
                 },
             ]
         }
-        a = model.Athlete.model_validate(d)
+        a = model.DetailedAthlete.model_validate(d)
 
         self.assertEqual(3, len(a.clubs))
         self.assertEqual("Team Roaring Mouse", a.clubs[0].name)
