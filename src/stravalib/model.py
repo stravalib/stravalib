@@ -97,11 +97,14 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     """
 
-    if not value:
+    if value is None:
         return None
 
     if isinstance(value, (int, float)):
-        dt = datetime.fromtimestamp(value)
+        # If epoch is given, we have to assume it's UTC. When using the
+        # regular fromtimestamp(), epoch will be interpreted as in the
+        # _local_ timezone.
+        dt = datetime.utcfromtimestamp(value)
         return dt.replace(tzinfo=None)
     elif isinstance(value, str):
         try:
@@ -110,7 +113,7 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
         except ParserError:
             # Maybe timestamp was passed as string, e.g '1714305600'?
             try:
-                dt = datetime.fromtimestamp(float(value))
+                dt = datetime.utcfromtimestamp(float(value))
                 return dt.replace(tzinfo=None)
             except ValueError:
                 LOGGER.error(f"Invalid datetime value: {value}")
