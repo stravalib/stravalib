@@ -28,6 +28,7 @@ from typing import (
 )
 
 from dateutil import parser
+from dateutil.parser import ParserError
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -42,14 +43,12 @@ from stravalib.strava_model import (
     ActivityType,
     BaseStream,
     Comment,
-    DetailedGear,
     ExplorerSegment,
     LatLng,
     PhotosSummary,
     PolylineMap,
     Primary,
     SportType,
-    SummaryAthlete,
     SummaryGear,
 )
 
@@ -60,6 +59,16 @@ LOGGER = logging.getLogger(__name__)
 
 T = TypeVar("T")
 U = TypeVar("U", bound="BoundClientEntity")
+
+
+# Create alias for this type so docs are more readable
+AllDateTypes = Union[
+    datetime,
+    str,
+    bytes,
+    int,
+    float,
+]
 
 
 # Could naive_datetime also be run in a validator?
@@ -85,22 +94,32 @@ def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
 
     YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     """
-    if not value:
+
+    if value is None:
         return None
 
-    # Allow for timestamps to be passed as strings, e.g '1714305600'.
-    try:
-        value_is_int = isinstance(value, int) or float(value).is_integer()
-    except (ValueError, TypeError):
-        value_is_int = False
-
-    dt = (
-        parser.parse(str(value))
-        if not value_is_int
-        else datetime.fromtimestamp(int(value))
-    )
-    # Remove timezone information, if any
-    return dt.replace(tzinfo=None)
+    if isinstance(value, (int, float)):
+        # If epoch is given, we have to assume it's UTC. When using the
+        # regular fromtimestamp(), epoch will be interpreted as in the
+        # _local_ timezone.
+        dt = datetime.utcfromtimestamp(value)
+        return dt.replace(tzinfo=None)
+    elif isinstance(value, str):
+        try:
+            dt = parser.parse(value)
+            return dt.replace(tzinfo=None)
+        except ParserError:
+            # Maybe timestamp was passed as string, e.g '1714305600'?
+            try:
+                dt = datetime.utcfromtimestamp(float(value))
+                return dt.replace(tzinfo=None)
+            except ValueError:
+                LOGGER.error(f"Invalid datetime value: {value}")
+                raise
+    elif isinstance(value, datetime):
+        return value.replace(tzinfo=None)
+    else:
+        raise ValueError(f"Unsupported value type: {type(value)}")
 
 
 def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
@@ -196,10 +215,6 @@ def check_valid_location(
             return None
     else:
         return location if location else None
-
-
-# Create alias for this type so docs are more readable
-AllDateTypes = Union[datetime, str, bytes, int, float]
 
 
 class BoundClientEntity(BaseModel):
@@ -346,7 +361,7 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     club_type: Optional[str] = None
 
     @lazy_property
-    def members(self) -> BatchedResultsIterator[Athlete]:
+    def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
         """
         Lazy property to retrieve club members stored as Athlete objects.
 
@@ -373,32 +388,6 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
 
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
-    pass
-
-
-class Gear(DetailedGear):
-    """
-    Represents a piece of gear (equipment) used in physical activities.
-    """
-
-    pass
-
-
-class Bike(Gear):
-    """
-    Represents a bike as a "type" / using the structure of
-    `stravalib.model.Gear`.
-    """
-
-    pass
-
-
-class Shoe(Gear):
-    """
-    Represents a Shoes as a "type" / using the structure of
-    `stravalib.model.Gear`.
-    """
-
     pass
 
 
@@ -432,8 +421,10 @@ class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
     resource_state: Optional[int] = None
 
 
-# TODO: rename to detailed athlete
-class Athlete(strava_model.DetailedAthlete):
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
+
+
+class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     """Represents high level athlete information including
     their name, email, clubs they belong to, bikes, shoes, etc.
 
@@ -446,8 +437,6 @@ class Athlete(strava_model.DetailedAthlete):
 
     # Field overrides from superclass for type extensions:
     clubs: Optional[list[SummaryClub]] = None
-    bikes: Optional[list[SummaryGear]] = None
-    shoes: Optional[list[SummaryGear]] = None
 
     # Undocumented attributes:
     athlete_type: Optional[Literal["cyclist", "runner"]] = None
@@ -822,7 +811,6 @@ class SummarySegmentEffort(strava_model.SummarySegmentEffort):
 class BaseEffort(
     SummarySegmentEffort,
     strava_model.DetailedSegmentEffort,
-    BoundClientEntity,
 ):
     """
     Base class for a best effort or segment effort.
@@ -921,8 +909,7 @@ class DetailedActivity(
     """
 
     # field overrides from superclass for type extensions:
-    # TODO: should be SummaryGear - check returns
-    gear: Optional[Gear] = None
+    gear: Optional[SummaryGear] = None
     best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
     # TODO: returning empty list should be  DetailedSegmentEffort object
     # TODO: test on activity with actual segments

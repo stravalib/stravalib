@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 import pytest
-from dateutil.parser import ParserError
 
 from stravalib import model
 from stravalib.model import (
@@ -264,7 +263,7 @@ class ModelTest(TestBase):
                 },
             ]
         }
-        a = model.Athlete.model_validate(d)
+        a = model.DetailedAthlete.model_validate(d)
 
         self.assertEqual(3, len(a.clubs))
         self.assertEqual("Team Roaring Mouse", a.clubs[0].name)
@@ -301,14 +300,21 @@ class ModelTest(TestBase):
 @pytest.mark.parametrize(
     "input_value, expected_output, exception",
     [
+        (0, datetime(1970, 1, 1), None),
         ("2024-04-28T12:00:00Z", datetime(2024, 4, 28, 12, 0), None),
         (
-            int(datetime(2022, 4, 28, 12, 0).timestamp()),
+            int(datetime(2022, 4, 28, 12, 0, tzinfo=timezone.utc).timestamp()),
             datetime(2022, 4, 28, 12, 0),
             None,
         ),
         (
-            str(int(datetime(2022, 4, 28, 12, 0).timestamp())),
+            str(
+                int(
+                    datetime(
+                        2022, 4, 28, 12, 0, tzinfo=timezone.utc
+                    ).timestamp()
+                )
+            ),
             datetime(2022, 4, 28, 12, 0),
             None,
         ),
@@ -322,7 +328,9 @@ class ModelTest(TestBase):
             datetime(2024, 4, 28, 12, 0),
             None,
         ),
-        ("Foo", None, ParserError),
+        ("Foo", None, ValueError),
+        ({"foo": 42}, None, ValueError),
+        (None, None, None),
     ],
 )
 def test_naive_datetime(input_value, expected_output, exception):

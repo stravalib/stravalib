@@ -9,7 +9,7 @@ from responses import matchers
 
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
-from stravalib.model import Athlete, SummaryAthlete, SummarySegment
+from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unithelper import miles
@@ -52,7 +52,7 @@ def default_request_params():
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
-    assert isinstance(athlete, Athlete)
+    assert isinstance(athlete, DetailedAthlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
 
