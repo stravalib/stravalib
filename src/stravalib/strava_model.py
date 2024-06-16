@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import AwareDatetime, BaseModel, Field, RootModel
+from pydantic import BaseModel, Field
 
 
 class ActivityTotal(BaseModel):
@@ -39,50 +40,8 @@ class ActivityTotal(BaseModel):
     """
 
 
-class ActivityType(
-    RootModel[
-        Literal[
-            "AlpineSki",
-            "BackcountrySki",
-            "Canoeing",
-            "Crossfit",
-            "EBikeRide",
-            "Elliptical",
-            "Golf",
-            "Handcycle",
-            "Hike",
-            "IceSkate",
-            "InlineSkate",
-            "Kayaking",
-            "Kitesurf",
-            "NordicSki",
-            "Ride",
-            "RockClimbing",
-            "RollerSki",
-            "Rowing",
-            "Run",
-            "Sail",
-            "Skateboard",
-            "Snowboard",
-            "Snowshoe",
-            "Soccer",
-            "StairStepper",
-            "StandUpPaddling",
-            "Surfing",
-            "Swim",
-            "Velomobile",
-            "VirtualRide",
-            "VirtualRun",
-            "Walk",
-            "WeightTraining",
-            "Wheelchair",
-            "Windsurf",
-            "Workout",
-            "Yoga",
-        ]
-    ]
-):
-    root: Literal[
+class ActivityType(BaseModel):
+    __root__: Literal[
         "AlpineSki",
         "BackcountrySki",
         "Canoeing",
@@ -219,12 +178,12 @@ class HeartrateStream(BaseStream):
     """
 
 
-class LatLng(RootModel[list[float]]):
+class LatLng(BaseModel):
     """
     A pair of latitude/longitude coordinates, represented as an array of 2 floating point numbers.
     """
 
-    root: list[float] = Field(..., max_length=2, min_length=2)
+    __root__: list[float] = Field(..., max_items=2, min_items=2)
     """
     A pair of latitude/longitude coordinates, represented as an array of 2 floating point numbers.
     """
@@ -370,63 +329,8 @@ class Split(BaseModel):
     """
 
 
-class SportType(
-    RootModel[
-        Literal[
-            "AlpineSki",
-            "BackcountrySki",
-            "Badminton",
-            "Canoeing",
-            "Crossfit",
-            "EBikeRide",
-            "Elliptical",
-            "EMountainBikeRide",
-            "Golf",
-            "GravelRide",
-            "Handcycle",
-            "HighIntensityIntervalTraining",
-            "Hike",
-            "IceSkate",
-            "InlineSkate",
-            "Kayaking",
-            "Kitesurf",
-            "MountainBikeRide",
-            "NordicSki",
-            "Pickleball",
-            "Pilates",
-            "Racquetball",
-            "Ride",
-            "RockClimbing",
-            "RollerSki",
-            "Rowing",
-            "Run",
-            "Sail",
-            "Skateboard",
-            "Snowboard",
-            "Snowshoe",
-            "Soccer",
-            "Squash",
-            "StairStepper",
-            "StandUpPaddling",
-            "Surfing",
-            "Swim",
-            "TableTennis",
-            "Tennis",
-            "TrailRun",
-            "Velomobile",
-            "VirtualRide",
-            "VirtualRow",
-            "VirtualRun",
-            "Walk",
-            "WeightTraining",
-            "Wheelchair",
-            "Windsurf",
-            "Workout",
-            "Yoga",
-        ]
-    ]
-):
-    root: Literal[
+class SportType(BaseModel):
+    __root__: Literal[
         "AlpineSki",
         "BackcountrySki",
         "Badminton",
@@ -483,24 +387,8 @@ class SportType(
     """
 
 
-class StreamType(
-    RootModel[
-        Literal[
-            "time",
-            "distance",
-            "latlng",
-            "altitude",
-            "velocity_smooth",
-            "heartrate",
-            "cadence",
-            "watts",
-            "temp",
-            "moving",
-            "grade_smooth",
-        ]
-    ]
-):
-    root: Literal[
+class StreamType(BaseModel):
+    __root__: Literal[
         "time",
         "distance",
         "latlng",
@@ -623,11 +511,11 @@ class SummaryActivity(MetaActivity):
     Whether this activity is private
     """
     sport_type: Optional[SportType] = None
-    start_date: Optional[AwareDatetime] = None
+    start_date: Optional[datetime] = None
     """
     The time at which the activity was started.
     """
-    start_date_local: Optional[AwareDatetime] = None
+    start_date_local: Optional[datetime] = None
     """
     The time at which the activity was started in the local timezone.
     """
@@ -679,7 +567,7 @@ class SummaryAthlete(MetaAthlete):
     """
     The athlete's country.
     """
-    created_at: Optional[AwareDatetime] = None
+    created_at: Optional[datetime] = None
     """
     The time at which the athlete was created.
     """
@@ -719,7 +607,7 @@ class SummaryAthlete(MetaAthlete):
     """
     Whether the athlete has any Summit subscription.
     """
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[datetime] = None
     """
     The time at which the athlete was last updated.
     """
@@ -814,7 +702,7 @@ class SummaryPRSegmentEffort(BaseModel):
     """
     The unique identifier of the activity related to the PR effort.
     """
-    pr_date: Optional[AwareDatetime] = None
+    pr_date: Optional[datetime] = None
     """
     The time at which the PR effort was started.
     """
@@ -845,11 +733,11 @@ class SummarySegmentEffort(BaseModel):
     """
     Whether this effort is the current best on the leaderboard
     """
-    start_date: Optional[AwareDatetime] = None
+    start_date: Optional[datetime] = None
     """
     The time at which the effort was started.
     """
-    start_date_local: Optional[AwareDatetime] = None
+    start_date_local: Optional[datetime] = None
     """
     The time at which the effort was started in the local timezone.
     """
@@ -929,7 +817,7 @@ class Upload(BaseModel):
 
 
 class Waypoint(BaseModel):
-    categories: Optional[list[str]] = Field(None, min_length=0)
+    categories: Optional[list[str]] = Field(None, min_items=0)
     """
     Categories that the waypoint belongs to
     """
@@ -966,8 +854,8 @@ class ZoneRange(BaseModel):
     """
 
 
-class ZoneRanges(RootModel[list[ZoneRange]]):
-    root: list[ZoneRange]
+class ZoneRanges(BaseModel):
+    __root__: list[ZoneRange]
 
 
 class ActivityStats(BaseModel):
@@ -1067,7 +955,7 @@ class ClubAnnouncement(BaseModel):
     """
     The unique identifier of the club this announcements was made in.
     """
-    created_at: Optional[AwareDatetime] = None
+    created_at: Optional[datetime] = None
     """
     The time at which this announcement was created.
     """
@@ -1087,7 +975,7 @@ class Comment(BaseModel):
     The identifier of the activity this comment is related to
     """
     athlete: Optional[SummaryAthlete] = None
-    created_at: Optional[AwareDatetime] = None
+    created_at: Optional[datetime] = None
     """
     The time at which this comment was created.
     """
@@ -1269,11 +1157,11 @@ class Lap(BaseModel):
     The athlete's pace zone during this lap
     """
     split: Optional[int] = None
-    start_date: Optional[AwareDatetime] = None
+    start_date: Optional[datetime] = None
     """
     The time at which the lap was started.
     """
-    start_date_local: Optional[AwareDatetime] = None
+    start_date_local: Optional[datetime] = None
     """
     The time at which the lap was started in the local timezone.
     """
@@ -1382,7 +1270,7 @@ class DetailedSegment(SummarySegment):
     """
     The number of unique athletes who have an effort for this segment
     """
-    created_at: Optional[AwareDatetime] = None
+    created_at: Optional[datetime] = None
     """
     The time at which the segment was created.
     """
@@ -1403,7 +1291,7 @@ class DetailedSegment(SummarySegment):
     """
     The segment's total elevation gain.
     """
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[datetime] = None
     """
     The time at which the segment was last updated.
     """
@@ -1472,7 +1360,7 @@ class ExplorerResponse(BaseModel):
 
 class Route(BaseModel):
     athlete: Optional[SummaryAthlete] = None
-    created_at: Optional[AwareDatetime] = None
+    created_at: Optional[datetime] = None
     """
     The time at which the route was created
     """
@@ -1529,22 +1417,22 @@ class Route(BaseModel):
     """
     This route's type (1 for ride, 2 for runs)
     """
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[datetime] = None
     """
     The time at which the route was last updated
     """
-    waypoints: Optional[list[Waypoint]] = Field(None, min_length=0)
+    waypoints: Optional[list[Waypoint]] = Field(None, min_items=0)
     """
     The custom waypoints along this route
     """
 
 
-class TimedZoneDistribution(RootModel[list[TimedZoneRange]]):
+class TimedZoneDistribution(BaseModel):
     """
     Stores the exclusive ranges representing zones and the time spent in each.
     """
 
-    root: list[TimedZoneRange]
+    __root__: list[TimedZoneRange]
     """
     Stores the exclusive ranges representing zones and the time spent in each.
     """
