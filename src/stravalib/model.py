@@ -13,6 +13,7 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from functools import wraps
 from typing import (
@@ -176,8 +177,8 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 
 # This method checks a list of floats - ie a stream not just a single lat/lon
 def check_valid_location(
-    location: Optional[Union[list[float], str]]
-) -> Optional[list[float]]:
+    location: Optional[Union[Sequence[float], str]]
+) -> Optional[Sequence[float]]:
     """
     Validate a list of location xy values.
 
@@ -187,14 +188,14 @@ def check_valid_location(
 
     Parameters
     ----------
-    location : list of floats
-        Either a list of x,y floating point values or strings or None
+    location : Sequence of floats
+        Either a Sequence (list) of x,y floating point values or strings or None
         (The legacy serialized format is str)
 
     Returns
     --------
-    list or None
-        Either returns a list of floating point values representing location
+    Sequence or None
+        Either returns a Sequence of floating point values representing location
         x,y data or None if empty list is returned from the API.
 
     Raises
@@ -210,8 +211,7 @@ def check_valid_location(
         try:
             return [float(l) for l in location.split(",")]
         except AttributeError:
-            # Location for activities without GPS may be returned as empty list by
-            # Strava
+            # location for activities without GPS may be returned as empty list
             return None
     else:
         return location if location else None
@@ -286,19 +286,21 @@ class LatLon(LatLng):
     """
 
     @model_validator(mode="before")
-    def check_valid_latlng(cls, values: list[float]) -> list[float] | None:
+    def check_valid_latlng(
+        cls, values: Sequence[float]
+    ) -> Sequence[float] | None:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
         Parameters
         ----------
-        values: list
+        values: Sequence
             The list of lat/lon values returned by Strava. This list will be
             empty if there was no GPS associated with the activity.
 
         Returns
         -------
-        list or None
+        Sequence or None
             list of lat/lon values or None
 
         """
@@ -367,8 +369,8 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
         Returns
         -------
-        list
-            A list of club members stored as Athlete objects.
+        Sequence
+            A Sequence of club members stored as Athlete objects.
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_members(self.id)
@@ -436,7 +438,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     """
 
     # Field overrides from superclass for type extensions:
-    clubs: Optional[list[SummaryClub]] = None
+    clubs: Optional[Sequence[SummaryClub]] = None
 
     # Undocumented attributes:
     athlete_type: Optional[Literal["cyclist", "runner"]] = None
@@ -474,7 +476,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     membership: Optional[str] = None
     admin: Optional[bool] = None
     owner: Optional[bool] = None
-    subscription_permissions: Optional[list[bool]] = None
+    subscription_permissions: Optional[Sequence[bool]] = None
 
     @field_validator("athlete_type", mode="before")
     def to_str_representation(
@@ -598,7 +600,7 @@ class ActivityPhoto(BaseModel):
     created_at_local: Optional[datetime] = None
     location: Optional[LatLon] = None
     urls: Optional[dict[str, str]] = None
-    sizes: Optional[dict[str, list[int]]] = None
+    sizes: Optional[dict[str, Sequence[int]]] = None
     post_id: Optional[int] = None
     default_photo: Optional[bool] = None
     source: Optional[int] = None
@@ -835,7 +837,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
 
-    achievements: Optional[list[SegmentEffortAchievement]] = None
+    achievements: Optional[Sequence[SegmentEffortAchievement]] = None
 
 
 class AthleteSegmentStats(
@@ -858,12 +860,12 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
         return self.bound_client.get_activity_comments(self.id)
 
     @lazy_property
-    def zones(self) -> list[ActivityZone]:
+    def zones(self) -> Sequence[ActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
         -------
-        py:class:`list`
+        py:class:`Sequence`
             A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
@@ -910,16 +912,16 @@ class DetailedActivity(
 
     # field overrides from superclass for type extensions:
     gear: Optional[SummaryGear] = None
-    best_efforts: Optional[list[BestEffort]] = None  # type: ignore[assignment]
-    # TODO: returning empty list should be  DetailedSegmentEffort object
+    best_efforts: Optional[Sequence[BestEffort]] = None  # type: ignore[assignment]
+    # TODO: returning empty Sequence should be  DetailedSegmentEffort object
     # TODO: test on activity with actual segments
-    segment_efforts: Optional[list[SegmentEffort]] = None  # type: ignore[assignment]
+    segment_efforts: Optional[Sequence[SegmentEffort]] = None  # type: ignore[assignment]
     # TODO: Returns Split object - check returns for that object
-    splits_metric: Optional[list[Split]] = None  # type: ignore[assignment]
-    splits_standard: Optional[list[Split]] = None  # type: ignore[assignment]
+    splits_metric: Optional[Sequence[Split]] = None  # type: ignore[assignment]
+    splits_standard: Optional[Sequence[Split]] = None  # type: ignore[assignment]
     # TODO: should be PhotosSummary
     photos: Optional[ActivityPhotoMeta] = None
-    laps: Optional[list[Lap]] = None
+    laps: Optional[Sequence[Lap]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
@@ -1006,7 +1008,7 @@ class ActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    distribution_buckets: Optional[list[TimedZoneDistribution]] = None  # type: ignore[assignment]
+    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None  # type: ignore[assignment]
 
     # strava_model only contains heartrate and power (ints), but also returns pace (float)
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
@@ -1021,7 +1023,7 @@ class Stream(BaseStream):
 
     # Not using the typed subclasses from the generated model
     # for backward compatibility:
-    data: Optional[list[Any]] = None
+    data: Optional[Sequence[Any]] = None
 
 
 class Route(
@@ -1035,7 +1037,7 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
-    segments: Optional[list[SummarySegment]]  # type: ignore[assignment]
+    segments: Optional[Sequence[SummarySegment]]  # type: ignore[assignment]
 
 
 class Subscription(BaseModel):
