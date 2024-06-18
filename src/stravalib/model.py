@@ -996,8 +996,8 @@ class TimedZoneDistribution(strava_model.TimedZoneRange):
     """
 
     # Type overrides to support pace values returned as ints
-    min: Optional[int | float] = None  # type: ignore
-    max: Optional[int | float] = None  # type: ignore
+    min: Optional[Sequence[int | float]] = None
+    max: Optional[Sequence[int | float]] = None
 
 
 class ActivityZone(
