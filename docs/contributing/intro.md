@@ -52,6 +52,7 @@ If you are new to contributing to open source software, these resources will hel
 
 Contributing Guide <../contributing/how-to-contribute>
 Development Guide <../contributing/development-guide>
+Inheritance <../contributing/inheritance>
 Build & Release Guide <../contributing/build-release-guide>
 New Contributor Resources <../contributing/resources-for-new-contributors>
 :::

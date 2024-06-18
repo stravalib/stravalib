@@ -63,7 +63,37 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_inline_tabs",
+    # Inheritance diagrams
+    "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
 ]
+
+# Inheritance diagram settings - you can find various settings in the
+# graphviz docs here https://graphviz.org/doc/info/attrs.html
+inheritance_graph_attrs = dict(
+    rankdir="BT",
+    color="darkorchid4",
+    size='"6.0, 8.0"',
+    fontsize=16,
+    ratio="compress",
+)
+
+inheritance_node_attrs = dict(
+    # https://graphviz.org/docs/attrs/rankdir/
+    # rankdir="BT",
+    shape="ellipse",
+    fontsize=16,
+    color="darkorchid4",
+    height=0.85,
+    # Line weight of shape
+    style="bold",
+)
+
+# Edit the arrow and line attributes
+inheritance_edge_attrs = dict(
+    color="dodgerblue1",
+    # Line weight of shap
+)
 
 remove_from_toctrees = ["docs/reference/api/*"]
 
