@@ -188,14 +188,14 @@ def check_valid_location(
 
     Parameters
     ----------
-    location : Sequence of floats
-        Either a Sequence (list) of x,y floating point values or strings or None
+    location : List of floats
+        Either a List of x,y floating point values or strings or None
         (The legacy serialized format is str)
 
     Returns
     --------
-    Sequence or None
-        Either returns a Sequence of floating point values representing location
+    List or None
+        Either returns a List of floating point values representing location
         x,y data or None if empty list is returned from the API.
 
     Raises
@@ -294,13 +294,13 @@ class LatLon(LatLng):
 
         Parameters
         ----------
-        values: Sequence
+        values: List
             The list of lat/lon values returned by Strava. This list will be
             empty if there was no GPS associated with the activity.
 
         Returns
         -------
-        Sequence or None
+        List or None
             list of lat/lon values or None
 
         """
@@ -369,8 +369,8 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
         Returns
         -------
-        Sequence
-            A Sequence of club members stored as Athlete objects.
+        List
+            A list of club members stored as Athlete objects.
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_members(self.id)
@@ -740,7 +740,10 @@ class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
+    # TODO: mypy error - SummarySegment defines as  literal with two values
+    # activity_type: Optional[Literal["Ride", "Run"]] = None
+    # We could force ignore via cast??
+    activity_type: Optional[RelaxedActivityType] = None
     athlete_segment_stats: Optional[AthleteSegmentStats] = (
         None  # Actually, this is only part of a (detailed) segment response
     )
@@ -912,13 +915,13 @@ class DetailedActivity(
 
     # field overrides from superclass for type extensions:
     gear: Optional[SummaryGear] = None
-    best_efforts: Optional[Sequence[BestEffort]] = None  # type: ignore[assignment]
+    best_efforts: Optional[Sequence[BestEffort]] = None
     # TODO: returning empty Sequence should be  DetailedSegmentEffort object
     # TODO: test on activity with actual segments
-    segment_efforts: Optional[Sequence[SegmentEffort]] = None  # type: ignore[assignment]
+    segment_efforts: Optional[Sequence[SegmentEffort]] = None
     # TODO: Returns Split object - check returns for that object
-    splits_metric: Optional[Sequence[Split]] = None  # type: ignore[assignment]
-    splits_standard: Optional[Sequence[Split]] = None  # type: ignore[assignment]
+    splits_metric: Optional[Sequence[Split]] = None
+    splits_standard: Optional[Sequence[Split]] = None
     # TODO: should be PhotosSummary
     photos: Optional[ActivityPhotoMeta] = None
     laps: Optional[Sequence[Lap]] = None
@@ -974,7 +977,7 @@ class ClubActivity(strava_model.ClubActivity):
     actual return.
     """
 
-    # Spec calls for a return of a metaAthlete object (which only has id in it)
+    # Class override - spec returns metaAthlete object (which only has id in it)
     athlete: Optional[strava_model.ClubAthlete] = None
 
     pass
@@ -1037,7 +1040,7 @@ class Route(
     # Superclass field overrides for using extended types
     athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
-    segments: Optional[Sequence[SummarySegment]]  # type: ignore[assignment]
+    segments: Optional[Sequence[SummarySegment]]
 
 
 class Subscription(BaseModel):
