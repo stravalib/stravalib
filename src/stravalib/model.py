@@ -996,8 +996,8 @@ class TimedZoneDistribution(strava_model.TimedZoneRange):
     """
 
     # Type overrides to support pace values returned as ints
-    min: Optional[Sequence[int | float]] = None
-    max: Optional[Sequence[int | float]] = None
+    min: Optional[int | float] = None  # type: ignore[assignment]
+    max: Optional[int | float] = None  # type: ignore[assignment]
 
 
 class ActivityZone(
@@ -1011,7 +1011,7 @@ class ActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None  # type: ignore[assignment]
+    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None
 
     # strava_model only contains heartrate and power (ints), but also returns pace (float)
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
