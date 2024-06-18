@@ -743,7 +743,7 @@ class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
     # TODO: mypy error - SummarySegment defines as  literal with two values
     # activity_type: Optional[Literal["Ride", "Run"]] = None
     # We could force ignore via cast??
-    activity_type: Optional[RelaxedActivityType] = None
+    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
     athlete_segment_stats: Optional[AthleteSegmentStats] = (
         None  # Actually, this is only part of a (detailed) segment response
     )
@@ -978,7 +978,8 @@ class ClubActivity(strava_model.ClubActivity):
     """
 
     # Class override - spec returns metaAthlete object (which only has id in it)
-    athlete: Optional[strava_model.ClubAthlete] = None
+    # This is an intentional override
+    athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
 
     pass
 
@@ -1011,7 +1012,7 @@ class ActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None
+    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None  # type: ignore[assignment]
 
     # strava_model only contains heartrate and power (ints), but also returns pace (float)
     type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
