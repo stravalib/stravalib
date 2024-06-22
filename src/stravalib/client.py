@@ -11,7 +11,7 @@ import collections
 import functools
 import logging
 import time
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import (
@@ -1028,9 +1028,7 @@ class Client:
 
         return ActivityUploader(self, response=initial_response)
 
-    def get_activity_zones(
-        self, activity_id: int
-    ) -> Sequence[model.ActivityZone]:
+    def get_activity_zones(self, activity_id: int) -> list[model.ActivityZone]:
         """Gets activity zones for activity.
 
         Activity zones relate to a users effort (heartrate and power).

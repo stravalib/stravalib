@@ -178,7 +178,7 @@ def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
 # This method checks a list of floats - ie a stream not just a single lat/lon
 def check_valid_location(
     location: Optional[Union[Sequence[float], str]]
-) -> Optional[Sequence[float]]:
+) -> Optional[list[float]]:
     """
     Validate a list of location xy values.
 
@@ -211,10 +211,13 @@ def check_valid_location(
         try:
             return [float(l) for l in location.split(",")]
         except AttributeError:
-            # location for activities without GPS may be returned as empty list
+            # Location for activities without GPS may be returned as empty list
             return None
+    # Because this could be any Sequence type, explicitly return list
+    elif location:
+        return list(location)
     else:
-        return location if location else None
+        return None
 
 
 class BoundClientEntity(BaseModel):
@@ -286,9 +289,7 @@ class LatLon(LatLng):
     """
 
     @model_validator(mode="before")
-    def check_valid_latlng(
-        cls, values: Sequence[float]
-    ) -> Sequence[float] | None:
+    def check_valid_latlng(cls, values: Sequence[float]) -> list[float] | None:
         """Validate that Strava returned an actual lat/lon rather than an empty
         list. If list is empty, return None
 
@@ -306,7 +307,11 @@ class LatLon(LatLng):
         """
 
         # Strava sometimes returns empty list in case of activities without GPS
-        return values if values else None
+        # Explicitly return a list to make mypy happy
+        if values:
+            return list(values)
+        else:
+            return None
 
     @property
     def lat(self) -> float:
@@ -740,9 +745,7 @@ class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
     athlete_pr_effort: Optional[AthletePrEffort] = None
-    # TODO: mypy error - SummarySegment defines as  literal with two values
-    # activity_type: Optional[Literal["Ride", "Run"]] = None
-    # We could force ignore via cast??
+    # Ignore because the spec is incorrectly typed - Optional[Literal["Ride", "Run"]]
     activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
     athlete_segment_stats: Optional[AthleteSegmentStats] = (
         None  # Actually, this is only part of a (detailed) segment response
@@ -863,12 +866,12 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
         return self.bound_client.get_activity_comments(self.id)
 
     @lazy_property
-    def zones(self) -> Sequence[ActivityZone]:
+    def zones(self) -> list[ActivityZone]:
         """Retrieve a list of zones for an activity.
 
         Returns
         -------
-        py:class:`Sequence`
+        py:class:`list`
             A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
@@ -977,8 +980,8 @@ class ClubActivity(strava_model.ClubActivity):
     actual return.
     """
 
-    # Class override - spec returns metaAthlete object (which only has id in it)
-    # This is an intentional override
+    # Intentional class override as spec returns metaAthlete object
+    # (which only contains id)
     athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
 
     pass
@@ -997,8 +1000,8 @@ class TimedZoneDistribution(strava_model.TimedZoneRange):
     """
 
     # Type overrides to support pace values returned as ints
-    min: Optional[int | float] = None  # type: ignore[assignment]
-    max: Optional[int | float] = None  # type: ignore[assignment]
+    min: float | None = None  # type: ignore[assignment]
+    max: float | None = None  # type: ignore[assignment]
 
 
 class ActivityZone(
