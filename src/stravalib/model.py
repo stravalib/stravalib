@@ -516,6 +516,7 @@ class ActivityTotals(strava_model.ActivityTotal):
 
     # Attribute overrides for custom types:
     distance: Optional[DistanceType] = None
+    elevation_gain: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
 
@@ -802,11 +803,10 @@ class Split(
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
     average_speed: Optional[VelocityType] = None
-    average_grade_adjusted_speed: Optional[VelocityType] = None
 
     # Undocumented attributes:
     average_heartrate: Optional[float] = None
-    average_grade_adjusted_speed: Optional[float] = None
+    average_grade_adjusted_speed: Optional[VelocityType] = None
 
 
 class SegmentExplorerResult(
