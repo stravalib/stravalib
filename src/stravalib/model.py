@@ -49,7 +49,6 @@ from pydantic_core import core_schema
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
-    ActivityTotal,
     ActivityType,
     BaseStream,
     Comment,
@@ -303,6 +302,9 @@ class _DurationAnnotation(_CustomIntAnnotation):
         return Duration(value)
 
 
+DurationType = Annotated[Duration, _DurationAnnotation]
+
+
 class BoundClientEntity(BaseModel):
     """A class that bounds the Client object to the model."""
 
@@ -481,12 +483,13 @@ class DetailedClub(SummaryClub, strava_model.DetailedClub):
     pass
 
 
-class ActivityTotals(ActivityTotal):
+class ActivityTotals(strava_model.ActivityTotal):
     """An objecting containing a set of total values for an activity including
     elapsed time, moving time, distance and elevation gain."""
 
     # Attribute overrides for custom types:
-    elapsed_time: Optional[Annotated[Duration, _DurationAnnotation]] = None
+    elapsed_time: Optional[DurationType] = None
+    moving_time: Optional[DurationType] = None
 
 
 class AthleteStats(strava_model.ActivityStats):
@@ -730,10 +733,11 @@ class Lap(
     strava_model.Lap,
     BoundClientEntity,
 ):
-
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
+    elapsed_time: Optional[DurationType] = None
+    moving_time: Optional[DurationType] = None
 
     # Undocumented attributes:
     average_watts: Optional[float] = None
@@ -757,6 +761,10 @@ class Split(
     A split -- may be metric or standard units (which has no bearing
     on the units used in this object, just the binning of values).
     """
+
+    # Attribute overrides for type extensions:
+    elapsed_time: Optional[DurationType] = None
+    moving_time: Optional[DurationType] = None
 
     # Undocumented attributes:
     average_heartrate: Optional[float] = None
@@ -814,6 +822,9 @@ class AthletePrEffort(
         validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
         default=None,
     )
+
+    # Attribute overrides for type extensions:
+    pr_elapsed_time: Optional[DurationType] = None
 
     # Undocumented attributes:
     distance: Optional[float] = None
@@ -912,6 +923,8 @@ class BaseEffort(
     segment: Optional[SummarySegment] = None
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
+    elapsed_time: Optional[DurationType] = None
+    moving_time: Optional[DurationType] = None
 
 
 class BestEffort(BaseEffort):
@@ -936,6 +949,9 @@ class AthleteSegmentStats(
     """
     A structure being returned for segment stats for current athlete.
     """
+
+    # Attribute overrides for type extensions:
+    elapsed_time: Optional[DurationType] = None
 
     # Undocumented attributes:
     effort_count: Optional[int] = None
@@ -1012,6 +1028,8 @@ class DetailedActivity(
     # TODO: should be PhotosSummary
     photos: Optional[ActivityPhotoMeta] = None
     laps: Optional[Sequence[Lap]] = None
+    elapsed_time: Optional[DurationType] = None
+    moving_time: Optional[DurationType] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
