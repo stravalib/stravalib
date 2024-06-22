@@ -10,7 +10,7 @@ from typing import Any, Protocol, Union, cast, runtime_checkable
 import pint
 
 from stravalib.exc import warn_units_deprecated
-from stravalib.unit_registry import Q_
+from stravalib.unit_registry import Q_, ureg
 
 
 @runtime_checkable
@@ -82,6 +82,13 @@ def is_quantity_type(obj: Any) -> bool:
         return True
     else:
         return False
+
+
+class _Quantity(float):
+    unit: str
+
+    def quantity(self) -> Quantity:
+        return self * ureg(self.unit)
 
 
 meter = meters = UnitConverter("m")

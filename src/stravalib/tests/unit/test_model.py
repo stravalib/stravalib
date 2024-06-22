@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
+import stravalib.unithelper as uh
 from stravalib import model
 from stravalib.model import (
     ActivityPhoto,
@@ -11,6 +12,7 @@ from stravalib.model import (
     AthleteStats,
     BaseEffort,
     DetailedActivity,
+    Distance,
     Duration,
     Lap,
     LatLon,
@@ -166,10 +168,6 @@ def test_relaxed_activity_type_validation(
 # actual custom types.
 
 
-class DistanceType:
-    pass
-
-
 class TimezoneType:
     pass
 
@@ -181,46 +179,46 @@ class VelocityType:
 @pytest.mark.parametrize(
     "model_type,attr,expected_base_type,expected_extended_type",
     (
-        (ActivityTotals, "distance", float, DistanceType),
-        (ActivityTotals, "elevation_gain", float, DistanceType),
+        (ActivityTotals, "distance", float, Distance),
+        (ActivityTotals, "elevation_gain", float, Distance),
         (ActivityTotals, "elapsed_time", int, Duration),
         (ActivityTotals, "moving_time", int, Duration),
-        (AthleteStats, "biggest_ride_distance", float, DistanceType),
-        (AthleteStats, "biggest_climb_elevation_gain", float, DistanceType),
-        (Lap, "distance", float, DistanceType),
-        (Lap, "total_elevation_gain", float, DistanceType),
+        (AthleteStats, "biggest_ride_distance", float, Distance),
+        (AthleteStats, "biggest_climb_elevation_gain", float, Distance),
+        (Lap, "distance", float, Distance),
+        (Lap, "total_elevation_gain", float, Distance),
         (Lap, "average_speed", float, VelocityType),
         (Lap, "max_speed", float, VelocityType),
         (Lap, "elapsed_time", int, Duration),
         (Lap, "moving_time", int, Duration),
-        (Split, "distance", float, DistanceType),
-        (Split, "elevation_difference", float, DistanceType),
+        (Split, "distance", float, Distance),
+        (Split, "elevation_difference", float, Distance),
         (Split, "average_speed", float, VelocityType),
         (Split, "average_grade_adjusted_speed", float, VelocityType),
         (Split, "elapsed_time", int, Duration),
         (Split, "moving_time", int, Duration),
-        (SegmentExplorerResult, "elev_difference", float, DistanceType),
-        (SegmentExplorerResult, "distance", float, DistanceType),
-        (AthleteSegmentStats, "distance", float, DistanceType),
+        (SegmentExplorerResult, "elev_difference", float, Distance),
+        (SegmentExplorerResult, "distance", float, Distance),
+        (AthleteSegmentStats, "distance", float, Distance),
         (AthleteSegmentStats, "elapsed_time", int, Duration),
-        (AthletePrEffort, "distance", float, DistanceType),
+        (AthletePrEffort, "distance", float, Distance),
         (AthletePrEffort, "pr_elapsed_time", int, Duration),
-        (Segment, "distance", float, DistanceType),
-        (Segment, "elevation_high", float, DistanceType),
-        (Segment, "elevation_low", float, DistanceType),
-        (Segment, "total_elevation_gain", float, DistanceType),
-        (BaseEffort, "distance", float, DistanceType),
+        (Segment, "distance", float, Distance),
+        (Segment, "elevation_high", float, Distance),
+        (Segment, "elevation_low", float, Distance),
+        (Segment, "total_elevation_gain", float, Distance),
+        (BaseEffort, "distance", float, Distance),
         (BaseEffort, "elapsed_time", int, Duration),
         (BaseEffort, "moving_time", int, Duration),
-        (DetailedActivity, "distance", float, DistanceType),
+        (DetailedActivity, "distance", float, Distance),
         (DetailedActivity, "timezone", str, TimezoneType),
-        (DetailedActivity, "total_elevation_gain", float, DistanceType),
+        (DetailedActivity, "total_elevation_gain", float, Distance),
         (DetailedActivity, "average_speed", float, VelocityType),
         (DetailedActivity, "max_speed", float, VelocityType),
         (DetailedActivity, "elapsed_time", int, Duration),
         (DetailedActivity, "moving_time", int, Duration),
-        (Route, "distance", float, DistanceType),
-        (Route, "elevation_gain", float, DistanceType),
+        (Route, "distance", float, Distance),
+        (Route, "elevation_gain", float, Distance),
     ),
 )
 def test_extended_types(
@@ -241,6 +239,7 @@ def test_extended_types(
             42,
             timedelta(seconds=42),
         ),
+        (ActivityTotals, "distance", "quantity", 42, uh.meters(42)),
     ),
 )
 def test_extended_types_values(

@@ -60,6 +60,7 @@ from stravalib.strava_model import (
     SportType,
     SummaryGear,
 )
+from stravalib.unithelper import _Quantity
 
 if TYPE_CHECKING:
     from stravalib.client import BatchedResultsIterator
@@ -302,7 +303,20 @@ class _DurationAnnotation(_CustomIntAnnotation):
         return Duration(value)
 
 
+class Distance(_Quantity):
+    unit = "meters"
+
+
+class _DistanceAnnotation(_CustomFloatAnnotation):
+    _type = Distance
+
+    @classmethod
+    def validate(cls, value: float) -> Distance:
+        return Distance(value)
+
+
 DurationType = Annotated[Duration, _DurationAnnotation]
+DistanceType = Annotated[Distance, _DistanceAnnotation]
 
 
 class BoundClientEntity(BaseModel):
@@ -488,6 +502,7 @@ class ActivityTotals(strava_model.ActivityTotal):
     elapsed time, moving time, distance and elevation gain."""
 
     # Attribute overrides for custom types:
+    distance: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
 
@@ -508,6 +523,8 @@ class AthleteStats(strava_model.ActivityStats):
     all_ride_totals: Optional[ActivityTotals] = None
     all_run_totals: Optional[ActivityTotals] = None
     all_swim_totals: Optional[ActivityTotals] = None
+    biggest_ride_distance: Optional[DistanceType] = None
+    biggest_climb_elevation_gain: Optional[DistanceType] = None
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
@@ -736,6 +753,8 @@ class Lap(
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
+    distance: Optional[DistanceType] = None
+    total_elevation_gain: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
 
@@ -763,6 +782,8 @@ class Split(
     """
 
     # Attribute overrides for type extensions:
+    distance: Optional[DistanceType] = None
+    elevation_difference: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
 
@@ -783,6 +804,8 @@ class SegmentExplorerResult(
     """
 
     # Field overrides from superclass for type extensions:
+    elev_difference: Optional[DistanceType] = None
+    distance: Optional[DistanceType] = None
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
 
@@ -827,7 +850,7 @@ class AthletePrEffort(
     pr_elapsed_time: Optional[DurationType] = None
 
     # Undocumented attributes:
-    distance: Optional[float] = None
+    distance: Optional[DistanceType] = None
     start_date: Optional[datetime] = None
     start_date_local: Optional[datetime] = None
     is_kom: Optional[bool] = None
@@ -858,6 +881,10 @@ class Segment(SummarySegment, strava_model.DetailedSegment):
 
     # Field overrides from superclass for type extensions:
     map: Optional[Map] = None
+    distance: Optional[DistanceType] = None
+    elevation_high: Optional[DistanceType] = None
+    elevation_low: Optional[DistanceType] = None
+    total_elevation_gain: Optional[DistanceType] = None
 
     # Undocumented attributes:
     start_latitude: Optional[float] = None
@@ -925,6 +952,7 @@ class BaseEffort(
     athlete: Optional[MetaAthlete] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
+    distance: Optional[DistanceType] = None
 
 
 class BestEffort(BaseEffort):
@@ -951,6 +979,7 @@ class AthleteSegmentStats(
     """
 
     # Attribute overrides for type extensions:
+    distance: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
 
     # Undocumented attributes:
@@ -1017,6 +1046,8 @@ class DetailedActivity(
     """
 
     # field overrides from superclass for type extensions:
+    distance: Optional[DistanceType] = None
+    total_elevation_gain: Optional[DistanceType] = None
     gear: Optional[SummaryGear] = None
     best_efforts: Optional[Sequence[BestEffort]] = None
     # TODO: returning empty Sequence should be  DetailedSegmentEffort object
@@ -1144,6 +1175,8 @@ class Route(
     """
 
     # Superclass field overrides for using extended types
+    distance: Optional[DistanceType] = None
+    elevation_gain: Optional[DistanceType] = None
     athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
     segments: Optional[Sequence[SummarySegment]]
