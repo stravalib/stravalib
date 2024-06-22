@@ -25,6 +25,7 @@ from stravalib.model import (
     Split,
     SubscriptionCallback,
     SummarySegmentEffort,
+    Velocity,
     naive_datetime,
 )
 from stravalib.tests import TestBase
@@ -172,10 +173,6 @@ class TimezoneType:
     pass
 
 
-class VelocityType:
-    pass
-
-
 @pytest.mark.parametrize(
     "model_type,attr,expected_base_type,expected_extended_type",
     (
@@ -187,14 +184,14 @@ class VelocityType:
         (AthleteStats, "biggest_climb_elevation_gain", float, Distance),
         (Lap, "distance", float, Distance),
         (Lap, "total_elevation_gain", float, Distance),
-        (Lap, "average_speed", float, VelocityType),
-        (Lap, "max_speed", float, VelocityType),
+        (Lap, "average_speed", float, Velocity),
+        (Lap, "max_speed", float, Velocity),
         (Lap, "elapsed_time", int, Duration),
         (Lap, "moving_time", int, Duration),
         (Split, "distance", float, Distance),
         (Split, "elevation_difference", float, Distance),
-        (Split, "average_speed", float, VelocityType),
-        (Split, "average_grade_adjusted_speed", float, VelocityType),
+        (Split, "average_speed", float, Velocity),
+        (Split, "average_grade_adjusted_speed", float, Velocity),
         (Split, "elapsed_time", int, Duration),
         (Split, "moving_time", int, Duration),
         (SegmentExplorerResult, "elev_difference", float, Distance),
@@ -213,8 +210,8 @@ class VelocityType:
         (DetailedActivity, "distance", float, Distance),
         (DetailedActivity, "timezone", str, TimezoneType),
         (DetailedActivity, "total_elevation_gain", float, Distance),
-        (DetailedActivity, "average_speed", float, VelocityType),
-        (DetailedActivity, "max_speed", float, VelocityType),
+        (DetailedActivity, "average_speed", float, Velocity),
+        (DetailedActivity, "max_speed", float, Velocity),
         (DetailedActivity, "elapsed_time", int, Duration),
         (DetailedActivity, "moving_time", int, Duration),
         (Route, "distance", float, Distance),
@@ -240,6 +237,7 @@ def test_extended_types(
             timedelta(seconds=42),
         ),
         (ActivityTotals, "distance", "quantity", 42, uh.meters(42)),
+        (Lap, "average_speed", "quantity", 42, uh.meters_per_second(42)),
     ),
 )
 def test_extended_types_values(
