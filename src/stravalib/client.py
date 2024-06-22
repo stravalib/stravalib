@@ -42,7 +42,6 @@ from stravalib.exc import (
     warn_param_unsupported,
 )
 from stravalib.protocol import AccessInfo, ApiV3, Scope
-from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
 
 if TYPE_CHECKING:
@@ -787,8 +786,8 @@ class Client:
         if isinstance(elapsed_time, timedelta):
             elapsed_time = elapsed_time.seconds
 
-        if is_quantity_type(distance):
-            distance = float(unithelper.meters(cast(pint.Quantity, distance)))
+        if isinstance(distance, pint.Quantity):
+            distance = unithelper.meters(distance).magnitude
 
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")

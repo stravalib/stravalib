@@ -4,48 +4,19 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 
-from numbers import Number
-from typing import Any, Protocol, Union, cast, runtime_checkable
+from typing import Any, Union
 
 import pint
+from pint.facets.plain import PlainQuantity
 
-from stravalib.exc import warn_units_deprecated
-from stravalib.unit_registry import Q_, ureg
+from stravalib.unit_registry import ureg
 
 
-@runtime_checkable
-class UnitsQuantity(Protocol):
-    """
-    A type that represents the (deprecated) `units` Quantity. The `unit`
-    attribute in the units library consists of other classes, so this
-    representation may not be 100% backward compatible!
-    """
-
-    num: float
+class _Quantity(float):
     unit: str
 
-
-class Quantity(Q_):  # type: ignore[valid-type, misc]
-    """
-    Extension of `pint.Quantity` for temporary backward compatibility with
-    the legacy `units` package.
-    """
-
-    @property
-    def num(self) -> pint._typing.Magnitude:
-        warn_units_deprecated()
-        return self.magnitude
-
-    @property
-    def unit(self) -> str:
-        warn_units_deprecated()
-        return str(self.units)
-
-    def __int__(self) -> int:
-        return int(self.magnitude)
-
-    def __float__(self) -> float:
-        return float(self.magnitude)
+    def quantity(self) -> pint.Quantity:
+        return self * ureg(self.unit)
 
 
 class UnitConverter:
@@ -53,42 +24,15 @@ class UnitConverter:
         self.unit = unit
 
     def __call__(
-        self, q: Union[Number, pint.Quantity, UnitsQuantity]
-    ) -> Quantity:
-        if isinstance(q, Number):
-            # provided quantity is unitless, so mimic legacy `units` behavior:
-            converted_q = Quantity(q, self.unit)
+        self, q: Union[_Quantity, pint.Quantity, float]
+    ) -> PlainQuantity[Any]:
+        if isinstance(q, pint.Quantity):
+            return q.to(self.unit)
+        elif isinstance(q, _Quantity):
+            return q.quantity().to(self.unit)
         else:
-            try:
-                converted_q = Quantity(
-                    cast(pint.Quantity, q).to(self.unit).magnitude, self.unit
-                )
-            except AttributeError:
-                # unexpected type of quantity, maybe it's a legacy `units` Quantity
-                warn_units_deprecated()
-                computed_q = Quantity(q.num, q.unit)
-                converted_q = Quantity(
-                    computed_q.to(self.unit).magnitude, self.unit
-                )
-
-        return converted_q
-
-
-def is_quantity_type(obj: Any) -> bool:
-    if isinstance(obj, (pint.Quantity, Quantity)):
-        return True
-    elif isinstance(obj, UnitsQuantity):  # check using Duck Typing
-        warn_units_deprecated()
-        return True
-    else:
-        return False
-
-
-class _Quantity(float):
-    unit: str
-
-    def quantity(self) -> Quantity:
-        return self * ureg(self.unit)
+            # unitless number: simply return a Quantity
+            return q * ureg(self.unit)
 
 
 meter = meters = UnitConverter("m")
