@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import pytest
+import pytz
 
 import stravalib.unithelper as uh
 from stravalib import model
@@ -25,6 +26,7 @@ from stravalib.model import (
     Split,
     SubscriptionCallback,
     SummarySegmentEffort,
+    Timezone,
     Velocity,
     naive_datetime,
 )
@@ -165,14 +167,6 @@ def test_relaxed_activity_type_validation(
         assert obj == RelaxedActivityType(root=expected_type)
 
 
-# TODO: these classes are just temporary placeholders and should be replace with
-# actual custom types.
-
-
-class TimezoneType:
-    pass
-
-
 @pytest.mark.parametrize(
     "model_type,attr,expected_base_type,expected_extended_type",
     (
@@ -208,7 +202,7 @@ class TimezoneType:
         (BaseEffort, "elapsed_time", int, Duration),
         (BaseEffort, "moving_time", int, Duration),
         (DetailedActivity, "distance", float, Distance),
-        (DetailedActivity, "timezone", str, TimezoneType),
+        (DetailedActivity, "timezone", str, Timezone),
         (DetailedActivity, "total_elevation_gain", float, Distance),
         (DetailedActivity, "average_speed", float, Velocity),
         (DetailedActivity, "max_speed", float, Velocity),
@@ -221,7 +215,8 @@ class TimezoneType:
 def test_extended_types(
     model_type, attr, expected_base_type, expected_extended_type
 ):
-    obj = model_type.model_validate(dict(**{attr: 42}))
+    test_value = "Europe/Amsterdam" if expected_base_type == str else 42
+    obj = model_type.model_validate(dict(**{attr: test_value}))
     assert isinstance(getattr(obj, attr), expected_base_type)
     assert isinstance(getattr(obj, attr), expected_extended_type)
 
@@ -252,6 +247,20 @@ def test_extended_types_values(
     extended_attr = getattr(base_attr, extended_attr)()
     assert base_attr == expected_base_value
     assert extended_attr == expected_extended_value
+
+
+@pytest.mark.parametrize(
+    "arg,expected_value",
+    (
+        ("Factory", None),
+        ("(GMT+00:00) Factory", None),
+        ("Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
+        ("(GMT+01:00) Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
+    ),
+)
+def test_timezone(arg, expected_value):
+    tz = Timezone(arg)
+    assert tz.timezone() == expected_value
 
 
 class ModelTest(TestBase):

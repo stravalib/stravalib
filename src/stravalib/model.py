@@ -33,6 +33,7 @@ from typing import (
     get_args,
 )
 
+import pytz
 from dateutil import parser
 from dateutil.parser import ParserError
 from pydantic import (
@@ -46,6 +47,7 @@ from pydantic import (
 )
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
+from pytz import UnknownTimeZoneError
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
@@ -290,6 +292,12 @@ class _CustomFloatAnnotation(_CustomTypeAnnotation[float, Any], ABC):
         return core_schema.float_schema()
 
 
+class _CustomStrAnnotation(_CustomTypeAnnotation[str, Any], ABC):
+    @classmethod
+    def get_core_schema(cls) -> Mapping[str, Any]:
+        return core_schema.str_schema()
+
+
 class Duration(int):
     def timedelta(self) -> timedelta:
         return timedelta(seconds=self)
@@ -301,6 +309,38 @@ class _DurationAnnotation(_CustomIntAnnotation):
     @classmethod
     def validate(cls, value: int) -> Duration:
         return Duration(value)
+
+
+class Timezone(str):
+    def timezone(
+        self,
+    ) -> (
+        pytz._UTCclass
+        | pytz.tzinfo.StaticTzInfo
+        | pytz.tzinfo.DstTzInfo
+        | None
+    ):
+        if " " in self:
+            # (GMT-08:00) America/Los_Angeles
+            tzname = self.split(" ", 1)[1]
+        else:
+            # America/Los_Angeles
+            tzname = self
+        try:
+            return pytz.timezone(tzname)
+        except UnknownTimeZoneError as e:
+            LOGGER.warning(
+                f"Encountered unknown time zone {tzname}, returning None"
+            )
+            return None
+
+
+class _TimezoneAnnotation(_CustomStrAnnotation):
+    _type = Timezone
+
+    @classmethod
+    def validate(cls, value: str) -> Timezone:
+        return Timezone(value)
 
 
 class Distance(_Quantity):
@@ -330,6 +370,7 @@ class _VelocityAnnotation(_CustomFloatAnnotation):
 DurationType = Annotated[Duration, _DurationAnnotation]
 DistanceType = Annotated[Distance, _DistanceAnnotation]
 VelocityType = Annotated[Velocity, _VelocityAnnotation]
+TimezoneType = Annotated[Timezone, _TimezoneAnnotation]
 
 
 class BoundClientEntity(BaseModel):
@@ -1080,6 +1121,7 @@ class DetailedActivity(
     moving_time: Optional[DurationType] = None
     average_speed: Optional[VelocityType] = None
     max_speed: Optional[VelocityType] = None
+    timezone: Optional[TimezoneType] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
