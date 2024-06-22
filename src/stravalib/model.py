@@ -315,8 +315,21 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
         return Distance(value)
 
 
+class Velocity(_Quantity):
+    unit = "meters/second"
+
+
+class _VelocityAnnotation(_CustomFloatAnnotation):
+    _type = Velocity
+
+    @classmethod
+    def validate(cls, value: float) -> Velocity:
+        return Velocity(value)
+
+
 DurationType = Annotated[Duration, _DurationAnnotation]
 DistanceType = Annotated[Distance, _DistanceAnnotation]
+VelocityType = Annotated[Velocity, _VelocityAnnotation]
 
 
 class BoundClientEntity(BaseModel):
@@ -757,6 +770,8 @@ class Lap(
     total_elevation_gain: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
+    average_speed: Optional[VelocityType] = None
+    max_speed: Optional[VelocityType] = None
 
     # Undocumented attributes:
     average_watts: Optional[float] = None
@@ -786,6 +801,8 @@ class Split(
     elevation_difference: Optional[DistanceType] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
+    average_speed: Optional[VelocityType] = None
+    average_grade_adjusted_speed: Optional[VelocityType] = None
 
     # Undocumented attributes:
     average_heartrate: Optional[float] = None
@@ -1061,6 +1078,8 @@ class DetailedActivity(
     laps: Optional[Sequence[Lap]] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
+    average_speed: Optional[VelocityType] = None
+    max_speed: Optional[VelocityType] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
