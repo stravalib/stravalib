@@ -13,16 +13,21 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     ClassVar,
+    Generic,
     Literal,
+    Mapping,
     Optional,
+    Type,
     TypeVar,
     Union,
     get_args,
@@ -34,9 +39,13 @@ from pydantic import (
     AliasChoices,
     BaseModel,
     Field,
+    GetCoreSchemaHandler,
+    GetJsonSchemaHandler,
     field_validator,
     model_validator,
 )
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import core_schema
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
@@ -218,6 +227,80 @@ def check_valid_location(
         return list(location)
     else:
         return None
+
+
+# Custom types:
+
+BaseType = TypeVar("BaseType")
+CustomType = TypeVar("CustomType")
+
+
+class _CustomTypeAnnotation(Generic[BaseType, CustomType], ABC):
+    _type: Type[CustomType]
+
+    @classmethod
+    @abstractmethod
+    def validate(cls, value: BaseType) -> CustomType: ...
+
+    @classmethod
+    @abstractmethod
+    def get_core_schema(cls) -> Mapping[str, Any]: ...
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls,
+        _source_type: BaseType,  # TODO: was ANY??
+        _handler: GetCoreSchemaHandler,
+    ) -> core_schema.CoreSchema:
+        from_schema = core_schema.chain_schema(
+            [
+                cls.get_core_schema(),
+                core_schema.no_info_plain_validator_function(cls.validate),
+            ]
+        )
+
+        return core_schema.json_or_python_schema(
+            json_schema=from_schema,
+            python_schema=core_schema.union_schema(
+                [core_schema.is_instance_schema(cls._type), from_schema]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda v: v
+            ),
+        )
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls,
+        _core_schema: core_schema.CoreSchema,
+        handler: GetJsonSchemaHandler,
+    ) -> JsonSchemaValue:
+        return handler(cls.get_core_schema())
+
+
+class _CustomIntAnnotation(_CustomTypeAnnotation[int, Any], ABC):
+    @classmethod
+    def get_core_schema(cls) -> Mapping[str, Any]:
+        return core_schema.int_schema()
+
+
+class _CustomFloatAnnotation(_CustomTypeAnnotation[float, Any], ABC):
+    @classmethod
+    def get_core_schema(cls) -> Mapping[str, Any]:
+        return core_schema.float_schema()
+
+
+class Duration(int):
+    def timedelta(self) -> timedelta:
+        return timedelta(seconds=self)
+
+
+class _DurationAnnotation(_CustomIntAnnotation):
+    _type = Duration
+
+    @classmethod
+    def validate(cls, value: int) -> Duration:
+        return Duration(value)
 
 
 class BoundClientEntity(BaseModel):
@@ -402,7 +485,8 @@ class ActivityTotals(ActivityTotal):
     """An objecting containing a set of total values for an activity including
     elapsed time, moving time, distance and elevation gain."""
 
-    pass
+    # Attribute overrides for custom types:
+    elapsed_time: Optional[Annotated[Duration, _DurationAnnotation]] = None
 
 
 class AthleteStats(strava_model.ActivityStats):

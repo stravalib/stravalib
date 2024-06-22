@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -11,6 +11,7 @@ from stravalib.model import (
     AthleteStats,
     BaseEffort,
     DetailedActivity,
+    Duration,
     Lap,
     LatLon,
     RelaxedActivityType,
@@ -169,10 +170,6 @@ class DistanceType:
     pass
 
 
-class TimeDeltaType:
-    pass
-
-
 class TimezoneType:
     pass
 
@@ -181,48 +178,47 @@ class VelocityType:
     pass
 
 
-@pytest.mark.skip(reason="not implemented yet")
 @pytest.mark.parametrize(
     "model_type,attr,expected_base_type,expected_extended_type",
     (
         (ActivityTotals, "distance", float, DistanceType),
         (ActivityTotals, "elevation_gain", float, DistanceType),
-        (ActivityTotals, "elapsed_time", int, TimeDeltaType),
-        (ActivityTotals, "moving_time", int, TimeDeltaType),
+        (ActivityTotals, "elapsed_time", int, Duration),
+        (ActivityTotals, "moving_time", int, Duration),
         (AthleteStats, "biggest_ride_distance", float, DistanceType),
         (AthleteStats, "biggest_climb_elevation_gain", float, DistanceType),
         (Lap, "distance", float, DistanceType),
         (Lap, "total_elevation_gain", float, DistanceType),
         (Lap, "average_speed", float, VelocityType),
         (Lap, "max_speed", float, VelocityType),
-        (Lap, "elapsed_time", int, TimeDeltaType),
-        (Lap, "moving_time", int, TimeDeltaType),
+        (Lap, "elapsed_time", int, Duration),
+        (Lap, "moving_time", int, Duration),
         (Split, "distance", float, DistanceType),
         (Split, "elevation_difference", float, DistanceType),
         (Split, "average_speed", float, VelocityType),
         (Split, "average_grade_adjusted_speed", float, VelocityType),
-        (Split, "elapsed_time", int, TimeDeltaType),
-        (Split, "moving_time", int, TimeDeltaType),
+        (Split, "elapsed_time", int, Duration),
+        (Split, "moving_time", int, Duration),
         (SegmentExplorerResult, "elev_difference", float, DistanceType),
         (SegmentExplorerResult, "distance", float, DistanceType),
         (AthleteSegmentStats, "distance", float, DistanceType),
-        (AthleteSegmentStats, "elapsed_time", int, TimeDeltaType),
+        (AthleteSegmentStats, "elapsed_time", int, Duration),
         (AthletePrEffort, "distance", float, DistanceType),
-        (AthletePrEffort, "pr_elapsed_time", int, TimeDeltaType),
+        (AthletePrEffort, "pr_elapsed_time", int, Duration),
         (Segment, "distance", float, DistanceType),
         (Segment, "elevation_high", float, DistanceType),
         (Segment, "elevation_low", float, DistanceType),
         (Segment, "total_elevation_gain", float, DistanceType),
         (BaseEffort, "distance", float, DistanceType),
-        (BaseEffort, "elapsed_time", int, TimeDeltaType),
-        (BaseEffort, "moving_time", int, TimeDeltaType),
+        (BaseEffort, "elapsed_time", int, Duration),
+        (BaseEffort, "moving_time", int, Duration),
         (DetailedActivity, "distance", float, DistanceType),
         (DetailedActivity, "timezone", str, TimezoneType),
         (DetailedActivity, "total_elevation_gain", float, DistanceType),
         (DetailedActivity, "average_speed", float, VelocityType),
         (DetailedActivity, "max_speed", float, VelocityType),
-        (DetailedActivity, "elapsed_time", int, TimeDeltaType),
-        (DetailedActivity, "moving_time", int, TimeDeltaType),
+        (DetailedActivity, "elapsed_time", int, Duration),
+        (DetailedActivity, "moving_time", int, Duration),
         (Route, "distance", float, DistanceType),
         (Route, "elevation_gain", float, DistanceType),
     ),
@@ -233,6 +229,32 @@ def test_extended_types(
     obj = model_type.model_validate(dict(**{attr: 42}))
     assert isinstance(getattr(obj, attr), expected_base_type)
     assert isinstance(getattr(obj, attr), expected_extended_type)
+
+
+@pytest.mark.parametrize(
+    "model_type,attr,extended_attr,expected_base_value,expected_extended_value",
+    (
+        (
+            ActivityTotals,
+            "elapsed_time",
+            "timedelta",
+            42,
+            timedelta(seconds=42),
+        ),
+    ),
+)
+def test_extended_types_values(
+    model_type,
+    attr,
+    extended_attr,
+    expected_base_value,
+    expected_extended_value,
+):
+    obj = model_type.model_validate(dict(**{attr: 42}))
+    base_attr = getattr(obj, attr)
+    extended_attr = getattr(base_attr, extended_attr)()
+    assert base_attr == expected_base_value
+    assert extended_attr == expected_extended_value
 
 
 class ModelTest(TestBase):
