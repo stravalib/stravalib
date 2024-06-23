@@ -20,7 +20,7 @@ class _Quantity(float):
     unit: str
 
     def quantity(self) -> pint.Quantity:
-        return self * ureg(self.unit)
+        return ureg.Quantity(self, self.unit)
 
 
 class UnitConverter:
@@ -40,7 +40,7 @@ class UnitConverter:
             return q.quantity().to(self.unit)
         else:
             # unitless number: simply return a Quantity
-            return q * ureg(self.unit)
+            return ureg.Quantity(q, self.unit)
 
 
 meter = meters = UnitConverter("m")
