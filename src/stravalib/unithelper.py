@@ -13,6 +13,10 @@ from stravalib.unit_registry import ureg
 
 
 class _Quantity(float):
+    """
+    Subtype of float that can represent quantities by adding a unit
+    """
+
     unit: str
 
     def quantity(self) -> pint.Quantity:
@@ -20,6 +24,10 @@ class _Quantity(float):
 
 
 class UnitConverter:
+    """
+    Callable that converts quantities or unitless numbers to quantities of its unit
+    """
+
     def __init__(self, unit: str) -> None:
         self.unit = unit
 
