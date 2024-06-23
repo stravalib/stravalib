@@ -13,6 +13,4 @@ Summary Functions
    :toctree: api/
 
    optional_input
-   enum_value
-   enum_values
    timezone

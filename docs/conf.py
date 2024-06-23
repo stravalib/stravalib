@@ -66,7 +66,39 @@ extensions = [
     # TODO: fix is to install fonts in CI or remove opengraph
     # "sphinxext.opengraph",
     "sphinx_inline_tabs",
+    # Inheritance diagrams
+    "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
 ]
+
+# Inheritance diagram settings - you can find various settings in the
+# graphviz docs here https://graphviz.org/doc/info/attrs.html
+inheritance_graph_attrs = dict(
+    rankdir="BT",
+    color="darkorchid4",
+    size='"6.0, 8.0"',
+    fontsize=16,
+    ratio="compress",
+)
+
+inheritance_node_attrs = dict(
+    # https://graphviz.org/docs/attrs/rankdir/
+    # rankdir="BT",
+    shape="ellipse",
+    fontsize=16,
+    # https://graphviz.org/doc/info/colors.html
+    color="plum3",
+    height=1.05,
+    # Line weight of shape
+    style="bold",
+)
+
+# Edit the arrow and line attributes
+inheritance_edge_attrs = dict(
+    color="plum3",
+    # Line weight of shape
+    style="dashed",
+)
 
 remove_from_toctrees = ["docs/reference/api/*"]
 
@@ -115,6 +147,7 @@ html_theme_options = {
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_start": ["copyright"],
+    "announcement": "Test drive Stravalib 2.x before we make a formal release. Learn more <a href=''>here</a>",
 }
 
 html_context = {
