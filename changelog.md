@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Fix: Add `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
+- Fix: Add custom types that pass static type checks (@jsamoocha, #534)
 
 ## v1.7
 
