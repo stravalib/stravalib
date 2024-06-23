@@ -251,7 +251,7 @@ class _CustomTypeAnnotation(Generic[BaseType, CustomType], ABC):
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
-        _source_type: BaseType,  # TODO: was ANY??
+        _source_type: BaseType,
         _handler: GetCoreSchemaHandler,
     ) -> core_schema.CoreSchema:
         from_schema = core_schema.chain_schema(
