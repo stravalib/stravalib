@@ -1240,7 +1240,7 @@ class Route(
     elevation_gain: Optional[DistanceType] = None
     athlete: Optional[SummaryAthlete] = None
     map: Optional[Map] = None
-    segments: Optional[Sequence[SummarySegment]]
+    segments: Optional[Sequence[SummarySegment]] = None
 
 
 class Subscription(BaseModel):
