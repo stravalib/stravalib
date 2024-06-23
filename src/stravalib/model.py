@@ -13,14 +13,16 @@ related entities from the API.
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     ClassVar,
     Literal,
+    Optional,
     TypeVar,
     Union,
     get_args,
@@ -71,7 +73,7 @@ AllDateTypes = Union[
 
 
 # Could naive_datetime also be run in a validator?
-def naive_datetime(value: AllDateTypes | None) -> datetime | None:
+def naive_datetime(value: Optional[AllDateTypes]) -> Optional[datetime]:
     """Utility helper that parses a datetime value provided in
     JSON, string, int or other formats and returns a datetime.datetime
     object.
@@ -121,7 +123,7 @@ def naive_datetime(value: AllDateTypes | None) -> datetime | None:
         raise ValueError(f"Unsupported value type: {type(value)}")
 
 
-def lazy_property(fn: Callable[[U], T]) -> T | None:
+def lazy_property(fn: Callable[[U], T]) -> Optional[T]:
     """
     Should be used to decorate the functions that return a lazily loaded
     entity (collection), e.g., the members of a club.
@@ -150,7 +152,7 @@ def lazy_property(fn: Callable[[U], T]) -> T | None:
     """
 
     @wraps(fn)
-    def wrapper(obj: U) -> T | None:
+    def wrapper(obj: U) -> Optional[T]:
         try:
             if obj.bound_client is None:
                 raise exc.UnboundEntity(
@@ -175,8 +177,8 @@ def lazy_property(fn: Callable[[U], T]) -> T | None:
 
 # This method checks a list of floats - ie a stream not just a single lat/lon
 def check_valid_location(
-    location: Sequence[float] | str | None,
-) -> list[float] | None:
+    location: Optional[Union[Sequence[float], str]]
+) -> Optional[list[float]]:
     """
     Validate a list of location xy values.
 
@@ -224,7 +226,7 @@ class BoundClientEntity(BaseModel):
     # Using Any as type here to prevent catch-22 between circular import and
     # Pydantic forward-referencing issues "resolved" by PEP-8 violations.
     # See e.g. https://github.com/pydantic/pydantic/issues/1873
-    bound_client: Any | None = Field(None, exclude=True)
+    bound_client: Optional[Any] = Field(None, exclude=True)
 
 
 class RelaxedActivityType(ActivityType):
@@ -361,9 +363,9 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
     """
 
     # Undocumented attributes:
-    profile: str | None = None
-    description: str | None = None
-    club_type: str | None = None
+    profile: Optional[str] = None
+    description: Optional[str] = None
+    club_type: Optional[str] = None
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
@@ -410,20 +412,20 @@ class AthleteStats(strava_model.ActivityStats):
     """
 
     # Field overrides from superclass for type extensions:
-    recent_ride_totals: ActivityTotals | None = None
-    recent_run_totals: ActivityTotals | None = None
-    recent_swim_totals: ActivityTotals | None = None
-    ytd_ride_totals: ActivityTotals | None = None
-    ytd_run_totals: ActivityTotals | None = None
-    ytd_swim_totals: ActivityTotals | None = None
-    all_ride_totals: ActivityTotals | None = None
-    all_run_totals: ActivityTotals | None = None
-    all_swim_totals: ActivityTotals | None = None
+    recent_ride_totals: Optional[ActivityTotals] = None
+    recent_run_totals: Optional[ActivityTotals] = None
+    recent_swim_totals: Optional[ActivityTotals] = None
+    ytd_ride_totals: Optional[ActivityTotals] = None
+    ytd_run_totals: Optional[ActivityTotals] = None
+    ytd_swim_totals: Optional[ActivityTotals] = None
+    all_ride_totals: Optional[ActivityTotals] = None
+    all_run_totals: Optional[ActivityTotals] = None
+    all_swim_totals: Optional[ActivityTotals] = None
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
     # Undocumented
-    resource_state: int | None = None
+    resource_state: Optional[int] = None
 
 
 class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
@@ -441,50 +443,50 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     """
 
     # Field overrides from superclass for type extensions:
-    clubs: Sequence[SummaryClub] | None = None
+    clubs: Optional[Sequence[SummaryClub]] = None
 
     # Undocumented attributes:
-    athlete_type: Literal["cyclist", "runner"] | None = None
-    friend: str | None = None
-    follower: str | None = None
-    approve_followers: bool | None = None
-    badge_type_id: int | None = None
-    mutual_friend_count: int | None = None
-    date_preference: str | None = None
-    email: str | None = None
-    super_user: bool | None = None
-    email_language: str | None = None
-    max_heartrate: float | None = None
-    username: str | None = None
-    description: str | None = None
-    instagram_username: str | None = None
-    offer_in_app_payment: bool | None = None
-    global_privacy: bool | None = None
-    receive_newsletter: bool | None = None
-    email_kom_lost: bool | None = None
-    dateofbirth: date | None = None
-    facebook_sharing_enabled: bool | None = None
-    profile_original: str | None = None
-    premium_expiration_date: int | None = None
-    email_send_follower_notices: bool | None = None
-    plan: str | None = None
-    agreed_to_terms: str | None = None
-    follower_request_count: int | None = None
-    email_facebook_twitter_friend_joins: bool | None = None
-    receive_kudos_emails: bool | None = None
-    receive_follower_feed_emails: bool | None = None
-    receive_comment_emails: bool | None = None
-    sample_race_distance: int | None = None
-    sample_race_time: int | None = None
-    membership: str | None = None
-    admin: bool | None = None
-    owner: bool | None = None
-    subscription_permissions: Sequence[bool] | None = None
+    athlete_type: Optional[Literal["cyclist", "runner"]] = None
+    friend: Optional[str] = None
+    follower: Optional[str] = None
+    approve_followers: Optional[bool] = None
+    badge_type_id: Optional[int] = None
+    mutual_friend_count: Optional[int] = None
+    date_preference: Optional[str] = None
+    email: Optional[str] = None
+    super_user: Optional[bool] = None
+    email_language: Optional[str] = None
+    max_heartrate: Optional[float] = None
+    username: Optional[str] = None
+    description: Optional[str] = None
+    instagram_username: Optional[str] = None
+    offer_in_app_payment: Optional[bool] = None
+    global_privacy: Optional[bool] = None
+    receive_newsletter: Optional[bool] = None
+    email_kom_lost: Optional[bool] = None
+    dateofbirth: Optional[date] = None
+    facebook_sharing_enabled: Optional[bool] = None
+    profile_original: Optional[str] = None
+    premium_expiration_date: Optional[int] = None
+    email_send_follower_notices: Optional[bool] = None
+    plan: Optional[str] = None
+    agreed_to_terms: Optional[str] = None
+    follower_request_count: Optional[int] = None
+    email_facebook_twitter_friend_joins: Optional[bool] = None
+    receive_kudos_emails: Optional[bool] = None
+    receive_follower_feed_emails: Optional[bool] = None
+    receive_comment_emails: Optional[bool] = None
+    sample_race_distance: Optional[int] = None
+    sample_race_time: Optional[int] = None
+    membership: Optional[str] = None
+    admin: Optional[bool] = None
+    owner: Optional[bool] = None
+    subscription_permissions: Optional[Sequence[bool]] = None
 
     @field_validator("athlete_type", mode="before")
     def to_str_representation(
         cls, raw_type: int
-    ) -> Literal["cyclist", "runner"] | None:
+    ) -> Optional[Literal["cyclist", "runner"]]:
         """Replaces legacy 'ChoicesAttribute' class.
 
         Parameters
@@ -535,7 +537,7 @@ class ActivityComment(Comment):
         The athlete associated with the comment.
     """
 
-    athlete: SummaryAthlete | None = None
+    athlete: Optional[SummaryAthlete] = None
 
 
 class ActivityPhotoPrimary(Primary):
@@ -552,7 +554,7 @@ class ActivityPhotoPrimary(Primary):
     Attributes for activity photos are currently undocumented.
     """
 
-    use_primary_photo: bool | None = None
+    use_primary_photo: Optional[bool] = None
 
 
 class ActivityPhotoMeta(PhotosSummary):
@@ -575,10 +577,10 @@ class ActivityPhotoMeta(PhotosSummary):
     """
 
     # Field overrides from superclass for type extensions:
-    primary: ActivityPhotoPrimary | None = None
+    primary: Optional[ActivityPhotoPrimary] = None
 
     # Undocumented by strava
-    use_primary_photo: bool | None = None
+    use_primary_photo: Optional[bool] = None
 
 
 class ActivityPhoto(BaseModel):
@@ -590,23 +592,23 @@ class ActivityPhoto(BaseModel):
     endpoint to retrieve it
     """
 
-    athlete_id: int | None = None
-    activity_id: int | None = None
-    activity_name: str | None = None
-    ref: str | None = None
-    uid: str | None = None
-    unique_id: str | None = None
-    caption: str | None = None
-    type: str | None = None
-    uploaded_at: datetime | None = None
-    created_at: datetime | None = None
-    created_at_local: datetime | None = None
-    location: LatLon | None = None
-    urls: dict[str, str] | None = None
-    sizes: dict[str, Sequence[int]] | None = None
-    post_id: int | None = None
-    default_photo: bool | None = None
-    source: int | None = None
+    athlete_id: Optional[int] = None
+    activity_id: Optional[int] = None
+    activity_name: Optional[str] = None
+    ref: Optional[str] = None
+    uid: Optional[str] = None
+    unique_id: Optional[str] = None
+    caption: Optional[str] = None
+    type: Optional[str] = None
+    uploaded_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    created_at_local: Optional[datetime] = None
+    location: Optional[LatLon] = None
+    urls: Optional[dict[str, str]] = None
+    sizes: Optional[dict[str, Sequence[int]]] = None
+    post_id: Optional[int] = None
+    default_photo: Optional[bool] = None
+    source: Optional[int] = None
 
     _naive_local = field_validator("created_at_local")(naive_datetime)
     _check_latlng = field_validator("location", mode="before")(
@@ -646,14 +648,14 @@ class Lap(
 ):
 
     # Field overrides from superclass for type extensions:
-    activity: MetaActivity | None = None
-    athlete: MetaAthlete | None = None
+    activity: Optional[MetaActivity] = None
+    athlete: Optional[MetaAthlete] = None
 
     # Undocumented attributes:
-    average_watts: float | None = None
-    average_heartrate: float | None = None
-    max_heartrate: float | None = None
-    device_watts: bool | None = None
+    average_watts: Optional[float] = None
+    average_heartrate: Optional[float] = None
+    max_heartrate: Optional[float] = None
+    device_watts: Optional[bool] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
@@ -673,8 +675,8 @@ class Split(
     """
 
     # Undocumented attributes:
-    average_heartrate: float | None = None
-    average_grade_adjusted_speed: float | None = None
+    average_heartrate: Optional[float] = None
+    average_grade_adjusted_speed: Optional[float] = None
 
 
 class SegmentExplorerResult(
@@ -689,11 +691,11 @@ class SegmentExplorerResult(
     """
 
     # Field overrides from superclass for type extensions:
-    start_latlng: LatLon | None = None
-    end_latlng: LatLon | None = None
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
 
     # Undocumented attributes:
-    starred: bool | None = None
+    starred: Optional[bool] = None
 
     _check_latlng = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -720,32 +722,32 @@ class AthletePrEffort(
     strava_model.SummaryPRSegmentEffort,
 ):
     # Override fields from superclass to match actual responses by Strava API:
-    activity_id: int | None = Field(
+    activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
         default=None,
     )
-    elapsed_time: int | None = Field(
+    elapsed_time: Optional[int] = Field(
         validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
         default=None,
     )
 
     # Undocumented attributes:
-    distance: float | None = None
-    start_date: datetime | None = None
-    start_date_local: datetime | None = None
-    is_kom: bool | None = None
+    distance: Optional[float] = None
+    start_date: Optional[datetime] = None
+    start_date_local: Optional[datetime] = None
+    is_kom: Optional[bool] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
 
 class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
     # Field overrides from superclass for type extensions:
-    start_latlng: LatLon | None = None
-    end_latlng: LatLon | None = None
-    athlete_pr_effort: AthletePrEffort | None = None
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+    athlete_pr_effort: Optional[AthletePrEffort] = None
     # Ignore because the spec is incorrectly typed - Optional[Literal["Ride", "Run"]]
-    activity_type: RelaxedActivityType | None = None  # type: ignore[assignment]
-    athlete_segment_stats: AthleteSegmentStats | None = (
+    activity_type: Optional[RelaxedActivityType] = None  # type: ignore[assignment]
+    athlete_segment_stats: Optional[AthleteSegmentStats] = (
         None  # Actually, this is only part of a (detailed) segment response
     )
 
@@ -760,17 +762,17 @@ class Segment(SummarySegment, strava_model.DetailedSegment):
     """
 
     # Field overrides from superclass for type extensions:
-    map: Map | None = None
+    map: Optional[Map] = None
 
     # Undocumented attributes:
-    start_latitude: float | None = None
-    end_latitude: float | None = None
-    start_longitude: float | None = None
-    end_longitude: float | None = None
-    starred: bool | None = None
-    pr_time: timedelta | None = None
-    starred_date: datetime | None = None
-    elevation_profile: str | None = None
+    start_latitude: Optional[float] = None
+    end_latitude: Optional[float] = None
+    start_longitude: Optional[float] = None
+    end_longitude: Optional[float] = None
+    starred: Optional[bool] = None
+    pr_time: Optional[timedelta] = None
+    starred_date: Optional[datetime] = None
+    elevation_profile: Optional[str] = None
 
 
 class SegmentEffortAchievement(BaseModel):
@@ -782,31 +784,31 @@ class SegmentEffortAchievement(BaseModel):
     Undocumented Strava elements can change at any time without notice.
     """
 
-    rank: int | None = None
+    rank: Optional[int] = None
     """
     Rank in segment (either overall leader board, or pr rank)
     """
 
-    type: str | None = None
+    type: Optional[str] = None
     """
     The type of achievement -- e.g. 'year_pr' or 'overall'
     """
 
-    type_id: int | None = None
+    type_id: Optional[int] = None
     """
     Numeric ID for type of achievement?  (6 = year_pr, 2 = overall ??? other?)
     """
 
-    effort_count: int | None = None
+    effort_count: Optional[int] = None
 
 
 class SummarySegmentEffort(strava_model.SummarySegmentEffort):
     # Override superclass fields to match actual Strava API responses
-    activity_id: int | None = Field(
+    activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
         default=None,
     )
-    elapsed_time: int | None = Field(
+    elapsed_time: Optional[int] = Field(
         validation_alias=AliasChoices("pr_elapsed_time", "elapsed_time"),
         default=None,
     )
@@ -823,9 +825,9 @@ class BaseEffort(
     """
 
     # Field overrides from superclass for type extensions:
-    segment: SummarySegment | None = None
-    activity: MetaActivity | None = None
-    athlete: MetaAthlete | None = None
+    segment: Optional[SummarySegment] = None
+    activity: Optional[MetaActivity] = None
+    athlete: Optional[MetaAthlete] = None
 
 
 class BestEffort(BaseEffort):
@@ -841,7 +843,7 @@ class SegmentEffort(BaseEffort):
     Class representing a best effort on a particular segment.
     """
 
-    achievements: Sequence[SegmentEffortAchievement] | None = None
+    achievements: Optional[Sequence[SegmentEffortAchievement]] = None
 
 
 class AthleteSegmentStats(
@@ -852,8 +854,8 @@ class AthleteSegmentStats(
     """
 
     # Undocumented attributes:
-    effort_count: int | None = None
-    pr_date: date | None = None
+    effort_count: Optional[int] = None
+    pr_date: Optional[date] = None
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
@@ -893,13 +895,13 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     # field overrides from superclass for type extensions:
-    athlete: MetaAthlete | None = None
+    athlete: Optional[MetaAthlete] = None
     # These force validator to run on lat/lon
-    start_latlng: LatLon | None = None
-    end_latlng: LatLon | None = None
-    map: Map | None = None
-    type: RelaxedActivityType | None = None
-    sport_type: RelaxedSportType | None = None
+    start_latlng: Optional[LatLon] = None
+    end_latlng: Optional[LatLon] = None
+    map: Optional[Map] = None
+    type: Optional[RelaxedActivityType] = None
+    sport_type: Optional[RelaxedSportType] = None
 
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -915,17 +917,17 @@ class DetailedActivity(
     """
 
     # field overrides from superclass for type extensions:
-    gear: SummaryGear | None = None
-    best_efforts: Sequence[BestEffort] | None = None
+    gear: Optional[SummaryGear] = None
+    best_efforts: Optional[Sequence[BestEffort]] = None
     # TODO: returning empty Sequence should be  DetailedSegmentEffort object
     # TODO: test on activity with actual segments
-    segment_efforts: Sequence[SegmentEffort] | None = None
+    segment_efforts: Optional[Sequence[SegmentEffort]] = None
     # TODO: Returns Split object - check returns for that object
-    splits_metric: Sequence[Split] | None = None
-    splits_standard: Sequence[Split] | None = None
+    splits_metric: Optional[Sequence[Split]] = None
+    splits_standard: Optional[Sequence[Split]] = None
     # TODO: should be PhotosSummary
-    photos: ActivityPhotoMeta | None = None
-    laps: Sequence[Lap] | None = None
+    photos: Optional[ActivityPhotoMeta] = None
+    laps: Optional[Sequence[Lap]] = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
@@ -938,29 +940,29 @@ class DetailedActivity(
     )
 
     # Undocumented attributes:
-    guid: str | None = None
-    utc_offset: float | None = None
-    location_city: str | None = None
-    location_state: str | None = None
-    location_country: str | None = None
-    start_latitude: float | None = None
-    start_longitude: float | None = None
-    pr_count: int | None = None
-    suffer_score: int | None = None
-    has_heartrate: bool | None = None
-    average_heartrate: float | None = None
-    max_heartrate: int | None = None
-    average_cadence: float | None = None
-    average_temp: int | None = None
-    instagram_primary_photo: str | None = None
-    partner_logo_url: str | None = None
-    partner_brand_tag: str | None = None
-    from_accepted_tag: bool | None = None
-    segment_leaderboard_opt_out: bool | None = None
-    perceived_exertion: int | None = None
-    prefer_perceived_exertion: bool | None = None
-    visibility: str | None = None
-    private_note: str | None = None
+    guid: Optional[str] = None
+    utc_offset: Optional[float] = None
+    location_city: Optional[str] = None
+    location_state: Optional[str] = None
+    location_country: Optional[str] = None
+    start_latitude: Optional[float] = None
+    start_longitude: Optional[float] = None
+    pr_count: Optional[int] = None
+    suffer_score: Optional[int] = None
+    has_heartrate: Optional[bool] = None
+    average_heartrate: Optional[float] = None
+    max_heartrate: Optional[int] = None
+    average_cadence: Optional[float] = None
+    average_temp: Optional[int] = None
+    instagram_primary_photo: Optional[str] = None
+    partner_logo_url: Optional[str] = None
+    partner_brand_tag: Optional[str] = None
+    from_accepted_tag: Optional[bool] = None
+    segment_leaderboard_opt_out: Optional[bool] = None
+    perceived_exertion: Optional[int] = None
+    prefer_perceived_exertion: Optional[bool] = None
+    visibility: Optional[str] = None
+    private_note: Optional[str] = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
 
@@ -980,7 +982,7 @@ class ClubActivity(strava_model.ClubActivity):
 
     # Intentional class override as spec returns metaAthlete object
     # (which only contains id)
-    athlete: strava_model.ClubAthlete | None = None  # type: ignore[assignment]
+    athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
 
     pass
 
@@ -1013,10 +1015,10 @@ class ActivityZone(
     """
 
     # Field overrides from superclass for type extensions:
-    distribution_buckets: Sequence[TimedZoneDistribution] | None = None  # type: ignore[assignment]
+    distribution_buckets: Optional[Sequence[TimedZoneDistribution]] = None  # type: ignore[assignment]
 
     # strava_model only contains heartrate and power (ints), but also returns pace (float)
-    type: Literal["heartrate", "power", "pace"] | None = None  # type: ignore[assignment]
+    type: Optional[Literal["heartrate", "power", "pace"]] = None  # type: ignore[assignment]
 
 
 class Stream(BaseStream):
@@ -1024,11 +1026,11 @@ class Stream(BaseStream):
     Stream of readings from the activity, effort or segment.
     """
 
-    type: str | None = None
+    type: Optional[str] = None
 
     # Not using the typed subclasses from the generated model
     # for backward compatibility:
-    data: Sequence[Any] | None = None
+    data: Optional[Sequence[Any]] = None
 
 
 class Route(
@@ -1040,9 +1042,9 @@ class Route(
     """
 
     # Superclass field overrides for using extended types
-    athlete: SummaryAthlete | None = None
-    map: Map | None = None
-    segments: Sequence[SummarySegment] | None
+    athlete: Optional[SummaryAthlete] = None
+    map: Optional[Map] = None
+    segments: Optional[Sequence[SummarySegment]]
 
 
 class Subscription(BaseModel):
@@ -1054,13 +1056,13 @@ class Subscription(BaseModel):
     ASPECT_TYPE_CREATE: ClassVar[str] = "create"
     VERIFY_TOKEN_DEFAULT: ClassVar[str] = "STRAVA"
 
-    id: int | None = None
-    application_id: int | None = None
-    object_type: str | None = None
-    aspect_type: str | None = None
-    callback_url: str | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    id: Optional[int] = None
+    application_id: Optional[int] = None
+    object_type: Optional[str] = None
+    aspect_type: Optional[str] = None
+    callback_url: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 class SubscriptionCallback(BaseModel):
@@ -1068,9 +1070,9 @@ class SubscriptionCallback(BaseModel):
     Represents a Webhook Event Subscription Callback.
     """
 
-    hub_mode: str | None = Field(None, alias="hub.mode")
-    hub_verify_token: str | None = Field(None, alias="hub.verify_token")
-    hub_challenge: str | None = Field(None, alias="hub.challenge")
+    hub_mode: Optional[str] = Field(None, alias="hub.mode")
+    hub_verify_token: Optional[str] = Field(None, alias="hub.verify_token")
+    hub_challenge: Optional[str] = Field(None, alias="hub.challenge")
 
     def validate_token(
         self, verify_token: str = Subscription.VERIFY_TOKEN_DEFAULT
@@ -1103,10 +1105,10 @@ class SubscriptionUpdate(BaseModel):
     Represents a Webhook Event Subscription Update.
     """
 
-    subscription_id: int | None = None
-    owner_id: int | None = None
-    object_id: int | None = None
-    object_type: str | None = None
-    aspect_type: str | None = None
-    event_time: datetime | None = None
-    updates: dict[str, Any] | None = None
+    subscription_id: Optional[int] = None
+    owner_id: Optional[int] = None
+    object_id: Optional[int] = None
+    object_type: Optional[str] = None
+    aspect_type: Optional[str] = None
+    event_time: Optional[datetime] = None
+    updates: Optional[dict[str, Any]] = None
