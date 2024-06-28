@@ -12,7 +12,7 @@ from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import miles
+from stravalib.unit_helper import miles
 
 
 @pytest.fixture

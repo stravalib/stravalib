@@ -32,7 +32,7 @@ import pytz
 from pydantic import BaseModel
 from requests import Session
 
-from stravalib import exc, model, strava_model, unithelper
+from stravalib import exc, model, strava_model, unit_helper
 from stravalib.exc import (
     ActivityPhotoUploadNotSupported,
     warn_attribute_unofficial,
@@ -787,7 +787,7 @@ class Client:
             elapsed_time = elapsed_time.seconds
 
         if isinstance(distance, pint.Quantity):
-            distance = unithelper.meters(distance).magnitude
+            distance = unit_helper.meters(distance).magnitude
 
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
