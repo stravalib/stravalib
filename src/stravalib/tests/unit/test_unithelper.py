@@ -1,7 +1,7 @@
 import pytest
 
-from stravalib import unithelper as uh
-from stravalib.unithelper import _Quantity
+from stravalib import unit_helper as uh
+from stravalib.unit_helper import _Quantity
 
 
 class DistanceQuantity(_Quantity):

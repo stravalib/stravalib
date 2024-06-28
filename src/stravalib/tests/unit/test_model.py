@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 import pytz
 
-import stravalib.unithelper as uh
+import stravalib.unit_helper as uh
 from stravalib import model
 from stravalib.model import (
     ActivityPhoto,
