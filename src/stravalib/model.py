@@ -574,8 +574,9 @@ class DetailedClub(SummaryClub, strava_model.DetailedClub):
 
 
 class ActivityTotals(strava_model.ActivityTotal):
-    """An objecting containing a set of total values for an activity including
-    elapsed time, moving time, distance and elevation gain."""
+    """Contains a set of total values for an activity including
+    elapsed time, moving time, distance and elevation gain.
+    """
 
     # Attribute overrides for custom types:
     distance: Optional[DistanceType] = None
@@ -1080,7 +1081,7 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
         Returns
         -------
-        py:class:`list`
+        list
             A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
@@ -1188,12 +1189,11 @@ class ClubActivity(strava_model.ClubActivity):
 
     Notes
     -----
-    The actual strava API specification suggests that this should
-    return a MetaAthlete Object for the activities' athlete information.
-    However, while that object should return the correct values, it is missing what is
-     actually returned, i.e., resource_state, first name and
-    last initial. So this object doesn't match the spec but does match the
-    actual return.
+    The Strava API specification suggests that this should
+    return a `MetaAthlete` Object for athlete associated with the activities.
+    However, the object spec is missing what is actually returned,
+    i.e., resource_state, first name and last initial.
+    This object matches the actual return dat, not the spec.
     """
 
     # Intentional class override as spec returns metaAthlete object

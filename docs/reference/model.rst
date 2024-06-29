@@ -55,24 +55,17 @@ Summary Activity Classes
    ActivityZone
    ActivityTotals
    ActivityComment
-   ActivityPhotoPrimary
-   ActivityPhotoMeta
-   ActivityPhoto
    Lap
    Split
    RelaxedActivityType
    RelaxedSportType
-   Activity
-   ActivityComment
    ActivityPhotoPrimary
    ActivityPhotoMeta
    ActivityPhoto
-   ActivityKudos
-   ActivityLap
-   ActivityTotals
+
 
 Summary Athlete Classes
--------------------------
+------------------------
 .. autosummary::
    :toctree: api/
 
@@ -82,16 +75,6 @@ Summary Athlete Classes
    DetailedAthlete
    AthletePrEffort
    AthleteSegmentStats
-
-
-Gear Classes
--------------------------
-.. autosummary::
-   :toctree: api/
-
-   Gear
-   Bike
-   Shoe
 
 Route / Segment Classes
 -------------------------
