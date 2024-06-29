@@ -352,13 +352,13 @@ class Distance(_Quantity):
     Once you have distance in meters, you can then use the unit_helper module to
     convert to other units such as feet
 
-    >>> from stravalib import unithelper
+    >>> from stravalib import unit_helper
     >>> activity = client.get_activity(11416949675)
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>
     >>>  unithelper.feet(activity.distance)
     <Quantity(26430.1181, 'foot')>
-    >>> unithelper.miles(activity.distance)
+    >>> unit_helper.miles(activity.distance)
     <Quantity(5.00570419, 'mile')>
     """
 
