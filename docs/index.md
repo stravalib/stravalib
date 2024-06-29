@@ -115,3 +115,9 @@ Code/API Reference <reference>
 
 Contribute <contributing/intro.md>
 :::
+
+:::{toctree}
+:hidden:
+:caption: What's New
+Get Started <whats-new/changelog>
+:::
