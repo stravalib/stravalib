@@ -6,10 +6,11 @@ Welcome to the API documentation for the stravalib package.
 Below the main modules are listed.
 
 .. warning::
-   Note that only public facing methods are documented here.
+   Only public facing methods are documented here.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :hidden:
 
    Client <reference/client>
    Model <reference/model>
@@ -18,3 +19,7 @@ Below the main modules are listed.
    Protocol <reference/protocol>
    Limiter (Util Submodule) <reference/utilities>
    Exceptions <reference/exceptions>
+
+
+Module Details
+--------------

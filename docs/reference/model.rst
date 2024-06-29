@@ -25,8 +25,7 @@ Summary Functions
 
 
 Helper Classes
-----------------
-
+----------------------
 .. autosummary::
    :toctree: api/
 
@@ -34,7 +33,6 @@ Helper Classes
 
 Unit & Conversion Classes
 --------------------------
-
 .. autosummary::
    :toctree: api/
 
@@ -45,7 +43,6 @@ Unit & Conversion Classes
 
 Summary Activity Classes
 -------------------------
-
 .. autosummary::
    :toctree: api/
 
@@ -57,17 +54,24 @@ Summary Activity Classes
    ActivityZone
    ActivityTotals
    ActivityComment
+   ActivityPhotoPrimary
+   ActivityPhotoMeta
+   ActivityPhoto
    Lap
    Split
    RelaxedActivityType
    RelaxedSportType
+   Activity
+   ActivityComment
    ActivityPhotoPrimary
    ActivityPhotoMeta
    ActivityPhoto
+   ActivityKudos
+   ActivityLap
+   ActivityTotals
 
 Summary Athlete Classes
 -------------------------
-
 .. autosummary::
    :toctree: api/
 
@@ -78,9 +82,18 @@ Summary Athlete Classes
    AthletePrEffort
    AthleteSegmentStats
 
+
+Gear Classes
+-------------------------
+.. autosummary::
+   :toctree: api/
+
+   Gear
+   Bike
+   Shoe
+
 Route / Segment Classes
 -------------------------
-
 .. autosummary::
    :toctree: api/
 

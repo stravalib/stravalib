@@ -2,8 +2,8 @@
 ==============================
 Model Functions and Classes
 ==============================
-This module contains entity classes for representing the various Strava
-datatypes, such as Activity, Gear, and more. These entities inherit
+This module contains entity classes that represent the various Strava
+datatypes, such as `Activity`, `Gear`, and more. These entities inherit
 fields from superclasses in `strava_model.py`, which is generated from
 the official Strava API specification. The classes in this module add
 behavior such as type enrichment, unit conversion, and lazy loading
@@ -350,7 +350,11 @@ class Distance(_Quantity):
     Once you have distance in meters, you can then use the unit_helper module to
     convert to other units such as feet
 
+<<<<<<< HEAD
     >>> from stravalib import unit_helper
+=======
+    >>> from stravalib import unithelper
+>>>>>>> 0ce1f1b (Fix: docs part 1 - partial cleanup)
     >>> activity = client.get_activity(11416949675)
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>

@@ -115,7 +115,11 @@ html_theme_options = {
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_start": ["copyright"],
+<<<<<<< HEAD
     "announcement": "<a href='stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our migration guide for tips on changes from Stravalib V1!</a>",
+=======
+    "announcement": "Here's a <a href='stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our Migration Guide for tips on changes from Stravalib V1!</a>",
+>>>>>>> c24cd93 (Fix: docs part 1 - partial cleanup)
 }
 
 html_context = {
@@ -161,7 +165,7 @@ html_show_copyright = True
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "stravalibdoc"
+# htmlhelp_basename = "stravalibdoc"
 
 # -- Options for manual page output ---------------------------------------
 
@@ -209,3 +213,4 @@ texinfo_documents = [
 
 # Default to using the order defined in source.
 autodoc_member_order = "bysource"
+autodoc_default_options = {}
