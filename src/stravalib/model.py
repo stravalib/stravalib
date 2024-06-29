@@ -356,7 +356,7 @@ class Distance(_Quantity):
     >>> activity = client.get_activity(11416949675)
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>
-    >>>  unithelper.feet(activity.distance)
+    >>>  unit_helper.feet(activity.distance)
     <Quantity(26430.1181, 'foot')>
     >>> unit_helper.miles(activity.distance)
     <Quantity(5.00570419, 'mile')>
