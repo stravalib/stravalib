@@ -1,53 +1,124 @@
-.. automodule:: stravalib.model
-    :inherited-members: BaseModel
+============
+Model
+============
 
-.. If you use both automodule and autosummary you duplicate autodocs efforts
-.. Summary Functions
-.. -------------------------------
-.. .. autosummary::
-..    :toctree: api/
+.. currentmodule:: stravalib.model
 
-..    lazy_property
-..    check_valid_location
-..    naive_datetime
 
-.. Summary Classes
-.. -------------------------------
-.. .. autosummary::
-..    :toctree: api/
+.. We were using automodule here but autosummary was also used
+.. automodule supersedes autosummary. but also had an inheritance
+.. setting (BaseModel) see below. Testing a custom page that is
+.. cleaner to read.
+.. .. automodule:: stravalib.model
+..     :inherited-members: BaseModel
 
-..    DeprecatedSerializableMixin
-..    BackwardCompatibilityMixin
-..    BoundClientEntity
-..    LatLon
-..    Club
-..    Gear
-..    Bike
-..    Shoe
-..    ActivityTotals
-..    AthleteStats
-..    Athlete
-..    ActivityComment
-..    ActivityPhotoPrimary
-..    ActivityPhotoMeta
-..    ActivityPhoto
-..    ActivityKudos
-..    ActivityLap
-..    Map
-..    Split
-..    SegmentExplorerResult
-..    AthleteSegmentStats
-..    AthletePrEffort
-..    Segment
-..    SegmentEffortAchievement
-..    BaseEffort
-..    BestEffort
-..    SegmentEffort
-..    Activity
-..    DistributionBucket
-..    BaseActivityZone
-..    Stream
-..    Route
-..    Subscription
-..    SubscriptionCallback
-..    SubscriptionUpdate
+
+
+Summary Functions
+------------------
+.. autosummary::
+   :toctree: api/
+
+   check_valid_location
+   lazy_property
+   naive_datetime
+
+
+Helper Classes
+----------------
+
+.. autosummary::
+   :toctree: api/
+
+   BoundClientEntity
+
+Unit & Conversion Classes
+--------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   Distance
+   Duration
+   Timezone
+   Velocity
+
+Summary Activity Classes
+-------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   MetaActivity
+   SummaryActivity
+   DetailedActivity
+   ClubActivity
+   TimedZoneDistribution
+   ActivityZone
+   ActivityTotals
+   ActivityComment
+   Lap
+   Split
+   RelaxedActivityType
+   RelaxedSportType
+   ActivityPhotoPrimary
+   ActivityPhotoMeta
+   ActivityPhoto
+
+Summary Athlete Classes
+-------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   AthleteStats
+   MetaAthlete
+   SummaryAthlete
+   DetailedAthlete
+   AthletePrEffort
+   AthleteSegmentStats
+
+Route / Segment Classes
+-------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   LatLon
+   SummarySegment
+   Segment
+   SegmentEffort
+   SegmentEffortAchievement
+   SummarySegmentEffort
+   Map
+   SegmentExplorerResult
+   BaseEffort
+   BestEffort
+   Route
+   Stream
+
+
+
+Subscription Classes
+-------------------------
+.. autosummary::
+   :toctree: api/
+
+   Subscription
+   SubscriptionCallback
+   SubscriptionUpdate
+
+Club / Effort / Performance Classes
+------------------------------------
+   Split
+   Club
+   BaseEffort
+   BestEffort
+   DistributionBucket
+   BaseActivityZone
+
+Club Classes
+-------------
+   MetaClub
+   SummaryClub
+   DetailedClub

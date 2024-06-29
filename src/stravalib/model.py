@@ -1184,12 +1184,11 @@ class ClubActivity(strava_model.ClubActivity):
 
     Notes
     -----
-    The actual strava API specification suggests that this should
-    return a MetaAthlete Object for the activities' athlete information.
-    However, while that object should return the correct values, it is missing what is
-     actually returned, i.e., resource_state, first name and
-    last initial. So this object doesn't match the spec but does match the
-    actual return.
+    The Strava API suggests returning a `MetaAthlete` object for activities' athlete
+    info. However, the actual return lacks expected attributes like resource_state,
+    first name, and last initial, differing from the spec but matching the actual
+    data.
+
     """
 
     # Intentional class override as spec returns metaAthlete object
