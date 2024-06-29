@@ -116,8 +116,19 @@ Code/API Reference <reference>
 Contribute <contributing/intro.md>
 :::
 
+<<<<<<< HEAD
 :::{toctree}
 :hidden:
 :caption: What's New
 Get Started <whats-new/changelog>
 :::
+=======
+
+```{toctree}
+:hidden:
+:caption: What's New
+
+Get Started <whats-new/changelog>
+
+```
+>>>>>>> cd0e876 (Add: add whats new)

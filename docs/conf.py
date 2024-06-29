@@ -19,7 +19,7 @@ import sys
 import stravalib
 
 sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("../src/stravalib"))
+sys.path.insert(0, os.path.abspath("../src"))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -53,13 +53,13 @@ else:
 extensions = [
     "sphinx.ext.napoleon",  # Numpy style doc support
     "sphinx_remove_toctrees",  # Remove api generated stubs from doctree
-    "sphinxcontrib.autodoc_pydantic",
+    "sphinxcontrib.autodoc_pydantic",  # Add json schema display to pydantic models
+    "sphinx.ext.autosummary",  # Generate API stubs for each class
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "sphinx.ext.autosummary",
     "myst_nb",
     "sphinx_design",
     # Commented out because matplotlib raises a findfonts warning over and over
@@ -155,58 +155,6 @@ html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 html_show_copyright = True
-
-# If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.  The value of this option must be the
-# base URL from which the finished HTML is served.
-# html_use_opensearch = ''
-
-# This is the file name suffix for HTML files (e.g. ".xhtml").
-# html_file_suffix = None
-
-# Output file base name for HTML help builder.
-# htmlhelp_basename = "stravalibdoc"
-
-# -- Options for manual page output ---------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "stravalib", "stravalib Documentation", ["Hans Lellelid"], 1)
-]
-
-# If true, show URL addresses after external links.
-# man_show_urls = False
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (
-        "index",
-        "stravalib",
-        "stravalib Documentation",
-        "Hans Lellelid",
-        "stravalib",
-        "One line description of project.",
-        "Miscellaneous",
-    ),
-]
-
-# Documents to append as an appendix to all manuals.
-# texinfo_appendices = []
-
-# If false, no module index is generated.
-# texinfo_domain_indices = True
-
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-# texinfo_show_urls = 'footnote'
-
-# If true, do not generate a @detailmenu in the "Top" node's menu.
-# texinfo_no_detailmenu = False
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}

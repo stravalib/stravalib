@@ -350,11 +350,7 @@ class Distance(_Quantity):
     Once you have distance in meters, you can then use the unit_helper module to
     convert to other units such as feet
 
-<<<<<<< HEAD
     >>> from stravalib import unit_helper
-=======
-    >>> from stravalib import unithelper
->>>>>>> 0ce1f1b (Fix: docs part 1 - partial cleanup)
     >>> activity = client.get_activity(11416949675)
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>
@@ -431,6 +427,8 @@ class RelaxedActivityType(ActivityType):
 
 
 class RelaxedSportType(SportType):
+    """A class."""
+
     @model_validator(mode="before")
     def check_sport_type(cls, values: str) -> str:
         """Pydantic validator that checks whether a sport type value is
@@ -572,8 +570,9 @@ class DetailedClub(SummaryClub, strava_model.DetailedClub):
 
 
 class ActivityTotals(strava_model.ActivityTotal):
-    """An objecting containing a set of total values for an activity including
-    elapsed time, moving time, distance and elevation gain."""
+    """Contains a set of total values for an activity including
+    elapsed time, moving time, distance and elevation gain.
+    """
 
     # Attribute overrides for custom types:
     distance: Optional[DistanceType] = None
@@ -1077,7 +1076,7 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
         Returns
         -------
-        py:class:`list`
+        list
             A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
@@ -1184,11 +1183,11 @@ class ClubActivity(strava_model.ClubActivity):
 
     Notes
     -----
-    The Strava API suggests returning a `MetaAthlete` object for activities' athlete
-    info. However, the actual return lacks expected attributes like resource_state,
-    first name, and last initial, differing from the spec but matching the actual
-    data.
-
+    The Strava API specification suggests that this should
+    return a `MetaAthlete` Object for athlete associated with the activities.
+    However, the object spec is missing what is actually returned,
+    i.e., resource_state, first name and last initial.
+    This object matches the actual return dat, not the spec.
     """
 
     # Intentional class override as spec returns metaAthlete object

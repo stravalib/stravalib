@@ -1,5 +1,4 @@
-# Changelog: What's new with stravalib
-
+# Changelog: What's new with Stravalib
 
 :::{include} ./changelog.md
 :start-line: 3
