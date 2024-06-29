@@ -38,6 +38,7 @@ from dateutil import parser
 from dateutil.parser import ParserError
 from pydantic import (
     AliasChoices,
+    AnyHttpUrl,
     BaseModel,
     Field,
     GetCoreSchemaHandler,
@@ -56,9 +57,7 @@ from stravalib.strava_model import (
     Comment,
     ExplorerSegment,
     LatLng,
-    PhotosSummary,
     PolylineMap,
-    Primary,
     SportType,
     SummaryGear,
 )
@@ -717,24 +716,40 @@ class ActivityComment(Comment):
     athlete: Optional[SummaryAthlete] = None
 
 
-class ActivityPhotoPrimary(Primary):
-    """
-    Represents the primary photo for an activity.
-
-    Attributes
-    ----------
-    use_primary_photo : bool, optional
-        Indicates whether the photo is used as the primary photo.
+# strava_model Primary is fine for this but we may
+# have to add some mapping
+class PhotosSummary_primary(strava_model.Primary):
+    """A object to store data about the primary photo of a Strava activity
 
     Notes
     -----
-    Attributes for activity photos are currently undocumented.
+    https://developers.strava.com/docs/reference/#api-models-PhotosSummary_primary
+    This object is nor returned in strava_model but it is documented in the
+    Strava API V3 spec. The Spec documentation deviates from what is actually
+    returned. This model represents what is actually returned
     """
 
-    use_primary_photo: Optional[bool] = None
+    # TODO: we should use strava_model.Primary instead
+    # However there is a mapping issue
+    # id should be unique_id - i'm guessing media type is video vs image
+    # i'm not sure if user will want that -
+    # what is the best path forward here?
+    """
+    "unique_id": "8d9e546c-5da1-46cb-973e-c55bb3be88bd",
+            "urls": {
+                "600": "https://dgtzuqphqg23d.cloudfront.net/PNON86jIyK-xCnvSXhfESDYO--7cwvweK2fQ86NwOws-768x354.jpg",
+                "100": "https://dgtzuqphqg23d.cloudfront.net/PNON86jIyK-xCnvSXhfESDYO--7cwvweK2fQ86NwOws-128x59.jpg"
+            },
+            "source": 1,
+            "media_type": 1
+    """
+    # Strava_model has this defined as id but unique_id is the correct attr name
+    # it's also defined as a int but should be a string
+    unique_id: str | None
+    media_type: int | None = None
 
 
-class ActivityPhotoMeta(PhotosSummary):
+class PhotosSummary(strava_model.PhotosSummary):
     """
     Represents the metadata of photos returned with the activity.
 
@@ -742,7 +757,8 @@ class ActivityPhotoMeta(PhotosSummary):
 
     Attributes
     ----------
-    primary : ActivityPhotoPrimary, optional
+
+    primary : ActivityPhoto_primary, optional
         The primary photo for the activity.
     use_primary_photo : bool, optional
         Indicates whether the primary photo is used. Not currently documented
@@ -751,10 +767,13 @@ class ActivityPhotoMeta(PhotosSummary):
     Notes
     -----
     Undocumented attributes could be changed by Strava at any time.
+    THe API spec specifies that this object returns count and
+    ActivityPhoto_primary
+
+    https://developers.strava.com/docs/reference/#api-models-PhotosSummary
     """
 
-    # Field overrides from superclass for type extensions:
-    primary: Optional[ActivityPhotoPrimary] = None
+    primary: Optional[PhotosSummary_primary] = None
 
     # Undocumented by strava
     use_primary_photo: Optional[bool] = None
@@ -769,23 +788,25 @@ class ActivityPhoto(BaseModel):
     endpoint to retrieve it
     """
 
-    athlete_id: Optional[int] = None
     activity_id: Optional[int] = None
     activity_name: Optional[str] = None
-    ref: Optional[str] = None
-    uid: Optional[str] = None
-    unique_id: Optional[str] = None
+    athlete_id: Optional[int] = None
     caption: Optional[str] = None
-    type: Optional[str] = None
-    uploaded_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
     created_at_local: Optional[datetime] = None
-    location: Optional[LatLon] = None
-    urls: Optional[dict[str, str]] = None
-    sizes: Optional[dict[str, Sequence[int]]] = None
-    post_id: Optional[int] = None
     default_photo: Optional[bool] = None
+    location: Optional[LatLon] = None
+    post_id: Optional[int] = None
+    sizes: Optional[dict[str, Sequence[int]]] = None
     source: Optional[int] = None
+    type: Optional[int] = None
+    unique_id: Optional[str] = None
+    uploaded_at: Optional[datetime] = None
+    urls: Optional[dict[str, AnyHttpUrl]] = None
+
+    # TODO: i don't see these in the actual returns but they are used below
+    ref: Optional[str] = None
+    uid: Optional[str] = None
 
     _naive_local = field_validator("created_at_local")(naive_datetime)
     _check_latlng = field_validator("location", mode="before")(
@@ -1132,8 +1153,7 @@ class DetailedActivity(
     # TODO: Returns Split object - check returns for that object
     splits_metric: Optional[Sequence[Split]] = None
     splits_standard: Optional[Sequence[Split]] = None
-    # TODO: should be PhotosSummary
-    photos: Optional[ActivityPhotoMeta] = None
+    photos: Optional[PhotosSummary] = None
     laps: Optional[Sequence[Lap]] = None
     elapsed_time: Optional[DurationType] = None
     moving_time: Optional[DurationType] = None
