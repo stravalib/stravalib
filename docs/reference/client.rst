@@ -60,11 +60,9 @@ Activity related methods
    :toctree: api/
 
    Client.get_activity
-   Client.get_friend_activities
    Client.create_activity
    Client.update_activity
    Client.upload_activity
-   Client.delete_activity
    Client.get_activity_zones
    Client.get_activity_comments
    Client.get_activity_kudos
