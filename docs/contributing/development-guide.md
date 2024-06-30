@@ -352,7 +352,7 @@ stravalib/client.py                                        439    180    59%
 stravalib/exc.py                                            34      3    91%
 stravalib/model.py                                         709    126    82%
 stravalib/protocol.py                                      130     39    70%
-stravalib/unithelper.py                                     16      1    94%
+stravalib/unit_helper.py                                     16      1    94%
 stravalib/util/__init__.py                                   0      0   100%
 stravalib/util/limiter.py                                  122     27    78%
 ----------------------------------------------------------------------------
