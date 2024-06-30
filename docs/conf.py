@@ -18,6 +18,8 @@ import sys
 
 import stravalib
 
+sys.setrecursionlimit(1500)
+
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(0, os.path.abspath("../src"))
 
@@ -161,4 +163,8 @@ html_show_copyright = True
 
 # Default to using the order defined in source.
 autodoc_member_order = "bysource"
-autodoc_default_options = {}
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "inherited-members": True,
+}

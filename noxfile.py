@@ -27,7 +27,7 @@ def tests(session):
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 
-@nox.session
+@nox.session(name="docs", python="3.11")
 def docs(session):
     session.install(".[docs]")
     cmd = ["sphinx-build"]
@@ -35,7 +35,7 @@ def docs(session):
     session.run(*cmd)
 
 
-@nox.session(name="docs-live")
+@nox.session(name="docs-live", python="3.11")
 def docs_live(session):
     session.install(".[docs]")
 

@@ -297,7 +297,31 @@ class _CustomStrAnnotation(_CustomTypeAnnotation[str, Any], ABC):
 
 
 class Duration(int):
+    """
+    A class that calculates the duration or time elapsed for an activity,
+    activity segment, or activity lap.
+
+    This class extends the built-in `int` class to represent durations in
+    seconds and provides a method to convert this duration to a
+    `datetime.timedelta` object.
+
+    Methods
+    -------
+    timedelta() -> timedelta
+        Converts the duration to a `datetime.timedelta` object.
+    """
+
     def timedelta(self) -> timedelta:
+        """
+        Converts the duration to a `datetime.timedelta` object.
+
+        Returns
+        -------
+        timedelta
+            A `datetime.timedelta` object representing the duration in
+            seconds.
+        """
+
         return timedelta(seconds=self)
 
 
@@ -310,6 +334,17 @@ class _DurationAnnotation(_CustomIntAnnotation):
 
 
 class Timezone(str):
+    """A class to represent and manipulate time zone information.
+
+    This class extends the built-in `str` class to include a method
+    for converting the time zone string to a pytz time zone object.
+
+    Methods
+    -------
+    timezone() -> pytz._UTCclass | pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo | None
+        Converts the time zone string to a pytz time zone object.
+    """
+
     def timezone(
         self,
     ) -> (
@@ -318,6 +353,24 @@ class Timezone(str):
         | pytz.tzinfo.DstTzInfo
         | None
     ):
+        """
+        Converts the time zone string to a pytz time zone object.
+
+        This method attempts to convert the time zone string, which can
+        either be in the format "(GMT-08:00) America/Los_Angeles" or
+        "America/Los_Angeles", to a corresponding pytz time zone object.
+
+        Returns
+        -------
+        pytz._UTCclass, pytz.tzinfo.StaticTzInfo, `pytz.tzinfo.DstTzInfo`, or
+        `None`The corresponding `pytz` time zone object if the time zone string is
+        recognized, otherwise `None`.
+
+        Raises
+        ------
+        `UnknownTimeZoneError`
+            If the time zone string is not recognized.
+        """
         if " " in self:
             # (GMT-08:00) America/Los_Angeles
             tzname = self.split(" ", 1)[1]
@@ -373,6 +426,13 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
 
 
 class Velocity(_Quantity):
+    """
+    A class to represent velocity measurements.
+
+    This class extends the `_Quantity` class to provide specific functionality
+    for velocity measurements. The unit of measurement is meters per second.
+    """
+
     unit = "meters/second"
 
 
@@ -400,6 +460,11 @@ class BoundClientEntity(BaseModel):
 
 
 class RelaxedActivityType(ActivityType):
+    """This object supports allowing an array of Literal values to be used for
+    Activity Type. by default, the generated `strava_model` module only allows
+    a Literal that includes types: `Ride` and `Run`.
+    """
+
     @model_validator(mode="before")
     def check_activity_type(cls, values: str) -> str:
         """Pydantic validator that checks whether an activity type value is
@@ -428,7 +493,9 @@ class RelaxedActivityType(ActivityType):
 
 
 class RelaxedSportType(SportType):
-    """A class."""
+    """A class that extends the list of Literal values allowed for Sport Types
+    that are defined in the generated `strava_model` module.
+    """
 
     @model_validator(mode="before")
     def check_sport_type(cls, values: str) -> str:
@@ -510,6 +577,10 @@ class LatLon(LatLng):
 
 
 class MetaClub(strava_model.MetaClub, BoundClientEntity):
+    """Inherits from strava_model.MetaClub and adds the BoundClient
+    to support lazy properties accessing the API.
+    """
+
     pass
 
 
@@ -567,7 +638,10 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
 
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
-    pass
+    """The detailed club object contains all of the club metadata available to
+    the authenticated Athlete."""
+
+    ...
 
 
 class ActivityTotals(strava_model.ActivityTotal):
@@ -603,11 +677,20 @@ class AthleteStats(strava_model.ActivityStats):
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
+    """The high level object that holds the athlete's id the BoundClient for
+    lazily loaded methods.
+
+    """
+
     # Undocumented
     resource_state: Optional[int] = None
 
 
-class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
+    """The Summary Athlete object. This is redefined here to inherit the
+    `BoundClient` which allows API access for lazy methods."""
+
+    ...
 
 
 class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
@@ -659,6 +742,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     sample_race_time: Optional[int] = None
     membership: Optional[str] = None
     admin: Optional[bool] = None
+    """Indicates if the athlete has admin privileges."""
     owner: Optional[bool] = None
     subscription_permissions: Optional[Sequence[bool]] = None
 
@@ -824,6 +908,13 @@ class Lap(
     strava_model.Lap,
     BoundClientEntity,
 ):
+    """An object that represents an Activity lap.
+
+    This object inherits the BoundClient to support API access through lazy
+    methods.
+
+    """
+
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
@@ -913,6 +1004,8 @@ class SegmentExplorerResult(
 class AthletePrEffort(
     strava_model.SummaryPRSegmentEffort,
 ):
+    """An object that holds athlete PR effort attributes."""
+
     # Override fields from superclass to match actual responses by Strava API:
     activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
@@ -1065,6 +1158,11 @@ class AthleteSegmentStats(
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
+    """An object that ensures Activity objects inherit the BoundClient and
+    that also defines lazy properties to collect Activity comments, zones,
+    kudos and photos.
+    """
+
     @lazy_property
     def comments(self) -> BatchedResultsIterator[Comment]:
         """Retrieves comments for a specific activity id."""
@@ -1100,6 +1198,16 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
 
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
+    """The Activity object that contains high level summary activity for an
+    activity.
+
+    Notes
+    -----
+    In the case that the Strava spec is misaligned with the data actually
+    returned, we override attributes as needed.
+
+    """
+
     # field overrides from superclass for type extensions:
     athlete: Optional[MetaAthlete] = None
     # These force validator to run on lat/lon
@@ -1122,7 +1230,7 @@ class DetailedActivity(
     Represents an activity (ride, run, etc.).
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     distance: Optional[DistanceType] = None
     total_elevation_gain: Optional[DistanceType] = None
     gear: Optional[SummaryGear] = None
@@ -1194,8 +1302,6 @@ class ClubActivity(strava_model.ClubActivity):
     # Intentional class override as spec returns metaAthlete object
     # (which only contains id)
     athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
-
-    pass
 
 
 class TimedZoneDistribution(strava_model.TimedZoneRange):
