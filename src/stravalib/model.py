@@ -402,6 +402,11 @@ class BoundClientEntity(BaseModel):
 
 
 class RelaxedActivityType(ActivityType):
+    """This object supports allowing an array of Literal values to be used for
+    Activity Type. by default, the generated `strava_model` module only allows
+    a Literal that includes types: `Ride` and `Run`.
+    """
+
     @model_validator(mode="before")
     def check_activity_type(cls, values: str) -> str:
         """Pydantic validator that checks whether an activity type value is
@@ -430,7 +435,9 @@ class RelaxedActivityType(ActivityType):
 
 
 class RelaxedSportType(SportType):
-    """A class."""
+    """A class that extends the list of Literal values allowed for Sport Types
+    that are defined in the generated `strava_model` module.
+    """
 
     @model_validator(mode="before")
     def check_sport_type(cls, values: str) -> str:
@@ -605,11 +612,20 @@ class AthleteStats(strava_model.ActivityStats):
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
+    """The high level object that holds the athlete's id the BoundClient for
+    lazily loaded methods.
+
+    """
+
     # Undocumented
     resource_state: Optional[int] = None
 
 
-class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
+    """The Summary Athlete object. This is redefined here to inherit the
+    `BoundClient` which allows API access for lazy methods."""
+
+    ...
 
 
 class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
@@ -824,6 +840,13 @@ class Lap(
     strava_model.Lap,
     BoundClientEntity,
 ):
+    """An object that represents an Activity lap.
+
+    This object inherits the BoundClient to support API access through lazy
+    methods.
+
+    """
+
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
@@ -913,6 +936,8 @@ class SegmentExplorerResult(
 class AthletePrEffort(
     strava_model.SummaryPRSegmentEffort,
 ):
+    """An object that holds athlete PR effort attributes."""
+
     # Override fields from superclass to match actual responses by Strava API:
     activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
@@ -1065,6 +1090,11 @@ class AthleteSegmentStats(
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
+    """An object that ensures Activity objects inherit the BoundClient and
+    that also defines lazy properties to collect Activity comments, zones,
+    kudos and photos.
+    """
+
     @lazy_property
     def comments(self) -> BatchedResultsIterator[ActivityComment]:
         """Retrieves comments for a specific activity id."""
@@ -1100,6 +1130,16 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
 
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
+    """The Activity object that contains high level summary activity for an
+    activity.
+
+    Notes
+    -----
+    In the case that the Strava spec is misaligned with the data actually
+    returned, we override attributes as needed.
+
+    """
+
     # field overrides from superclass for type extensions:
     athlete: Optional[MetaAthlete] = None
     # These force validator to run on lat/lon
@@ -1122,7 +1162,7 @@ class DetailedActivity(
     Represents an activity (ride, run, etc.).
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     distance: Optional[DistanceType] = None
     total_elevation_gain: Optional[DistanceType] = None
     gear: Optional[SummaryGear] = None
@@ -1195,8 +1235,6 @@ class ClubActivity(strava_model.ClubActivity):
     # Intentional class override as spec returns metaAthlete object
     # (which only contains id)
     athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
-
-    pass
 
 
 class TimedZoneDistribution(strava_model.TimedZoneRange):

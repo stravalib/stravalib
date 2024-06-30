@@ -4,6 +4,45 @@ Model
 
 .. currentmodule:: stravalib.model
 
+Summary Athlete Classes
+------------------------
+.. autosummary::
+   :toctree: api/
+
+    AthleteStats
+    MetaAthlete
+    SummaryAthlete
+    DetailedAthlete
+    AthletePrEffort
+    AthleteSegmentStats
+
+Summary Activity Classes
+-------------------------
+.. autosummary::
+    :toctree: api/
+
+    MetaActivity
+    SummaryActivity
+    DetailedActivity
+    ClubActivity
+    ActivityTotals
+    ActivityComment
+    Lap
+    Split
+    RelaxedActivityType
+    RelaxedSportType
+    ActivityZone
+    TimedZoneDistribution
+
+Club Classes
+-------------
+.. autosummary::
+   :toctree: api/
+
+   MetaClub
+   SummaryClub
+   DetailedClub
+
 Summary Functions
 ------------------
 
@@ -32,23 +71,6 @@ Unit & Conversion Classes
     Timezone
     Velocity
 
-Summary Activity Classes
--------------------------
-.. autosummary::
-    :toctree: api/
-
-    MetaActivity
-    SummaryActivity
-    DetailedActivity
-    ClubActivity
-    TimedZoneDistribution
-    ActivityZone
-    ActivityTotals
-    ActivityComment
-    Lap
-    Split
-    RelaxedActivityType
-    RelaxedSportType
 
 Activity Photo Classes
 -------------------------
@@ -63,58 +85,41 @@ documented.
     ActivityPhotoMeta
     ActivityPhoto
 
-Summary Athlete Classes
-------------------------
-.. autosummary::
-   :toctree: api/
+.. Subscription Classes
+.. -------------------------
+.. .. autosummary::
+..    :toctree: api/
 
-   AthleteStats
-   MetaAthlete
-   SummaryAthlete
-   DetailedAthlete
-   AthletePrEffort
-   AthleteSegmentStats
+..    Subscription
+..    SubscriptionCallback
+..    SubscriptionUpdate
 
-Route / Segment Classes
--------------------------
-.. autosummary::
-   :toctree: api/
-
-   LatLon
-   SummarySegment
-   Segment
-   SegmentEffort
-   SegmentEffortAchievement
-   SummarySegmentEffort
-   Map
-   SegmentExplorerResult
-   BaseEffort
-   BestEffort
-   Route
-   Stream
+.. Effort / Performance Classes
+.. -----------------------------
+..    Split
+..    Club
+..    BaseEffort
+..    BestEffort
+..    DistributionBucket
+..    BaseActivityZone
 
 
 
-Subscription Classes
--------------------------
-.. autosummary::
-   :toctree: api/
 
-   Subscription
-   SubscriptionCallback
-   SubscriptionUpdate
+.. Route / Segment Classes
+.. -------------------------
+.. .. autosummary::
+..    :toctree: api/
 
-Club / Effort / Performance Classes
-------------------------------------
-   Split
-   Club
-   BaseEffort
-   BestEffort
-   DistributionBucket
-   BaseActivityZone
-
-Club Classes
--------------
-   MetaClub
-   SummaryClub
-   DetailedClub
+..    LatLon
+..    SummarySegment
+..    Segment
+..    SegmentEffort
+..    SegmentEffortAchievement
+..    SummarySegmentEffort
+..    Map
+..    SegmentExplorerResult
+..    BaseEffort
+..    BestEffort
+..    Route
+..    Stream
