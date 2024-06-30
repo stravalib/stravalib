@@ -704,19 +704,6 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
         return self.bound_client.get_athlete_stats(self.id)
 
 
-class ActivityComment(Comment):
-    """
-    A class representing a comment on an activity.
-
-    Attributes
-    ----------
-    athlete : Athlete, optional
-        The athlete associated with the comment.
-    """
-
-    athlete: Optional[SummaryAthlete] = None
-
-
 class ActivityPhotoPrimary(Primary):
     """
     Represents the primary photo for an activity.
@@ -1065,7 +1052,7 @@ class AthleteSegmentStats(
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
     @lazy_property
-    def comments(self) -> BatchedResultsIterator[ActivityComment]:
+    def comments(self) -> BatchedResultsIterator[Comment]:
         """Retrieves comments for a specific activity id."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_comments(self.id)

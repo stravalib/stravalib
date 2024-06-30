@@ -1063,7 +1063,7 @@ class Client:
         activity_id: int,
         markdown: bool = False,
         limit: int | None = None,
-    ) -> BatchedResultsIterator[model.ActivityComment]:
+    ) -> BatchedResultsIterator[strava_model.Comment]:
         """Gets the comments for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getCommentsByActivityId
@@ -1080,7 +1080,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.ActivityComment` objects.
+            An iterator of :class:`stravalib.strava_model.Comment` objects.
 
         """
         result_fetcher = functools.partial(
@@ -1091,7 +1091,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityComment,
+            entity=strava_model.Comment,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
