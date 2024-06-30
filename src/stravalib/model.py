@@ -433,6 +433,8 @@ class RelaxedActivityType(ActivityType):
 
 
 class RelaxedSportType(SportType):
+    """A class."""
+
     @model_validator(mode="before")
     def check_sport_type(cls, values: str) -> str:
         """Pydantic validator that checks whether a sport type value is
@@ -710,8 +712,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
 
 
 class ActivityComment(Comment):
-    """
-    A class representing a comment on an activity.
+    """A class representing a comment on an activity.
 
     Attributes
     ----------
@@ -723,8 +724,7 @@ class ActivityComment(Comment):
 
 
 class ActivityPhotoPrimary(Primary):
-    """
-    Represents the primary photo for an activity.
+    """Represents the primary photo for an activity.
 
     Attributes
     ----------
@@ -740,8 +740,7 @@ class ActivityPhotoPrimary(Primary):
 
 
 class ActivityPhotoMeta(PhotosSummary):
-    """
-    Represents the metadata of photos returned with the activity.
+    """Represents the metadata of photos returned with the activity.
 
     Not to be confused with the fully loaded photos for an activity.
 
