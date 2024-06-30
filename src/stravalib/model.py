@@ -729,20 +729,6 @@ class PhotosSummary_primary(strava_model.Primary):
     returned. This model represents what is actually returned
     """
 
-    # TODO: we should use strava_model.Primary instead
-    # However there is a mapping issue
-    # id should be unique_id - i'm guessing media type is video vs image
-    # i'm not sure if user will want that -
-    # what is the best path forward here?
-    """
-    "unique_id": "8d9e546c-5da1-46cb-973e-c55bb3be88bd",
-            "urls": {
-                "600": "https://dgtzuqphqg23d.cloudfront.net/PNON86jIyK-xCnvSXhfESDYO--7cwvweK2fQ86NwOws-768x354.jpg",
-                "100": "https://dgtzuqphqg23d.cloudfront.net/PNON86jIyK-xCnvSXhfESDYO--7cwvweK2fQ86NwOws-128x59.jpg"
-            },
-            "source": 1,
-            "media_type": 1
-    """
     # Strava_model has this defined as id but unique_id is the correct attr name
     # it's also defined as a int but should be a string
     unique_id: str | None
