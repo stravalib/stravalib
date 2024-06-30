@@ -342,13 +342,14 @@ class _TimezoneAnnotation(_CustomStrAnnotation):
 
 
 class Distance(_Quantity):
-    """A class that supports conversion of units to meters. This output can then be
-    converted to other units such as feet or meters using the stravalib.unit_helper module.
+    """A class that supports conversion of units to meters. This output can then
+    be converted to other units such as feet or meters using the
+    `stravalib.unit_helper` module.
 
     Examples
     ----------
-    Once you have distance in meters, you can then use the unit_helper module to
-    convert to other units such as feet
+    Once you have distance in meters, you can then use the unit_helper
+    module to convert to other units such as feet
 
     >>> from stravalib import unit_helper
     >>> activity = client.get_activity(11416949675)

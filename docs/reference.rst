@@ -15,7 +15,7 @@ Below the main modules are listed.
    Client <reference/client>
    Model <reference/model>
    Strava Model <reference/strava_model>
-   Unit helper <reference/unithelper>
+   Unit helper <reference/unit_helper>
    Protocol <reference/protocol>
    Limiter (Util Submodule) <reference/utilities>
    Exceptions <reference/exceptions>
