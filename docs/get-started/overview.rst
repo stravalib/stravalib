@@ -109,10 +109,10 @@ to see a representation that includes the units::
 Hmmm, meters.  Well, here in the US we like to see miles.  While you can certainly do this using the units
 library directly, stravalib provides a preconfigured set of common units to simplify matters.::
 
-   from stravalib import unithelper
+   from stravalib import unit_helper
 
    activity = client.get_activity(96089609)
-   print(unithelper.miles(activity.distance))
+   print(unit_helper.miles(activity.distance))
    # 14.00 mi
 
 Of course, if you want to do something besides display those values, you'll likely
@@ -122,7 +122,7 @@ or just cast to a numeric type (e.g. float).::
    activity = client.get_activity(96089609)
    print(float(activity.distance))
    # 22530.8
-   print(float(unithelper.miles(activity.distance)))
+   print(float(unit_helper.miles(activity.distance)))
    # 13.9999900581
 
 

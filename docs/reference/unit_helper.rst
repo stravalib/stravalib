@@ -1,9 +1,9 @@
 ============================
 Unit Helper Module
 ============================
-.. currentmodule:: stravalib.unithelper
+.. currentmodule:: stravalib.unit_helper
 
-The `unithelper` module provides helper utility
+The `unit_helper` module provides helper utility
 to convert various units.
 
 Summary Functions
