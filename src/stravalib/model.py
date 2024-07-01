@@ -299,7 +299,31 @@ class _CustomStrAnnotation(_CustomTypeAnnotation[str, Any], ABC):
 
 
 class Duration(int):
+    """
+    A class that calculates the duration or time elapsed for an activity,
+    activity segment, or activity lap.
+
+    This class extends the built-in `int` class to represent durations in
+    seconds and provides a method to convert this duration to a
+    `datetime.timedelta` object.
+
+    Methods
+    -------
+    timedelta() -> timedelta
+        Converts the duration to a `datetime.timedelta` object.
+    """
+
     def timedelta(self) -> timedelta:
+        """
+        Converts the duration to a `datetime.timedelta` object.
+
+        Returns
+        -------
+        timedelta
+            A `datetime.timedelta` object representing the duration in
+            seconds.
+        """
+
         return timedelta(seconds=self)
 
 
@@ -312,6 +336,17 @@ class _DurationAnnotation(_CustomIntAnnotation):
 
 
 class Timezone(str):
+    """A class to represent and manipulate time zone information.
+
+    This class extends the built-in `str` class to include a method
+    for converting the time zone string to a pytz time zone object.
+
+    Methods
+    -------
+    timezone() -> pytz._UTCclass | pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo | None
+        Converts the time zone string to a pytz time zone object.
+    """
+
     def timezone(
         self,
     ) -> (
@@ -320,6 +355,24 @@ class Timezone(str):
         | pytz.tzinfo.DstTzInfo
         | None
     ):
+        """
+        Converts the time zone string to a pytz time zone object.
+
+        This method attempts to convert the time zone string, which can
+        either be in the format "(GMT-08:00) America/Los_Angeles" or
+        "America/Los_Angeles", to a corresponding pytz time zone object.
+
+        Returns
+        -------
+        pytz._UTCclass, pytz.tzinfo.StaticTzInfo, `pytz.tzinfo.DstTzInfo`, or
+        `None`The corresponding `pytz` time zone object if the time zone string is
+        recognized, otherwise `None`.
+
+        Raises
+        ------
+        `UnknownTimeZoneError`
+            If the time zone string is not recognized.
+        """
         if " " in self:
             # (GMT-08:00) America/Los_Angeles
             tzname = self.split(" ", 1)[1]
@@ -375,6 +428,13 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
 
 
 class Velocity(_Quantity):
+    """
+    A class to represent velocity measurements.
+
+    This class extends the `_Quantity` class to provide specific functionality
+    for velocity measurements. The unit of measurement is meters per second.
+    """
+
     unit = "meters/second"
 
 
@@ -519,6 +579,10 @@ class LatLon(LatLng):
 
 
 class MetaClub(strava_model.MetaClub, BoundClientEntity):
+    """Inherits from strava_model.MetaClub and adds the BoundClient
+    to support lazy properties accessing the API.
+    """
+
     pass
 
 
@@ -576,7 +640,10 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
 
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
-    pass
+    """The detailed club object contains all of the club metadata available to
+    the authenticated Athlete."""
+
+    ...
 
 
 class ActivityTotals(strava_model.ActivityTotal):
@@ -677,6 +744,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     sample_race_time: Optional[int] = None
     membership: Optional[str] = None
     admin: Optional[bool] = None
+    """Indicates if the athlete has admin privileges."""
     owner: Optional[bool] = None
     subscription_permissions: Optional[Sequence[bool]] = None
 

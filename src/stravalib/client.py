@@ -2113,6 +2113,11 @@ class ActivityUploader:
         self, client: Client, response: dict[str, Any], raise_exc: bool = True
     ) -> None:
         """
+        Initializes the instance with the given client, response, and optional
+        exception flag.
+
+        Parameters
+        ----------
         client: `stravalib.client.Client`
             The :class:`stravalib.client.Client` object that is handling the
             upload.
@@ -2129,13 +2134,13 @@ class ActivityUploader:
 
     @property
     def photo_metadata(self) -> PhotoMetadata:
-        """photo metadata for the activity upload response, if any.
+        """Photo metadata for the activity upload response, if any.
         it contains a pre-signed uri for uploading the photo.
 
         Notes
         -----
-        * This is only available after the upload has completed.
-        * This metadata is only available for partner apps. If you have a
+        This is only available after the upload has completed.
+        This metadata is only available for partner apps. If you have a
         regular / non partner related Strava app / account it will not work.
 
         """
@@ -2260,7 +2265,7 @@ class ActivityUploader:
 
         Returns
         -------
-        class:`stravalib.model.DetailedActivity
+        class:`stravalib.model.DetailedActivity`
 
         Raises
         ------
@@ -2270,8 +2275,8 @@ class ActivityUploader:
         stravalib.exc.ActivityUploadFailed
             If the poll returns an error.
             The uploaded Activity object (fetched from server)
-
         """
+
         start = time.time()
         while self.activity_id is None:
             self.poll()
