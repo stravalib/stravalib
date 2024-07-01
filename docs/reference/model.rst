@@ -8,6 +8,7 @@ Summary Athlete Classes
 ------------------------
 .. autosummary::
    :toctree: api/
+   :recursive:
 
     AthleteStats
     MetaAthlete
@@ -20,6 +21,7 @@ Summary Activity Classes
 -------------------------
 .. autosummary::
     :toctree: api/
+    :recursive:
 
     MetaActivity
     SummaryActivity
@@ -71,7 +73,6 @@ Unit & Conversion Classes
     Timezone
     Velocity
 
-
 Activity Photo Classes
 -------------------------
 Note: the activity photo classes are defined differently in the Strava spec.
@@ -85,26 +86,23 @@ documented.
     ActivityPhotoMeta
     ActivityPhoto
 
-.. Subscription Classes
-.. -------------------------
-.. .. autosummary::
-..    :toctree: api/
+Subscription Classes
+-------------------------
+.. autosummary::
+   :toctree: api/
 
-..    Subscription
-..    SubscriptionCallback
-..    SubscriptionUpdate
+   Subscription
+   SubscriptionCallback
+   SubscriptionUpdate
 
-.. Effort / Performance Classes
-.. -----------------------------
-..    Split
-..    Club
-..    BaseEffort
-..    BestEffort
-..    DistributionBucket
-..    BaseActivityZone
+Effort / Performance Classes
+-----------------------------
+.. autosummary::
+   :toctree: api/
 
-
-
+   Split
+   BaseEffort
+   BestEffort
 
 .. Route / Segment Classes
 .. -------------------------
