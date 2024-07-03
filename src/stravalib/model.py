@@ -719,18 +719,18 @@ class ActivityComment(Comment):
 # strava_model Primary is fine for this but we may
 # have to add some mapping
 class PhotosSummary_primary(strava_model.Primary):
-    """A object to store data about the primary photo of a Strava activity
+    """An object to store data about the primary photo of a Strava activity
 
     Notes
     -----
     https://developers.strava.com/docs/reference/#api-models-PhotosSummary_primary
-    This object is nor returned in strava_model but it is documented in the
+    This object is not returned in strava_model, but it is documented in the
     Strava API V3 spec. The Spec documentation deviates from what is actually
-    returned. This model represents what is actually returned
+    returned. This model represents what is actually returned.
     """
 
     # Strava_model has this defined as id but unique_id is the correct attr name
-    # it's also defined as a int but should be a string
+    # it's also defined as an int but should be a string
     unique_id: str | None
     media_type: int | None = None
 
