@@ -38,7 +38,6 @@ from dateutil import parser
 from dateutil.parser import ParserError
 from pydantic import (
     AliasChoices,
-    AnyHttpUrl,
     BaseModel,
     Field,
     GetCoreSchemaHandler,
@@ -759,7 +758,7 @@ class PhotosSummary(strava_model.PhotosSummary):
     https://developers.strava.com/docs/reference/#api-models-PhotosSummary
     """
 
-    primary: Optional[PhotosSummary_primary] = None
+    primary: Optional[PhotosSummaryPrimary] = None
 
     # Undocumented by strava
     use_primary_photo: Optional[bool] = None
@@ -788,7 +787,7 @@ class ActivityPhoto(BaseModel):
     type: Optional[int] = None
     unique_id: Optional[str] = None
     uploaded_at: Optional[datetime] = None
-    urls: Optional[dict[str, AnyHttpUrl]] = None
+    urls: Optional[dict[str, str]] = None
 
     # TODO: i don't see these in the actual returns but they are used below
     ref: Optional[str] = None

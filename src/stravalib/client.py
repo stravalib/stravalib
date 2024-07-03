@@ -654,13 +654,6 @@ class Client:
         class: `model.DetailedActivity`
             An Activity object containing the requested activity data.
 
-        Examples
-        --------
-        # Assuming an authenticated client
-        >> activity = client.get_activity(activity_id = 12345677)
-        >> activity.moving_time
-        1234
-
         """
         raw = self.protocol.get(
             "/activities/{id}",
@@ -1161,11 +1154,6 @@ class Client:
         -------
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.ActivityPhoto` objects.
-
-        Examples
-        --------
-        # Assuming an authenticated client
-        >> activity = client.get_activity_photos(activity_id = 12345677)
 
         """
         params: dict[str, Any] = {}
