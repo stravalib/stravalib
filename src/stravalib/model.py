@@ -717,7 +717,7 @@ class ActivityComment(Comment):
 
 # strava_model Primary is fine for this but we may
 # have to add some mapping
-class PhotosSummary_primary(strava_model.Primary):
+class PhotosSummaryPrimary(strava_model.Primary):
     """An object to store data about the primary photo of a Strava activity
 
     Notes
