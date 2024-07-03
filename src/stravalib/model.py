@@ -702,7 +702,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
         return self.bound_client.get_athlete_stats(self.id)
 
 
-class ActivityPhotoPrimary(Primary):
+class ActivityPhotoPrimary(strava_model.Primary):
     """
     Represents the primary photo for an activity.
 
@@ -749,7 +749,7 @@ class PhotosSummary(strava_model.PhotosSummary):
     https://developers.strava.com/docs/reference/#api-models-PhotosSummary
     """
 
-    primary: Optional[PhotosSummaryPrimary] = None
+    primary: Optional[ActivityPhotoPrimary] = None
 
     # Undocumented by strava
     use_primary_photo: Optional[bool] = None
