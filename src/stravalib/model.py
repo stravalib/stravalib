@@ -702,23 +702,14 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
         return self.bound_client.get_athlete_stats(self.id)
 
 
-class ActivityComment(Comment):
+class ActivityPhotoPrimary(strava_model.Primary):
     """
-    A class representing a comment on an activity.
+    Represents the primary photo for an activity.
 
     Attributes
     ----------
-    athlete : Athlete, optional
-        The athlete associated with the comment.
-    """
-
-    athlete: Optional[SummaryAthlete] = None
-
-
-# strava_model Primary is fine for this but we may
-# have to add some mapping
-class PhotosSummaryPrimary(strava_model.Primary):
-    """An object to store data about the primary photo of a Strava activity
+    use_primary_photo : bool, optional
+        Indicates whether the photo is used as the primary photo.
 
     Notes
     -----
@@ -758,7 +749,7 @@ class PhotosSummary(strava_model.PhotosSummary):
     https://developers.strava.com/docs/reference/#api-models-PhotosSummary
     """
 
-    primary: Optional[PhotosSummaryPrimary] = None
+    primary: Optional[ActivityPhotoPrimary] = None
 
     # Undocumented by strava
     use_primary_photo: Optional[bool] = None
@@ -1071,7 +1062,7 @@ class AthleteSegmentStats(
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
     @lazy_property
-    def comments(self) -> BatchedResultsIterator[ActivityComment]:
+    def comments(self) -> BatchedResultsIterator[Comment]:
         """Retrieves comments for a specific activity id."""
         assert self.bound_client is not None
         return self.bound_client.get_activity_comments(self.id)
