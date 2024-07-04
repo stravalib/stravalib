@@ -66,16 +66,20 @@ def clean_docs(session):
     Clean out the docs directory used in the
     live build.
     """
-    dir_path = pathlib.Path("docs", "_build")
-    print(dir_path)
-    dir_contents = dir_path.glob("*")
+    dirs_to_clean = [
+        pathlib.Path("docs", "_build"),
+        pathlib.Path("docs", "reference", "api"),
+    ]
+    for dir_path in dirs_to_clean:
+        print(f"Cleaning directory: {dir_path}")
+        dir_contents = dir_path.glob("*")
 
-    for content in dir_contents:
-        print(f"cleaning content from the {dir_path}")
-        if content.is_dir():
-            shutil.rmtree(content)
-        else:
-            os.remove(content)
+        for content in dir_contents:
+            print(f"cleaning content from the {dir_path}")
+            if content.is_dir():
+                shutil.rmtree(content)
+            else:
+                os.remove(content)
 
 
 @nox.session()

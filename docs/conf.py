@@ -107,21 +107,16 @@ pygments_style = "sphinx"
 html_title = "Stravalib Docs"
 # Theme and css
 html_theme = "pydata_sphinx_theme"
-# Add edit button to furo theme
 
 # Link to our repo for easy PR/ editing
 html_theme_options = {
-    "header_links_before_dropdown": 4,
+    "header_links_before_dropdown": 5,
     "use_edit_page_button": True,
     "show_toc_level": 1,
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_start": ["copyright"],
-<<<<<<< HEAD
     "announcement": "<a href='stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our migration guide for tips on changes from Stravalib V1!</a>",
-=======
-    "announcement": "Here's a <a href='stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our Migration Guide for tips on changes from Stravalib V1!</a>",
->>>>>>> c24cd93 (Fix: docs part 1 - partial cleanup)
 }
 
 html_context = {
@@ -133,30 +128,14 @@ html_context = {
 html_static_path = ["_static"]
 # html_css_files = ["stravalib.css"]
 
-# Short title for the navigation bar.
-html_short_title = "Stravalib Python Package Documentation"
-
 # Instagram always throws 429 so ignore it
 linkcheck_ignore = [r"https://www.instagram.com/accounts/login/"]
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-# html_logo = None
-
-# The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
-# html_favicon = None
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-html_show_sphinx = False
-
-# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-html_show_copyright = True
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}

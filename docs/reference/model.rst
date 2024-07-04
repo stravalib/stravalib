@@ -28,7 +28,6 @@ Summary Activity Classes
     DetailedActivity
     ClubActivity
     ActivityTotals
-    ActivityComment
     Lap
     Split
     RelaxedActivityType
@@ -82,7 +81,6 @@ documented.
     :toctree: api/
 
     ActivityPhotoPrimary
-    ActivityPhotoMeta
     ActivityPhoto
 
 Subscription Classes
