@@ -101,20 +101,20 @@ Effort / Performance Classes
    BaseEffort
    BestEffort
 
-.. Route / Segment Classes
-.. -------------------------
-.. .. autosummary::
-..    :toctree: api/
+Route / Segment Classes
+-------------------------
+.. autosummary::
+   :toctree: api/
 
-..    LatLon
-..    SummarySegment
-..    Segment
-..    SegmentEffort
-..    SegmentEffortAchievement
-..    SummarySegmentEffort
-..    Map
-..    SegmentExplorerResult
-..    BaseEffort
-..    BestEffort
-..    Route
-..    Stream
+   LatLon
+   SummarySegment
+   Segment
+   SegmentEffort
+   SegmentEffortAchievement
+   SummarySegmentEffort
+   Map
+   SegmentExplorerResult
+   BaseEffort
+   BestEffort
+   Route
+   Stream

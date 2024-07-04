@@ -523,9 +523,7 @@ class RelaxedSportType(SportType):
 
 
 class LatLon(LatLng):
-    """
-    Stores lat / lon values or None.
-    """
+    """Stores lat / lon values or None."""
 
     @model_validator(mode="before")
     def check_valid_latlng(cls, values: Sequence[float]) -> list[float] | None:
@@ -964,11 +962,12 @@ class SegmentExplorerResult(
     ExplorerSegment,
     BoundClientEntity,
 ):
-    """
-    Represents a segment result from the segment explorer feature.
+    """Represents a segment result from the segment explorer feature.
 
-    (These are not full segment objects, but the segment object can be fetched
-    via the 'segment' property of this object.)
+    Notes
+    -----
+    These do not represent full segment objects. The segment object can be
+    fetched using the 'segment' property of this object.
     """
 
     # Field overrides from superclass for type extensions:
@@ -1029,6 +1028,14 @@ class AthletePrEffort(
 
 
 class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
+    """Contains summary information for a specific segment
+
+    Notes
+    -----
+    Several attributes represent overrides from the superclass to support
+    accurate typing.
+    """
+
     # Field overrides from superclass for type extensions:
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
@@ -1095,6 +1102,8 @@ class SegmentEffortAchievement(BaseModel):
 
 
 class SummarySegmentEffort(strava_model.SummarySegmentEffort):
+    """Returns summary information for a segment in an activity."""
+
     # Override superclass fields to match actual Strava API responses
     activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
@@ -1112,9 +1121,7 @@ class BaseEffort(
     SummarySegmentEffort,
     strava_model.DetailedSegmentEffort,
 ):
-    """
-    Base class for a best effort or segment effort.
-    """
+    """Base class for a best effort or segment effort."""
 
     # Field overrides from superclass for type extensions:
     segment: Optional[SummarySegment] = None
@@ -1126,17 +1133,13 @@ class BaseEffort(
 
 
 class BestEffort(BaseEffort):
-    """
-    Class representing a best effort (e.g. best time for 5k)
-    """
+    """Class representing a best effort (e.g. best time for 5k)"""
 
     pass
 
 
 class SegmentEffort(BaseEffort):
-    """
-    Class representing a best effort on a particular segment.
-    """
+    """Class representing a best effort on a particular segment."""
 
     achievements: Optional[Sequence[SegmentEffortAchievement]] = None
 
@@ -1339,9 +1342,7 @@ class ActivityZone(
 
 
 class Stream(BaseStream):
-    """
-    Stream of readings from the activity, effort or segment.
-    """
+    """Stream of readings from the activity, effort or segment."""
 
     type: Optional[str] = None
 
@@ -1354,9 +1355,7 @@ class Route(
     strava_model.Route,
     BoundClientEntity,
 ):
-    """
-    Represents a Route.
-    """
+    """Represents a spatial route created by an athlete."""
 
     # Superclass field overrides for using extended types
     distance: Optional[DistanceType] = None

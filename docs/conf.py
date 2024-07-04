@@ -96,6 +96,7 @@ exclude_patterns = [
     "stravalib/tests/functional",
     "stravalib/tests/unit",
     "stravalib/tests/resources",
+    "stravalib/docs/reference/api",
 ]
 
 
