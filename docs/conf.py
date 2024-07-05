@@ -168,7 +168,40 @@ methods_to_skip = {
 
 
 def skip_member(app, what, name, obj, skip, options):
+    """
+    Determine whether a member should be skipped during Sphinx documentation
+    generation.
 
+    This function is used as a callback to the `autodoc-skip-member` event in
+    Sphinx. It allows you to programmatically decide whether a particular
+    member (such as a method or attribute) should be included in the
+    documentation.
+
+    Parameters
+    ----------
+    app : `sphinx.application.Sphinx`
+        The Sphinx application object.
+    what : str
+        The type of the object which the member belongs to (e.g., 'module',
+        'class', 'exception', 'function', 'method', 'attribute').
+    name : str
+        The name of the member.
+    obj : object
+        The member object itself.
+    skip : bool
+        A boolean indicating if autodoc will skip this member if the
+        user-defined callback does not override the decision.
+    options : object
+        The options given to the directive: an object with attributes
+        `inherited_members`, `undoc_members`, `show_inheritance`, and `noindex`
+        that are `True` if the flag option of the same name was given to the
+        auto directive.
+
+    Returns
+    -------
+    bool
+        True if the member should be skipped, False otherwise.
+    """
     # Skip methods defined above
     if name in methods_to_skip:
         return True
@@ -181,4 +214,19 @@ def skip_member(app, what, name, obj, skip, options):
 
 
 def setup(app):
+    """
+    Connect the `skip_member` function to the `autodoc-skip-member` event in
+    Sphinx.
+
+    This function is used to set up the Sphinx extension by connecting the
+    `skip_member` function to the `autodoc-skip-member` event. This allows the
+    `skip_member` function to control which members are included or excluded
+    from the generated documentation.
+
+    Parameters
+    ----------
+    app : `sphinx.application.Sphinx`
+        The Sphinx application object.
+
+    """
     app.connect("autodoc-skip-member", skip_member)
