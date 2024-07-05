@@ -112,8 +112,8 @@ Route / Segment Classes
    SegmentEffort
    SegmentEffortAchievement
    SummarySegmentEffort
-   Map
    SegmentExplorerResult
+   Map
    BaseEffort
    BestEffort
    Route

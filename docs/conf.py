@@ -142,9 +142,46 @@ html_static_path = ["_static"]
 # intersphinx_mapping = {'http://docs.python.org/': None}
 
 # Default to using the order defined in source.
-autodoc_member_order = "bysource"
 autodoc_default_options = {
+    "member-order": "alphabetical",
     "members": True,
     "undoc-members": True,
     "inherited-members": True,
+    # Sphinx looks for a comma separated string. This just removed the section
+    # on the method when using autosummary but the actual method is still listed :(
+    "exclude-members": "int, as_integer_ratio, bit_count",
 }
+
+# Here we globally customize what methods and attrs are included in the docs.
+# there is no good way to do this (that I can find) for an entire inherited
+# class
+methods_to_skip = {
+    "as_integer_ratio",
+    "bit_length",
+    "bit_count",
+    "conjugate",
+    "from_bytes",
+    "to_bytes",
+    "is_integer",
+    "denominator",
+    "imag",
+    "numerator",
+    "real",
+}
+
+
+def skip_member(app, what, name, obj, skip, options):
+
+    # Skip methods defined above
+    if name in methods_to_skip:
+        return True
+    # Skip special methods
+    if name.startswith("__") and name.endswith("__"):
+        return True
+
+    # Otherwise, do not skip
+    return skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_member)
