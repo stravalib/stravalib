@@ -152,19 +152,12 @@ autodoc_default_options = {
 # Here we globally customize what methods and attrs are included in the docs.
 # there is no good way to do this (that I can find) for an entire inherited
 # class
-methods_to_skip = {
-    "as_integer_ratio",
-    "bit_length",
-    "bit_count",
-    "conjugate",
-    "from_bytes",
-    "to_bytes",
-    "is_integer",
-    "denominator",
-    "imag",
-    "numerator",
-    "real",
-}
+int_dir = dir(int)
+methods_to_skip = [
+    member
+    for member in int_dir
+    if not (member.startswith("__") and member.endswith("__"))
+]
 
 
 def skip_member(app, what, name, obj, skip, options):
