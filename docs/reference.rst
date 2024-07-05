@@ -10,7 +10,6 @@ Below the main modules are listed.
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    Client <reference/client>
    Model <reference/model>

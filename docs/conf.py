@@ -147,9 +147,6 @@ autodoc_default_options = {
     "members": True,
     "undoc-members": True,
     "inherited-members": True,
-    # Sphinx looks for a comma separated string. This just removed the section
-    # on the method when using autosummary but the actual method is still listed :(
-    "exclude-members": "int, as_integer_ratio, bit_count",
 }
 
 # Here we globally customize what methods and attrs are included in the docs.
