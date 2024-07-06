@@ -4,7 +4,7 @@ Model
 
 .. currentmodule:: stravalib.model
 
-Summary Athlete Classes
+Athletes
 ------------------------
 .. autosummary::
    :toctree: api/
@@ -17,7 +17,7 @@ Summary Athlete Classes
     AthletePrEffort
     AthleteSegmentStats
 
-Summary Activity Classes
+Activities
 -------------------------
 .. autosummary::
     :toctree: api/
@@ -35,7 +35,7 @@ Summary Activity Classes
     ActivityZone
     TimedZoneDistribution
 
-Club Classes
+Clubs
 -------------
 .. autosummary::
    :toctree: api/
@@ -61,7 +61,7 @@ Helper Classes
 
     BoundClientEntity
 
-Unit & Conversion Classes
+Unit Conversion
 --------------------------
 .. autosummary::
     :toctree: api/
@@ -83,7 +83,7 @@ documented.
     ActivityPhotoPrimary
     ActivityPhoto
 
-Subscription Classes
+Webhook Subscriptions
 -------------------------
 .. autosummary::
    :toctree: api/
@@ -92,7 +92,7 @@ Subscription Classes
    SubscriptionCallback
    SubscriptionUpdate
 
-Effort / Performance Classes
+Effort / Performance
 -----------------------------
 .. autosummary::
    :toctree: api/
