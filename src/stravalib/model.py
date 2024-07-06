@@ -395,7 +395,7 @@ class _TimezoneAnnotation(_CustomStrAnnotation):
 
 
 class Distance(_Quantity):
-    """A class that supports conversion of units to meters. This output can then
+    """A class for representing distances as quantities (using meter as unit, which is the implicit default of Strava). These quantities can then
     be converted to other units such as feet or meters using the
     `stravalib.unit_helper` module.
 
@@ -427,10 +427,9 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
 
 class Velocity(_Quantity):
     """
-    A class to represent velocity measurements.
-
-    This class extends the `_Quantity` class to provide specific functionality
-    for velocity measurements. The unit of measurement is meters per second.
+A class for representing velocities as quantities (using meters per second as unit, which is the implicit default of Strava). These quantities can then
+    be converted to other units such as km/h or mph using the
+    `stravalib.unit_helper` module.
     """
 
     unit = "meters/second"
@@ -636,7 +635,7 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
 
 
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
-    """The detailed club object contains all of the club metadata available to
+    """The detailed club object contains all of the club data available to
     the authenticated Athlete."""
 
     ...
@@ -1296,10 +1295,10 @@ class ClubActivity(strava_model.ClubActivity):
     Notes
     -----
     The Strava API specification suggests that this should
-    return a `MetaAthlete` Object for athlete associated with the activities.
+    return a `MetaAthlete` Object for the athlete associated with this activity.
     However, the object spec is missing what is actually returned,
-    i.e., resource_state, first name and last initial.
-    This object matches the actual return dat, not the spec.
+    i.e., resource_state, first name, and last initial.
+    This object matches the actual return data, not the spec.
     """
 
     # Intentional class override as spec returns metaAthlete object
