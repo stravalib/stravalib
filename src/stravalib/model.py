@@ -427,9 +427,9 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
 
 class Velocity(_Quantity):
     """
-A class for representing velocities as quantities (using meters per second as unit, which is the implicit default of Strava). These quantities can then
-    be converted to other units such as km/h or mph using the
-    `stravalib.unit_helper` module.
+    A class for representing velocities as quantities (using meters per second as unit, which is the implicit default of Strava). These quantities can then
+        be converted to other units such as km/h or mph using the
+        `stravalib.unit_helper` module.
     """
 
     unit = "meters/second"
@@ -574,38 +574,10 @@ class LatLon(LatLng):
 
 
 class MetaClub(strava_model.MetaClub, BoundClientEntity):
-    """Inherits from strava_model.MetaClub and adds the BoundClient
-    to support lazy properties accessing the API.
     """
-
-    pass
-
-
-class SummaryClub(MetaClub, strava_model.SummaryClub):
+    Represents an identifiable club with lazily loaded properties to obtain
+    this club's members and activities.
     """
-    Represents a single club with detailed information about the club including
-    club name, id, location, activity types, etc.
-
-    See Also
-    --------
-    DetailedClub : A class representing a club's detailed information.
-    BoundClientEntity : A mixin to bind the club with a Strava API client.
-
-    Notes
-    -----
-    Clubs are the only object that can have multiple valid
-    `activity_types`. Activities only have one.
-
-    Endpoint docs are found here:
-    https://developers.strava.com/docs/reference/#api-models-SummaryClub
-
-
-    """
-
-    # Undocumented attributes:
-    profile: Optional[str] = None
-    description: Optional[str] = None
-    club_type: Optional[str] = None
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
@@ -632,6 +604,32 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_activities(self.id)
+
+
+class SummaryClub(MetaClub, strava_model.SummaryClub):
+    """
+    Represents a single club with detailed information about the club including
+    the club's location, activity types, etc.
+
+    See Also
+    --------
+    DetailedClub : A class representing a club's detailed information.
+
+    Notes
+    -----
+    Clubs are the only object that can have multiple valid
+    `activity_types`. Activities only have one.
+
+    Endpoint docs are found here:
+    https://developers.strava.com/docs/reference/#api-models-SummaryClub
+
+
+    """
+
+    # Undocumented attributes:
+    profile: Optional[str] = None
+    description: Optional[str] = None
+    club_type: Optional[str] = None
 
 
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
