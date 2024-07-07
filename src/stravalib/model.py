@@ -672,13 +672,31 @@ class AthleteStats(strava_model.ActivityStats):
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
-    """The high level object that holds the athlete's id the BoundClient for
-    lazily loaded methods.
-
+    """
+    Represents an identifiable athlete with lazily loaded property to obtain
+    this athlete's summary stats.
     """
 
     # Undocumented
     resource_state: Optional[int] = None
+
+    @lazy_property
+    def stats(self) -> AthleteStats:
+        """
+        Grabs statistics for an (authenticated) athlete.
+
+        Returns
+        -------
+        Associated :class:`stravalib.model.AthleteStats`
+
+        Raises
+        ------
+        `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
+        missing.
+        """
+
+        assert self.bound_client is not None, "Bound client is not set."
+        return self.bound_client.get_athlete_stats(self.id)
 
 
 class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
@@ -765,24 +783,6 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
         else:
             LOGGER.warning(f"Unknown athlete type value: {raw_type}")
             return None
-
-    @lazy_property
-    def stats(self) -> AthleteStats:
-        """
-        Grabs statistics for an (authenticated) athlete.
-
-        Returns
-        -------
-        Associated :class:`stravalib.model.AthleteStats`
-
-        Raises
-        ------
-        `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
-        missing.
-        """
-
-        assert self.bound_client is not None, "Bound client is not set."
-        return self.bound_client.get_athlete_stats(self.id)
 
 
 class ActivityPhotoPrimary(strava_model.Primary):
