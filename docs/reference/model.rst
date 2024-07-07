@@ -35,43 +35,7 @@ Activities
     ActivityZone
     TimedZoneDistribution
 
-Clubs
--------------
-.. autosummary::
-   :toctree: api/
-
-   MetaClub
-   SummaryClub
-   DetailedClub
-
-Summary Functions
-------------------
-.. autosummary::
-    :toctree: api/
-
-    check_valid_location
-    lazy_property
-    naive_datetime
-
-
-Helper Classes
-----------------------
-.. autosummary::
-    :toctree: api/
-
-    BoundClientEntity
-
-Unit Conversion
---------------------------
-.. autosummary::
-    :toctree: api/
-
-    Distance
-    Duration
-    Timezone
-    Velocity
-
-Activity Photo Classes
+Activity Photos
 -------------------------
 Note: the activity photo classes are defined differently in the Strava spec.
 This section will likely need to be updated. These endpoints are not well
@@ -83,6 +47,40 @@ documented.
     ActivityPhotoPrimary
     ActivityPhoto
 
+Clubs
+-------------
+.. autosummary::
+   :toctree: api/
+
+   MetaClub
+   SummaryClub
+   DetailedClub
+
+Routes and Segments
+-------------------------
+.. autosummary::
+   :toctree: api/
+
+   LatLon
+   SummarySegment
+   Segment
+   SegmentExplorerResult
+   Map
+   Route
+   Stream
+
+Segment Efforts
+-----------------------------
+.. autosummary::
+   :toctree: api/
+
+   Split
+   BaseEffort
+   BestEffort
+   SegmentEffort
+   SegmentEffortAchievement
+   SummarySegmentEffort
+
 Webhook Subscriptions
 -------------------------
 .. autosummary::
@@ -92,29 +90,12 @@ Webhook Subscriptions
    SubscriptionCallback
    SubscriptionUpdate
 
-Effort / Performance
------------------------------
+Unit Conversion
+--------------------------
 .. autosummary::
-   :toctree: api/
+    :toctree: api/
 
-   Split
-   BaseEffort
-   BestEffort
-
-Route / Segment Classes
--------------------------
-.. autosummary::
-   :toctree: api/
-
-   LatLon
-   SummarySegment
-   Segment
-   SegmentEffort
-   SegmentEffortAchievement
-   SummarySegmentEffort
-   SegmentExplorerResult
-   Map
-   BaseEffort
-   BestEffort
-   Route
-   Stream
+    Distance
+    Duration
+    Timezone
+    Velocity
