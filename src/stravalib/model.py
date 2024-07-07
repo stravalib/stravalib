@@ -1158,9 +1158,9 @@ class AthleteSegmentStats(
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
-    """An object that ensures Activity objects inherit the BoundClient and
-    that also defines lazy properties to collect Activity comments, zones,
-    kudos and photos.
+    """
+    Represents an identifiable activity with lazily loaded properties to
+    collect this activity's comments, zones, kudos and photos.
     """
 
     @lazy_property
