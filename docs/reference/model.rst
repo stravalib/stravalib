@@ -90,7 +90,7 @@ Webhook Subscriptions
    SubscriptionCallback
    SubscriptionUpdate
 
-Unit Conversion
+Custom Types
 --------------------------
 .. autosummary::
     :toctree: api/
