@@ -18,8 +18,15 @@ class _Quantity(float):
     """
 
     unit: str
+    """
+    The quantity's unit
+    """
 
     def quantity(self) -> pint.Quantity:
+        """
+        Returns the base type (e.g., float) as a pint.Quantity by attaching
+        the unit to it.
+        """
         return ureg.Quantity(self, self.unit)
 
 

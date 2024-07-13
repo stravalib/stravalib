@@ -309,6 +309,15 @@ class Duration(int):
     -------
     timedelta() -> timedelta
         Converts the duration to a `datetime.timedelta` object.
+
+    Examples
+    --------
+
+    >>> activity = client.get_activity(11416949675)
+    >>> activity.elapsed_time
+    3214
+    >>> activity.elapsed_time.timedelta()
+    datetime.timedelta(seconds=3214)
     """
 
     def timedelta(self) -> timedelta:
@@ -322,7 +331,7 @@ class Duration(int):
             seconds.
         """
 
-        return timedelta(seconds=self)
+        return timedelta(seconds=float(self))
 
 
 class _DurationAnnotation(_CustomIntAnnotation):
@@ -343,6 +352,15 @@ class Timezone(str):
     -------
     timezone() -> pytz._UTCclass | pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo | None
         Converts the time zone string to a pytz time zone object.
+
+    Examples
+    --------
+
+    >>> activity = client.get_activity(11416949675)
+    >>> activity.timezone
+    '(GMT+01:00) Europe/Amsterdam'
+    >>> activity.timezone.timezone()
+    <DstTzInfo 'Europe/Amsterdam' LMT+0:18:00 STD>
     """
 
     def timezone(
@@ -406,12 +424,16 @@ class Distance(_Quantity):
 
     >>> from stravalib import unit_helper
     >>> activity = client.get_activity(11416949675)
+    >>> activity.distance
+    8055.9
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>
     >>>  unit_helper.feet(activity.distance)
     <Quantity(26430.1181, 'foot')>
     >>> unit_helper.miles(activity.distance)
     <Quantity(5.00570419, 'mile')>
+    >>> unit_helper.miles(activity.distance).magnitude
+    5.00570419
     """
 
     unit = "meters"
@@ -430,6 +452,20 @@ class Velocity(_Quantity):
     A class for representing velocities as quantities (using meters per second as unit, which is the implicit default of Strava). These quantities can then
         be converted to other units such as km/h or mph using the
         `stravalib.unit_helper` module.
+
+    Examples
+    --------
+
+    >>> from stravalib import unit_helper
+    >>> activity = client.get_activity(11854593990)
+    >>> activity.average_speed
+    3.53
+    >>> activity.average_speed.quantity()
+    <Quantity(3.53, 'meter / second')>
+    >>> unit_helper.miles_per_hour(activity.average_speed)
+    <Quantity(7.89638511, 'mile / hour')>
+    >>> unit_helper.miles_per_hour(activity.average_speed).magnitude
+    7.896385110952039
     """
 
     unit = "meters/second"
