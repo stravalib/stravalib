@@ -58,11 +58,11 @@ using `activity.distance.quantity`.
 This behavior differs from Stravalib V1, where `activity.distance` would
 immediately return a Quantity-like object.
 Detailed documentation about these new custom types can be
-found [here](/reference/model.html#custom-types).
+[found here.](/reference/model.rst#custom-types-anchor)
 
 ## Other
 
-The remaining unrelated breaking changes are:
+The remaining unrelated [breaking](reference/) changes are:
 
 - The `ActivityKudos` class has been removed. Stravalib now uses the
   new `SummaryAthlete` class in its place.

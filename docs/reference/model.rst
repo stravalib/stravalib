@@ -90,6 +90,8 @@ Webhook Subscriptions
    SubscriptionCallback
    SubscriptionUpdate
 
+.. _custom-types-anchor:
+
 Custom Types
 --------------------------
 .. autosummary::
@@ -99,3 +101,13 @@ Custom Types
     Duration
     Timezone
     Velocity
+
+Stravalib helpers
+-----------------
+.. autosummary::
+    :toctree: api/
+
+    BoundClientEntity
+    naive_datetime
+    lazy_property
+    check_valid_location
