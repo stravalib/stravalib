@@ -26,7 +26,7 @@ Many model classes were changed to reflect the type hierarchy defined in the
 Strava API. This means that classes such
 as `Activity` are now split into `MetaActivity`, `SummaryActivity`,
 and `DetailedActivity`.
-As `MetaActivity` has far fewer attributes than the former `Activity` class,
+As `MetaActivity` has fewer attributes than the former `Activity` class,
 this may lead to `AttributeError`s.
 However, these missing attributes would have a `None` value, as the Strava API
 never returned them. Code that uses
