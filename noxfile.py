@@ -44,6 +44,7 @@ def docs_live(session):
         "build_assets",
         "tmp",
     ]
+
     cmd = ["sphinx-autobuild"]
     for folder in AUTOBUILD_IGNORE:
         cmd.extend(["--ignore", f"*/{folder}/*"])

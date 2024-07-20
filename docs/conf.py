@@ -62,9 +62,6 @@ extensions = [
     "sphinx_copybutton",
     "myst_nb",
     "sphinx_design",
-    # Commented out because matplotlib raises a findfonts warning over and over
-    # TODO: fix is to install fonts in CI or remove opengraph
-    # "sphinxext.opengraph",
     "sphinx_inline_tabs",
 ]
 
@@ -74,6 +71,9 @@ remove_from_toctrees = ["docs/reference/api/*"]
 autodoc_pydantic_model_show_json = True
 autodoc_pydantic_settings_show_json = False
 autosummary_generate = True
+
+# Suppress warnings for duplicate object description
+suppress_warnings = ["autodoc.*", "ref.ref", "ref.duplicate"]
 
 # Colon fence for card support in md
 myst_enable_extensions = ["colon_fence"]

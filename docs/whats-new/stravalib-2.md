@@ -1,5 +1,14 @@
 # Stravalib V2 Migration Guide
 
+:::{toctree}
+:hidden:
+:caption: What's New
+
+What's New <self>
+Changelog <changelog>
+blah </reference/index>
+:::
+
 Stravalib V2 includes several breaking changes. The sections below provide a
 guide to help you migrate your code to this
 latest release.
