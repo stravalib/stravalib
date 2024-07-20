@@ -72,9 +72,6 @@ autodoc_pydantic_model_show_json = True
 autodoc_pydantic_settings_show_json = False
 autosummary_generate = True
 
-# Suppress warnings for duplicate object description
-suppress_warnings = ["autodoc.*", "ref.ref", "ref.duplicate"]
-
 # Colon fence for card support in md
 myst_enable_extensions = ["colon_fence"]
 
