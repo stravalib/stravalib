@@ -15,6 +15,7 @@ Athletes <athletes>
 
 ## Install stravalib
 
+(hello)=
 The package is available on PyPI to be installed using `pip`.
 
 ```bash

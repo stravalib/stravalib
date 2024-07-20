@@ -7,9 +7,8 @@
 :columns: 12
 :class: sd-fs-3
 
-stravalib is a open source Python package that makes it easier for you to authenticate
-with the Strava v3 REST API, and access your STRAVA data using
-the Python programming language.
+Stravalib is an open source Python package that makes it easier for you to
+access the Strava v3 REST API using the Python programming language.
 
 ```{only} html
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/stravalib/stravalib?color=purple&display_name=tag&style=plastic)
@@ -119,5 +118,7 @@ Contribute <contributing/intro.md>
 :::{toctree}
 :hidden:
 :caption: What's New
-Get Started <whats-new/changelog>
+
+Changelog <whats-new/changelog>
+
 :::

@@ -1,7 +1,10 @@
-# Changelog: What's new with stravalib
+:::{toctree}
+:hidden:
+:caption: What's New
 
-
-:::{include} ./changelog.md
-:start-line: 3
+Stravalib 2.x <stravalib-2>
+Changelog <self>
 
 :::
+
+```{include} ../../changelog.md

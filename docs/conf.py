@@ -19,7 +19,7 @@ import sys
 import stravalib
 
 sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("../src/stravalib"))
+sys.path.insert(0, os.path.abspath("../src"))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -53,13 +53,13 @@ else:
 extensions = [
     "sphinx.ext.napoleon",  # Numpy style doc support
     "sphinx_remove_toctrees",  # Remove api generated stubs from doctree
-    "sphinxcontrib.autodoc_pydantic",
+    "sphinxcontrib.autodoc_pydantic",  # Add json schema display to pydantic models
+    "sphinx.ext.autosummary",  # Generate API stubs for each class
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "sphinx.ext.autosummary",
     "myst_nb",
     "sphinx_design",
     # Commented out because matplotlib raises a findfonts warning over and over
@@ -94,6 +94,7 @@ exclude_patterns = [
     "stravalib/tests/functional",
     "stravalib/tests/unit",
     "stravalib/tests/resources",
+    "stravalib/docs/reference/api",
 ]
 
 
@@ -105,17 +106,16 @@ pygments_style = "sphinx"
 html_title = "Stravalib Docs"
 # Theme and css
 html_theme = "pydata_sphinx_theme"
-# Add edit button to furo theme
 
 # Link to our repo for easy PR/ editing
 html_theme_options = {
-    "header_links_before_dropdown": 4,
+    "header_links_before_dropdown": 5,
     "use_edit_page_button": True,
     "show_toc_level": 1,
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_start": ["copyright"],
-    "announcement": "<a href='stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our migration guide for tips on changes from Stravalib V1!</a>",
+    "announcement": "<a href='/whats-new/stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our migration guide for tips on changes from Stravalib V1!</a>",
 }
 
 html_context = {
@@ -127,85 +127,97 @@ html_context = {
 html_static_path = ["_static"]
 # html_css_files = ["stravalib.css"]
 
-# Short title for the navigation bar.
-html_short_title = "Stravalib Python Package Documentation"
-
 # Instagram always throws 429 so ignore it
 linkcheck_ignore = [r"https://www.instagram.com/accounts/login/"]
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-# html_logo = None
-
-# The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
-# html_favicon = None
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-html_show_sphinx = False
-
-# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-html_show_copyright = True
-
-# If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.  The value of this option must be the
-# base URL from which the finished HTML is served.
-# html_use_opensearch = ''
-
-# This is the file name suffix for HTML files (e.g. ".xhtml").
-# html_file_suffix = None
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = "stravalibdoc"
-
-# -- Options for manual page output ---------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "stravalib", "stravalib Documentation", ["Hans Lellelid"], 1)
-]
-
-# If true, show URL addresses after external links.
-# man_show_urls = False
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (
-        "index",
-        "stravalib",
-        "stravalib Documentation",
-        "Hans Lellelid",
-        "stravalib",
-        "One line description of project.",
-        "Miscellaneous",
-    ),
-]
-
-# Documents to append as an appendix to all manuals.
-# texinfo_appendices = []
-
-# If false, no module index is generated.
-# texinfo_domain_indices = True
-
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-# texinfo_show_urls = 'footnote'
-
-# If true, do not generate a @detailmenu in the "Top" node's menu.
-# texinfo_no_detailmenu = False
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}
 
 # Default to using the order defined in source.
-autodoc_member_order = "bysource"
+autodoc_default_options = {
+    "member-order": "alphabetical",
+    "members": True,
+    "undoc-members": True,
+    "inherited-members": True,
+}
+
+# Here we globally customize what methods and attrs are included in the docs.
+# there is no good way to do this (that I can find) for an entire inherited
+# class
+int_dir = dir(int)
+methods_to_skip = [
+    member
+    for member in int_dir
+    if not (member.startswith("__") and member.endswith("__"))
+]
+
+
+def skip_member(app, what, name, obj, skip, options):
+    """
+    Determine whether a member should be skipped during Sphinx documentation
+    generation.
+
+    This function is used as a callback to the `autodoc-skip-member` event in
+    Sphinx. It allows you to programmatically decide whether a particular
+    member (such as a method or attribute) should be included in the
+    documentation.
+
+    Parameters
+    ----------
+    app : `sphinx.application.Sphinx`
+        The Sphinx application object.
+    what : str
+        The type of the object which the member belongs to (e.g., 'module',
+        'class', 'exception', 'function', 'method', 'attribute').
+    name : str
+        The name of the member.
+    obj : object
+        The member object itself.
+    skip : bool
+        A boolean indicating if autodoc will skip this member if the
+        user-defined callback does not override the decision.
+    options : object
+        The options given to the directive: an object with attributes
+        `inherited_members`, `undoc_members`, `show_inheritance`, and `noindex`
+        that are `True` if the flag option of the same name was given to the
+        auto directive.
+
+    Returns
+    -------
+    bool
+        True if the member should be skipped, False otherwise.
+    """
+    # Skip methods defined above
+    if name in methods_to_skip:
+        return True
+    # Skip special methods
+    if name.startswith("__") and name.endswith("__"):
+        return True
+
+    # Otherwise, do not skip
+    return skip
+
+
+def setup(app):
+    """
+    Connect the `skip_member` function to the `autodoc-skip-member` event in
+    Sphinx.
+
+    This function is used to set up the Sphinx extension by connecting the
+    `skip_member` function to the `autodoc-skip-member` event. This allows the
+    `skip_member` function to control which members are included or excluded
+    from the generated documentation.
+
+    Parameters
+    ----------
+    app : `sphinx.application.Sphinx`
+        The Sphinx application object.
+
+    """
+    app.connect("autodoc-skip-member", skip_member)

@@ -2,8 +2,8 @@
 ==============================
 Model Functions and Classes
 ==============================
-This module contains entity classes for representing the various Strava
-datatypes, such as Activity, Gear, and more. These entities inherit
+This module contains entity classes that represent the various Strava
+datatypes, such as `Activity`, `Gear`, and more. These entities inherit
 fields from superclasses in `strava_model.py`, which is generated from
 the official Strava API specification. The classes in this module add
 behavior such as type enrichment, unit conversion, and lazy loading
@@ -297,8 +297,41 @@ class _CustomStrAnnotation(_CustomTypeAnnotation[str, Any], ABC):
 
 
 class Duration(int):
+    """
+    A class that calculates the duration or time elapsed for an activity,
+    activity segment, or activity lap.
+
+    This class extends the built-in `int` class to represent durations in
+    seconds and provides a method to convert this duration to a
+    `datetime.timedelta` object.
+
+    Methods
+    -------
+    timedelta() -> timedelta
+        Converts the duration to a `datetime.timedelta` object.
+
+    Examples
+    --------
+
+    >>> activity = client.get_activity(11416949675)
+    >>> activity.elapsed_time
+    3214
+    >>> activity.elapsed_time.timedelta()
+    datetime.timedelta(seconds=3214)
+    """
+
     def timedelta(self) -> timedelta:
-        return timedelta(seconds=self)
+        """
+        Converts the duration to a `datetime.timedelta` object.
+
+        Returns
+        -------
+        timedelta
+            A `datetime.timedelta` object representing the duration in
+            seconds.
+        """
+
+        return timedelta(seconds=float(self))
 
 
 class _DurationAnnotation(_CustomIntAnnotation):
@@ -310,6 +343,26 @@ class _DurationAnnotation(_CustomIntAnnotation):
 
 
 class Timezone(str):
+    """A class to represent and manipulate time zone information.
+
+    This class extends the built-in `str` class to include a method
+    for converting the time zone string to a pytz time zone object.
+
+    Methods
+    -------
+    timezone() -> pytz._UTCclass | pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo | None
+        Converts the time zone string to a pytz time zone object.
+
+    Examples
+    --------
+
+    >>> activity = client.get_activity(11416949675)
+    >>> activity.timezone
+    '(GMT+01:00) Europe/Amsterdam'
+    >>> activity.timezone.timezone()
+    <DstTzInfo 'Europe/Amsterdam' LMT+0:18:00 STD>
+    """
+
     def timezone(
         self,
     ) -> (
@@ -318,6 +371,24 @@ class Timezone(str):
         | pytz.tzinfo.DstTzInfo
         | None
     ):
+        """
+        Converts the time zone string to a pytz time zone object.
+
+        This method attempts to convert the time zone string, which can
+        either be in the format "(GMT-08:00) America/Los_Angeles" or
+        "America/Los_Angeles", to a corresponding pytz time zone object.
+
+        Returns
+        -------
+        pytz._UTCclass, pytz.tzinfo.StaticTzInfo, `pytz.tzinfo.DstTzInfo`, or
+        `None`The corresponding `pytz` time zone object if the time zone string is
+        recognized, otherwise `None`.
+
+        Raises
+        ------
+        `UnknownTimeZoneError`
+            If the time zone string is not recognized.
+        """
         if " " in self:
             # (GMT-08:00) America/Los_Angeles
             tzname = self.split(" ", 1)[1]
@@ -342,22 +413,27 @@ class _TimezoneAnnotation(_CustomStrAnnotation):
 
 
 class Distance(_Quantity):
-    """A class that supports conversion of units to meters. This output can then be
-    converted to other units such as feet or meters using the stravalib.unit_helper module.
+    """A class for representing distances as quantities (using meter as unit, which is the implicit default of Strava). These quantities can then
+    be converted to other units such as feet or meters using the
+    `stravalib.unit_helper` module.
 
     Examples
     ----------
-    Once you have distance in meters, you can then use the unit_helper module to
-    convert to other units such as feet
+    Once you have distance in meters, you can then use the unit_helper
+    module to convert to other units such as feet
 
     >>> from stravalib import unit_helper
     >>> activity = client.get_activity(11416949675)
+    >>> activity.distance
+    8055.9
     >>> activity.distance.quantity()
     <Quantity(8055.9, 'meter')>
     >>>  unit_helper.feet(activity.distance)
     <Quantity(26430.1181, 'foot')>
     >>> unit_helper.miles(activity.distance)
     <Quantity(5.00570419, 'mile')>
+    >>> unit_helper.miles(activity.distance).magnitude
+    5.00570419
     """
 
     unit = "meters"
@@ -372,6 +448,26 @@ class _DistanceAnnotation(_CustomFloatAnnotation):
 
 
 class Velocity(_Quantity):
+    """
+    A class for representing velocities as quantities (using meters per second as unit, which is the implicit default of Strava). These quantities can then
+        be converted to other units such as km/h or mph using the
+        `stravalib.unit_helper` module.
+
+    Examples
+    --------
+
+    >>> from stravalib import unit_helper
+    >>> activity = client.get_activity(11854593990)
+    >>> activity.average_speed
+    3.53
+    >>> activity.average_speed.quantity()
+    <Quantity(3.53, 'meter / second')>
+    >>> unit_helper.miles_per_hour(activity.average_speed)
+    <Quantity(7.89638511, 'mile / hour')>
+    >>> unit_helper.miles_per_hour(activity.average_speed).magnitude
+    7.896385110952039
+    """
+
     unit = "meters/second"
 
 
@@ -399,6 +495,11 @@ class BoundClientEntity(BaseModel):
 
 
 class RelaxedActivityType(ActivityType):
+    """This object supports allowing an array of Literal values to be used for
+    Activity Type. by default, the generated `strava_model` module only allows
+    a Literal that includes types: `Ride` and `Run`.
+    """
+
     @model_validator(mode="before")
     def check_activity_type(cls, values: str) -> str:
         """Pydantic validator that checks whether an activity type value is
@@ -427,6 +528,10 @@ class RelaxedActivityType(ActivityType):
 
 
 class RelaxedSportType(SportType):
+    """A class that extends the list of Literal values allowed for Sport Types
+    that are defined in the generated `strava_model` module.
+    """
+
     @model_validator(mode="before")
     def check_sport_type(cls, values: str) -> str:
         """Pydantic validator that checks whether a sport type value is
@@ -453,9 +558,7 @@ class RelaxedSportType(SportType):
 
 
 class LatLon(LatLng):
-    """
-    Stores lat / lon values or None.
-    """
+    """Stores lat / lon values or None."""
 
     @model_validator(mode="before")
     def check_valid_latlng(cls, values: Sequence[float]) -> list[float] | None:
@@ -507,34 +610,10 @@ class LatLon(LatLng):
 
 
 class MetaClub(strava_model.MetaClub, BoundClientEntity):
-    pass
-
-
-class SummaryClub(MetaClub, strava_model.SummaryClub):
     """
-    Represents a single club with detailed information about the club including
-    club name, id, location, activity types, etc.
-
-    See Also
-    --------
-    DetailedClub : A class representing a club's detailed information.
-    BoundClientEntity : A mixin to bind the club with a Strava API client.
-
-    Notes
-    -----
-    Clubs are the only object that can have multiple valid
-    `activity_types`. Activities only have one.
-
-    Endpoint docs are found here:
-    https://developers.strava.com/docs/reference/#api-models-SummaryClub
-
-
+    Represents an identifiable club with lazily loaded properties to obtain
+    this club's members and activities.
     """
-
-    # Undocumented attributes:
-    profile: Optional[str] = None
-    description: Optional[str] = None
-    club_type: Optional[str] = None
 
     @lazy_property
     def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
@@ -563,13 +642,43 @@ class SummaryClub(MetaClub, strava_model.SummaryClub):
         return self.bound_client.get_club_activities(self.id)
 
 
+class SummaryClub(MetaClub, strava_model.SummaryClub):
+    """
+    Represents a single club with detailed information about the club including
+    the club's location, activity types, etc.
+
+    See Also
+    --------
+    DetailedClub : A class representing a club's detailed information.
+
+    Notes
+    -----
+    Clubs are the only object that can have multiple valid
+    `activity_types`. Activities only have one.
+
+    Endpoint docs are found here:
+    https://developers.strava.com/docs/reference/#api-models-SummaryClub
+
+
+    """
+
+    # Undocumented attributes:
+    profile: Optional[str] = None
+    description: Optional[str] = None
+    club_type: Optional[str] = None
+
+
 class DetailedClub(SummaryClub, strava_model.DetailedClub):
-    pass
+    """The detailed club object contains all of the club data available to
+    the authenticated Athlete."""
+
+    ...
 
 
 class ActivityTotals(strava_model.ActivityTotal):
-    """An objecting containing a set of total values for an activity including
-    elapsed time, moving time, distance and elevation gain."""
+    """Contains a set of total values for an activity including
+    elapsed time, moving time, distance and elevation gain.
+    """
 
     # Attribute overrides for custom types:
     distance: Optional[DistanceType] = None
@@ -599,11 +708,38 @@ class AthleteStats(strava_model.ActivityStats):
 
 
 class MetaAthlete(strava_model.MetaAthlete, BoundClientEntity):
+    """
+    Represents an identifiable athlete with lazily loaded property to obtain
+    this athlete's summary stats.
+    """
+
     # Undocumented
     resource_state: Optional[int] = None
 
+    @lazy_property
+    def stats(self) -> AthleteStats:
+        """
+        Grabs statistics for an (authenticated) athlete.
 
-class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete): ...
+        Returns
+        -------
+        Associated :class:`stravalib.model.AthleteStats`
+
+        Raises
+        ------
+        `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
+        missing.
+        """
+
+        assert self.bound_client is not None, "Bound client is not set."
+        return self.bound_client.get_athlete_stats(self.id)
+
+
+class SummaryAthlete(MetaAthlete, strava_model.SummaryAthlete):
+    """The Summary Athlete object. This is redefined here to inherit the
+    `BoundClient` which allows API access for lazy methods."""
+
+    ...
 
 
 class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
@@ -655,6 +791,7 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
     sample_race_time: Optional[int] = None
     membership: Optional[str] = None
     admin: Optional[bool] = None
+    """Indicates if the athlete has admin privileges."""
     owner: Optional[bool] = None
     subscription_permissions: Optional[Sequence[bool]] = None
 
@@ -682,24 +819,6 @@ class DetailedAthlete(SummaryAthlete, strava_model.DetailedAthlete):
         else:
             LOGGER.warning(f"Unknown athlete type value: {raw_type}")
             return None
-
-    @lazy_property
-    def stats(self) -> AthleteStats:
-        """
-        Grabs statistics for an (authenticated) athlete.
-
-        Returns
-        -------
-        Associated :class:`stravalib.model.AthleteStats`
-
-        Raises
-        ------
-        `stravalib.exc.NotAuthenticatedAthlete` exception if authentication is
-        missing.
-        """
-
-        assert self.bound_client is not None, "Bound client is not set."
-        return self.bound_client.get_athlete_stats(self.id)
 
 
 class ActivityPhotoPrimary(strava_model.Primary):
@@ -820,6 +939,13 @@ class Lap(
     strava_model.Lap,
     BoundClientEntity,
 ):
+    """An object that represents an Activity lap.
+
+    This object inherits the BoundClient to support API access through lazy
+    methods.
+
+    """
+
     # Field overrides from superclass for type extensions:
     activity: Optional[MetaActivity] = None
     athlete: Optional[MetaAthlete] = None
@@ -869,11 +995,12 @@ class SegmentExplorerResult(
     ExplorerSegment,
     BoundClientEntity,
 ):
-    """
-    Represents a segment result from the segment explorer feature.
+    """Represents a segment result from the segment explorer feature.
 
-    (These are not full segment objects, but the segment object can be fetched
-    via the 'segment' property of this object.)
+    Notes
+    -----
+    These do not represent full segment objects. The segment object can be
+    fetched using the 'segment' property of this object.
     """
 
     # Field overrides from superclass for type extensions:
@@ -909,6 +1036,8 @@ class SegmentExplorerResult(
 class AthletePrEffort(
     strava_model.SummaryPRSegmentEffort,
 ):
+    """An object that holds athlete PR effort attributes."""
+
     # Override fields from superclass to match actual responses by Strava API:
     activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
@@ -932,6 +1061,14 @@ class AthletePrEffort(
 
 
 class SummarySegment(strava_model.SummarySegment, BoundClientEntity):
+    """Contains summary information for a specific segment
+
+    Notes
+    -----
+    Several attributes represent overrides from the superclass to support
+    accurate typing.
+    """
+
     # Field overrides from superclass for type extensions:
     start_latlng: Optional[LatLon] = None
     end_latlng: Optional[LatLon] = None
@@ -998,6 +1135,8 @@ class SegmentEffortAchievement(BaseModel):
 
 
 class SummarySegmentEffort(strava_model.SummarySegmentEffort):
+    """Returns summary information for a segment in an activity."""
+
     # Override superclass fields to match actual Strava API responses
     activity_id: Optional[int] = Field(
         validation_alias=AliasChoices("pr_activity_id", "activity_id"),
@@ -1015,9 +1154,7 @@ class BaseEffort(
     SummarySegmentEffort,
     strava_model.DetailedSegmentEffort,
 ):
-    """
-    Base class for a best effort or segment effort.
-    """
+    """Base class for a best effort or segment effort."""
 
     # Field overrides from superclass for type extensions:
     segment: Optional[SummarySegment] = None
@@ -1029,17 +1166,13 @@ class BaseEffort(
 
 
 class BestEffort(BaseEffort):
-    """
-    Class representing a best effort (e.g. best time for 5k)
-    """
+    """Class representing a best effort (e.g. best time for 5k)"""
 
     pass
 
 
 class SegmentEffort(BaseEffort):
-    """
-    Class representing a best effort on a particular segment.
-    """
+    """Class representing a best effort on a particular segment."""
 
     achievements: Optional[Sequence[SegmentEffortAchievement]] = None
 
@@ -1061,6 +1194,11 @@ class AthleteSegmentStats(
 
 
 class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
+    """
+    Represents an identifiable activity with lazily loaded properties to
+    collect this activity's comments, zones, kudos and photos.
+    """
+
     @lazy_property
     def comments(self) -> BatchedResultsIterator[Comment]:
         """Retrieves comments for a specific activity id."""
@@ -1073,7 +1211,7 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
         Returns
         -------
-        py:class:`list`
+        list
             A list of :class:`stravalib.model.ActivityZone` objects.
         """
 
@@ -1096,6 +1234,16 @@ class MetaActivity(strava_model.MetaActivity, BoundClientEntity):
 
 
 class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
+    """The Activity object that contains high level summary activity for an
+    activity.
+
+    Notes
+    -----
+    In the case that the Strava spec is misaligned with the data actually
+    returned, we override attributes as needed.
+
+    """
+
     # field overrides from superclass for type extensions:
     athlete: Optional[MetaAthlete] = None
     # These force validator to run on lat/lon
@@ -1118,7 +1266,7 @@ class DetailedActivity(
     Represents an activity (ride, run, etc.).
     """
 
-    # field overrides from superclass for type extensions:
+    # Field overrides from superclass for type extensions:
     distance: Optional[DistanceType] = None
     total_elevation_gain: Optional[DistanceType] = None
     gear: Optional[SummaryGear] = None
@@ -1180,18 +1328,16 @@ class ClubActivity(strava_model.ClubActivity):
 
     Notes
     -----
-    The Strava API suggests returning a `MetaAthlete` object for activities' athlete
-    info. However, the actual return lacks expected attributes like resource_state,
-    first name, and last initial, differing from the spec but matching the actual
-    data.
-
+    The Strava API specification suggests that this should
+    return a `MetaAthlete` Object for the athlete associated with this activity.
+    However, the object spec is missing what is actually returned,
+    i.e., resource_state, first name, and last initial.
+    This object matches the actual return data, not the spec.
     """
 
     # Intentional class override as spec returns metaAthlete object
     # (which only contains id)
     athlete: Optional[strava_model.ClubAthlete] = None  # type: ignore[assignment]
-
-    pass
 
 
 class TimedZoneDistribution(strava_model.TimedZoneRange):
@@ -1229,9 +1375,7 @@ class ActivityZone(
 
 
 class Stream(BaseStream):
-    """
-    Stream of readings from the activity, effort or segment.
-    """
+    """Stream of readings from the activity, effort or segment."""
 
     type: Optional[str] = None
 
@@ -1244,9 +1388,7 @@ class Route(
     strava_model.Route,
     BoundClientEntity,
 ):
-    """
-    Represents a Route.
-    """
+    """Represents a spatial route created by an athlete."""
 
     # Superclass field overrides for using extended types
     distance: Optional[DistanceType] = None

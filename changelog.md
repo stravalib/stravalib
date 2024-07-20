@@ -6,6 +6,7 @@
 - Fix: Replace invariant with covariant container types (@lwasser, @jsamoocha, #510)
 - Fix: Rename unithelper.py --> unit_helper.py (@lwasser, #535)
 - Fix: Update & check photos endpoint (@lwasser)
+- Docs: Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
 
 ## v1.7
 
