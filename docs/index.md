@@ -16,6 +16,7 @@ access the Strava v3 REST API using the Python programming language.
 [![DOI](https://zenodo.org/badge/8828908.svg)](https://zenodo.org/badge/latestdoi/8828908)
 
 ```
+
 :::
 ::::
 
@@ -66,7 +67,7 @@ downloading Strava data from the Strava V3 web service. Stravalib provides a
 `Client` class that supports:
 
 * Authenticating with stravalib
-* Accessing and downloading strava activity, club and profile data
+* Accessing and downloading Strava activity, club and profile data
 * Making changes to account activities
 
 It also provides support for working with date/time/temporal attributes
@@ -83,29 +84,28 @@ There are numerous reasons to use stravalib in your workflows:
 *  and more intelligent error handling.
 
 
-```{toctree}
+:::{toctree}
 :hidden:
 :maxdepth: 2
 
 🏠 Home <self>
-```
+:::
 
-```{toctree}
+:::{toctree}
 :hidden:
 :caption: Get Started
 
 Get Started <get-started/index>
 
-```
+:::
 
-```{toctree}
+:::{toctree}
 :hidden:
 :caption: API Documentation
 :maxdepth: 2
 
 Code/API Reference <reference>
-```
-
+:::
 
 :::{toctree}
 :hidden:
@@ -119,6 +119,6 @@ Contribute <contributing/intro.md>
 :hidden:
 :caption: What's New
 
-Changelog <whats-new/changelog>
+What's new <whats-new/stravalib-2>
 
 :::

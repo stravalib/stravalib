@@ -62,9 +62,6 @@ extensions = [
     "sphinx_copybutton",
     "myst_nb",
     "sphinx_design",
-    # Commented out because matplotlib raises a findfonts warning over and over
-    # TODO: fix is to install fonts in CI or remove opengraph
-    # "sphinxext.opengraph",
     "sphinx_inline_tabs",
 ]
 
