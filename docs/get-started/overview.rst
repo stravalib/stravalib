@@ -17,19 +17,6 @@ types are instances of :mod:`stravalib.model` classes. For example::
    print("Hello, {}. I know your email is {}".format(athlete.firstname, athlete.email))
    # "Hello, John.  I know your email is john@example.com"
 
-Entity Resource States
-----------------------
-
-Entities in Strava's API exist at different detail levels, denoted by the numeric
-`resource_state` attribute (1=metadata, 2=summary, 3=detailed).  In general, detail level
-3 ("detailed") is only available to the user that is authenticated.  Detail level 2 ("summary")
-information is available to others.  For example::
-
-   other_athlete = client.get_athlete(123) # Some other Athlete ID
-   other_athlete.firstname  # This is accessible
-   # But this is not:
-   # other_athlete.email
-
 
 Retrieving Entity Result Sets
 =============================
