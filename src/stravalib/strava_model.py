@@ -763,9 +763,9 @@ class SummaryClub(MetaClub):
     """
     URL to a 60x60 pixel profile picture.
     """
-    sport_type: None | (
-        Literal["cycling", "running", "triathlon", "other"]
-    ) = None
+    sport_type: Literal["cycling", "running", "triathlon", "other"] | None = (
+        None
+    )
     """
     Deprecated. Prefer to use activity_types.
     """
