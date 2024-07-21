@@ -7,6 +7,7 @@
 - Fix: Rename unithelper.py --> unit_helper.py (@lwasser, #535)
 - Fix: Update & check photos endpoint (@lwasser)
 - Docs: Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
+- Fix: Typing upgrade to Python 3.10+ (@lwasser, #547)
 
 ## v1.7
 
