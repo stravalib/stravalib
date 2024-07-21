@@ -6,7 +6,6 @@
 
 What's New <self>
 Changelog <changelog>
-blah </reference/index>
 :::
 
 Stravalib V2 includes several breaking changes. The sections below provide a
