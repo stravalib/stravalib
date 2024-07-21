@@ -4,7 +4,7 @@ Unit Helper
 Helpers for converting Strava's units to something more practical.
 """
 
-from typing import Any, Union
+from typing import Any
 
 import pint
 from pint.facets.plain import PlainQuantity
@@ -39,7 +39,7 @@ class UnitConverter:
         self.unit = unit
 
     def __call__(
-        self, q: Union[_Quantity, pint.Quantity, float]
+        self, q: _Quantity | pint.Quantity | float
     ) -> PlainQuantity[Any]:
         if isinstance(q, pint.Quantity):
             return q.to(self.unit)
