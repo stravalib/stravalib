@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from collections.abc import Mapping, Sequence
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import AwareDatetime, BaseModel, Field, RootModel
 
 
 class ActivityTotal(BaseModel):
@@ -40,8 +40,50 @@ class ActivityTotal(BaseModel):
     """
 
 
-class ActivityType(BaseModel):
-    __root__: Literal[
+class ActivityType(
+    RootModel[
+        Literal[
+            "AlpineSki",
+            "BackcountrySki",
+            "Canoeing",
+            "Crossfit",
+            "EBikeRide",
+            "Elliptical",
+            "Golf",
+            "Handcycle",
+            "Hike",
+            "IceSkate",
+            "InlineSkate",
+            "Kayaking",
+            "Kitesurf",
+            "NordicSki",
+            "Ride",
+            "RockClimbing",
+            "RollerSki",
+            "Rowing",
+            "Run",
+            "Sail",
+            "Skateboard",
+            "Snowboard",
+            "Snowshoe",
+            "Soccer",
+            "StairStepper",
+            "StandUpPaddling",
+            "Surfing",
+            "Swim",
+            "Velomobile",
+            "VirtualRide",
+            "VirtualRun",
+            "Walk",
+            "WeightTraining",
+            "Wheelchair",
+            "Windsurf",
+            "Workout",
+            "Yoga",
+        ]
+    ]
+):
+    root: Literal[
         "AlpineSki",
         "BackcountrySki",
         "Canoeing",
@@ -101,7 +143,7 @@ class BaseStream(BaseModel):
 
 
 class CadenceStream(BaseStream):
-    data: Optional[list[int]] = None
+    data: Optional[Sequence[int]] = None
     """
     The sequence of cadence values for this stream, in rotations per minute
     """
@@ -135,7 +177,7 @@ class ClubAthlete(BaseModel):
 
 
 class DistanceStream(BaseStream):
-    data: Optional[list[float]] = None
+    data: Optional[Sequence[float]] = None
     """
     The sequence of distance values for this stream, in meters
     """
@@ -161,7 +203,7 @@ class Fault(BaseModel):
     Encapsulates the errors that may be returned from the API.
     """
 
-    errors: Optional[list[Error]] = None
+    errors: Optional[Sequence[Error]] = None
     """
     The set of specific errors associated with this fault, if any.
     """
@@ -172,25 +214,25 @@ class Fault(BaseModel):
 
 
 class HeartrateStream(BaseStream):
-    data: Optional[list[int]] = None
+    data: Optional[Sequence[int]] = None
     """
     The sequence of heart rate values for this stream, in beats per minute
     """
 
 
-class LatLng(BaseModel):
+class LatLng(RootModel[Sequence[float]]):
     """
     A pair of latitude/longitude coordinates, represented as an array of 2 floating point numbers.
     """
 
-    __root__: list[float] = Field(..., max_items=2, min_items=2)
+    root: Sequence[float] = Field(..., max_length=2, min_length=2)
     """
     A pair of latitude/longitude coordinates, represented as an array of 2 floating point numbers.
     """
 
 
 class LatLngStream(BaseStream):
-    data: Optional[list[LatLng]] = None
+    data: Optional[Sequence[LatLng]] = None
     """
     The sequence of lat/long values for this stream
     """
@@ -241,7 +283,7 @@ class MetaClub(BaseModel):
 
 
 class MovingStream(BaseStream):
-    data: Optional[list[bool]] = None
+    data: Optional[Sequence[bool]] = None
     """
     The sequence of moving values for this stream, as boolean values
     """
@@ -251,7 +293,7 @@ class Primary(BaseModel):
     id: Optional[int] = None
     source: Optional[int] = None
     unique_id: Optional[str] = None
-    urls: Optional[dict[str, str]] = None
+    urls: Optional[Mapping[str, str]] = None
 
 
 class PhotosSummary(BaseModel):
@@ -278,21 +320,21 @@ class PolylineMap(BaseModel):
 
 
 class PowerStream(BaseStream):
-    data: Optional[list[int]] = None
+    data: Optional[Sequence[int]] = None
     """
     The sequence of power values for this stream, in watts
     """
 
 
 class SmoothGradeStream(BaseStream):
-    data: Optional[list[float]] = None
+    data: Optional[Sequence[float]] = None
     """
     The sequence of grade values for this stream, as percents of a grade
     """
 
 
 class SmoothVelocityStream(BaseStream):
-    data: Optional[list[float]] = None
+    data: Optional[Sequence[float]] = None
     """
     The sequence of velocity values for this stream, in meters per second
     """
@@ -329,8 +371,63 @@ class Split(BaseModel):
     """
 
 
-class SportType(BaseModel):
-    __root__: Literal[
+class SportType(
+    RootModel[
+        Literal[
+            "AlpineSki",
+            "BackcountrySki",
+            "Badminton",
+            "Canoeing",
+            "Crossfit",
+            "EBikeRide",
+            "Elliptical",
+            "EMountainBikeRide",
+            "Golf",
+            "GravelRide",
+            "Handcycle",
+            "HighIntensityIntervalTraining",
+            "Hike",
+            "IceSkate",
+            "InlineSkate",
+            "Kayaking",
+            "Kitesurf",
+            "MountainBikeRide",
+            "NordicSki",
+            "Pickleball",
+            "Pilates",
+            "Racquetball",
+            "Ride",
+            "RockClimbing",
+            "RollerSki",
+            "Rowing",
+            "Run",
+            "Sail",
+            "Skateboard",
+            "Snowboard",
+            "Snowshoe",
+            "Soccer",
+            "Squash",
+            "StairStepper",
+            "StandUpPaddling",
+            "Surfing",
+            "Swim",
+            "TableTennis",
+            "Tennis",
+            "TrailRun",
+            "Velomobile",
+            "VirtualRide",
+            "VirtualRow",
+            "VirtualRun",
+            "Walk",
+            "WeightTraining",
+            "Wheelchair",
+            "Windsurf",
+            "Workout",
+            "Yoga",
+        ]
+    ]
+):
+    root: Literal[
         "AlpineSki",
         "BackcountrySki",
         "Badminton",
@@ -387,8 +484,24 @@ class SportType(BaseModel):
     """
 
 
-class StreamType(BaseModel):
-    __root__: Literal[
+class StreamType(
+    RootModel[
+        Literal[
+            "time",
+            "distance",
+            "latlng",
+            "altitude",
+            "velocity_smooth",
+            "heartrate",
+            "cadence",
+            "watts",
+            "temp",
+            "moving",
+            "grade_smooth",
+        ]
+    ]
+):
+    root: Literal[
         "time",
         "distance",
         "latlng",
@@ -511,11 +624,11 @@ class SummaryActivity(MetaActivity):
     Whether this activity is private
     """
     sport_type: Optional[SportType] = None
-    start_date: Optional[datetime] = None
+    start_date: Optional[AwareDatetime] = None
     """
     The time at which the activity was started.
     """
-    start_date_local: Optional[datetime] = None
+    start_date_local: Optional[AwareDatetime] = None
     """
     The time at which the activity was started in the local timezone.
     """
@@ -567,7 +680,7 @@ class SummaryAthlete(MetaAthlete):
     """
     The athlete's country.
     """
-    created_at: Optional[datetime] = None
+    created_at: Optional[AwareDatetime] = None
     """
     The time at which the athlete was created.
     """
@@ -607,14 +720,14 @@ class SummaryAthlete(MetaAthlete):
     """
     Whether the athlete has any Summit subscription.
     """
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[AwareDatetime] = None
     """
     The time at which the athlete was last updated.
     """
 
 
 class SummaryClub(MetaClub):
-    activity_types: Optional[list[ActivityType]] = None
+    activity_types: Optional[Sequence[ActivityType]] = None
     """
     The activity types that count for a club. This takes precedence over sport_type.
     """
@@ -702,7 +815,7 @@ class SummaryPRSegmentEffort(BaseModel):
     """
     The unique identifier of the activity related to the PR effort.
     """
-    pr_date: Optional[datetime] = None
+    pr_date: Optional[AwareDatetime] = None
     """
     The time at which the PR effort was started.
     """
@@ -733,25 +846,25 @@ class SummarySegmentEffort(BaseModel):
     """
     Whether this effort is the current best on the leaderboard
     """
-    start_date: Optional[datetime] = None
+    start_date: Optional[AwareDatetime] = None
     """
     The time at which the effort was started.
     """
-    start_date_local: Optional[datetime] = None
+    start_date_local: Optional[AwareDatetime] = None
     """
     The time at which the effort was started in the local timezone.
     """
 
 
 class TemperatureStream(BaseStream):
-    data: Optional[list[int]] = None
+    data: Optional[Sequence[int]] = None
     """
     The sequence of temperature values for this stream, in celsius degrees
     """
 
 
 class TimeStream(BaseStream):
-    data: Optional[list[int]] = None
+    data: Optional[Sequence[int]] = None
     """
     The sequence of time values for this stream, in seconds
     """
@@ -817,7 +930,7 @@ class Upload(BaseModel):
 
 
 class Waypoint(BaseModel):
-    categories: Optional[list[str]] = Field(None, min_items=0)
+    categories: Optional[Sequence[str]] = Field(None, min_length=0)
     """
     Categories that the waypoint belongs to
     """
@@ -854,8 +967,8 @@ class ZoneRange(BaseModel):
     """
 
 
-class ZoneRanges(BaseModel):
-    __root__: list[ZoneRange]
+class ZoneRanges(RootModel[Sequence[ZoneRange]]):
+    root: Sequence[ZoneRange]
 
 
 class ActivityStats(BaseModel):
@@ -910,7 +1023,7 @@ class ActivityStats(BaseModel):
 
 
 class AltitudeStream(BaseStream):
-    data: Optional[list[float]] = None
+    data: Optional[Sequence[float]] = None
     """
     The sequence of altitude values for this stream, in meters
     """
@@ -955,7 +1068,7 @@ class ClubAnnouncement(BaseModel):
     """
     The unique identifier of the club this announcements was made in.
     """
-    created_at: Optional[datetime] = None
+    created_at: Optional[AwareDatetime] = None
     """
     The time at which this announcement was created.
     """
@@ -975,7 +1088,7 @@ class Comment(BaseModel):
     The identifier of the activity this comment is related to
     """
     athlete: Optional[SummaryAthlete] = None
-    created_at: Optional[datetime] = None
+    created_at: Optional[AwareDatetime] = None
     """
     The time at which this comment was created.
     """
@@ -990,11 +1103,11 @@ class Comment(BaseModel):
 
 
 class DetailedAthlete(SummaryAthlete):
-    bikes: Optional[list[SummaryGear]] = None
+    bikes: Optional[Sequence[SummaryGear]] = None
     """
     The athlete's bikes.
     """
-    clubs: Optional[list[SummaryClub]] = None
+    clubs: Optional[Sequence[SummaryClub]] = None
     """
     The athlete's clubs.
     """
@@ -1014,7 +1127,7 @@ class DetailedAthlete(SummaryAthlete):
     """
     The athlete's preferred unit system.
     """
-    shoes: Optional[list[SummaryGear]] = None
+    shoes: Optional[Sequence[SummaryGear]] = None
     """
     The athlete's shoes.
     """
@@ -1157,11 +1270,11 @@ class Lap(BaseModel):
     The athlete's pace zone during this lap
     """
     split: Optional[int] = None
-    start_date: Optional[datetime] = None
+    start_date: Optional[AwareDatetime] = None
     """
     The time at which the lap was started.
     """
-    start_date_local: Optional[datetime] = None
+    start_date_local: Optional[AwareDatetime] = None
     """
     The time at which the lap was started in the local timezone.
     """
@@ -1270,7 +1383,7 @@ class DetailedSegment(SummarySegment):
     """
     The number of unique athletes who have an effort for this segment
     """
-    created_at: Optional[datetime] = None
+    created_at: Optional[AwareDatetime] = None
     """
     The time at which the segment was created.
     """
@@ -1291,7 +1404,7 @@ class DetailedSegment(SummarySegment):
     """
     The segment's total elevation gain.
     """
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[AwareDatetime] = None
     """
     The time at which the segment was last updated.
     """
@@ -1352,7 +1465,7 @@ class DetailedSegmentEffort(SummarySegmentEffort):
 
 
 class ExplorerResponse(BaseModel):
-    segments: Optional[list[ExplorerSegment]] = None
+    segments: Optional[Sequence[ExplorerSegment]] = None
     """
     The set of segments matching an explorer request
     """
@@ -1360,7 +1473,7 @@ class ExplorerResponse(BaseModel):
 
 class Route(BaseModel):
     athlete: Optional[SummaryAthlete] = None
-    created_at: Optional[datetime] = None
+    created_at: Optional[AwareDatetime] = None
     """
     The time at which the route was created
     """
@@ -1397,7 +1510,7 @@ class Route(BaseModel):
     """
     Whether this route is private
     """
-    segments: Optional[list[SummarySegment]] = None
+    segments: Optional[Sequence[SummarySegment]] = None
     """
     The segments traversed by this route
     """
@@ -1417,22 +1530,22 @@ class Route(BaseModel):
     """
     This route's type (1 for ride, 2 for runs)
     """
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[AwareDatetime] = None
     """
     The time at which the route was last updated
     """
-    waypoints: Optional[list[Waypoint]] = Field(None, min_items=0)
+    waypoints: Optional[Sequence[Waypoint]] = Field(None, min_length=0)
     """
     The custom waypoints along this route
     """
 
 
-class TimedZoneDistribution(BaseModel):
+class TimedZoneDistribution(RootModel[Sequence[TimedZoneRange]]):
     """
     Stores the exclusive ranges representing zones and the time spent in each.
     """
 
-    __root__: list[TimedZoneRange]
+    root: Sequence[TimedZoneRange]
     """
     Stores the exclusive ranges representing zones and the time spent in each.
     """
@@ -1449,7 +1562,7 @@ class ActivityZone(BaseModel):
 
 
 class DetailedActivity(SummaryActivity):
-    best_efforts: Optional[list[DetailedSegmentEffort]] = None
+    best_efforts: Optional[Sequence[DetailedSegmentEffort]] = None
     calories: Optional[float] = None
     """
     The number of kilocalories consumed during this activity
@@ -1467,14 +1580,14 @@ class DetailedActivity(SummaryActivity):
     The token used to embed a Strava activity
     """
     gear: Optional[SummaryGear] = None
-    laps: Optional[list[Lap]] = None
+    laps: Optional[Sequence[Lap]] = None
     photos: Optional[PhotosSummary] = None
-    segment_efforts: Optional[list[DetailedSegmentEffort]] = None
-    splits_metric: Optional[list[Split]] = None
+    segment_efforts: Optional[Sequence[DetailedSegmentEffort]] = None
+    splits_metric: Optional[Sequence[Split]] = None
     """
     The splits of this activity in metric units (for runs)
     """
-    splits_standard: Optional[list[Split]] = None
+    splits_standard: Optional[Sequence[Split]] = None
     """
     The splits of this activity in imperial units (for runs)
     """
