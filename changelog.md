@@ -21,8 +21,7 @@
    `activity.distance` now returns a `Distance` type. Retrieve distance in meters
    with `activity.distance` or as a `Quantity` using `activity.distance.quantity`.
 
-Please see the migration guide in our docs for more details on
-the changes.
+Please see the migration guide in our docs for more details on the changes.
 
 ### Added
 
@@ -43,7 +42,7 @@ the changes.
 - Fix: Gear and Athlete type hierarchies (+ naive_datetime typing fixes) (@jsamoocha, #526)
 - Fix: docstrings in model.py (@lwasser, #484)
 - Fix: return types -- athlete clubs endpoint (@lwasser, #517)
-- Fix: Updates for activities/id endpoint 🙈  (@lwasser, #520)
+- Fix: Updates for activities/id endpoint 🙈 (@lwasser, #520)
 - Fix: Activities/{id}/zones & Laps (@lwasser, #524)
 - Fix: Rename `unithelper.py` --> `unit_helper.py` (@lwasser, #535)
 - Fix: Update & check photos endpoint (@lwasser)
@@ -55,11 +54,11 @@ the changes.
 
 ### Removed
 
-* Remove: backward compatibility mixin (@jsamoocha, #503)
-* Remove: remove deprecated client methods (@lwasser, #514)
-
+- Remove: backward compatibility mixin (@jsamoocha, #503)
+- Remove: deprecated client methods (@lwasser, #514)
 
 ### New Contributors
+
 - @bmeares made their first contribution in https://github.com/stravalib/stravalib/pull/522 :sparkles:
 
 ## v1.7
