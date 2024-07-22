@@ -1,6 +1,28 @@
 # Change Log
 
-## Unreleased
+## v2.0.0rc0 -- Release Candidate 0
+
+### Major Changes in This Release
+
+1. **Breaking:** Added support for Pydantic 2.x; 1.x behavior is no longer supported.
+   Refer to [Pydantic’s V2 migration guide](https://docs.pydantic.dev/latest/migration/)
+   if you use extensions of Stravalib model classes or Pydantic’s serialization
+   mechanisms (`parse_obj()`, `dict()`, `json()`).
+
+2. Removed deprecated (de-)serialization methods `deserialize()`, `from_dict()`,
+   and `to_dict()`. Use [Pydantic’s serialization mechanisms](https://docs.pydantic.dev/latest/concepts/serialization/).
+
+3. Renamed `unithelper` module to `unit_helper`. Helper functions like `feet()`
+   and `miles()` now return a Pint `Quantity` object.
+
+4. Introduced new types for distances, velocities, durations, and time zones.
+   `activity.distance` now returns a `Distance` type. Retrieve distance in meters
+   with `activity.distance` or as a `Quantity` using `activity.distance.quantity`.
+
+Please see the migration guide in our docs for more details on
+the changes.
+
+### Fixed
 - Fix: Add `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
 - Fix: Add custom types that pass static type checks (@jsamoocha, #534)
 - Fix: Replace invariant with covariant container types (@lwasser, @jsamoocha, #510)
