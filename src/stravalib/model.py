@@ -937,7 +937,7 @@ class SegmentExplorerResult(
     # Undocumented attributes:
     starred: Optional[bool] = None
 
-    _field_conversions = {"elev_difference", uh.meters, "distance", uh.meters}
+    _field_conversions = {"elev_difference": uh.meters, "distance": uh.meters}
 
     _check_latlng = validator(
         "start_latlng", "end_latlng", allow_reuse=True, pre=True
