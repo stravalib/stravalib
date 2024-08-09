@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fix: accessing `elev_difference` and `distance` from `explore_segments` results caused a subscriptable set error (#556)
+
 ## v1.7
 
 ### Added
