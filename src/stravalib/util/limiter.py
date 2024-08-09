@@ -24,8 +24,9 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from logging import Logger
-from typing import Callable, Literal, NamedTuple
+from typing import Literal, NamedTuple
 
 import arrow
 

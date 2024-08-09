@@ -16,7 +16,7 @@ The function will return a :class:`stravalib.model.Activity` object.::
 Activity object has many basic properties such as type and distance.::
 
     print("type={0.type} distance={1} km".format(activity,
-                                             unithelper.kilometers(activity.distance)))
+                                             unit_helper.kilometers(activity.distance)))
 
 But also many secondary properties like kudos, comments and photos which follow the following pattern.::
 
@@ -63,7 +63,8 @@ List the authenticated athlete's activities with :meth:`stravalib.client.Client.
 .. tip::
    To get activities in oldest to newest, specify a value for the `after` argument. To get newest to oldest use `before` argument.
 
-Additionally list the authenticated athlete's friends activities with :meth:`stravalib.client.Client.get_friend_activities`, or list a club member's activities with :meth:`stravalib.client.Client.get_club_activities`.
+Additionally list a club member's activities with
+:meth:`stravalib.client.Client.get_club_activities`.
 
 
 Manage Activities

@@ -27,7 +27,7 @@ def tests(session):
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 
-@nox.session
+@nox.session(name="docs", python="3.11")
 def docs(session):
     session.install(".[docs]")
     cmd = ["sphinx-build"]
@@ -35,7 +35,7 @@ def docs(session):
     session.run(*cmd)
 
 
-@nox.session(name="docs-live")
+@nox.session(name="docs-live", python="3.11")
 def docs_live(session):
     session.install(".[docs]")
 
@@ -44,6 +44,7 @@ def docs_live(session):
         "build_assets",
         "tmp",
     ]
+
     cmd = ["sphinx-autobuild"]
     for folder in AUTOBUILD_IGNORE:
         cmd.extend(["--ignore", f"*/{folder}/*"])
@@ -52,7 +53,7 @@ def docs_live(session):
 
 
 # Use this for venv envs nox -s mypy
-@nox.session(python="3.10")
+@nox.session(python="3.11")
 def mypy(session):
     session.install(".[lint]")
     session.run(
@@ -66,16 +67,20 @@ def clean_docs(session):
     Clean out the docs directory used in the
     live build.
     """
-    dir_path = pathlib.Path("docs", "_build")
-    print(dir_path)
-    dir_contents = dir_path.glob("*")
+    dirs_to_clean = [
+        pathlib.Path("docs", "_build"),
+        pathlib.Path("docs", "reference", "api"),
+    ]
+    for dir_path in dirs_to_clean:
+        print(f"Cleaning directory: {dir_path}")
+        dir_contents = dir_path.glob("*")
 
-    for content in dir_contents:
-        print(f"cleaning content from the {dir_path}")
-        if content.is_dir():
-            shutil.rmtree(content)
-        else:
-            os.remove(content)
+        for content in dir_contents:
+            print(f"cleaning content from the {dir_path}")
+            if content.is_dir():
+                shutil.rmtree(content)
+            else:
+                os.remove(content)
 
 
 @nox.session()

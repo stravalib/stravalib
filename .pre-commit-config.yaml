@@ -7,7 +7,7 @@
 # Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
 # To run on a pr, add a comment with the text "pre-commit.ci run"
 # Common tasks
-#
+# - Manually update hooks: pre-commit autoupdate
 # - Run on all files:   pre-commit run --all-files
 # - Register git hooks: pre-commit install --install-hooks
 # - Run a specific hook on all files: pre-commit run codespell --all-files

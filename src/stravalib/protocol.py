@@ -8,7 +8,8 @@ from __future__ import annotations
 import abc
 import functools
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
@@ -364,10 +365,10 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         # Special subclasses for some errors
         if response.status_code == 404:
-            msg = "{}: {}".format(response.reason, error_str)
+            msg = f"{response.reason}: {error_str}"
             raise exc.ObjectNotFound(msg, response=response)
         elif response.status_code == 401:
-            msg = "{}: {}".format(response.reason, error_str)
+            msg = f"{response.reason}: {error_str}"
             raise exc.AccessUnauthorized(msg, response=response)
         elif 400 <= response.status_code < 500:
             msg = "{} Client Error: {} [{}]".format(

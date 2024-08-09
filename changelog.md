@@ -1,6 +1,13 @@
 # Change Log
 
 ## Unreleased
+- Fix: Add `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
+- Fix: Add custom types that pass static type checks (@jsamoocha, #534)
+- Fix: Replace invariant with covariant container types (@lwasser, @jsamoocha, #510)
+- Fix: Rename unithelper.py --> unit_helper.py (@lwasser, #535)
+- Fix: Update & check photos endpoint (@lwasser)
+- Docs: Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
+- Fix: Typing upgrade to Python 3.10+ (@lwasser, #547)
 
 ## v1.7
 

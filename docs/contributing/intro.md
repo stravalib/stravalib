@@ -3,7 +3,6 @@
 We welcome contributions of all kinds to stravalib! Below are
 some resources to help you get started.
 
-
 ::::{grid} 1 1 1 2
 :class-container: text-center
 :gutter: 3
@@ -37,7 +36,6 @@ Learn about our development infrastructure and workflows.
 Learn about our build and release workflow. We use version control based versioning.
 :::
 
-
 :::{grid-item-card}
 :link: resources-for-new-contributors
 :link-type: doc
@@ -46,19 +44,6 @@ Learn about our build and release workflow. We use version control based version
 ^^^
 If you are new to contributing to open source software, these resources will help you get started.
 :::
-
-
-:::{grid-item-card}
-:link: documentation-changelog
-:link-type: doc
-
-✨ **Change Log** ✨
-^^^
-View the history of changes and contributor history for stravalib.
-:::
-::::
-
-
 
 :::{toctree}
 :hidden:
@@ -69,5 +54,4 @@ Contributing Guide <../contributing/how-to-contribute>
 Development Guide <../contributing/development-guide>
 Build & Release Guide <../contributing/build-release-guide>
 New Contributor Resources <../contributing/resources-for-new-contributors>
-Change Log <../contributing/documentation-changelog>
 :::
