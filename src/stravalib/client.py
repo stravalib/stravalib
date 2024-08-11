@@ -32,7 +32,7 @@ import pytz
 from pydantic import BaseModel
 from requests import Session
 
-from stravalib import exc, model, strava_model, unithelper
+from stravalib import exc, model, strava_model, unit_helper
 from stravalib.exc import (
     ActivityPhotoUploadNotSupported,
     warn_attribute_unofficial,
@@ -42,7 +42,6 @@ from stravalib.exc import (
     warn_param_unsupported,
 )
 from stravalib.protocol import AccessInfo, ApiV3, Scope
-from stravalib.unithelper import is_quantity_type
 from stravalib.util import limiter
 
 if TYPE_CHECKING:
@@ -271,7 +270,7 @@ class Client:
         before: datetime | str | None = None,
         after: datetime | str | None = None,
         limit: int | None = None,
-    ) -> BatchedResultsIterator[model.Activity]:
+    ) -> BatchedResultsIterator[model.SummaryActivity]:
         """Get activities for authenticated user sorted by newest first.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
@@ -285,12 +284,12 @@ class Client:
             Result will start with activities whose start date is after
             specified value. (UTC)
         limit : int or None, default=None
-            How many maximum activities to return.
+            Maximum number of activities to return.
 
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
+            An iterator of :class:`stravalib.model.SummaryActivity` objects.
 
         """
 
@@ -298,17 +297,20 @@ class Client:
         after_epoch = self._utc_datetime_to_epoch(after) if after else None
         params = dict(before=before_epoch, after=after_epoch)
         result_fetcher = functools.partial(
-            self.protocol.get, "/athlete/activities", **params
+            self.protocol.get,
+            "/athlete/activities",
+            check_for_errors=True,
+            **params,
         )
 
         return BatchedResultsIterator(
-            entity=model.Activity,
+            entity=model.SummaryActivity,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
         )
 
-    def get_athlete(self) -> model.Athlete:
+    def get_athlete(self) -> model.DetailedAthlete:
         """Gets the specified athlete; if athlete_id is None then retrieves a
         detail-level representation of currently authenticated athlete;
         otherwise summary-level representation returned of athlete.
@@ -322,12 +324,15 @@ class Client:
 
         Returns
         -------
-        class:`stravalib.model.Athlete`
+        class:`stravalib.model.DetailedAthlete`
             The athlete model object.
 
         """
         raw = self.protocol.get("/athlete")
-        return model.Athlete.parse_obj({**raw, **{"bound_client": self}})
+
+        return model.DetailedAthlete.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
     def update_athlete(
         self,
@@ -336,7 +341,7 @@ class Client:
         country: str | None = None,
         sex: str | None = None,
         weight: float | None = None,
-    ) -> model.Athlete:
+    ) -> model.DetailedAthlete:
         """Updates the properties of the authorized athlete.
 
         https://developers.strava.com/docs/reference/#api-Athletes-updateLoggedInAthlete
@@ -382,7 +387,7 @@ class Client:
             params["weight"] = float(weight)
 
         raw_athlete = self.protocol.put("/athlete", **params)
-        return model.Athlete.parse_obj(
+        return model.DetailedAthlete.model_validate(
             {**raw_athlete, **{"bound_client": self}}
         )
 
@@ -448,28 +453,32 @@ class Client:
         # TODO: Better error handling - this will return a 401 if this athlete
         #       is not the authenticated athlete.
 
-        return model.AthleteStats.parse_obj(raw)
+        return model.AthleteStats.model_validate(raw)
 
-    def get_athlete_clubs(self) -> list[model.Club]:
+    def get_athlete_clubs(
+        self, limit: int | None = None
+    ) -> BatchedResultsIterator[model.SummaryClub]:
         """List the clubs for the currently authenticated athlete.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getLoggedInAthleteClubs
 
+        limit : int or None, default=None
+            Maximum number of club objects to return.
 
         Returns
         -------
-        :class:`list`
-            A list of :class:`stravalib.model.Club`
+        class:`BatchedResultsIterator`
+            An iterator of :class:`stravalib.model.SummaryClub` objects
 
         """
 
-        # TODO: This should return a BatchedResultsIterator or otherwise at
-        # most 30 clubs are returned!
-        club_structs = self.protocol.get("/athlete/clubs")
-        return [
-            model.Club.parse_obj({**raw, **{"bound_client": self}})
-            for raw in club_structs
-        ]
+        result_fetcher = functools.partial(self.protocol.get, "/athlete/clubs")
+        return BatchedResultsIterator(
+            entity=model.SummaryClub,
+            bind_client=self,
+            result_fetcher=result_fetcher,
+            limit=limit,
+        )
 
     def join_club(self, club_id: int) -> None:
         """Joins the club on behalf of authenticated athlete.
@@ -507,7 +516,7 @@ class Client:
         """
         self.protocol.post("clubs/{id}/leave", id=club_id)
 
-    def get_club(self, club_id: int) -> model.Club:
+    def get_club(self, club_id: int) -> model.DetailedClub:
         """Return a specific club object.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubById
@@ -519,15 +528,21 @@ class Client:
 
         Returns
         -------
-        class: `model.Club` object containing the club data.
+        class: `model.DetailedClub` object containing the club data.
 
+        Notes
+        ------
+
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubById
         """
         raw = self.protocol.get("/clubs/{id}", id=club_id)
-        return model.Club.parse_obj({**raw, **{"bound_client": self}})
+        return model.DetailedClub.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
     def get_club_members(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Athlete]:
+    ) -> BatchedResultsIterator[strava_model.ClubAthlete]:
         """Gets the member objects for specified club ID.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubMembersById
@@ -550,7 +565,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Athlete,
+            entity=strava_model.ClubAthlete,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -558,7 +573,7 @@ class Client:
 
     def get_club_activities(
         self, club_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Activity]:
+    ) -> BatchedResultsIterator[model.ClubActivity]:
         """Gets the activities associated with specified club.
 
         https://developers.strava.com/docs/reference/#api-Clubs-getClubActivitiesById
@@ -573,7 +588,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
+            An iterator of :class:`stravalib.model.ClubActivity` objects.
 
         """
         result_fetcher = functools.partial(
@@ -581,7 +596,39 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Activity,
+            entity=model.ClubActivity,
+            bind_client=self,
+            result_fetcher=result_fetcher,
+            limit=limit,
+        )
+
+    def get_club_admins(
+        self, club_id: int, limit: int | None = None
+    ) -> BatchedResultsIterator[model.SummaryAthlete]:
+        """Returns a list of the administrators of a given club.
+
+        https://developers.strava.com/docs/reference/#api-Clubs-getClubAdminsById
+
+        Parameters
+        ----------
+        club_id : int
+            The numeric ID for the club.
+        limit : int
+            Maximum number of admins to return. (default unlimited)
+
+        Returns
+        -------
+        class:`BatchedResultsIterator`
+            An iterator of :class:`stravalib.model.SummaryAthlete` objects.
+
+        """
+
+        result_fetcher = functools.partial(
+            self.protocol.get, "/clubs/{id}/admins", id=club_id
+        )
+
+        return BatchedResultsIterator(
+            entity=model.SummaryAthlete,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -589,7 +636,7 @@ class Client:
 
     def get_activity(
         self, activity_id: int, include_all_efforts: bool = False
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Gets specified activity.
 
         Will be detail-level if owned by authenticated user; otherwise
@@ -607,7 +654,7 @@ class Client:
 
         Returns
         -------
-        class: `model.Activity`
+        class: `model.DetailedActivity`
             An Activity object containing the requested activity data.
 
         """
@@ -616,26 +663,8 @@ class Client:
             id=activity_id,
             include_all_efforts=include_all_efforts,
         )
-        return model.Activity.parse_obj({**raw, **{"bound_client": self}})
-
-    # TODO: REMOVE from API altogether given deprecation of end point
-    def get_friend_activities(self, limit: int | None = None) -> NoReturn:
-        """DEPRECATED This endpoint was removed by Strava in Jan 2018.
-
-        Parameters
-        ----------
-        limit : int
-            Maximum number of activities to return. (default unlimited)
-
-        Returns
-        -------
-        class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
-
-        """
-        raise NotImplementedError(
-            "The /activities/following endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
+        return model.DetailedActivity.model_validate(
+            {**raw, **{"bound_client": self}}
         )
 
     def _validate_activity_type(
@@ -656,10 +685,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
             For possible values (case-sensitive) see:
-            :class:`stravalib.model.Activity.SPORT_TYPES`
+            :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
 
         Returns
         -------
@@ -675,9 +704,9 @@ class Client:
         # Check for sport_type first. If provided, it is favored over
         # activity_type / type
         if sport_type is not None:
-            if not sport_type in model.Activity.SPORT_TYPES:
+            if not sport_type in model.DetailedActivity.SPORT_TYPES:
                 raise ValueError(
-                    f"Invalid activity type: {sport_type}. Possible values: {model.Activity.SPORT_TYPES!r}"
+                    f"Invalid activity type: {sport_type}. Possible values: {model.DetailedActivity.SPORT_TYPES!r}"
                 )
             params["sport_type"] = sport_type
             return params
@@ -687,10 +716,10 @@ class Client:
         # sport_type.
         elif activity_type is not None:
             if not activity_type.lower() in [
-                t.lower() for t in model.Activity.TYPES
+                t.lower() for t in model.DetailedActivity.TYPES
             ]:
                 raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                    f"Invalid activity type: {activity_type}. Possible values: {model.DetailedActivity.TYPES!r}"
                 )
             params["type"] = activity_type.lower()
             warn_param_deprecation(
@@ -701,8 +730,6 @@ class Client:
 
         return params
 
-    # TODO: according to the strava api docs we can add an optional trainer
-    # and commute param here with boolean 0/1 values
     def create_activity(
         self,
         name: str,
@@ -712,7 +739,9 @@ class Client:
         activity_type: ActivityType | None = None,
         description: str | None = None,
         distance: pint.Quantity | float | None = None,
-    ) -> model.Activity:
+        trainer: bool | None = None,
+        commute: bool | None = None,
+    ) -> model.DetailedActivity:
         """Create a new manual activity.
 
         If you would like to create an activity from an uploaded GPS file, see the
@@ -727,10 +756,10 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
             For possible values (case-sensitive) see: For possible values
-            see: :class:`stravalib.model.Activity.SPORT_TYPES`
+            see: :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
         start_date_local : class:`datetime.datetime` or string in ISO8601 format
             Local date/time of activity start. (TZ info will be ignored)
         elapsed_time : class:`datetime.timedelta` or int (seconds)
@@ -739,7 +768,15 @@ class Client:
             The description for the activity.
         distance : class:`pint.Quantity` or float (meters), default=None
             The distance in meters (float) or a :class:`pint.Quantity` instance.
+        trainer : bool
+            Whether this activity was completed using a trainer (or not)
+        commute : bool
+            Whether the activity is a commute or not.
 
+        Notes
+        -----
+        See: https://developers.strava.com/docs/reference/#api-Uploads-createUpload
+        See: https://developers.strava.com/docs/reference/#api-Activities-createActivity
         """
 
         # Strava API requires either sport_type or activity_type to be defined
@@ -752,8 +789,8 @@ class Client:
         if isinstance(elapsed_time, timedelta):
             elapsed_time = elapsed_time.seconds
 
-        if is_quantity_type(distance):
-            distance = float(unithelper.meters(cast(pint.Quantity, distance)))
+        if isinstance(distance, pint.Quantity):
+            distance = unit_helper.meters(distance).magnitude
 
         if isinstance(start_date_local, datetime):
             start_date_local = start_date_local.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -764,11 +801,16 @@ class Client:
             elapsed_time=elapsed_time,
         )
 
-        if description is not None:
-            params["description"] = description
+        update_params = {
+            "description": description,
+            "distance": distance,
+            "commute": commute,
+            "trainer": trainer,
+        }
 
-        if distance is not None:
-            params["distance"] = distance
+        for key, value in update_params.items():
+            if value is not None:
+                params[key] = value
 
         params = self._validate_activity_type(
             params, activity_type, sport_type
@@ -776,7 +818,7 @@ class Client:
 
         raw_activity = self.protocol.post("/activities", **params)
 
-        return model.Activity.parse_obj(
+        return model.DetailedActivity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -793,10 +835,8 @@ class Client:
         gear_id: int | None = None,
         device_name: str | None = None,
         hide_from_home: bool | None = None,
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Updates the properties of a specific activity.
-
-        https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
 
         Parameters
         ----------
@@ -809,9 +849,9 @@ class Client:
             Deprecated. Prefer to use sport_type. In a request where both type
             and sport_type are present, this field will be ignored.
             See https://developers.strava.com/docs/reference/#api-models-UpdatableActivity.
-            For possible values see: :class:`stravalib.model.Activity.TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.TYPES`
         sport_type : str, default=None
-            For possible values see: :class:`stravalib.model.Activity.SPORT_TYPES`
+            For possible values see: :class:`stravalib.model.DetailedActivity.SPORT_TYPES`
         private : bool, default=None
             Whether the activity is private.
             .. deprecated:: 1.0
@@ -836,6 +876,11 @@ class Client:
         Returns
         -------
             Updates the activity in the selected Strava account
+
+        Notes
+        ------
+        See: https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
+
         """
 
         # Convert the kwargs into a params dict
@@ -876,7 +921,7 @@ class Client:
             "/activities/{activity_id}", activity_id=activity_id, **params
         )
 
-        return model.Activity.parse_obj(
+        return model.DetailedActivity.model_validate(
             {**raw_activity, **{"bound_client": self}}
         )
 
@@ -959,10 +1004,10 @@ class Client:
             params["description"] = description
         if activity_type is not None:
             if not activity_type.lower() in [
-                t.lower() for t in model.Activity.TYPES
+                t.lower() for t in model.DetailedActivity.TYPES
             ]:
                 raise ValueError(
-                    f"Invalid activity type: {activity_type}. Possible values: {model.Activity.TYPES!r}"
+                    f"Invalid activity type: {activity_type}. Possible values: {model.DetailedActivity.TYPES!r}"
                 )
             warn_param_unofficial("activity_type")
             params["activity_type"] = activity_type.lower()
@@ -985,12 +1030,10 @@ class Client:
 
         return ActivityUploader(self, response=initial_response)
 
-    def get_activity_zones(
-        self, activity_id: int
-    ) -> list[model.BaseActivityZone]:
-        """Gets zones for activity.
+    def get_activity_zones(self, activity_id: int) -> list[model.ActivityZone]:
+        """Gets activity zones for activity.
 
-        Requires premium account.
+        Activity zones relate to a users effort (heartrate and power).
 
         https://developers.strava.com/docs/reference/#api-Activities-getZonesByActivityId
 
@@ -1002,12 +1045,19 @@ class Client:
         Returns
         -------
         :class:`list`
-            A list of :class:`stravalib.model.BaseActivityZone` objects.
+            A list of :class:`stravalib.model.ActivityZone` objects.
+
+        Notes
+        -----
+        Activity zones require a Strava premium account.
+        The Strava API has the return value for activity zones incorrectly
+        typed as `int` when it can return either `int` or `float`.
 
         """
         zones = self.protocol.get("/activities/{id}/zones", id=activity_id)
+
         return [
-            model.BaseActivityZone.parse_obj({**z, **{"bound_client": self}})
+            model.ActivityZone.model_validate({**z, **{"bound_client": self}})
             for z in zones
         ]
 
@@ -1016,7 +1066,7 @@ class Client:
         activity_id: int,
         markdown: bool = False,
         limit: int | None = None,
-    ) -> BatchedResultsIterator[model.ActivityComment]:
+    ) -> BatchedResultsIterator[strava_model.Comment]:
         """Gets the comments for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getCommentsByActivityId
@@ -1033,7 +1083,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.ActivityComment` objects.
+            An iterator of :class:`stravalib.strava_model.Comment` objects.
 
         """
         result_fetcher = functools.partial(
@@ -1044,7 +1094,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityComment,
+            entity=strava_model.Comment,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -1052,7 +1102,7 @@ class Client:
 
     def get_activity_kudos(
         self, activity_id: int, limit: int | None = None
-    ) -> BatchedResultsIterator[model.ActivityKudos]:
+    ) -> BatchedResultsIterator[model.SummaryAthlete]:
         """Gets the kudos for an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getKudoersByActivityId
@@ -1075,7 +1125,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityKudos,
+            entity=model.SummaryAthlete,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -1132,7 +1182,7 @@ class Client:
 
     def get_activity_laps(
         self, activity_id: int
-    ) -> BatchedResultsIterator[model.ActivityLap]:
+    ) -> BatchedResultsIterator[model.Lap]:
         """Gets the laps from an activity.
 
         https://developers.strava.com/docs/reference/#api-Activities-getLapsByActivityId
@@ -1145,7 +1195,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.ActivityLaps` objects.
+            An iterator of :class:`stravalib.model.Lap` objects.
 
         """
         result_fetcher = functools.partial(
@@ -1153,36 +1203,12 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.ActivityLap,
+            entity=model.Lap,
             bind_client=self,
             result_fetcher=result_fetcher,
         )
 
-    # TODO remove this method given deprecation of end point
-    def get_related_activities(
-        self, activity_id: int, limit: int | None = None
-    ) -> NoReturn:
-        """Deprecated. This endpoint was removed by strava in Jan 2018.
-
-        Parameters
-        ----------
-        activity_id : int
-            The activity for which to fetch related activities.
-        limit : int, default=None
-             Rate limit value for getting activities
-
-        Returns
-        -------
-        class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Activity` objects.
-
-        """
-        raise NotImplementedError(
-            "The /activities/{id}/related endpoint was removed by Strava.  "
-            "See https://developers.strava.com/docs/january-2018-update/"
-        )
-
-    def get_gear(self, gear_id: str) -> model.Gear:
+    def get_gear(self, gear_id: str) -> strava_model.DetailedGear:
         """Get details for an item of gear.
 
         https://developers.strava.com/docs/reference/#api-Gears
@@ -1194,11 +1220,10 @@ class Client:
 
         Returns
         -------
-        class:`stravalib.model.Gear`
-            The Bike or Shoe subclass object.
+        class:`stravalib.strava_model.DetailedGear`
 
         """
-        return model.Gear.parse_obj(
+        return strava_model.DetailedGear.model_validate(
             self.protocol.get("/gear/{id}", id=gear_id)
         )
 
@@ -1218,7 +1243,7 @@ class Client:
             The specified effort on a segment.
 
         """
-        return model.SegmentEffort.parse_obj(
+        return model.SegmentEffort.model_validate(
             self.protocol.get("/segment_efforts/{id}", id=effort_id)
         )
 
@@ -1238,7 +1263,7 @@ class Client:
             A segment object.
 
         """
-        return model.Segment.parse_obj(
+        return model.Segment.model_validate(
             {
                 **self.protocol.get("/segments/{id}", id=segment_id),
                 **{"bound_client": self},
@@ -1247,7 +1272,7 @@ class Client:
 
     def get_starred_segments(
         self, limit: int | None = None
-    ) -> BatchedResultsIterator[model.Segment]:
+    ) -> BatchedResultsIterator[model.SummarySegment]:
         """Returns a summary representation of the segments starred by the
          authenticated user. Pagination is supported.
 
@@ -1261,7 +1286,7 @@ class Client:
         Returns
         -------
         class:`BatchedResultsIterator`
-            An iterator of :class:`stravalib.model.Segment` starred by authenticated user.
+            An iterator of :class:`stravalib.model.SummarySegment` starred by authenticated user.
 
         """
 
@@ -1274,7 +1299,7 @@ class Client:
         )
 
         return BatchedResultsIterator(
-            entity=model.Segment,
+            entity=model.SummarySegment,
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
@@ -1461,7 +1486,7 @@ class Client:
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
-            model.SegmentExplorerResult.parse_obj(
+            model.SegmentExplorerResult.model_validate(
                 {**v, **{"bound_client": self}}
             )
             for v in raw["segments"]
@@ -1523,10 +1548,10 @@ class Client:
             warn_param_unofficial("series_type")
             extra_params["series_type"] = series_type
         if not types:
-            types = strava_model.StreamType.schema()["enum"]
+            types = strava_model.StreamType.model_json_schema()["enum"]
         assert types is not None
         invalid_types = set(types).difference(
-            strava_model.StreamType.schema()["enum"]
+            strava_model.StreamType.model_json_schema()["enum"]
         )
         if invalid_types:
             raise ValueError(
@@ -1538,7 +1563,7 @@ class Client:
             stream_url, keys=types_arg, key_by_type=True, **extra_params
         )
         return {
-            stream_type: model.Stream.parse_obj(stream)
+            stream_type: model.Stream.model_validate(stream)
             for stream_type, stream in response.items()
         }
 
@@ -1764,7 +1789,7 @@ class Client:
 
         """
         raw = self.protocol.get("/routes/{id}", id=route_id)
-        return model.Route.parse_obj({**raw, **{"bound_client": self}})
+        return model.Route.model_validate({**raw, **{"bound_client": self}})
 
     def get_route_streams(
         self, route_id: int
@@ -1849,9 +1874,10 @@ class Client:
             verify_token=verify_token,
         )
         raw = self.protocol.post("/push_subscriptions", **params)
-        return model.Subscription.parse_obj({**raw, **{"bound_client": self}})
+        return model.Subscription.model_validate(
+            {**raw, **{"bound_client": self}}
+        )
 
-    # TODO: UPDATE - this method uses (de)serialize which is deprecated
     def handle_subscription_callback(
         self,
         raw: dict[str, Any],
@@ -1871,7 +1897,8 @@ class Client:
             The JSON response expected by Strava to the challenge request.
 
         """
-        callback = model.SubscriptionCallback.parse_obj(raw)
+
+        callback = model.SubscriptionCallback.model_validate(raw)
         callback.validate_token(verify_token)
 
         assert callback.hub_challenge is not None
@@ -1894,7 +1921,7 @@ class Client:
             The subscription update model object.
 
         """
-        return model.SubscriptionUpdate.parse_obj(
+        return model.SubscriptionUpdate.model_validate(
             {**raw, **{"bound_client": self}}
         )
 
@@ -2035,7 +2062,7 @@ class BatchedResultsIterator(Generic[T]):
 
         entities = []
         for raw in raw_results:
-            new_entity = self.entity.parse_obj(
+            new_entity = self.entity.model_validate(
                 {**raw, **{"bound_client": self.bind_client}}
             )
             entities.append(new_entity)
@@ -2089,6 +2116,11 @@ class ActivityUploader:
         self, client: Client, response: dict[str, Any], raise_exc: bool = True
     ) -> None:
         """
+        Initializes the instance with the given client, response, and optional
+        exception flag.
+
+        Parameters
+        ----------
         client: `stravalib.client.Client`
             The :class:`stravalib.client.Client` object that is handling the
             upload.
@@ -2105,13 +2137,13 @@ class ActivityUploader:
 
     @property
     def photo_metadata(self) -> PhotoMetadata:
-        """photo metadata for the activity upload response, if any.
+        """Photo metadata for the activity upload response, if any.
         it contains a pre-signed uri for uploading the photo.
 
         Notes
         -----
-        * This is only available after the upload has completed.
-        * This metadata is only available for partner apps. If you have a
+        This is only available after the upload has completed.
+        This metadata is only available for partner apps. If you have a
         regular / non partner related Strava app / account it will not work.
 
         """
@@ -2219,7 +2251,7 @@ class ActivityUploader:
 
     def wait(
         self, timeout: float | None = None, poll_interval: float = 1.0
-    ) -> model.Activity:
+    ) -> model.DetailedActivity:
         """Wait for the upload to complete or to err out.
 
         Will return the resulting Activity or raise an exception if the
@@ -2236,7 +2268,7 @@ class ActivityUploader:
 
         Returns
         -------
-        class:`stravalib.model.Activity`
+        class:`stravalib.model.DetailedActivity`
 
         Raises
         ------
@@ -2246,8 +2278,8 @@ class ActivityUploader:
         stravalib.exc.ActivityUploadFailed
             If the poll returns an error.
             The uploaded Activity object (fetched from server)
-
         """
+
         start = time.time()
         while self.activity_id is None:
             self.poll()

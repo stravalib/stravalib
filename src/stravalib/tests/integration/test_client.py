@@ -7,12 +7,20 @@ import pytest
 import responses
 from responses import matchers
 
-import stravalib.unithelper as uh
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
-from stravalib.model import Athlete
+from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
+from stravalib.strava_model import SummaryActivity
 from stravalib.tests import RESOURCES_DIR
-from stravalib.unithelper import UnitConverter, meters, miles
+from stravalib.unit_helper import miles
+
+
+@pytest.fixture
+def zone_response():
+    file_path = os.path.join(RESOURCES_DIR, "example_zone_response.json")
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    return data
 
 
 @pytest.fixture
@@ -44,6 +52,7 @@ def default_request_params():
 def test_get_athlete(mock_strava_api, client):
     mock_strava_api.get("/athlete", response_update={"id": 42})
     athlete = client.get_athlete()
+    assert isinstance(athlete, DetailedAthlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
 
@@ -148,7 +157,7 @@ def test_get_activity_laps(mock_strava_api, client):
     )
     laps = list(client.get_activity_laps(42))
     assert len(laps) == 2
-    assert laps[0].distance == meters(1000)
+    assert laps[0].distance == 1000
 
 
 def test_get_club_activities(mock_strava_api, client):
@@ -157,18 +166,40 @@ def test_get_club_activities(mock_strava_api, client):
         response_update={"distance": 1000},
         n_results=2,
     )
+
     activities = list(client.get_club_activities(42))
     assert len(activities) == 2
-    assert activities[0].distance == meters(1000)
+    assert activities[0].distance == 1000
 
 
-def test_get_activity_zones(mock_strava_api, client):
-    # Unfortunately, there is no example response for this endpoint in swagger.json
-    with open(
-        os.path.join(RESOURCES_DIR, "example_zone_response.json"), "r"
-    ) as zone_response_fp:
-        zone_response = json.load(zone_response_fp)
+def test_get_club_admins(mock_strava_api, client):
+    mock_strava_api.get(
+        "/clubs/{id}/admins",
+        response_update={"firstname": "Jane"},
+        n_results=2,
+    )
+
+    admins = list(client.get_club_admins(42))
+    assert isinstance(admins[0], SummaryAthlete)
+    assert len(admins) == 2
+    assert admins[0].firstname == "Jane"
+
+
+def test_get_activity_zones(mock_strava_api, client, zone_response):
+    """Returns an activities associated zone (related to heart rate and power)
+
+    Notes
+    -----
+    There is no example response for this endpoint in swagger.json so
+    we created a sample json file with the return that we are currently
+    seeing. Thus this method could break at any time if Strava changes
+    the response output.
+
+    """
+
     mock_strava_api.get("/activities/{id}/zones", json=zone_response)
+
+    # https://developers.strava.com/docs/reference/#api-models-integer
     activity_zones = client.get_activity_zones(42)
     assert len(activity_zones) == 2
     assert activity_zones[0].type == "heartrate"
@@ -688,10 +719,11 @@ def test_get_starred_segments(
         n_results=n_raw_results,
     )
     kwargs = {"limit": limit} if limit is not None else {}
-    activity_list = list(client.get_starred_segments(**kwargs))
-    assert len(activity_list) == expected_n_segments
+    segment_list = list(client.get_starred_segments(**kwargs))
+    assert len(segment_list) == expected_n_segments
     if expected_n_segments > 0:
-        assert activity_list[0].name == "test_segment"
+        assert isinstance(segment_list[0], SummarySegment)
+        assert segment_list[0].name == "test_segment"
 
 
 def test_get_club(mock_strava_api, client):
@@ -701,14 +733,19 @@ def test_get_club(mock_strava_api, client):
 
 
 @pytest.mark.parametrize("n_clubs", (0, 2))
-def test_get_athlete_clubs(mock_strava_api, client, n_clubs):
+def test_get_athlete_clubs_iterator(mock_strava_api, client, n_clubs):
+    """Test that athlete clubs returns the correct
+    number of clubs"""
+
+    # Create a mock instance with the club name update to my club
     mock_strava_api.get(
-        "/athlete/clubs", response_update={"name": "foo"}, n_results=n_clubs
+        "/athlete/clubs", response_update={"name": "myclub"}, n_results=n_clubs
     )
-    clubs = client.get_athlete_clubs()
+    # Convert iterator to list
+    clubs = list(client.get_athlete_clubs())
     assert len(clubs) == n_clubs
     if clubs:
-        assert clubs[0].name == "foo"
+        assert clubs[0].name == "myclub"
 
 
 @pytest.mark.parametrize("n_members", (0, 2))
@@ -766,9 +803,7 @@ def test_get_athlete_stats(
             client.get_athlete_stats(athlete_id)
     else:
         stats = client.get_athlete_stats(athlete_id)
-        assert stats.biggest_ride_distance == UnitConverter("meters")(
-            expected_biggest_ride_distance
-        )
+        assert stats.biggest_ride_distance == expected_biggest_ride_distance
 
 
 def test_get_gear(mock_strava_api, client):
@@ -799,6 +834,7 @@ def test_get_activities(
     activity_list = list(client.get_activities(**kwargs))
     assert len(activity_list) == expected_n_activities
     if expected_n_activities > 0:
+        assert isinstance(activity_list[0], SummaryActivity)
         assert activity_list[0].name == "test_activity"
 
 
@@ -809,10 +845,10 @@ def test_get_activities_quantity_addition(mock_strava_api, client):
         n_results=2,
     )
     act_list = list(client.get_activities(limit=2))
-    total_d = uh.meters(0)
+    total_d = 0
     total_d += act_list[0].distance
     total_d += act_list[1].distance
-    assert total_d == uh.meters(2000.0)
+    assert total_d == 2000.0
 
 
 def test_get_segment(mock_strava_api, client):
@@ -975,30 +1011,6 @@ def test_get_activity_kudos(mock_strava_api, client):
         n_results=2,
     )
     kudoer_list = list(client.get_activity_kudos(42))
+    assert isinstance(kudoer_list[0], SummaryAthlete)
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"
-
-
-class TestIsAuthenticatedAthlete:
-    def test_default(self, mock_strava_api, client):
-        mock_strava_api.get("/athlete", response_update={"id": 42})
-        athlete = client.get_athlete()
-        assert athlete.is_authenticated_athlete()
-
-    def test_caching(self):
-        athlete = Athlete(is_authenticated=True)
-        assert athlete.is_authenticated_athlete()
-
-    @pytest.mark.parametrize(
-        "match_id,expected_result", ((False, False), (True, True))
-    )
-    def test_from_summary(
-        self, mock_strava_api, client, match_id, expected_result
-    ):
-        mock_strava_api.get(
-            "/clubs/{id}/members",
-            response_update={"id": 42 if match_id else 21},
-        )
-        mock_strava_api.get("/athlete", response_update={"id": 42})
-        club_members = list(client.get_club_members(99))
-        assert club_members[0].is_authenticated_athlete() == expected_result

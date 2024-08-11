@@ -263,19 +263,21 @@ they are running against the installed version of the package that you are worki
 To run the test suite across all python versions that we support use:
 
 ```
-nox -s test
+nox -s tests
 ```
 
-`nox -s test` does a few things:
+`nox -s tests` does a few things:
 
 1. It create a temporary directory called `tmp-test-dir-stravalib` in which your tests are run. We create this test directory to ensure that tests are being run against the installed version of stravalib (with the most recent local development changes as installed) rather than the flat files located in the GitHub repository.
 2. It runs the tests and provides output (see below)
 3. Finally it removes the temporary directory
 
-If you are a conda/mamba user, you can use:
+To run tests for a specific python version use nox -s tests-python-version-here.
 
-```
-nox -s test_mamba
+For example, below we run tests for only Python 3.10.
+
+```bash
+nox -s tests-3.10
 ```
 
 ### Functional end-to-end test suite
@@ -350,7 +352,7 @@ stravalib/client.py                                        439    180    59%
 stravalib/exc.py                                            34      3    91%
 stravalib/model.py                                         709    126    82%
 stravalib/protocol.py                                      130     39    70%
-stravalib/unithelper.py                                     16      1    94%
+stravalib/unit_helper.py                                     16      1    94%
 stravalib/util/__init__.py                                   0      0   100%
 stravalib/util/limiter.py                                  122     27    78%
 ----------------------------------------------------------------------------
