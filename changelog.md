@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## v2.0.0rc0 -- Release Candidate 0
+## v2.0.0
 
 ### Major Changes in This Release
 
@@ -49,17 +49,22 @@ Please see the migration guide in our docs for more details on the changes.
 - Fix: Photos endpoint cleanup (@lwasser, #540)
 - Fix: Activity Comment check / cleanup (@lwasser, #541)
 - Fix: Migrate to covariant types to fix typing (@lwasser, #530)
-- Docs: Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
-- Docs: Clean up reference docs (@lwasser, #537, #545)
+- Fix: Typing upgrade to Python 3.10+ (@lwasser, #547)
+- Fix(docs): Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
+- Fix(docs): Clean up reference docs (@lwasser, #537, #545)
 
 ### Removed
 
 - Remove: backward compatibility mixin (@jsamoocha, #503)
 - Remove: deprecated client methods (@lwasser, #514)
 
-### New Contributors
+### Contributors to this release
+
+@jsamoocha, @lwasser, @bmeares
 
 - @bmeares made their first contribution in https://github.com/stravalib/stravalib/pull/522 :sparkles:
+
+
 
 ## v1.7
 
