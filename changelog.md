@@ -1,13 +1,70 @@
 # Change Log
 
 ## Unreleased
-- Fix: Add `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
-- Fix: Add custom types that pass static type checks (@jsamoocha, #534)
+
+## v2.0.0
+
+### Major Changes in This Release
+
+1. **Breaking:** Added support for Pydantic 2.x; 1.x behavior is no longer supported.
+   Refer to [Pydantic’s V2 migration guide](https://docs.pydantic.dev/latest/migration/)
+   if you use extensions of Stravalib model classes or Pydantic’s serialization
+   mechanisms (`parse_obj()`, `dict()`, `json()`).
+
+2. Removed deprecated (de-)serialization methods `deserialize()`, `from_dict()`,
+   and `to_dict()`. Use [Pydantic’s serialization mechanisms](https://docs.pydantic.dev/latest/concepts/serialization/).
+
+3. Renamed `unithelper` module to `unit_helper`. Helper functions like `feet()`
+   and `miles()` now return a Pint `Quantity` object.
+
+4. Introduced new types for distances, velocities, durations, and time zones.
+   `activity.distance` now returns a `Distance` type. Retrieve distance in meters
+   with `activity.distance` or as a `Quantity` using `activity.distance.quantity`.
+
+Please see the migration guide in our docs for more details on the changes.
+
+### Added
+
+- Add: `naive_datetime()` test to the `pydantic-v2 branch`. (@bmeares, #522)
+- Add: custom types that pass static type checks (@jsamoocha, #534)
+- Add: Strava type hierarchy for Activity type (@jsamoocha, #505)
+- Add: Athlete stats (@jsamoocha, #507)
+- Add: Summary segments (@jsamoocha, #509)
+- Add: SummarySegmentEffort superclass (@jsamoocha, #518)
+- Add: test for latlon values (@lwasser, #516)
+- Add: correct type returns following clubs/{id} & clubs/{id}/activities spec (@lwasser, #519)
+
+### Fixed
+
+- Fix: Update enhanced types doc (@jsamoocha, #546)
 - Fix: Replace invariant with covariant container types (@lwasser, @jsamoocha, #510)
-- Fix: Rename unithelper.py --> unit_helper.py (@lwasser, #535)
+- Fix: generated model using Pydantic v2 (@jsamoocha, #495)
+- Fix: Gear and Athlete type hierarchies (+ naive_datetime typing fixes) (@jsamoocha, #526)
+- Fix: docstrings in model.py (@lwasser, #484)
+- Fix: return types -- athlete clubs endpoint (@lwasser, #517)
+- Fix: Updates for activities/id endpoint 🙈 (@lwasser, #520)
+- Fix: Activities/{id}/zones & Laps (@lwasser, #524)
+- Fix: Rename `unithelper.py` --> `unit_helper.py` (@lwasser, #535)
 - Fix: Update & check photos endpoint (@lwasser)
-- Docs: Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
+- Fix: Photos endpoint cleanup (@lwasser, #540)
+- Fix: Activity Comment check / cleanup (@lwasser, #541)
+- Fix: Migrate to covariant types to fix typing (@lwasser, #530)
 - Fix: Typing upgrade to Python 3.10+ (@lwasser, #547)
+- Fix(docs): Cleanup API docs & add migration guide (@jsamoocha, @lwasser, #537)
+- Fix(docs): Clean up reference docs (@lwasser, #537, #545)
+
+### Removed
+
+- Remove: backward compatibility mixin (@jsamoocha, #503)
+- Remove: deprecated client methods (@lwasser, #514)
+
+### Contributors to this release
+
+@jsamoocha, @lwasser, @bmeares
+
+- @bmeares made their first contribution in https://github.com/stravalib/stravalib/pull/522 :sparkles:
+
+
 
 ## v1.7
 
@@ -16,12 +73,12 @@
 
 ### Fixed
 - Fix: Docs - add contributing section to top bar for easier discovery and a few small syntax fixes in the docs (@lwasser)
-- Fix: Manifest.in file - remove example dir (@lwasser, #307)
+- Fix: `Manifest.in` file - remove example dir (@lwasser, #307)
 - Fix: Codecov report wasn't generating correctly (@lwasser, #469)
 - Fix: Add sport type to create_activity and create type validator method. NOTE: this fix contains a breaking change in `Client.create_activity()` activity_type is now an optional keyword argument rather than a required positional argument (@lwasser, #279)
 - Fix: Fixes the Strava API update bot (@jsamoocha, #477)
-- Fix: Cleanup dependencies to only use pyproject toml (@lwasser, #466)
-- Fix: use parse_obj rather than deserialize internally where possible (@lwasser, #358)
+- Fix: Cleanup dependencies to only use `pyproject.toml` (@lwasser, #466)
+- Fix: use `parse_obj` rather than deserialize internally where possible (@lwasser, #358)
 
 ## Removed
 - Remove: functional test suite from stravalib (@lwasser, #457)
