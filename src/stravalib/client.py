@@ -391,6 +391,21 @@ class Client:
             {**raw_athlete, **{"bound_client": self}}
         )
 
+    def get_athlete_zones(self) -> strava_model.Zones:
+        """
+        Get the authenticated athlete's heart rate and power zones
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        class:`stravalib.model.Zones`
+            The athlete zones model object.
+        """
+        raw = self.protocol.get("/athlete/zones")
+        return strava_model.Zones.model_validate(raw)
+
     def get_athlete_koms(
         self, athlete_id: int, limit: int | None = None
     ) -> BatchedResultsIterator[model.SegmentEffort]:

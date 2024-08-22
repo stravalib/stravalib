@@ -10,7 +10,7 @@ from responses import matchers
 from stravalib.client import ActivityUploader
 from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
-from stravalib.strava_model import SummaryActivity
+from stravalib.strava_model import SummaryActivity, Zones
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unit_helper import miles
 
@@ -55,6 +55,26 @@ def test_get_athlete(mock_strava_api, client):
     assert isinstance(athlete, DetailedAthlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
+
+
+def test_get_athlete_zones(mock_strava_api, client):
+    json_response = {
+        "heart_rate": {
+            "custom_zones": False,
+            "zones": [
+                {"min": 0, "max": 123},
+                {"min": 123, "max": 153},
+                {"min": 153, "max": 169},
+                {"min": 169, "max": 184},
+                {"min": 184, "max": -1},
+            ],
+        }
+    }
+    # We overwrite the response from the mock as the example in the swagger
+    # specification is incorrect
+    mock_strava_api.get("/athlete/zones", json=json_response)
+    zones = client.get_athlete_zones()
+    assert isinstance(zones, Zones)
 
 
 @pytest.mark.parametrize(
