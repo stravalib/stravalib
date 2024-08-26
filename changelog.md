@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add: `get_athelete_zones` method on client (@enadeau, #508)
+
 ## v2.0.0
 
 ### Major Changes in This Release
