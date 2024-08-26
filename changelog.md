@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add: `get_athelete_zones` method on client
+- Add: `get_athelete_zones` method on client (@enadeau, #508)
 
 ## v2.0.0
 
