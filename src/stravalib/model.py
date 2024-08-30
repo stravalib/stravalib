@@ -1242,12 +1242,19 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
 
     # field overrides from superclass for type extensions:
     athlete: MetaAthlete | None = None
+    average_speed: VelocityType | None = None
+    distance: DistanceType | None = None
+    elapsed_time: DurationType | None = None
     # These force validator to run on lat/lon
     start_latlng: LatLon | None = None
     end_latlng: LatLon | None = None
     map: Map | None = None
+    max_speed: VelocityType | None = None
+    moving_time: DurationType | None = None
     type: RelaxedActivityType | None = None
     sport_type: RelaxedSportType | None = None
+    timezone: TimezoneType | None = None
+    total_elevation_gain: DistanceType | None = None
 
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
@@ -1263,8 +1270,6 @@ class DetailedActivity(
     """
 
     # Field overrides from superclass for type extensions:
-    distance: DistanceType | None = None
-    total_elevation_gain: DistanceType | None = None
     gear: SummaryGear | None = None
     best_efforts: Sequence[BestEffort] | None = None
     # TODO: returning empty Sequence should be  DetailedSegmentEffort object
@@ -1275,11 +1280,6 @@ class DetailedActivity(
     splits_standard: Sequence[Split] | None = None
     photos: PhotosSummary | None = None
     laps: Sequence[Lap] | None = None
-    elapsed_time: DurationType | None = None
-    moving_time: DurationType | None = None
-    average_speed: VelocityType | None = None
-    max_speed: VelocityType | None = None
-    timezone: TimezoneType | None = None
 
     # Added for backward compatibility
     # TODO maybe deprecate?
