@@ -6,6 +6,10 @@
 
 - Add: `get_athelete_zones` method on client (@enadeau, #508)
 
+### Fixed
+
+- Some override moved from DetailedActivity to SummaryActivity (@enadeau, #570)
+
 ## v2.0.0
 
 ### Major Changes in This Release
