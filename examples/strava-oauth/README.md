@@ -37,5 +37,5 @@ Run the Flask server, specifying the path to this file in your `APP_SETTINGS`
 environment var:
 
 ```
-(env) $ APP_SETTINGS=settings.cfg python server.py
+(env) $ APP_SETTINGS=settings.cfg python3 server.py
 ```
