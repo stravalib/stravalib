@@ -45,6 +45,18 @@
         "doc",
         "maintenance"
       ]
+    },
+    {
+      "login": "enadeau",
+      "name": "Émile Nadeau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12940089?v=4",
+      "profile": "https://github.com/enadeau",
+      "contributions": [
+        "code",
+        "review",
+        "doc",
+        "maintenance"
+      ]
     }
   ]
 }
