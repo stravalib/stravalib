@@ -235,6 +235,7 @@ The [published sphinx documentation](https://stravalib.readthedocs.io/) provides
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://www.leahwasser.com"><img src="https://avatars.githubusercontent.com/u/7649194?v=4?s=100" width="100px;" alt="Leah Wasser"/><br /><sub><b>Leah Wasser</b></sub></a><br /><a href="https://github.com/stravalib/stravalib/commits?author=lwasser" title="Code">💻</a> <a href="https://github.com/stravalib/stravalib/pulls?q=is%3Apr+reviewed-by%3Alwasser" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/stravalib/stravalib/commits?author=lwasser" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/yotam5"><img src="https://avatars.githubusercontent.com/u/69643410?v=4?s=100" width="100px;" alt="Yotam"/><br /><sub><b>Yotam</b></sub></a><br /><a href="https://github.com/stravalib/stravalib/commits?author=yotam5" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
