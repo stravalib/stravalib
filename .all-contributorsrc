@@ -1,0 +1,16 @@
+{
+  "projectName": "stravalib",
+  "projectOwner": "stravalib"
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributorsSortAlphabetically": true,
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "commitType": "docs"
+}
