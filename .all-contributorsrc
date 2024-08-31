@@ -33,6 +33,18 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "jsamoocha",
+      "name": "Jonatan Samoocha",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1788027?v=4",
+      "profile": "https://vortza.com",
+      "contributions": [
+        "code",
+        "review",
+        "doc",
+        "maintenance"
+      ]
     }
   ]
 }
