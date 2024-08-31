@@ -24,6 +24,15 @@
         "review",
         "doc"
       ]
+    },
+    {
+      "login": "yotam5",
+      "name": "Yotam",
+      "avatar_url": "https://avatars.githubusercontent.com/u/69643410?v=4",
+      "profile": "https://github.com/yotam5",
+      "contributions": [
+        "doc"
+      ]
     }
   ]
 }
