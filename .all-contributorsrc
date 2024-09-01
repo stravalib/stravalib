@@ -57,6 +57,15 @@
         "doc",
         "maintenance"
       ]
+    },
+    {
+      "login": "jlelong",
+      "name": "Jerome Lelong",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2910140?v=4",
+      "profile": "http://www-ljk.imag.fr/membres/Jerome.Lelong/",
+      "contributions": [
+        "bug"
+      ]
     }
   ]
 }
