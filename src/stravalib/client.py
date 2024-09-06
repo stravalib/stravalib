@@ -178,7 +178,7 @@ class Client:
         self, client_id: int, client_secret: str, code: str
     ) -> AccessInfo:
         """Exchange the temporary authorization code (returned with redirect
-        from strava authorization URL)  for a short-lived access token and a
+        from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
 
         Parameters
@@ -196,8 +196,6 @@ class Client:
             Dictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided access
             token will expire)
-
-
         """
         return self.protocol.exchange_code_for_token(
             client_id=client_id, client_secret=client_secret, code=code

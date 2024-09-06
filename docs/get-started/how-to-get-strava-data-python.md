@@ -64,9 +64,9 @@ print(
 # (or Jupyter Notebook)
 code = input("Please enter the code that you received: ")
 print(
-    "Great! Your code is ",
-    code,
-    "Next, I will exchange that code for a token.\n" "I only have to do this once.",
+    f"Great! Your code is {code}\n"
+    "Next, I will exchange that code for a token.\n"
+    "I only have to do this once."
 )
 
 # Exchange the code returned from Strava for an access token
@@ -79,13 +79,10 @@ token_response
 # {'access_token': 'value-here-123123123', 'refresh_token': # '123123123',
 # 'expires_at': 1673665980}
 
-# Add the access token to the client object
-# Actually this is weird should it be client.access_token = to use the same instance??
-client = Client(access_token=token_response["access_token"])
 # Get current athlete details
 athlete = client.get_athlete()
 # Print athlete name :) If this works your connection is successful!
-print("Hi, ", athlete.firstname, "Welcome to stravalib!")
+print(f"Hi, {athlete.firstname} Welcome to stravalib!")
 
 # You can also start exploring stats
 stats = client.get_athlete_stats()
@@ -136,9 +133,6 @@ steps above. You will want to copy the client ID and client secret to a file
 these values openly to GitHub. You will want to encrypt these values if they need to be stored online.
 :::
 
-<!--TODO: i'm not sure what the difference is between "website"
-and callback domain here.  -->
-
 ```{important}
 Remember to store your client ID and client secret values somewhere safe.
 Do not EVER commit that information to `.git` or push it to GitHub (unless you have
@@ -157,19 +151,11 @@ Do the following:
 by a comma in the format that you see below:
 
 `secret_value_here, access_token_value_here`
-<!--
-```{tip}
-The exchange above was as follows
 
-1. you authenticate (login) to Strava
-2. you provide your code with permission to `read` data from your account
-3. Strava then returns a code to you that confirms you have read access to your account
-4. Finally you exchange that code for a token. The token is an value that will last for 6 hours. You can refresh it as you need to without having to go through steps 1-3 again.
-``` -->
 
 ```{tip}
-If you were creating an application, you would probably store that information
-securely somewhere in your app's online directory.
+If you were creating an application, you would store this information
+securely somewhere in your app's online database.
 ```
 
 ## Time to authenticate!
@@ -182,7 +168,7 @@ Below you also import `webbrowser` to launch a web browser from your code to
 login to Strava. `webbrowser` behaves like a web app.
 
 ```{tip}
-If you were using Flask, you'd create an HTML template. See our example.
+If you were using Flask, you'd create an HTML template. See our example in the GitHub repo.
 ```
 
 ```python
@@ -192,16 +178,17 @@ import webbrowser
 from stravalib.client import Client
 ```
 
-Below, you read the `client_id` and `access_token` from the
+Next, read the `client_id` and `access_token` from the
 `client_secrets.txt` file that you created above. You then create a
 stravalib `Client()` object.
 
 The `Client()` object is what you will use to get and push data to Strava.
-It stores your authentication information inside of it, allowing data transfer
-from (and to) to happen based on the scope of the token you request.
+This object stores your authentication information. It also contains methods that you can call that will perform different operations including:
 
-You will learn more about the token scope below.
+* Getting different types of data from Strava such as activities and club data, and
+* Modifying activity and club data on Strava (if you provide the token with write permissions).
 
+You will learn more about read vs write token scopes below.
 
 ```python
 # Open the secrets file and store the client_id and secret as objects
@@ -247,8 +234,9 @@ below). The scope below provides your code access to the users' profile and acti
 
 ```python
 # Python list containing read-only scope values
-scope = ["read_all", "profile:read_all", "activity:read_all"]
+request_scope = ["read_all", "profile:read_all", "activity:read_all"]
 ```
+
 However, if you wish to upload data to Strava, then you will need a write scope
 included in your URL. Like this:
 
@@ -257,7 +245,11 @@ included in your URL. Like this:
 request_scope = ["read_all", "profile:read_all", "activity:write", "activity:read_all"]
 ```
 
-Below, you limit your scope to read-only as you are only
+:::{tip}
+[Learn more about request scope options from the Strava docs here.](https://developers.strava.com/docs/authentication/#details-about-requesting-access)
+:::
+
+Below, you limit your scope to **read-only** as you are only
 looking at data in this tutorial rather than modifying it.
 
 You also set the `redirect_url` to **localhost** (to be opened on your computer
@@ -347,9 +339,6 @@ more data in the future.
 Above you save the token as a pickle so you can access it in the future.
 
 ```python
-# TODO: Is it ok to assign the attribute this way? Shouldn't it get assigned when
-# you use the code / token exchange method?
-client.access_token = access_token
 client.get_athlete()  # Get current athlete details
 ```
 
@@ -365,7 +354,7 @@ with open(token_path_pickle, "rb") as f:
 refresh_response = client.refresh_access_token(
     client_id=client_id,
     client_secret=client_secret,
-    refresh_token=tokens["refresh_token"],
+    refresh_token=refresh_token,
 )
 
 # TODO: Again this seems weird. Why doesn't this all get updated when you refresh
