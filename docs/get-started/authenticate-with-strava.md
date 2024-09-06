@@ -1,4 +1,4 @@
-# Authentication and Authorization
+# Authenticate with the Strava API using stravalib  
 
 You need to authorize with Strava if you want to retrieve data about 
 athletes and activities from the API. 
