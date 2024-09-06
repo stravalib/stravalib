@@ -137,7 +137,7 @@ url that will  enter here.
 
 Figure from the Strava documentation showing the application settings. This is a 
 screenshot showing the final application that you should have once you follow the 
-steps above. You will want to copy the client secret and access token to a file 
+steps above. You will want to copy the client id and client secret to a file 
 (see below for more). Be sure to never share these values. Also NEVER commit 
 these values openly to GitHub. If they need to be stored online, you will want 
 to encrypt them. 
@@ -147,10 +147,9 @@ to encrypt them.
 and callback domain here.  -->
 
 ```{important}
-Remember to store your client secret and access token values somewhere safe.
+Remember to store your client id and client secret values somewhere safe.
 Do not EVER commit that information to `.git` or push to GitHub (unless you have 
 encrypted it well)!
-```
 ## Save your secret and access token values in a text file 
 
 Notice in the first screenshot above there is a client secret (that is hidden
