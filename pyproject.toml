@@ -1,60 +1,133 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
 
 [tool.setuptools_scm]
 # Make sure setuptools uses version of last created tag - this allows us to specify bump
-version_scheme =  "post-release"
-# Make sure scm doesn't use local scheme version for push to pypi 
+version_scheme = "post-release"
+# Make sure scm doesn't use local scheme version for push to pypi
 # (so there isn't a + in the version)
 local_scheme = "no-local-version"
-write_to =  "stravalib/_version_generated.py"
+write_to = "src/stravalib/_version_generated.py"
+write_to_template = '__version__ = "v{version}"'
+
+[tool.setuptools.package-data]
+"stravalib" = ["py.typed"]
 
 [project]
 name = "stravalib"
 description = "A Python package that makes it easy to access and download data from the Strava V3 REST API."
 keywords = ["strava", "running", "cycling", "athletes"]
 readme = "README.md"
-dynamic =["version"]
-license = {text = "Apache 2.0 License"} 
-authors = [{name="Hans Lellelid", email="hans@xmpl.org"}]
+dynamic = ["version"]
+license = { text = "Apache 2.0 License" }
+authors = [{ name = "Hans Lellelid", email = "hans@xmpl.org" }]
 maintainers = [
-     {name = "Leah Wasser"},
-     {name = "Hans Lellelid"},
-     {name = "Jonatan Samoocha"},
-     {name = "Yihong"},
-    ]
-requires-python = ">=3.8"
+  { name = "Leah Wasser" },
+  { name = "Hans Lellelid" },
+  { name = "Jonatan Samoocha" },
+  { name = "Yihong" },
+  { name = "Émile Nadeau" },
+]
+requires-python = ">=3.10"
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
-  # Because license is listed below does it need to be here too?
   "License :: OSI Approved :: Apache Software License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 
-
-dependencies = [
-    "pint",
-    "pytz",
-    "arrow",
-    "requests",
-    "pydantic",
-]
+dependencies = ["pint", "pytz", "arrow", "requests", "pydantic>=2.0"]
 
 [project.urls]
-homepage = "https://example.com"
 documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
-changelog = "https://github.com/stravalib/stravalib/blob/master/changelog.md"
+changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
 
+
+[project.optional-dependencies]
+build = ["build"]
+tests = [
+  "pytest",
+  "pytest-cov",
+  "responses"
+]
+docs = [
+  "sphinx",
+  "pydata-sphinx-theme",
+  "autodoc_pydantic",
+  "sphinx_remove_toctrees",
+  "myst-nb",
+  "sphinx-autobuild",
+  "sphinx-inline-tabs",
+  "sphinx_copybutton",
+  "sphinx_design",
+  "sphinxext-opengraph",
+  # Needed for sphinx open graph
+  "matplotlib"
+]
+lint = [
+  "pre-commit",
+  "mypy",
+  "types-requests",
+  "types-pytz",
+  "types-Flask",
+  "ruff"
+]
+
+[tool.black]
+line-length = 79
+# When editing the config for black in this file, be sure to make
+# the same edits in the repo stravalib/strava_swagger2pydantic
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+  "ignore::FutureWarning:stravalib.*",
+  "ignore::DeprecationWarning:stravalib.*",
+]
+
+[tool.mypy]
+python_version = "3.10"
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+warn_unreachable = true
+disallow_untyped_defs = true
+files = ["src/stravalib/"]
+plugins = ["pydantic.mypy"]
+exclude = ["src/stravalib/tests/"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.codespell]
+skip = './docs/_build, ./build, ./src/stravalib/tests/resources'
+
+[tool.ruff]
+lint.select = [
+  "F", # pyflakes
+  "I", # isort
+]
+lint.ignore = ["F841"]
+line-length = 79

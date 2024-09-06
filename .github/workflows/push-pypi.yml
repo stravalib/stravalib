@@ -4,15 +4,15 @@ on:
     types: [published]
   push:
     branches:
-      - master
+      - main
 jobs:
   build-publish:
     runs-on: ubuntu-latest
-    # This action only needs to run in the base repository
+    # Only run build action on base repo - not forks
     if: github.repository_owner == 'stravalib'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4
         with:
           # So scm can view previous commits
           fetch-depth: 100
@@ -22,18 +22,19 @@ jobs:
         run: git fetch origin 'refs/tags/*:refs/tags/*'
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
-      - name: Install requirements
+      - name: Install dependencies
         run: |
-          python -m pip install -r requirements-build.txt
+          python -m pip install --upgrade pip
+          python -m pip install build twine
           pip list
 
       - name: Build package
         run: |
-          python3 -m build
+          python -m build
           echo ""
           echo "Generated files:"
           ls -lh dist/
@@ -41,17 +42,6 @@ jobs:
       - name: Check the archives
         run: twine check dist/*
 
-      - name: Publish package on test PyPI on merge
-        # Test push to test pypi on merge to master
-        if: github.event_name == 'push'
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-          # Allow existing releases on test PyPI without errors.
-          # NOT TO BE USED in PyPI!
-          skip_existing: true
-      
       - name: Publish package to PyPI
         # Only publish to real PyPI on release
         if: github.event_name == 'release'

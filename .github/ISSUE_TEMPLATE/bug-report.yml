@@ -1,0 +1,105 @@
+name: 🐞 Bug Report
+description: Report incorrect behavior in the stravalib library
+title: "BUG: "
+labels: [Bug, help-wanted]
+
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Stravalib version checks
+      options:
+        - label: >
+            I have tested this in a new clean environment with only stravalib
+            and core python files.
+          required: true
+        - label: >
+            I have checked that this issue has not already been reported.
+          required: true
+        - label: >
+            I have confirmed this bug exists on the
+            [latest version](https://pypi.org/project/stravalib/) of stravalib.
+          required: true
+        - label: >
+            I have confirmed this bug exists on the
+            [main branch](https://github.com/stravalib/stravalib)
+            of stravalib.
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: What operating system are you seeing the problem on?
+      multiple: true
+      options:
+        - Windows
+        - Mac
+        - Linux
+  - type: textarea
+    id: python-version
+    attributes:
+      label: What version of python or you running?
+      description: >
+        Example: 3.10.12
+      placeholder: >
+        Enter the version here.
+
+        ...
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Reproducible Example
+      description: >
+        Please follow [this guide](https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports) on how to
+        provide a minimal, copy-pastable example.
+      placeholder: >
+        from stravalib.client import Client
+
+        # Your code here (please don't include token values / secrets here!)
+
+        ...
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Issue Description
+      description: >
+        Please provide a description of the issue shown in the reproducible example.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: >
+        Please describe or show a code example of the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Your environment
+      description: >
+        Please paste the output of ``pip freeze`` or the associated conda envt
+        ``conda env export > environment.yml`` here
+      value: >
+        <details>
+
+
+        Replace this line with the output of pip or conda list.
+
+
+        </details>
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/stravalib/stravalib/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

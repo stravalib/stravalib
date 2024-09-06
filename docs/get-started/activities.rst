@@ -15,8 +15,8 @@ The function will return a :class:`stravalib.model.Activity` object.::
 
 Activity object has many basic properties such as type and distance.::
 
-    print("type={0.type} distance={1} km".format(activity,  
-                                             unithelper.kilometers(activity.distance)))
+    print("type={0.type} distance={1} km".format(activity,
+                                             unit_helper.kilometers(activity.distance)))
 
 But also many secondary properties like kudos, comments and photos which follow the following pattern.::
 
@@ -27,7 +27,7 @@ But also many secondary properties like kudos, comments and photos which follow 
     for comment in activity.comments:
         print("{} : {}".format(comment.athlete.lastname, comment.text))
 
-   
+
 Activity information
 --------------------
 
@@ -45,7 +45,7 @@ Below is example of :meth:`stravalib.client.Client.get_activity_streams`::
         print(streams['altitude'].data)
 
 
-Additionally, activity zones can be retrieved with :meth:`stravalib.client.Client.get_activity_zones` and activity laps can be retrieved with :meth:`stravalib.client.Client.get_activity_laps` .		
+Additionally, activity zones can be retrieved with :meth:`stravalib.client.Client.get_activity_zones` and activity laps can be retrieved with :meth:`stravalib.client.Client.get_activity_laps` .
 
 
 
@@ -53,7 +53,7 @@ Additionally, activity zones can be retrieved with :meth:`stravalib.client.Clien
 List of Activities
 ==================
 
-Three functions return lists of activities. 
+Three functions return lists of activities.
 
 List the authenticated athlete's activities with :meth:`stravalib.client.Client.get_activities`.::
 
@@ -63,7 +63,8 @@ List the authenticated athlete's activities with :meth:`stravalib.client.Client.
 .. tip::
    To get activities in oldest to newest, specify a value for the `after` argument. To get newest to oldest use `before` argument.
 
-Additionally list the authenticated athlete's friends activities with :meth:`stravalib.client.Client.get_friend_activities`, or list a club member's activities with :meth:`stravalib.client.Client.get_club_activities`.
+Additionally list a club member's activities with
+:meth:`stravalib.client.Client.get_club_activities`.
 
 
 Manage Activities
@@ -73,8 +74,7 @@ Manage Activities
 =============== ================================================
 method           doc
 =============== ================================================
-create_activity  :meth:`stravalib.client.Client.create_activity`  
+create_activity  :meth:`stravalib.client.Client.create_activity`
 upload_activity :meth:`stravalib.client.Client.upload_activity`
 update_activity :meth:`stravalib.client.Client.update_activity`
 =============== ================================================
-

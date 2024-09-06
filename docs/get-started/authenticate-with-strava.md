@@ -1,20 +1,20 @@
-# Authenticate with the Strava API using stravalib  
+# Authenticate with the Strava API using stravalib
 
-You need to authorize with Strava if you want to retrieve data about 
-athletes and activities from the API. 
+You need to authorize with Strava if you want to retrieve data about
+athletes and activities from the API.
 
-`This is a nice tutorial that has information about 
+`This is a nice tutorial that has information about
 setting up a free app within STRAVA <https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17>`_
 .
 
-If you want a more technical overview, see the 
+If you want a more technical overview, see the
 `official documentation <https://developers.strava.com/docs/authentication/>`_
 for a description of the OAuth2 protocol that Strava uses to authenticate users.
 
 ## Requesting Authorization
 
-The [stravalib.client.Client](stravalib.client.Client) class provides the 
-[stravalib.client.Client.authorization_url](stravalib.client.Client.authorization_url) 
+The [stravalib.client.Client](stravalib.client.Client) class provides the
+[stravalib.client.Client.authorization_url](stravalib.client.Client.authorization_url)
  method
 to build an authorization URL which can be clicked on by a user in order to grant your application access to
 their account data.
@@ -64,5 +64,5 @@ To refresh the token you would call the :meth:`stravalib.client.Client.refresh_a
                                           refresh_token=last_refresh_token)
     new_access_token = token_response['access_token']
 
-See the https://github.com/stravalib/stravalib/tree/master/examples/strava-oauth directory for an example
+See the https://github.com/stravalib/stravalib/tree/main/examples/strava-oauth directory for an example
 Flask application for fetching a Strava auth token.

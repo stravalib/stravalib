@@ -1,0 +1,33 @@
+name: Check Strava API
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-model:
+    name: Update Model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch API
+        run: curl https://developers.strava.com/swagger/swagger.json > src/stravalib/tests/resources/strava_swagger.json
+      - name: Fetch API Schema
+        uses: stravalib/strava_swagger2pydantic@v1
+        with:
+          model_file: "src/stravalib/strava_model.py"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: |
+            src/stravalib
+          commit-message: Strava API Change
+          branch: api-change
+          delete-branch: true
+          title: "[CHANGE] Strava API Change"
+          body: |
+            There were changes in the Strava API:
+            [Please edit this comment to indicate what has changed]
+
+            - [ ] The changelog is updated (only when necessary)

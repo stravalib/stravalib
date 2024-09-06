@@ -4,23 +4,24 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-doc:
     runs-on: ubuntu-latest
     env:
-      PYTHON-VERSION: "3.10"
+      PYTHON-VERSION: "3.11"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON-VERSION }}
-      - name: Upgrade pip
+      - name: Upgrade pip & install nox
         run: |
           # install pip=>20.1 to use "pip cache dir"
           python3 -m pip install --upgrade pip
+          pip install nox
       - name: Set Variables
         id: set_variables
         shell: bash
@@ -28,18 +29,17 @@ jobs:
           echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_OUTPUT
           echo "PIP_CACHE=$(pip cache dir)" >> $GITHUB_OUTPUT
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.set_variables.outputs.PIP_CACHE }}
           key: ${{ runner.os }}-pip-${{ steps.set_variables.outputs.PY }}
       - name: Install dependencies
         run: |
-          python3 -m pip install -r ./requirements.txt
-          python3 -m pip install .
+          pip install nox
       - name: Build docs & linkcheck
         run: |
           # Build html and link check
-          make -C docs
+          nox -s docs
       - name: Print doc link failures in the output.txt file
         if: success() || failure()
         run: |

@@ -1,0 +1,71 @@
+{
+  "projectName": "stravalib",
+  "projectOwner": "stravalib",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributorsSortAlphabetically": true,
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "commitType": "docs",
+  "contributors": [
+    {
+      "login": "lwasser",
+      "name": "Leah Wasser",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7649194?v=4",
+      "profile": "http://www.leahwasser.com",
+      "contributions": [
+        "code",
+        "review",
+        "doc"
+      ]
+    },
+    {
+      "login": "yotam5",
+      "name": "Yotam",
+      "avatar_url": "https://avatars.githubusercontent.com/u/69643410?v=4",
+      "profile": "https://github.com/yotam5",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "jsamoocha",
+      "name": "Jonatan Samoocha",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1788027?v=4",
+      "profile": "https://vortza.com",
+      "contributions": [
+        "code",
+        "review",
+        "doc",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "enadeau",
+      "name": "Émile Nadeau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12940089?v=4",
+      "profile": "https://github.com/enadeau",
+      "contributions": [
+        "code",
+        "review",
+        "doc",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "jlelong",
+      "name": "Jerome Lelong",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2910140?v=4",
+      "profile": "http://www-ljk.imag.fr/membres/Jerome.Lelong/",
+      "contributions": [
+        "bug"
+      ]
+    }
+  ]
+}

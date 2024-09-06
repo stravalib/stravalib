@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Stravalib community support
+    url: https://github.com/orgs/stravalib/discussions/categories/q-a
+    about: Please ask general questions about stravalib in our discussions

@@ -1,0 +1,70 @@
+# pre-commit is a tool that you run locally
+# to perform a predefined set of tasks manually and/or
+# automatically before git commits are made.
+# Here we are using pre-commit with the precommit.ci bot to implement
+# code fixes automagically in pr's. You will still want to install pre-commit
+# to run locally
+# Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
+# To run on a pr, add a comment with the text "pre-commit.ci run"
+# Common tasks
+# - Manually update hooks: pre-commit autoupdate
+# - Run on all files:   pre-commit run --all-files
+# - Register git hooks: pre-commit install --install-hooks
+# - Run a specific hook on all files: pre-commit run codespell --all-files
+
+ci:
+    autofix_prs: false
+    autofix_commit_msg: |
+      '[pre-commit.ci 🤖] Apply code format tools to PR'
+    autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+    # Update hook versions every quarter (so we don't get hit with weekly update pr's)
+    autoupdate_schedule: quarterly
+    autoupdate_branch: ""
+
+default_stages: [commit]
+repos:
+  # Misc commit checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    # ref: https://github.com/pre-commit/pre-commit-hooks#hooks-available
+    hooks:
+      # Autoformat: Makes sure files end in a newline and only a newline.
+      - id: end-of-file-fixer
+      # Lint: Check for files with names that would conflict on a
+      # case-insensitive filesystem like MacOS HFS+ or Windows FAT.
+      - id: check-case-conflict
+      - id: trailing-whitespace
+
+  # Linting code using ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+    - id: ruff
+      args: [--fix, --exit-non-zero-on-fix]
+
+  # Black for auto code formatting
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        entry: bash -c 'black "$@"; git add -u' --
+        language_version: python3.10
+        args: ["--line-length=79"]
+
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: "1.18.0"
+    hooks:
+      - id: blacken-docs
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        files: ^.*\.(py|md|rst)$
+        exclude: >
+            (?x)^(
+                src/stravalib/strava_model.py|
+                src/stravalib/tests/resources/strava_swagger.json
+            )$
+        additional_dependencies:
+          - tomli

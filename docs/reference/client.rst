@@ -9,12 +9,15 @@ to create an access token to authenticate and access most of the Strava data
 accessible via the API.
 
 
-Constructor
------------
+Main Classes
+-------------
 .. autosummary::
    :toctree: api/
 
    Client
+   BatchedResultsIterator
+   ActivityUploader
+
 
 General methods and attributes
 -------------------------------
@@ -34,10 +37,7 @@ Athlete methods
 
    Client.get_activities
    Client.get_athlete
-   Client.get_athlete_friends
    Client.update_athlete
-   Client.get_athlete_followers
-   Client.get_both_following
    Client.get_athlete_koms
    Client.get_athlete_stats
    Client.get_athlete_clubs
@@ -60,17 +60,15 @@ Activity related methods
    :toctree: api/
 
    Client.get_activity
-   Client.get_friend_activities
    Client.create_activity
    Client.update_activity
    Client.upload_activity
-   Client.delete_activity
    Client.get_activity_zones
    Client.get_activity_comments
    Client.get_activity_kudos
    Client.get_activity_photos
    Client.get_activity_laps
-   Client.get_related_activities
+   Client._validate_activity_type
 
 Segment related methods
 -------------------------
@@ -81,7 +79,6 @@ Segment related methods
    Client.get_segment
    Client.get_starred_segments
    Client.get_athlete_starred_segments
-   Client.get_segment_leaderboard
    Client.get_segment_efforts
    Client.explore_segments
 
@@ -132,4 +129,3 @@ ActivityUploader methods
    :toctree: api/
 
    ActivityUploader.update_from_response
-
