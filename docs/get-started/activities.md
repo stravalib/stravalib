@@ -1,5 +1,5 @@
 (activities)=
-# Activities
+# Get Strava activity data
 
 This page overviews working with your Strava activity data using the stravalib Python library.
 
@@ -240,13 +240,17 @@ photo.urls
 
 ## Get a list of Strava activities
 
-You can access multiple activities using the {py:func}`client.get_activities` method. This method will return a `BatchedResultsIterator` that you can loop through.
+You can access multiple activities using the {py:func}`stravalib.client.Client.get_activities` method. This method will return a `BatchedResultsIterator` that you can loop through.
+
+:::{note}
+The activities `batchedResultsIterator` object stores data that allows stravalib to access activity data when you iterate through the object. This approach limits the API requests made up front to Strava.
+:::
 
 Below, you request activities that were recorded after Jan 1, 2024.
 
 ```python
-client.get_activities(after="2024-01-01", limit=5)
-
+activities = client.get_activities(after="2024-01-01", limit=5)
+print(activities)
 # Expected output:
 # <BatchedResultsIterator entity=SummaryActivity>
 ```
@@ -255,7 +259,7 @@ Using the limit parameter will limit the number of activities
 Stravalib will retrieve. Above, you retrieve the first 5 activities.
 
 ```python
-for i, act in enumerate(a):
+for i, activity in enumerate(activities):
     print(i)
 """
 0
@@ -270,17 +274,17 @@ I found 5 activities for you.
 ```
 
 :::{tip}
-To get activities starting with the oldest first, specify a value for the `after` parameter when calling client.get_activities. Use the' before' parameter to get the last 5 activities.
+To get activities starting with the oldest first, specify a value for the `after=` parameter when calling `client.get_activities`. Use the `before=` parameter to get the last 5 activities.
 :::
 
-Additionally, list a club member's activities with
-{py:func}`stravalib.client.Client.get_club_activities`.
+## Get club member activities
 
-<!--
-Manage Activities
-=================
-(TODO)
+You can also use stravalib to access activities associated with a club. To do this, use {py:func}`stravalib.client.Client.get_club_activities`.
 
+<!-- (TODO)
+## Create and update activities
+
+I think this should be a new page on updating and creating activities.
 =============== ================================================
 method           doc
 =============== ================================================
