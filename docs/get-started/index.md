@@ -7,8 +7,17 @@
 Install Stravalib <self>
 Overview <overview>
 Authentication <authenticate-with-strava>
+Authentication 2 <authenticate-without-flask-strava.md>
 Activities <activities>
 Athletes <athletes>
+
+```
+
+```{toctree}
+:hidden:
+:caption: Tutorials
+
+How To Authenticate <how-to-get-strava-data-python>
 
 ```
 
