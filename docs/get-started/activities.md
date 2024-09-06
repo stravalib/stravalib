@@ -1,16 +1,16 @@
 (activities)=
 # Activities
 
-This page provides an overview of working with your Strava activity data using stravalib.
+This page overviews working with your Strava activity data using the stravalib Python library.
 
 ## Retrieve an activity
 
-To access data for a given activity, use the `client.get_activity` method and provide `activity_id`,
+To access data for a given activity, use the `client.get_activity` method and provide the `activity_id`.
 
-The `client.get_activity` method will return a {py:class}`stravalib.model.DetailedActivity` object.
+The `client.get_activity` method returns a {py:class}`stravalib.model.DetailedActivity` object.
 
 :::{note}
-All of the commands below require that you first authenticate using a client object that contains a token.
+All of the commands below require you first to authenticate using a client object containing a token.
 
 `from stravalib.client import Client`
 
@@ -24,7 +24,7 @@ All of the commands below require that you first authenticate using a client obj
 <class 'stravalib.model.DetailedActivity'>
 ```
 
-The `DetailedActivity` object has many properties such as type, distance and elapsed time.
+The `DetailedActivity` object has many properties such as type, distance, and elapsed time.
 
 ```{code-block} pycon
 # Get the activity type
@@ -43,11 +43,10 @@ The distance is: 1234
 
 ## Stravalib offers unit conversion helpers
 
-You can convert distance to another unit if you import stravalib's
+You can convert the distance value to another unit if you import stravalib's
 `stravalib.unit_helper` module.
 
 ```python
-# Import unit_helper
 from stravalib import unit_helper
 
 unit_helper.feet(activity.distance)
@@ -61,7 +60,7 @@ unit_helper.kilometers(activity.distance)
 # <Quantity(2.4608, 'kilometer')>
 ```
 
-Similarly you can access elapsed time and
+Similarly, you can access elapsed time and
 convert it to a `timedelta` object.
 
 ```python
@@ -75,11 +74,11 @@ activity.elapsed_time.timedelta
 
 ### DetailedActivity iterator objects
 
-Some of the items returned by stravalib will be returned in a
+Some items returned by stravalib will be returned as a
 {py:class}`BatchedResultsIterator` object. A `BatchedResultsIterator` object contains a list of
-items associated with an activity - for example a list of comments or kudos.
+items associated with an activity - for example, a list of comments or kudos.
 
-It an attribute contains a discrete value, you can access the item's value as an attribute like this:
+If an attribute contains a discrete value, you can access the item's value as an attribute like this:
 
 ```{code-block} pycon
 >>> activity.comment_count
@@ -93,7 +92,7 @@ However if it's a `BatchedResultsIterator`, you will see this:
 <BatchedResultsIterator entity=Comment>
 ```
 
-You can access each comment or item within a `BatchedResultsIterator` object using a loop:
+You can access each comment or item within a `BatchedResultsIterator` object using a Python loop or a list comprehension:
 
 ```{code-block} pycon
 >>> for comment in activity.comments:
@@ -104,31 +103,12 @@ Comment by: YourFriendsNameHere: Not the pool!
 
 ## Get Activity streams information
 
-{py:fun}`client.get_activity_streams` returns a dictionary containing time-series
-data associated with your activity. The type options for streaming data can be found here: {py:class}`strava_model.StreamType`.
+{py:func}`stravalib.client.Client.get_activity_streams` returns a dictionary containing time-series
+data associated with your activity.
 
 You can specify the stream variables that you want to be returned by providing a list of accepted types to the `types`
-parameter.
+parameter. The type options for streaming data can be found here: {py:class}`stravalib.strava_model.StreamType`.
 
-:::{tip}
-The resolution of the streaming data refers to the number of data points returned for your activity. Low resolution means fewer points, and a less smooth spatial representation of your data. Low resolution data will be smaller in size and faster to download. ALternatively, high resolution data will be larger in size and slower to download.
-:::
-
-:::{warning}
-Collecting streaming data is API (and memory) intensive!
-:::
-
-
-```python
-# Request desired stream types
-types = ["latlng", "altitude"]
-streams = client.get_activity_streams(
-    activity_id=123456,
-    types=types,
-    resolution="low",
-    series_type="distance",
-)
-```
 
 The data returned from this request is a dictionary object that looks something like this:
 
@@ -143,20 +123,90 @@ streams
 """
 ```
 
-The dict's key represent the stream type:
+The Python dictionary's key represent the stream type:
 
 ```python
 if "altitude" in streams.keys():
     print(streams["altitude"].data)
 ```
 
+
+
+:::{tip}
+The resolution of the streaming data refers to the number of data points returned for your activity. Low resolution means fewer points; low-resolution data returns a smaller dataset; this data will be faster to download. Alternatively, high-resolution data will return a larger dataset and is slower to download. However, the output spatial data will look more "smooth" as there are more points.
+:::
+
+:::{warning}
+Collecting streaming data is API (and memory) intensive!
+:::
+
+### Low resolution data request
+
+```python
+# Request desired stream types
+types = ["latlng", "altitude"]
+streams = client.get_activity_streams(
+    activity_id=123456,
+    types=types,
+    resolution="low",
+    series_type="distance",
+)
+print(type(streams))
+
+# Output
+# dict
+
+
+print(len(streams_low["latlng"].data))
+# Output: This will return the lowest resolution data
+# 100
+```
+
+### Medium resolution data request
+
+```python
+# Request desired stream types
+types = ["latlng", "altitude"]
+streams = client.get_activity_streams(
+    activity_id=123456,
+    types=types,
+    resolution="medium",
+    series_type="distance",
+)
+
+print(len(streams_med["latlng"].data))
+# Output: notice there are more data points compared to a low resolution request
+# 983
+```
+
+### High resolution data request
+
+```python
+# Request desired stream types
+types = ["latlng", "altitude"]
+streams = client.get_activity_streams(
+    activity_id=123456,
+    types=types,
+    resolution="high",
+    series_type="distance",
+)
+
+print(len(streams_high["latlng"].data))
+# Output: notice there are more data points compared to both low and medium resolution. This is the max resolution possible.
+# 1729
+```
+
+:::{note}
+If you have a short activity, the number of data points returned for medium vs. low-resolution data may not be significantly different.
+:::
+
 ### Access activity zones
 
-Additionally, activity zones can be retrieved with {py:func}`stravalib.client.Client.get_activity_zones` and activity laps can be retrieved with {py:func}`stravalib.client.Client.get_activity_laps`.
+Additionally, you can retrieve activity zones using with {py:func}`stravalib.client.Client.get_activity_zones`; activity laps can be retrieved with {py:func}`stravalib.client.Client.get_activity_laps`.
 
 ### Access photos for an activity
 
-To get photos for an associated activity, you can use`client.get_activity_photos(activity_id, max_resolution)`. Here, max_resolution is the max resolution of photos that you want to
+To get photos for an associated activity, you can use`client.get_activity_photos(activity_id, max_resolution)`. Here, max_resolution is the maximum resolution of photos that you want to
 collect in pixels.
 
 ```python
@@ -167,7 +217,7 @@ photos
 # <BatchedResultsIterator entity=ActivityPhoto>
 ```
 
-The photos endpoint, returns a `BatchedResultsIterator` object that you can loop through to access both photo metadata and urls that you can use to download the photos.
+The photos endpoint returns a `BatchedResultsIterator` object that you can loop through to access photo metadata and URLs for downloading the photos.
 
 ```python
 for i, photo in enumerate(photos):
@@ -190,10 +240,9 @@ photo.urls
 
 ## Get a list of Strava activities
 
-Above you learned how to access a single activity from Strava.
-You can also access a set of activities using the {py:func}`client.get_activities` method. This method will return a `BatchedResultsIterator` that you can loop through.
+You can access multiple activities using the {py:func}`client.get_activities` method. This method will return a `BatchedResultsIterator` that you can loop through.
 
-Below you request activity that were recorded after Jan 1, 2024.
+Below, you request activities that were recorded after Jan 1, 2024.
 
 ```python
 client.get_activities(after="2024-01-01", limit=5)
@@ -203,7 +252,7 @@ client.get_activities(after="2024-01-01", limit=5)
 ```
 
 Using the limit parameter will limit the number of activities
-that Stravalib will retrieve for you. Above you retrieve the first 5 activities.
+Stravalib will retrieve. Above, you retrieve the first 5 activities.
 
 ```python
 for i, act in enumerate(a):
@@ -221,10 +270,10 @@ I found 5 activities for you.
 ```
 
 :::{tip}
-To get activities starting with the oldest first, specify a value for the `after` parameter when calling client.get_activities. To get the last 5 newest activities, use the `before` parameter.
+To get activities starting with the oldest first, specify a value for the `after` parameter when calling client.get_activities. Use the' before' parameter to get the last 5 activities.
 :::
 
-Additionally list a club member's activities with
+Additionally, list a club member's activities with
 {py:func}`stravalib.client.Client.get_club_activities`.
 
 <!--
