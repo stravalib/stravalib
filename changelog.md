@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add: update activities doc page and migrate to myst (@lwasser)
+
 ### Added
 
 - Add: `get_athelete_zones` method on client (@enadeau, #508)
