@@ -245,7 +245,7 @@ We will add more information about the test suite in the near future.
 
 For integration tests that should be run independently from Strava, there's a
 pytest fixture {py:func}`~stravalib.tests.integration.conftest.mock_strava_api`
-that is based on {py::class:}`responses.RequestsMock`.
+that is based on {py:class:}`responses.RequestsMock`.
 This fixture, prevents requests being made to the actual Strava API and instead
 registers responses that are based on examples from the published Strava API
 documentation. Example usages of this fixture can be found in the
