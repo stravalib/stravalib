@@ -16,7 +16,7 @@ Athletes <athletes>
 :hidden:
 :caption: Tutorials
 
-How To Authenticate <how-to-get-strava-data-python>
+Authenticate with Strava <how-to-get-strava-data-python>
 
 ```
 
