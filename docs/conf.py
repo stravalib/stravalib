@@ -63,9 +63,10 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_inline_tabs",
-    # Inheritance diagrams
+    # Inheritance diagrams - possible remove graphviz and inheritance
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
+    "sphinxcontrib.mermaid",
 ]
 
 # Inheritance diagram settings - you can find various settings in the
