@@ -522,6 +522,13 @@ class RelaxedActivityType(ActivityType):
             values = "Workout"
         return values
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, RelaxedActivityType):
+            return other == self
+        elif isinstance(other, str):
+            return other == self.root
+        return False
+
 
 class RelaxedSportType(SportType):
     """A class that extends the list of Literal values allowed for Sport Types
@@ -551,6 +558,13 @@ class RelaxedSportType(SportType):
             )
             values = "Workout"
         return values
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, RelaxedSportType):
+            return other == self
+        elif isinstance(other, str):
+            return other == self.root
+        return False
 
 
 class LatLon(LatLng):

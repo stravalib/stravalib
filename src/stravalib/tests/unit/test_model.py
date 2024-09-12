@@ -17,8 +17,6 @@ from stravalib.model import (
     Duration,
     Lap,
     LatLon,
-    RelaxedActivityType,
-    RelaxedSportType,
     Route,
     Segment,
     SegmentEffort,
@@ -145,7 +143,6 @@ def test_subscription_callback_field_names():
     assert sub_callback.hub_verify_token == "STRAVA"
 
 
-# TODO: do we want to continue to support type?
 @pytest.mark.parametrize(
     "klass,attr,given_type,expected_type",
     (
@@ -160,11 +157,8 @@ def test_subscription_callback_field_names():
 def test_relaxed_activity_type_validation(
     klass, attr, given_type, expected_type
 ):
-    obj = getattr(klass(**{attr: given_type}), attr)
-    if attr == "sport_type":
-        assert obj == RelaxedSportType(root=expected_type)
-    else:
-        assert obj == RelaxedActivityType(root=expected_type)
+    obj = klass.model_validate({attr: given_type})
+    assert getattr(obj, attr) == expected_type
 
 
 @pytest.mark.parametrize(
