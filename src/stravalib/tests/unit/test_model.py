@@ -23,6 +23,7 @@ from stravalib.model import (
     SegmentExplorerResult,
     Split,
     SubscriptionCallback,
+    SummaryActivity,
     SummarySegmentEffort,
     Timezone,
     Velocity,
@@ -159,6 +160,42 @@ def test_relaxed_activity_type_validation(
 ):
     obj = klass.model_validate({attr: given_type})
     assert getattr(obj, attr) == expected_type
+
+
+def test_relaxed_activity_type_equality():
+    a = SummaryActivity.model_validate({"type": "Run"})
+    b = SummaryActivity.model_validate({"type": "Run"})
+    assert a.type == b.type
+
+
+def test_relaxed_activity_type_non_equality():
+    a = SummaryActivity.model_validate({"type": "Run"})
+    b = SummaryActivity.model_validate({"type": "Ride"})
+    assert a.type != b.type
+
+
+def test_relaxed_activity_type_different_fields():
+    a = SummaryActivity.model_validate({"type": "Run"})
+    b = SummaryActivity.model_validate({"id": 42})
+    assert a.type != b.id
+
+
+def test_relaxed_sport_type_equality():
+    a = SummaryActivity.model_validate({"sport_type": "Run"})
+    b = SummaryActivity.model_validate({"sport_type": "Run"})
+    assert a.sport_type == b.sport_type
+
+
+def test_relaxed_sport_type_non_equality():
+    a = SummaryActivity.model_validate({"sport_type": "Run"})
+    b = SummaryActivity.model_validate({"sport_type": "Ride"})
+    assert a.sport_type != b.sport_type
+
+
+def test_relaxed_sport_type_different_fields():
+    a = SummaryActivity.model_validate({"sport_type": "Run"})
+    b = SummaryActivity.model_validate({"id": 42})
+    assert a.sport_type != b.id
 
 
 @pytest.mark.parametrize(

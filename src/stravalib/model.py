@@ -524,7 +524,7 @@ class RelaxedActivityType(ActivityType):
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, RelaxedActivityType):
-            return other == self
+            return other.root == self.root
         elif isinstance(other, str):
             return other == self.root
         return False
@@ -561,7 +561,7 @@ class RelaxedSportType(SportType):
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, RelaxedSportType):
-            return other == self
+            return other.root == self.root
         elif isinstance(other, str):
             return other == self.root
         return False
