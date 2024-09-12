@@ -9,6 +9,7 @@
 ### Fixed
 
 - Some override moved from DetailedActivity to SummaryActivity (@enadeau, #570)
+- Ensures ActivityType instances can be compared to str (@jsamoocha, #583)
 
 ## v2.0.0
 
