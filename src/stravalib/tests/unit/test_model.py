@@ -17,14 +17,13 @@ from stravalib.model import (
     Duration,
     Lap,
     LatLon,
-    RelaxedActivityType,
-    RelaxedSportType,
     Route,
     Segment,
     SegmentEffort,
     SegmentExplorerResult,
     Split,
     SubscriptionCallback,
+    SummaryActivity,
     SummarySegmentEffort,
     Timezone,
     Velocity,
@@ -145,7 +144,6 @@ def test_subscription_callback_field_names():
     assert sub_callback.hub_verify_token == "STRAVA"
 
 
-# TODO: do we want to continue to support type?
 @pytest.mark.parametrize(
     "klass,attr,given_type,expected_type",
     (
@@ -160,11 +158,27 @@ def test_subscription_callback_field_names():
 def test_relaxed_activity_type_validation(
     klass, attr, given_type, expected_type
 ):
-    obj = getattr(klass(**{attr: given_type}), attr)
-    if attr == "sport_type":
-        assert obj == RelaxedSportType(root=expected_type)
-    else:
-        assert obj == RelaxedActivityType(root=expected_type)
+    obj = klass.model_validate({attr: given_type})
+    assert getattr(obj, attr) == expected_type
+
+
+@pytest.mark.parametrize(
+    "a_attr,a_value,b_attr,b_value,expected_attr_equality",
+    (
+        ("type", "Run", "type", "Run", True),
+        ("type", "Run", "type", "Ride", False),
+        ("type", "Run", "id", 42, False),
+        ("sport_type", "Run", "sport_type", "Run", True),
+        ("sport_type", "Run", "sport_type", "Ride", False),
+        ("sport_type", "Run", "id", 42, False),
+    ),
+)
+def test_relaxed_activity_type_equality(
+    a_attr, a_value, b_attr, b_value, expected_attr_equality
+):
+    a = SummaryActivity.model_validate({a_attr: a_value})
+    b = SummaryActivity.model_validate({b_attr: b_value})
+    assert (getattr(a, a_attr) == getattr(b, b_attr)) == expected_attr_equality
 
 
 @pytest.mark.parametrize(
