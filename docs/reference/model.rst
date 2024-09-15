@@ -1,7 +1,6 @@
 ============
 Model
 ============
-
 .. currentmodule:: stravalib.model
 
 Athletes
