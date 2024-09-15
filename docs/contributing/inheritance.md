@@ -40,30 +40,18 @@ The full inheritance pattern, which includes inheritance from both `strava_model
 
 classDiagram
     %% Activities in model namespace
-    class MetaActivity {
-        model
-    }
-    class BoundClientEntity {
-        model
-    }
-    MetaActivity --|> BoundClientEntity
-    class SummaryActivity {
-        model
-    }
-    SummaryActivity --|> MetaActivity
-    class DetailedActivity {
-        model
-    }
-    DetailedActivity --|> SummaryActivity
+    `model.MetaActivity` --|> `model.BoundClientEntity`
+    `model.SummaryActivity` --|> `model.MetaActivity`
+    `model.DetailedActivity` --|> `model.SummaryActivity`
 
     %% Activities in strava_model namespace
-    `strava_model.SummaryActivity --|> `strava_model.MetaActivity`
-    `strava_model.DetailedActivity --|> `strava_model.SummaryActivity`
+    `strava_model.SummaryActivity` --|> `strava_model.MetaActivity`
+    `strava_model.DetailedActivity` --|> `strava_model.SummaryActivity`
 
     %% Define inheritance relationships between model and strava_model
-    MetaActivity --|> `strava_model.MetaActivity`
-    SummaryActivity --|> `strava_model.SummaryActivity`
-    DetailedActivity --|> `strava_model.DetailedActivity`
+    `model.MetaActivity` --|> `strava_model.MetaActivity`
+    `model.SummaryActivity` --|> `strava_model.SummaryActivity`
+    `model.DetailedActivity` --|> `strava_model.DetailedActivity`
 :::
 
 ## Model object inheritance patterns
