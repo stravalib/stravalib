@@ -3,9 +3,6 @@ html, body {
 }
 
 /* We are using comments for code output so make them more visible */
-html[data-theme="dark"] .highlight .go {
-    color: #cbc673!important;
-}
 
 .admonition {
     margin-top: 40px;
