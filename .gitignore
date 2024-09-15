@@ -3,6 +3,7 @@ build/
 dist/
 *.pyc
 .coverage
+.ipynb_checkpoints
 # This will remove our ability to add CI in the .github dir
 #.*
 .DS_Store
@@ -19,6 +20,7 @@ examples/strava-oauth/settings.cfg
 .nox
 .vscode/*
 docs/_build/*
+
 
 # so people don't mistakenly delete and submit a pr with these
 stravalib/tests/test.ini-example
