@@ -49,21 +49,21 @@ credentials needed for authenticated API calls. This ensures that summary and de
 
 :::{mermaid}
     graph LR
-    BoundClientEntity --> MetaActivity
-    MetaActivity --> SummaryActivity
-    SummaryActivity --> DetailedActivity
+    MetaActivity --> BoundClientEntity
+    SummaryActivity --> MetaActivity
+    DetailedActivity --> SummaryActivity
 :::
 
 :::{mermaid}
     graph LR
-    BoundClientEntity --> MetaAthlete
-    MetaAthlete --> SummaryAthlete
-    SummaryAthlete --> DetailedAthlete
+    MetaAthlete --> BoundClientEntity
+    SummaryAthlete --> MetaAthlete
+    DetailedAthlete --> SummaryAthlete
 :::
 
 :::{mermaid}
     graph LR
-    BoundClientEntity --> MetaClub
-    MetaClub --> SummaryClub
-    SummaryClub --> DetailedClub
+    MetaClub --> BoundClientEntity
+    SummaryClub --> MetaClub
+    DetailedClub --> SummaryClub
 :::
