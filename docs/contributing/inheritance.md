@@ -25,7 +25,7 @@ At a high level, there are two modules:
 `strava_model` is generated automatically using a CI build from the Strava API.
 Stravalib uses the model.py module to do a few things:
 
-1. It support inheritance of the `BoundClientEntity` which supports API calls for lazily loaded properties,
+1. It supports inheritance of the `BoundClientEntity`, which supports API calls for lazily loaded properties,
 2. it allows us to override `strava_model` attributes that have typed attributes that don't align with the actual API responses, and
 3. allows us to add attributes that are found in the returned data but not documented or fond in the swagger.json response.
 
