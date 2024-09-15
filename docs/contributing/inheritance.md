@@ -27,7 +27,7 @@ Stravalib uses the model.py module to do a few things:
 
 1. It supports inheritance of the `BoundClientEntity`, which supports API calls for lazily loaded properties,
 2. it allows us to override `strava_model` attributes that have typed attributes that don't align with the actual API responses, and
-3. allows us to add attributes that are found in the returned data but not documented or fond in the swagger.json response.
+3. allows us to add attributes that are found in the returned data but not documented or found in the swagger.json response.
 
 Below you can see the full inheritance pattern that includes inheritance from both `strava_model` and `pydantic.BaseModel`.
 
