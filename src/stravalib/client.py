@@ -670,7 +670,7 @@ class Client:
         Returns
         -------
         :class:`model.DetailedActivity`
-            An `DetailedActivity` object containing the requested activity data.
+            A `DetailedActivity` object containing the requested activity data.
 
         Notes
         ------
