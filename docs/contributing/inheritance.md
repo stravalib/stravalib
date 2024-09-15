@@ -57,13 +57,13 @@ classDiagram
     DetailedActivity --|> SummaryActivity
 
     %% Activities in strava_model namespace
-    strava_model_SummaryActivity --|> strava_model_MetaActivity
-    strava_model_DetailedActivity --|> strava_model_SummaryActivity
+    `strava_model.SummaryActivity --|> `strava_model.MetaActivity`
+    `strava_model.DetailedActivity --|> `strava_model.SummaryActivity`
 
     %% Define inheritance relationships between model and strava_model
-    MetaActivity --|> strava_model_MetaActivity
-    SummaryActivity --|> strava_model_SummaryActivity
-    DetailedActivity --|> strava_model_DetailedActivity
+    MetaActivity --|> `strava_model.MetaActivity`
+    SummaryActivity --|> `strava_model.SummaryActivity`
+    DetailedActivity --|> `strava_model.DetailedActivity`
 :::
 
 ## Model object inheritance patterns
