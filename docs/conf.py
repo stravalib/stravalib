@@ -113,9 +113,6 @@ html_theme_options = {
     # "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     "github_url": "https://github.com/stravalib/stravalib",
     "footer_start": ["copyright"],
-    # https://pygments.org/styles/
-    "pygments_light_style": "xcode",
-    "pygments_dark_style": "github-dark",
     "announcement": "<a href='whats-new/stravalib-2.html'>Stravalib 2.x is out 🚀! Check out our migration guide for tips on changes from Stravalib V1!</a>",
 }
 
