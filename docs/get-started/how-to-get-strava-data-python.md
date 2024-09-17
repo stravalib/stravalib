@@ -1,38 +1,39 @@
 # How to get your data from the Strava API using Python and stravalib
 
-In this tutorial, you will learn how to set up your Strava API application using **Stravalib** and Python to access data from Strava's V3 REST API. You'll also learn how to refresh your token when needed after setting up authentication.
+In this tutorial, you will learn how to set up your Strava API application using **Stravalib** and Python to access data from Strava's V3 REST API. After setting up authentication, you'll also learn how to refresh your Strava token after it expires.
 
 ## Steps to set up Strava API authentication
 
 Authentication involves 4 steps:
 
 1. **Create a Developer App**:
-   First you will create a free developer application or "app" in your Strava account. You will use the credentials created by this app to connect to the Strava API.
+   First, you will create a free developer application or "app" in your Strava account. You will use the credentials created by this app to connect to the Strava API.
 
 2. **Set Up Authentication**:
    Next, you'll configure your authentication to your Strava data by setting up permissions, known as "scopes." Scopes determine what your app can access—-whether it's just reading data or making changes to the data online on behalf of you or a user.
 
 3. **Log In and Authorize**:
-   When you log in to Strava and approve the scope permissions created in step 2, Strava will provide a code. This code is used to request an access token from Strava that you can then use to make data requests.
+   When you log in to Strava and approve the scope permissions created in Step 2, Strava will provide a code. This code is used to request an access token from Strava that you can then use to make data requests.
 
 4. **Use and Refresh the Access Token**:
-   The access token created above allows your to interact with your Strava data for up to 6 hours. After the 6 hour time period, you can refresh your token using {py:func}`stravalib.Client.refresh_token()` as often as needed to continue accessing the API.
+   The access token created above allows you to interact with your Strava data for up to 6 hours. After the - hour time period, you can refresh your token using {py:func}`stravalib.Client.refresh_token()` as often as needed to continue accessing the API.
 
-You only need to complete steps 1-3, once. Once you have a `refresh_token` value, you can continue to refresh your token whenever it expires following step 4 above.
+You only need to complete steps 1-3 once. Once you have a `refresh_token` value, you can continue to refresh your token whenever it expires, following Step 4 above.
 
 :::{note}
-This example workflow is a local workflow that doesn't rely upon a web application tool tool like Flask. If you are interested in using Flask, we have a demo folder that provides a basic setup in the `examples/strava-oath` directory of the stravalib GitHub repository.
+This example workflow is a local workflow that doesn't rely on a web application tool like Flask. If you want to use Flask, we have a demo folder that provides a basic setup in the `examples/strava-oath` directory of the stravalib GitHub repository.
 :::
 
 ```python
-# You will use this to login to your Strava account
+# You will use this to log in to your Strava account
 import webbrowser
+import json
 
 from stravalib.client import Client
 
 # Open the secrets file and store the client ID and client secret as objects, separated by a comma
 # Read below to learn how to set up the app that provides you with the client ID
-# and client secret
+# and the client secret
 client_id, client_secret = open("client_secrets.txt").read().strip().split(",")
 
 # Create a client object
@@ -82,14 +83,14 @@ token_response
 
 # Get current athlete details
 athlete = client.get_athlete()
-# Print athlete name :) If this works your connection is successful!
+# Print athlete name :) If this works, your connection is successful!
 print(f"Hi, {athlete.firstname} Welcome to stravalib!")
 
 # You are now successfully authenticated!
 ```
 
 Below you will get a detailed overview of the above steps. You will also learn how to
-refresh your access token after the 6 hour window has expired.
+refresh your access token after the 6-hour window has expired.
 
 ## Step 1: create a developer app in your Strava account
 
@@ -153,12 +154,13 @@ Once you have created your `client_secrets.txt` file, you are ready to setup
 authentication using **Python**.
 
 At the top of your code, import the {py:class}`stravalib.client.Client` class.
-In this tutorial you will also import `webbrowser` to launch a web browser from your code to
-login to Strava. `webbrowser` behaves similar to a web application.
+In this tutorial, you will also import `webbrowser` to launch a web browser from your code to
+login to Strava. `webbrowser` behaves similarly to a web application.
 
 ```python
 # Use webbrowser to launch a browser from Python
 import webbrowser
+import json
 
 from stravalib.client import Client
 ```
@@ -182,11 +184,9 @@ The `Client()` object is what you'll use to interact with Strava. It stores your
 
 You will learn more about read vs. write token scopes below.
 
-
-
 ## Step 3: Login and authorize Strava to interact with your code
 
-Now that you have your developer app created, it's time to authenticate with Strava.
+Now that your developer app is created, it's time to authenticate with Strava.
 
 1. You have the client secret and token from your Strava account's developer app, and
 2. You have the `Client()` object from **stravalib**.
@@ -203,12 +203,12 @@ Next, you'll define the scope of your authentication (what permissions you need)
 
 ```{tip}
 If you are building an app, then your redirect URL might be the
-url of your app.
+URL of your app.
 ```
 
 ### Define the Scope for Strava API access
 
-When working with Strava's API, you need to define the permissions, or **scope**, for your application. The scope determines what your app can access or modify. If you only want to **download** your data, you can use read-only permissions.
+When working with Strava's API, you must define your application's permissions, or **scope**. The scope determines what your app can access or modify. If you only want to **download** your data, you can use **read-only** permissions.
 
 #### Example scope values for read-only access
 
@@ -221,7 +221,7 @@ request_scope = ["read_all", "profile:read_all", "activity:read_all"]
 
 #### Example scope values for read and write access
 
-If you need to upload data to Strava (e.g., creating or modifying activities), you must include a write scope. Here’s an example of a scope that includes both read and write permissions:
+You must include a "write" scope if you need to modify and upload data to Strava (e.g., creating or modifying activities). Here’s an example of a scope that includes both read and write permissions:
 
 ```python
 # Read and write scope values
@@ -234,14 +234,14 @@ The `activity:write` scope allows your app to upload or modify activity data to 
 [Learn more about request scope options from the Strava documentation here.](https://developers.strava.com/docs/authentication/#details-about-requesting-access)
 :::
 
-In this tutorial you will limit your scope to **read-only** as you are only
+In this tutorial, you will limit your scope to **read-only** as you are only
 looking at data in this tutorial rather than modifying it.
 
 You also set the `redirect_url` to **localhost** (to be opened on your computer
-locally) url:
+locally) URL:
 
 ```python
-# Create a localhost url
+# Create a localhost URL
 redirect_url = "http://127.0.0.1:5000/authorization"
 # Define a read-only scope
 request_scope = ["read_all", "profile:read_all", "activity:read_all"]
@@ -268,9 +268,9 @@ Now that you've created your Strava authentication URL, you're ready to use it t
 
 In this section, you'll use Python's `webbrowser.open` method to:
 
-1. Open the URL in a web browser directly from your Python code.
-2. Authenticate with Strava (log in and allow your app to access the developer app you created earlier).
-3. After authentication, Strava will redirect you to a "page not found" screen with a long URL. This might look like an error, but it's correct! The URL contains the code that you need to complete authentication.
+1. Open the URL directly from your Python code in a web browser.
+2. Authenticate with Strava (login and allow your app to access the developer app you created earlier).
+3. Strava will redirect you to a "page not found" screen with a long URL after authentication. This might look like an error, but it's correct! The URL contains the code that you need to complete authentication.
 
     The URL will look something like this:
     ```text
@@ -305,16 +305,16 @@ Next, you exchange the code for an access token. After this, you can refresh the
 
 In the example below, you'll exchange the code for a token using {py:func}`stravalib.client.Client.exchange_code_for_token()`. The token response contains both an access token (valid for 6 hours) and a refresh token, which you will use to get a new access token once the current one expires.
 
-You can save the token response using Python's `pickle` module so that you can reuse the refresh token later without going through the authentication process again.
+You can save the token response as a `.json` file so that you can reuse the refresh token later without going through the authentication process again.
 
 ```python
 token_response = client.exchange_code_for_token(
     client_id=client_id, client_secret=client_secret, code=code
 )
 
-# Save the token response locally
-with open(path_to_save, "wb") as f:
-    pickle.dump(token_response, f)
+# Save the token response as a JSON file
+with open(json_path, "w") as f:
+    json.dump(token_response, f)
 
 print("Token saved - hooray!")
 
@@ -331,17 +331,28 @@ more data after that 6-hour window has ended.
 You can refresh the token using the
 {py:func}`stravalib.client.Client.refresh_access_token()` method.
 
-Earlier, you saved the `refresh_token` and `expires_at` values to a pickle file. You can use the refresh token stored in the pickle file to refresh your token for another 6 hours of use as many times as needed.
+Earlier, you saved the `refresh_token` and `expires_at` values to a JSON file. You can use the refresh token stored in the JSON file to refresh your token for another 6 hours of use as many times as needed.
+
+This might be most useful if you try to process your data again--for example, the next day and you don't have the refresh token value stored and accessible to Python.
 
 ```python
-# Open the token object that you saved locally earlier
-with open(token_path_pickle, "rb") as f:
-    tokens = pickle.load(f)
+# Open the token JSON file that you saved earlier
+with open(json_path, "r") as f:
+    token_response_refresh = json.load(f)
 
+print(token_response_refresh)
+
+# Output:
+# {'access_token': 'ab0667a99d17b7c278d9f730f733ad09016306cf',
+# 'refresh_token':  '9f8d5689c93e83c7b0c69a8585010d4762e8b2ac',
+#  'expires_at': 1726560054}
+```
+
+```python
 refresh_response = client.refresh_access_token(
     client_id=client_id,  # Stored in the secrets.txt file above
     client_secret=client_secret,
-    refresh_token=refresh_token,  # Stored in your pickle file
+    refresh_token=refresh_token,  # Stored in your JSON file
 )
 
 # Check that the refresh worked
@@ -357,4 +368,4 @@ You now know how to:
 
 1. Setup an app within your Strava account
 2. Connect that app to your Python code using stravalib
-3. Request and refresh a token which allows you to request and update data in your Strava account
+3. Request and refresh a token that allows you to request and update data in your Strava account
