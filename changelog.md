@@ -5,10 +5,12 @@
 ### Added
 
 - Add: `get_athelete_zones` method on client (@enadeau, #508)
+- Add: tutorial on authenticating with Strava + stravalib  + update get-started & docs fixes (@lwasser, #317)
+
 
 ### Fixed
 
-- Some override moved from DetailedActivity to SummaryActivity (@enadeau, #570)
+- Some overrides moved from `DetailedActivity` to `SummaryActivity` (@enadeau, #570)
 - Ensures ActivityType instances can be compared to str (@jsamoocha, #583)
 
 ## v2.0.0
