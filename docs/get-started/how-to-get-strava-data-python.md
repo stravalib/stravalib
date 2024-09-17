@@ -111,7 +111,7 @@ The figures below are from the Strava setup link provided above. They show you:
 Figure from the Strava documentation showing the application settings. You can
 name your application whatever you wish. You can add any website URL if you are grabbing your data locally. For this tutorial, use `localhost` for the Authorization Callback
 Domain if you are only using this locally. Otherwise, you likely have a website
-URL that will enter here.
+URL that you will enter here.
 :::
 
 :::{figure-md} fig-target
