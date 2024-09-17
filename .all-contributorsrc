@@ -66,6 +66,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "djcunningham0",
+      "name": "Danny Cunningham",
+      "avatar_url": "https://avatars.githubusercontent.com/u/38900370?v=4",
+      "profile": "https://towardsdatascience.com/@djcunningham0",
+      "contributions": [
+        "doc",
+        "ideas"
+      ]
     }
   ]
 }
