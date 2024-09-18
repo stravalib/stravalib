@@ -76,7 +76,8 @@ docs = [
   "sphinx_design",
   "sphinxext-opengraph",
   # Needed for sphinx open graph
-  "matplotlib"
+  "matplotlib",
+  "sphinxcontrib-mermaid",
 ]
 lint = [
   "pre-commit",

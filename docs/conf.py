@@ -63,6 +63,7 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinxcontrib.mermaid",
 ]
 
 remove_from_toctrees = ["docs/reference/api/*"]
