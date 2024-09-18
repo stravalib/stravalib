@@ -39,6 +39,7 @@ The full inheritance pattern, which includes inheritance from both `strava_model
 :::{mermaid}
 
 classDiagram
+    direction BT
     %% Activities in model namespace
     `model.MetaActivity` --|> `model.BoundClientEntity`
     `model.SummaryActivity` --|> `model.MetaActivity`
@@ -70,6 +71,7 @@ credentials needed for authenticated API calls. This ensures that summary and de
 
 :::{mermaid}
 classDiagram
+    direction BT
     %% Activities
     MetaActivity --|> BoundClientEntity
     SummaryActivity --|> MetaActivity
