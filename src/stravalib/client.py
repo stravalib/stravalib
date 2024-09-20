@@ -1542,9 +1542,11 @@ class Client:
             Resource locator for the streams
         types : list[str], optional, default=None
             A list of the types of streams to fetch.
-        resolution : str, optional
+        resolution : str, optional, default=None
             Indicates desired number of data points. 'low' (100), 'medium'
-            (1000) or 'high' (10000).
+            (1000) or 'high' (10000). The default of `None` will return full
+            resolution data which in some cases (e.g. for long activities) will
+            return more points / full data resolution.
             .. deprecated::
                 This param is not officially supported by the Strava API and may be
                 removed in the future.

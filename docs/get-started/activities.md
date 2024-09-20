@@ -101,7 +101,7 @@ You can access each comment or item within a `BatchedResultsIterator` object usi
 Comment by: YourFriendsNameHere: Not the pool!
 ```
 
-## Get Activity streams information
+## Get Strava activity streams
 
 {py:func}`stravalib.client.Client.get_activity_streams` returns a dictionary containing time-series
 data associated with your activity.
@@ -133,14 +133,24 @@ if "altitude" in streams.keys():
 
 
 :::{tip}
-The resolution of the streaming data refers to the number of data points returned for your activity. Low resolution means fewer points; low-resolution data returns a smaller dataset; this data will be faster to download. Alternatively, high-resolution data will return a larger dataset and is slower to download. However, the output spatial data will look more "smooth" as there are more points.
+The resolution of the streaming data refers to the number of data points returned for your activity. Low resolution means fewer points. Low-resolution data returns a smaller dataset; this data will be faster to download. Alternatively, high-resolution data will return a larger dataset and is slower to download. However, the output spatial data will look more "smooth" as more points are associated with the activity path.
 :::
 
 :::{warning}
 Collecting streaming data is API (and memory) intensive!
 :::
 
-### Low resolution data request
+### Full-resolution data
+
+When accessing streaming data, if you don't set a resolution value it will default to `None`.
+In this case, Strava will return the full-resolution representation of your data.
+
+:::{warning}
+The `resolution` parameter for Strava data streams is undocumented and could (and has) changed
+at any time.
+:::
+
+### Low-resolution data request
 
 ```python
 # Request desired stream types
@@ -197,12 +207,12 @@ print(len(streams_high["latlng"].data))
 ```
 
 :::{note}
-If you have a short activity, the number of data points returned for medium vs. low-resolution data may not be significantly different.
+If your activity is short, the number of data points returned for medium vs. low-resolution data may not be significantly different.
 :::
 
 ### Access activity zones
 
-Additionally, you can retrieve activity zones using with {py:func}`stravalib.client.Client.get_activity_zones`; activity laps can be retrieved with {py:func}`stravalib.client.Client.get_activity_laps`.
+Additionally, you can retrieve activity zones using: {py:func}`stravalib.client.Client.get_activity_zones`; activity laps can be retrieved with {py:func}`stravalib.client.Client.get_activity_laps`.
 
 ### Access photos for an activity
 
