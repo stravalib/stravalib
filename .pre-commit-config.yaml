@@ -21,7 +21,7 @@ ci:
     autoupdate_schedule: quarterly
     autoupdate_branch: ""
 
-default_stages: [Nonepre-commitNone]
+default_stages: [commit]
 repos:
   # Misc commit checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
