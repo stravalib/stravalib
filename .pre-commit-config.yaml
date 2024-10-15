@@ -21,11 +21,11 @@ ci:
     autoupdate_schedule: quarterly
     autoupdate_branch: ""
 
-default_stages: [commit]
+default_stages: [pre-commit]
 repos:
   # Misc commit checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     # ref: https://github.com/pre-commit/pre-commit-hooks#hooks-available
     hooks:
       # Autoformat: Makes sure files end in a newline and only a newline.
@@ -37,14 +37,14 @@ repos:
 
   # Linting code using ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.0
+    rev: v0.6.9
     hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
 
   # Black for auto code formatting
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.10.0
     hooks:
       - id: black
         entry: bash -c 'black "$@"; git add -u' --
@@ -52,7 +52,7 @@ repos:
         args: ["--line-length=79"]
 
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: "1.18.0"
+    rev: "1.19.0"
     hooks:
       - id: blacken-docs
 
