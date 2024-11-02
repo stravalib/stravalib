@@ -1270,6 +1270,20 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     timezone: TimezoneType | None = None
     total_elevation_gain: DistanceType | None = None
 
+    # Undocumented attributes:
+    utc_offset: float | None = None
+    location_city: str | None = None
+    location_state: str | None = None
+    location_country: str | None = None
+    pr_count: int | None = None
+    suffer_score: int | None = None
+    has_heartrate: bool | None = None
+    average_heartrate: float | None = None
+    max_heartrate: int | None = None
+    average_cadence: float | None = None
+    from_accepted_tag: bool | None = None
+    visibility: str | None = None
+
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
@@ -1307,27 +1321,15 @@ class DetailedActivity(
 
     # Undocumented attributes:
     guid: str | None = None
-    utc_offset: float | None = None
-    location_city: str | None = None
-    location_state: str | None = None
-    location_country: str | None = None
     start_latitude: float | None = None
     start_longitude: float | None = None
-    pr_count: int | None = None
-    suffer_score: int | None = None
-    has_heartrate: bool | None = None
-    average_heartrate: float | None = None
-    max_heartrate: int | None = None
-    average_cadence: float | None = None
     average_temp: int | None = None
     instagram_primary_photo: str | None = None
     partner_logo_url: str | None = None
     partner_brand_tag: str | None = None
-    from_accepted_tag: bool | None = None
     segment_leaderboard_opt_out: bool | None = None
     perceived_exertion: int | None = None
     prefer_perceived_exertion: bool | None = None
-    visibility: str | None = None
     private_note: str | None = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
