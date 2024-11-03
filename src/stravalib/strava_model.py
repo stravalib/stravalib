@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from datetime import datetime
 from typing import Literal
 
-from pydantic import AwareDatetime, BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel
 
 
 class ActivityTotal(BaseModel):
@@ -624,11 +625,11 @@ class SummaryActivity(MetaActivity):
     Whether this activity is private
     """
     sport_type: SportType | None = None
-    start_date: AwareDatetime | None = None
+    start_date: datetime | None = None
     """
     The time at which the activity was started.
     """
-    start_date_local: AwareDatetime | None = None
+    start_date_local: datetime | None = None
     """
     The time at which the activity was started in the local timezone.
     """
@@ -680,7 +681,7 @@ class SummaryAthlete(MetaAthlete):
     """
     The athlete's country.
     """
-    created_at: AwareDatetime | None = None
+    created_at: datetime | None = None
     """
     The time at which the athlete was created.
     """
@@ -720,7 +721,7 @@ class SummaryAthlete(MetaAthlete):
     """
     Whether the athlete has any Summit subscription.
     """
-    updated_at: AwareDatetime | None = None
+    updated_at: datetime | None = None
     """
     The time at which the athlete was last updated.
     """
@@ -815,7 +816,7 @@ class SummaryPRSegmentEffort(BaseModel):
     """
     The unique identifier of the activity related to the PR effort.
     """
-    pr_date: AwareDatetime | None = None
+    pr_date: datetime | None = None
     """
     The time at which the PR effort was started.
     """
@@ -846,11 +847,11 @@ class SummarySegmentEffort(BaseModel):
     """
     Whether this effort is the current best on the leaderboard
     """
-    start_date: AwareDatetime | None = None
+    start_date: datetime | None = None
     """
     The time at which the effort was started.
     """
-    start_date_local: AwareDatetime | None = None
+    start_date_local: datetime | None = None
     """
     The time at which the effort was started in the local timezone.
     """
@@ -1068,7 +1069,7 @@ class ClubAnnouncement(BaseModel):
     """
     The unique identifier of the club this announcements was made in.
     """
-    created_at: AwareDatetime | None = None
+    created_at: datetime | None = None
     """
     The time at which this announcement was created.
     """
@@ -1088,7 +1089,7 @@ class Comment(BaseModel):
     The identifier of the activity this comment is related to
     """
     athlete: SummaryAthlete | None = None
-    created_at: AwareDatetime | None = None
+    created_at: datetime | None = None
     """
     The time at which this comment was created.
     """
@@ -1268,11 +1269,11 @@ class Lap(BaseModel):
     The athlete's pace zone during this lap
     """
     split: int | None = None
-    start_date: AwareDatetime | None = None
+    start_date: datetime | None = None
     """
     The time at which the lap was started.
     """
-    start_date_local: AwareDatetime | None = None
+    start_date_local: datetime | None = None
     """
     The time at which the lap was started in the local timezone.
     """
@@ -1381,7 +1382,7 @@ class DetailedSegment(SummarySegment):
     """
     The number of unique athletes who have an effort for this segment
     """
-    created_at: AwareDatetime | None = None
+    created_at: datetime | None = None
     """
     The time at which the segment was created.
     """
@@ -1402,7 +1403,7 @@ class DetailedSegment(SummarySegment):
     """
     The segment's total elevation gain.
     """
-    updated_at: AwareDatetime | None = None
+    updated_at: datetime | None = None
     """
     The time at which the segment was last updated.
     """
@@ -1471,7 +1472,7 @@ class ExplorerResponse(BaseModel):
 
 class Route(BaseModel):
     athlete: SummaryAthlete | None = None
-    created_at: AwareDatetime | None = None
+    created_at: datetime | None = None
     """
     The time at which the route was created
     """
@@ -1528,7 +1529,7 @@ class Route(BaseModel):
     """
     This route's type (1 for ride, 2 for runs)
     """
-    updated_at: AwareDatetime | None = None
+    updated_at: datetime | None = None
     """
     The time at which the route was last updated
     """
