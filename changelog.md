@@ -14,6 +14,7 @@
 
 - Some overrides moved from `DetailedActivity` to `SummaryActivity` (@enadeau, #570)
 - Ensures ActivityType instances can be compared to str (@jsamoocha, #583)
+- Moves several undocumented attributes from `DetailedActivity` to `SummaryActivity` (@jsamoocha, #594)
 
 ## v2.0.0
 
