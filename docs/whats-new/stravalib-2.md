@@ -66,7 +66,7 @@ using `activity.distance.quantity`.
 This behavior differs from Stravalib V1, where `activity.distance` would
 immediately return a Quantity-like object.
 Detailed documentation about these new custom types can be
-[found here.](/reference/model#custom-types)
+[found here.](custom-types-anchor)
 
 ## Other
 
