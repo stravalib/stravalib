@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-- Add: update activities doc page and migrate to myst (@lwasser)
+## v2.1.0
 
 ### Added
 
+- Add: update activities doc page and migrate to myst (@lwasser)
 - Add: `get_athelete_zones` method on client (@enadeau, #508)
 - Add: tutorial on authenticating with Strava + stravalib  + update get-started & docs fixes (@lwasser, #317)
 
@@ -15,6 +16,10 @@
 - Some overrides moved from `DetailedActivity` to `SummaryActivity` (@enadeau, #570)
 - Ensures ActivityType instances can be compared to str (@jsamoocha, #583)
 - Moves several undocumented attributes from `DetailedActivity` to `SummaryActivity` (@jsamoocha, #594)
+
+### Contributors to this release
+
+@jsamoocha, @lwasser, @enadeau
 
 ## v2.0.0
 
