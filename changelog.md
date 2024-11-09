@@ -6,20 +6,33 @@
 
 ### Added
 
-- Add: update activities doc page and migrate to myst (@lwasser)
-- Add: `get_athelete_zones` method on client (@enadeau, #508)
-- Add: tutorial on authenticating with Strava + stravalib  + update get-started & docs fixes (@lwasser, #317)
-
+- Add: update activities doc page and migrate to myst (@lwasser, #508)
+- Add: `get_athlete_zones` method on client (@enadeau, #508)
+- Add: tutorial on authenticating with Strava + stravalib + update get-started & docs fixes (@lwasser, #317)
+- Add: inheritance diagrams & explain overrides (@lwasser, #531)
+- Add: update examples to stravalib 2.x (@lwasser, #581)
+- Add: rename RST files to MD (@lwasser, #589)
 
 ### Fixed
 
-- Some overrides moved from `DetailedActivity` to `SummaryActivity` (@enadeau, #570)
-- Ensures ActivityType instances can be compared to str (@jsamoocha, #583)
-- Moves several undocumented attributes from `DetailedActivity` to `SummaryActivity` (@jsamoocha, #594)
+- Fix: some overrides moved from `DetailedActivity` to `SummaryActivity` (@enadeau, #570)
+- Fix: ensures `ActivityType` instances can be compared to str (@jsamoocha, #583)
+- Fix: moved several undocumented attributes from `DetailedActivity` to `SummaryActivity` (@jsamoocha, #594)
+- Fix: broken link (@lwasser, #597)
+- Fix: do not create PDF files in CI (@lwasser, #563)
+- Fix: banner URL to relative path (@lwasser, #565)
+- Fix: missing comma in all-contributors JSON config (@lwasser, #573)
+- Fix: tiny update to streaming data documentation (@lwasser, #588)
+- Fix: summary activity undocumented attributes (@jsamoocha, #595)
+- Fix: update pre-commit configuration (@lwasser, #591)
+
+### Changed
+
+- Change: Strava API update (@github-actions, #592)
 
 ### Contributors to this release
-
-@jsamoocha, @lwasser, @enadeau
+@yotam5 made their first contribution to stravalib! 
+@jsamoocha, @lwasser, @enadeau, @yotam5
 
 ## v2.0.0
 
