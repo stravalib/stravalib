@@ -1427,7 +1427,7 @@ class Client:
         params: dict[str, Any] = {"segment_id": segment_id}
 
         if athlete_id is not None:
-            warn_param_unsupported(athlete_id)
+            warn_param_unsupported("athlete_id")
             params["athlete_id"] = athlete_id
 
         if start_date_local:
@@ -1445,7 +1445,7 @@ class Client:
             )
 
         if limit is not None:
-            warn_param_deprecation(limit, "date ranges")
+            warn_param_deprecation("limit", "date ranges")
             params["limit"] = limit
 
         result_fetcher = functools.partial(

@@ -894,12 +894,12 @@ def test_get_segment_effort(mock_strava_api, client):
         (
             {"segment_id": 2345, "athlete_id": 12345},
             DeprecationWarning,
-            "The '{athlete_id}' parameter is unsupported",
+            "The athlete_id parameter is unsupported",
         ),
         (
             {"segment_id": 2345, "limit": 10},
             DeprecationWarning,
-            "The '{limit}' parameter is deprecated",
+            "The limit parameter is deprecated",
         ),
     ],
 )
@@ -910,7 +910,9 @@ def test_get_segment_efforts_warnings(
     warning."""
 
     mock_strava_api.get(
-        "/segment_efforts", match=[matchers.query_param_matcher(params)]
+        "/segment_efforts",
+        n_results=4,
+        match=[matchers.query_param_matcher(params)],
     )
 
     with pytest.warns(warning_type, match=warning_message):
