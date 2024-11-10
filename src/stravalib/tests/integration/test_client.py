@@ -899,7 +899,7 @@ def test_get_segment_effort(mock_strava_api, client):
         (
             {"segment_id": 2345, "limit": 10},
             DeprecationWarning,
-            "The 'segment_id' parameter is deprecated and will be removed in a future release.",
+            "The '{limit}' parameter is deprecated",
         ),
     ],
 )
@@ -907,14 +907,11 @@ def test_get_segment_efforts_warnings(
     params, warning_type, warning_message, mock_strava_api, client
 ):
 
-    # Prepare the url
-    base_url = "/segment_efforts"
     mock_strava_api.get(
-        base_url,
-        response_update={"id": 1234},
+        "/segment_efforts", match=[matchers.query_param_matcher(params)]
     )
-
     a = client.get_segment_efforts(**params)
+    # This returns a batch iterator so next(a) is how we'd get data
 
     # Call the method with deprecated parameter and check for warnings
     with pytest.warns(warning_type):
