@@ -906,15 +906,14 @@ def test_get_segment_effort(mock_strava_api, client):
 def test_get_segment_efforts_warnings(
     params, warning_type, warning_message, mock_strava_api, client
 ):
+    """Test that if provided with deprecated params, the user receives a
+    warning."""
 
     mock_strava_api.get(
         "/segment_efforts", match=[matchers.query_param_matcher(params)]
     )
-    a = client.get_segment_efforts(**params)
-    # This returns a batch iterator so next(a) is how we'd get data
 
-    # Call the method with deprecated parameter and check for warnings
-    with pytest.warns(warning_type):
+    with pytest.warns(warning_type, match=warning_message):
         client.get_segment_efforts(**params)
 
 
