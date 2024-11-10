@@ -8,7 +8,10 @@ import responses
 from responses import matchers
 
 from stravalib.client import ActivityUploader
-from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
+from stravalib.exc import (
+    AccessUnauthorized,
+    ActivityPhotoUploadFailed,
+)
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
 from stravalib.tests import RESOURCES_DIR
@@ -883,6 +886,39 @@ def test_get_segment_effort(mock_strava_api, client):
     )
     effort = client.get_segment_effort(42)
     assert effort.max_heartrate == 170
+
+
+@pytest.mark.parametrize(
+    "params, warning_type, warning_message",
+    [
+        (
+            {"segment_id": 2345, "athlete_id": 12345},
+            DeprecationWarning,
+            "The '{athlete_id}' parameter is unsupported",
+        ),
+        (
+            {"segment_id": 2345, "limit": 10},
+            DeprecationWarning,
+            "The 'segment_id' parameter is deprecated and will be removed in a future release.",
+        ),
+    ],
+)
+def test_get_segment_efforts_warnings(
+    params, warning_type, warning_message, mock_strava_api, client
+):
+
+    # Prepare the url
+    base_url = "/segment_efforts"
+    mock_strava_api.get(
+        base_url,
+        response_update={"id": 1234},
+    )
+
+    a = client.get_segment_efforts(**params)
+
+    # Call the method with deprecated parameter and check for warnings
+    with pytest.warns(warning_type):
+        client.get_segment_efforts(**params)
 
 
 def test_get_activities_paged(mock_strava_api, client):

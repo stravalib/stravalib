@@ -1250,8 +1250,6 @@ class Client:
     def get_segment_effort(self, effort_id: int) -> model.SegmentEffort:
         """Return a specific segment effort by ID.
 
-        https://developers.strava.com/docs/reference/#api-SegmentEfforts
-
         Parameters
         ----------
         effort_id : int
@@ -1261,6 +1259,10 @@ class Client:
         -------
         class:`stravalib.model.SegmentEffort`
             The specified effort on a segment.
+
+        Notes
+        ------
+        https://developers.strava.com/docs/reference/#api-SegmentEfforts
 
         """
         return model.SegmentEffort.model_validate(
@@ -1358,6 +1360,7 @@ class Client:
             limit=limit,
         )
 
+    # Next TODO: add tests to deprecated items
     def get_segment_efforts(
         self,
         segment_id: int,
@@ -1369,49 +1372,62 @@ class Client:
         """Gets all efforts on a particular segment sorted by start_date_local
 
         Returns an array of segment effort summary representations sorted by
-        start_date_local ascending or by elapsed_time if an athlete_id is
+        `start_date_local` ascending or by elapsed_time if an athlete_id is
         provided.
 
-        If no filtering parameters is provided all efforts for the segment
+        NOTES:
+        * The `athlete_id` sorting only works if you do NOT provide start and end dates.
+        * If no date filtering parameters are provided, all efforts for the segment
         will be returned.
 
         Date range filtering is accomplished using an inclusive start and end
-        time, thus start_date_local and end_date_local must be sent together.
+        time. `start_date_local` and `end_date_local` must be sent together.
         For open ended ranges pick dates significantly in the past or future.
         The filtering is done over local time for the segment, so there is no
-        need for timezone conversion. For example, all efforts on Jan. 1st, 2014
+        need for timezone conversion. For example, all efforts on Jan. 1st, 2024
         for a segment in San Francisco, CA can be fetched using
-        2014-01-01T00:00:00Z and 2014-01-01T23:59:59Z.
+        `2024-01-01T00:00:00Z` and `2024-01-01T23:59:59Z`.
 
-        https://developers.strava.com/docs/reference/#api-SegmentEfforts-getEffortsBySegmentId
+        This endpoint requires a Strava subscription.
 
         Parameters
         ----------
         segment_id : int
             ID for the segment of interest
-        athlete_id: int, optional
-            ID of athlete.
-        start_date_local : datetime.datetime or str, optional, default=None
+        start_date_local : `datetime.datetime` or `str`, optional, default=None
             Efforts before this date will be excluded.
             Either as ISO8601 or datetime object
-        end_date_local : datetime.datetime or str, optional, default=None
+        end_date_local : `datetime.datetime` or str, optional, default=None
             Efforts after this date will be excluded.
             Either as ISO8601 or datetime object
         limit : int, default=None, optional
             limit number of efforts.
+            This parameter has been removed by Strava and will be removed in
+            stravalib in the near future.
+            .. deprecated::
+                This param is not supported by the Strava API and may be
+                removed in the future.
         athlete_id : int, default=None
-            Strava ID for the athlete
-
+            Strava ID for the athlete. Used to sort efforts by duration.
+            Can only be used if start and end date are not provided.
+            .. deprecated::
+                This param is not supported by the Strava API and may be
+                removed in the future.
         Returns
         -------
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.SegmentEffort` efforts on
             a segment.
 
+        Notes
+        ------
+        https://developers.strava.com/docs/reference/#api-SegmentEfforts-getEffortsBySegmentId
+
         """
         params: dict[str, Any] = {"segment_id": segment_id}
 
         if athlete_id is not None:
+            warn_param_unsupported(athlete_id)
             params["athlete_id"] = athlete_id
 
         if start_date_local:
@@ -1429,10 +1445,13 @@ class Client:
             )
 
         if limit is not None:
+            warn_param_deprecation(limit, "date ranges")
             params["limit"] = limit
 
         result_fetcher = functools.partial(
-            self.protocol.get, "/segments/{segment_id}/all_efforts", **params
+            self.protocol.get,
+            "/segment_efforts",
+            **params,
         )
 
         return BatchedResultsIterator(
