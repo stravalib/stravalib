@@ -5,26 +5,49 @@ from glob import glob
 
 import nox
 
-nox.options.reuse_existing_virtualenvs = True
+nox.options.reuse_existing_virtualenvs = False
 
+# Sphinx output and source directories
+BUILD_DIR = "_build"
+OUTPUT_DIR = pathlib.Path(BUILD_DIR, "html")
+SOURCE_DIR = pathlib.Path("docs")
 
-# Use this for venv envs nox -s test
-@nox.session(python=["3.10", "3.11", "3.12"])
-def tests(session):
-    """Install requirements in a venv and run tests."""
-    session.install(".[tests]")
-    session.run(
-        "pytest",
-        "--cov=src/stravalib",
-        "--cov-report=xml:coverage.xml",
-        "--cov-report=term",
-        "src/stravalib/tests/unit/",
-        "src/stravalib/tests/integration/",
-    )
+# Sphinx build commands
+SPHINX_BUILD = "sphinx-build"
+SPHINX_AUTO_BUILD = "sphinx-autobuild"
 
+# Sphinx parameters used to build the guide
+BUILD_PARAMETERS = ["-b", "html"]
+
+# Sphinx parameters used to test the build of the guide
+TEST_PARAMETERS = ["-W", "--keep-going", "-E", "-a"]
+
+# Sphinx-autobuild ignore and include parameters
+AUTOBUILD_IGNORE = [
+    "_build",
+    ".nox",
+    "build_assets",
+    "tmp",
+]
+AUTOBUILD_INCLUDE = [pathlib.Path("_static", "pyos.css")]
 
 # Build docs
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
+
+
+@nox.session(name="docs-test", python="3.11")
+def docs_test(session):
+    """A session that builds the docs statically and returns any errors that
+    it finds."""
+    session.install(".[docs]")
+    session.run(
+        SPHINX_BUILD,
+        *BUILD_PARAMETERS,
+        *TEST_PARAMETERS,
+        SOURCE_DIR,
+        OUTPUT_DIR,
+        *session.posargs,
+    )
 
 
 @nox.session(name="docs", python="3.11")
@@ -50,6 +73,24 @@ def docs_live(session):
         cmd.extend(["--ignore", f"*/{folder}/*"])
     cmd.extend(build_command + session.posargs)
     session.run(*cmd)
+
+
+####### RUN TESTS ########
+
+
+# Use this for venv envs nox -s test
+@nox.session(python=["3.10", "3.11", "3.12"])
+def tests(session):
+    """Install requirements in a venv and run tests."""
+    session.install(".[tests]")
+    session.run(
+        "pytest",
+        "--cov=src/stravalib",
+        "--cov-report=xml:coverage.xml",
+        "--cov-report=term",
+        "src/stravalib/tests/unit/",
+        "src/stravalib/tests/integration/",
+    )
 
 
 # Use this for venv envs nox -s mypy

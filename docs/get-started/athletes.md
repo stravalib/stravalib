@@ -1,7 +1,7 @@
 (athletes)=
 # Athletes
 
-This page is designed to mirror the structure of the documentation at [Strava API Athletes](https://developers.strava.com/docs/reference/#api-Athletes) and describe the methods for working with athlete data in the Strava API.
+This page is designed to mirror the documentation structure at [Strava API Athletes](https://developers.strava.com/docs/reference/#api-Athletes) and describe the methods for working with athlete data in the Strava API.
 
 ## Retrieve Current Athlete
 

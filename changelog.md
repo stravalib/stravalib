@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Add: Add more information about how our mock fixture works (@lwasser, #292)
+
+### Fixed 
+
 - Fix: Update segment_efforts api and return warnings (@lwasser, #321)
 
 ## v2.1.0
