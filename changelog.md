@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: Update segment_efforts api and return warnings (@lwasser, #321)
+
 ## v2.1.0
 
 ### Added
@@ -31,7 +33,7 @@
 - Change: Strava API update (@github-actions, #592)
 
 ### Contributors to this release
-@yotam5 made their first contribution to stravalib! 
+@yotam5 made their first contribution to stravalib!
 @jsamoocha, @lwasser, @enadeau, @yotam5
 
 ## v2.0.0
