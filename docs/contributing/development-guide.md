@@ -256,64 +256,8 @@ docstrings must be formatted manually. To play nicely with Jupyter and IPython, 
 ## About the stravalib test suite
 
 Stravalib has a set of unit and integration tests that can be run locally and that
-also run in our CI infrastructure (using GitHub Actions). To avoid direct API calls
-when running our test suite, we have a mock fixture and and infrastructure setup that
-is explained below.
-
-### Running integration tests using the stravalib mock fixture
-
-To run integration tests that ensure stravalib is interacting with API data correctly, Stravalib uses a mock object access through a
-`pytest` fixture {py:class}`stravalib.tests.integration.strava_api_stub.StravaAPIMock`
-that is based on `responses.RequestsMock`.
-
-This fixture adds a pass-through mock that prevents requests from being made to the Strava API.
-Instead, it creates responses using the endpoint provided and the `swagger.json` file that is found both online and within the `stravalib/src/stravalib/tests/resources/` directory that are based on examples from the published Strava API
-documentation.
-
-:::{tip}
-Example usages of this fixture can be found in the
-{py:mod}`stravalib.tests.integration.test_client` module.
-:::
-
-### How the mock fixture works
-
-The `stravalib` test suite is supported by the
-{py:class}`stravalib.tests.integration.strava_api_stub.StravaAPIMock` mock
-API object, which is used in most client GET method tests through a `pytest`
-fixture.
-
-The Strava API mock object:
-
-1. **Matches Endpoints**: Attempts to match the endpoint being tested with
-   a corresponding path in `swagger.json`, using either an online or local
-   copy. This mock expects a relative URL that aligns with a path in the
-   `swagger.json` file (e.g., `/activities/{Id}`) and includes the
-   appropriate HTTP method and status code.
-
-2. **Provides Example Responses**: Retrieves the example JSON response
-   associated with the matched endpoint in `swagger.json` and uses it as
-   the mock response body. The example response can be customized by
-   using the `response_update` parameter, which accepts a dictionary of
-   values to override fields in the default response. If the response is a
-   JSON array, the `n_results` argument can specify how many objects to
-   return.
-
-If the object can find an endpoint match, it then returns the example JSON response
-(or the updated response if you use the update parameter) to use in the test.
-
-:::{tip}
-The `swagger.json` file is an API specification document describing the
-available endpoints in the Strava API, including methods, parameters, and
-expected responses for each endpoint. It defines the API structure in JSON
-format and includes example responses for testing. This file is used in
-`stravalib`'s tests to mock API interactions and validate the expected
-structure and content of responses.
-
-The mock API object checks if `swagger.json` is accessible online; if not,
-it uses a local version located in the `tests/resources` directory within
-`stravalib`.
-:::
-
+also run in our CI infrastructure using GitHub Actions. To avoid direct API calls which require authentication,
+when running our test suite, we have a mock fixture and and infrastructure setup.
 
 ### Unit and integration test suite
 
@@ -347,6 +291,7 @@ For example, the command below runs our tests on Python 3.10 only.
 ```bash
 nox -s tests-3.10
 ```
+
 
 ### Test code coverage
 
@@ -400,6 +345,114 @@ The actual code coverage report is
 uploaded on the GitHub action run on `ubuntu` and `Python 3.9`. When that step in the
 actions completes, the report will be processed and returned to the pull request.
 ```
+
+
+## Tests & the stravalib mock fixture
+
+To run integration tests that ensure stravalib is interacting with API data correctly, Stravalib uses a mock object access through a
+`pytest` fixture {py:class}`stravalib.tests.integration.strava_api_stub.StravaAPIMock`
+that is based on `responses.RequestsMock`.
+
+This fixture adds a pass-through mock that prevents requests from being made to the Strava API.
+Instead, it creates responses using the endpoint provided and the `swagger.json` file that is found both online and within the `stravalib/src/stravalib/tests/resources/` directory that are based on examples from the published Strava API
+documentation.
+
+:::{tip}
+Example usages of this fixture can be found in the
+{py:mod}`stravalib.tests.integration.test_client` module.
+:::
+
+### How the mock fixture works
+
+The `stravalib` test suite is supported by the
+{py:class}`stravalib.tests.integration.strava_api_stub.StravaAPIMock` mock
+API object, which is used in most client GET method tests through a `pytest`
+fixture.
+
+The Strava API mock object:
+
+1. **Matches Endpoints**: Attempts to match the endpoint being tested with
+   a corresponding path in `swagger.json`, using either an online or local
+   copy. This mock expects a relative URL that aligns with a path in the
+   `swagger.json` file (e.g., `/activities/{Id}`) and includes the
+   appropriate HTTP method and status code.
+
+2. **Provides Example Responses**: Retrieves the example JSON response
+   associated with the matched endpoint in `swagger.json` and uses it as
+   the mock response body. The example response can be customized by
+   using the `response_update` parameter, which accepts a dictionary of
+   values to override fields in the default response. If the response is a
+   JSON array, the `n_results` argument can specify how many objects to
+   return.
+
+If the object can find an endpoint match, it then returns the example JSON response
+(or the updated response if you use the update parameter) to use in the test.
+
+:::{tip}
+The `swagger.json` file is an API specification document describing the
+available endpoints in the Strava API, including methods, parameters, and
+expected responses for each endpoint. It defines the API structure in JSON
+format and includes example responses for testing. This file is used in
+`stravalib`'s tests to mock API interactions and validate the expected
+structure and content of responses.
+
+The mock API object checks if `swagger.json` is accessible online; if not,
+it uses a local version located in the `tests/resources` directory within
+`stravalib`.
+:::
+
+### Mock fixture features
+
+To call the mock fixture in a test, you
+
+1. Create a new test and add the `mock_strava_api` fixture as an input to the test function.
+
+The test below will try to access the `/athlete/activities`
+Strava endpoint which returns an athlete's activities.
+Here, the fixture will bypass trying to access the real online API. And instead, will find the `/athlete/activities`
+endpoint in the Strava online or local `swagger.json` file.
+
+When you call `client.get_activities()`, the endpoint will return the sample data provided in the `swagger.json` file.
+
+```python
+def test_example(mock_strava_api, client):
+    """An example test"""
+
+    mock_strava_api.get("/athlete/activities")
+    activity_list = list(client.get_activities())
+    assert len(activity_list) == 4
+```
+
+The mock fixture object provides parameters that allow you to modify a test.
+
+Sometimes you may want to update the default example return data in the swagger.json file. This might happen if you want to intentionally "break" a test to ensure that the client call responds appropriately.
+
+To modify the returned sample data use the `response_update`
+parameter. Below you update the response id key to be another value.
+
+```python
+def test_example_test(mock_strava_api, client):
+    """An example test"""
+    mock_strava_api.get(
+        "/athlete/activities",
+        response_update={"id": 12345},
+    )
+    activity_list = list(client.get_activities())
+```
+
+You can also specify the number of results that you'd like to see in the mock output using the `n_results` parameters.
+
+```python
+def test_example_test(mock_strava_api, client):
+    """An example test"""
+    mock_strava_api.get(
+        "/athlete/activities",
+        response_update={"id": 12345},
+        n_results=4,
+    )
+    activity_list = list(client.get_activities())
+```
+
 
 ## Documentation
 
