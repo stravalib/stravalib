@@ -134,8 +134,10 @@ linkcheck_ignore = [r"https://www.instagram.com/accounts/login/"]
 html_static_path = ["_static"]
 
 
-# Example configuration for intersphinx: refer to the Python standard library.
-# intersphinx_mapping = {'http://docs.python.org/': None}
+# Intersphinx configuration
+intersphinx_mapping = {
+    "Python": ("http://docs.python.org/", None),
+}
 
 # Default to using the order defined in source.
 autodoc_default_options = {
@@ -144,6 +146,7 @@ autodoc_default_options = {
     "undoc-members": True,
     "inherited-members": True,
 }
+
 
 # Here we globally customize what methods and attrs are included in the docs.
 # there is no good way to do this (that I can find) for an entire inherited
