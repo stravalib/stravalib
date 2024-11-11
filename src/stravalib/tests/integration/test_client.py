@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import warnings
 from unittest import mock
 
 import pytest
@@ -16,6 +17,8 @@ from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unit_helper import miles
+
+warnings.simplefilter("always")
 
 
 @pytest.fixture
@@ -894,12 +897,12 @@ def test_get_segment_effort(mock_strava_api, client):
         (
             {"segment_id": 2345, "athlete_id": 12345},
             DeprecationWarning,
-            "The athlete_id parameter is unsupported",
+            'The "athlete_id" parameter is unsupported',
         ),
         (
             {"segment_id": 2345, "limit": 10},
             DeprecationWarning,
-            "The limit parameter is deprecated",
+            'The "limit" parameter is deprecated',
         ),
     ],
 )
@@ -909,14 +912,26 @@ def test_get_segment_efforts_warnings(
     """Test that if provided with deprecated params, the user receives a
     warning."""
 
-    mock_strava_api.get(
-        "/segment_efforts",
-        n_results=4,
-        match=[matchers.query_param_matcher(params)],
-    )
+    mock_strava_api.get("/segment_efforts", n_results=4)
 
     with pytest.warns(warning_type, match=warning_message):
         client.get_segment_efforts(**params)
+
+
+def test_get_segment_efforts(client, mock_strava_api):
+    """Test that endpoint returns data as expected."""
+    mock_strava_api.get("/segment_efforts", n_results=4)
+
+    efforts = client.get_segment_efforts(
+        {"segment_id": 2345, "athlete_id": 12345}
+    )
+
+    for index, effort in enumerate(efforts):
+        if index == 0:
+            name = effort.name
+
+    assert index + 1 == 4
+    assert name == "Alpe d'Huez"
 
 
 def test_get_activities_paged(mock_strava_api, client):
