@@ -912,19 +912,22 @@ def test_get_segment_efforts_warnings(
     """Test that if provided with deprecated params, the user receives a
     warning."""
 
-    mock_strava_api.get("/segment_efforts", n_results=4)
+    mock_strava_api.get(
+        "/segment_efforts",
+        response_update={"name": "Best Run Ever"},
+        n_results=1,
+    )
 
     with pytest.warns(warning_type, match=warning_message):
-        client.get_segment_efforts(**params)
+        a = client.get_segment_efforts(**params)
+        next(a)
 
 
 def test_get_segment_efforts(client, mock_strava_api):
     """Test that endpoint returns data as expected."""
     mock_strava_api.get("/segment_efforts", n_results=4)
 
-    efforts = client.get_segment_efforts(
-        {"segment_id": 2345, "athlete_id": 12345}
-    )
+    efforts = client.get_segment_efforts(segment_id=2345, athlete_id=12345)
 
     for index, effort in enumerate(efforts):
         if index == 0:
