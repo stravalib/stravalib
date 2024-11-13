@@ -179,8 +179,8 @@ class Client:
         client_id: int,
         client_secret: str,
         code: str,
-        return_athlete=False,
-    ) -> AccessInfo:
+        return_athlete: bool = False,
+    ) -> AccessInfo | tuple[AccessInfo, model.SummaryAthlete]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).

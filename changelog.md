@@ -2,7 +2,12 @@
 
 ## Unreleased
 
-- Fix: Update segment_efforts api and return warnings (@lwasser, #321)
+### Fixed
+- Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
+
+### Added
+
+- Add: `SummaryAthlete` return to exchange_code_for_token (@lwasser, #552)
 
 ## v2.1.0
 
