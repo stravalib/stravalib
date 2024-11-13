@@ -175,7 +175,11 @@ class Client:
         )
 
     def exchange_code_for_token(
-        self, client_id: int, client_secret: str, code: str
+        self,
+        client_id: int,
+        client_secret: str,
+        code: str,
+        return_athlete=False,
     ) -> AccessInfo:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
@@ -189,6 +193,10 @@ class Client:
             The developer client secret
         code : str
             The temporary authorization code
+        return_athlete : bool (default = False)
+            Whether to return a SummaryAthlete object (or not)
+            This parameter is currently undocumented and could change
+            at any time.
 
         Returns
         -------
@@ -196,9 +204,22 @@ class Client:
             Dictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided access
             token will expire)
+        tuple
+            Contains:
+             - the access token dict
+             - a `SummaryAthlete` object representing the authenticated user.
+
+        Notes
+        -----
+        Strava by default returns SummaryAthlete information during
+        this exchange. However this return is currently undocumented
+        and could change at any time.
         """
         return self.protocol.exchange_code_for_token(
-            client_id=client_id, client_secret=client_secret, code=code
+            client_id=client_id,
+            client_secret=client_secret,
+            code=code,
+            return_athlete=return_athlete,
         )
 
     def refresh_access_token(

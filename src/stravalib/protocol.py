@@ -15,6 +15,7 @@ from urllib.parse import urlencode, urljoin, urlunsplit
 import requests
 
 from stravalib import exc
+from stravalib.model import SummaryAthlete
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -162,7 +163,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
 
     def exchange_code_for_token(
-        self, client_id: int, client_secret: str, code: str
+        self,
+        client_id: int,
+        client_secret: str,
+        code: str,
+        return_athlete: bool | None = False,
     ) -> AccessInfo:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
@@ -176,6 +181,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             The developer client secret
         code : str
             The temporary authorization code
+        return_athlete : bool (optional, default=False)
+            Whether to return the `SummaryAthlete` object with the token
+            response. This behavior is currently undocumented and could
+            change at any time. Default is `False`.
 
         Returns
         -------
@@ -200,7 +209,12 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
-        return access_info
+
+        if return_athlete:
+            athlete_info = SummaryAthlete.model_validate(response["athlete"])
+            return access_info, athlete_info
+        else:
+            return access_info
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
