@@ -342,7 +342,7 @@ all of the GitHub action checks have run.
 
 ```{note}
 The actual code coverage report is
-uploaded on the GitHub action run on `ubuntu` and `Python 3.9`. When that step in the
+uploaded on the GitHub action run on `ubuntu` and `Python 3.11`. When that step in the
 actions completes, the report will be processed and returned to the pull request.
 ```
 
@@ -350,7 +350,7 @@ actions completes, the report will be processed and returned to the pull request
 ## Tests & the stravalib mock fixture
 
 To run integration tests that ensure stravalib is interacting with API data correctly, Stravalib uses a mock object access through a
-`pytest` fixture {py:class}`stravalib.tests.integration.strava_api_stub.StravaAPIMock`
+`pytest` fixture `stravalib.tests.integration.strava_api_stub.StravaAPIMock`
 that is based on `responses.RequestsMock`.
 
 This fixture adds a pass-through mock that prevents requests from being made to the Strava API.
@@ -360,6 +360,21 @@ documentation.
 :::{tip}
 Example usages of this fixture can be found in the
 {py:mod}`stravalib.tests.integration.test_client` module.
+:::
+
+:::{mermaid}
+
+flowchart TD
+    B["conftest.py"] -- Defines fixture --> C["mock_strava_api fixture"]
+    C -- Calls --> D["StravaAPIMock from strava_api_stub.py module"]
+    D -- Inherits from --> E["requests_mock"]
+    D -- Adds API Call passthru and returns data using: --> G["swagger.json <br>(local or online)"]
+    D -- Calls --> H["_api_method_adapter"]
+    A["fab:fa-strava Stravalib Test Suite"] --> B
+    style C color:#FFFFFF, stroke:#00C853, fill:#AA00FF
+    style G color:#FFFFFF, fill:#d35400, stroke:#AA00FF
+    style H color:#FFFFFF, stroke:#00C853, fill:#00C853
+    style A color:#FFFFFF, fill:#d35400, stroke:#AA00FF
 :::
 
 ### How the mock fixture works
@@ -412,7 +427,7 @@ Strava endpoint which returns an athlete's activities.
 Here, the fixture will bypass trying to access the real online API. And instead, will find the `/athlete/activities`
 endpoint in the Strava online or local `swagger.json` file.
 
-When you call `client.get_activities()`, the endpoint will return the sample data provided in the `swagger.json` file.
+When you call {py:func}`stravalib.client.Client.get_activities()`, the endpoint will return the sample data provided in the `swagger.json` file.
 
 ```python
 def test_example(mock_strava_api, client):
@@ -453,6 +468,11 @@ def test_example_test(mock_strava_api, client):
     activity_list = list(client.get_activities())
 ```
 
+:::{tip}
+Stravalib uses lazily loaded entities when returning results from
+endpoint such as activities that may include multiple response objects in the return. As such, a mocked call to {py:func}`stravalib.client.Client.get_activities` will not actually initiative a get response
+until you try to access the first object returned in the {py:class}`stravalib.client.BatchedResultsIterator` object.
+:::
 
 ## Documentation
 
@@ -530,6 +550,7 @@ function/class/module listed there.
 You can reference classes, functions, and modules from anywhere (including docstrings)
 using
 * <code>{py:func}\`package.module.function\`</code>,
+* <code>{py:func}\`package.module.Class.method\`</code>,
 * <code>{py:class}\`package.module.class\`</code>, or
 * <code>{py:mod}\`package.module\`</code>.
 

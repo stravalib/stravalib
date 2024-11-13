@@ -58,7 +58,7 @@ def _api_method_adapter(api_method: Callable) -> Callable:
         Parameters
         ----------
         response_update:
-            Dict that will be used to update any JSON object defined as
+            Dict used to update any JSON object defined as
             an example response in the API's swagger.json
         n_results:
             The number of example objects to be returned by the mock
