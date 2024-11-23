@@ -41,15 +41,15 @@ def test_exchange_code_for_token_athlete(
     api_instance = ApiV3()
     mock_request.return_value = mock_token_exchange_response
 
-    result = api_instance.exchange_code_for_token(
+    exchange_response, athlete = api_instance.exchange_code_for_token(
         client_id=123,
         client_secret="secret",
         code="auth_code",
         return_athlete=True,
     )
 
-    # If athlete info is requested, return should be a tuple of 2 items
-    assert len(result) == 2
+    assert exchange_response["access_token"] == "mock_access_token"
+    assert athlete["id"] == 12345
 
 
 @patch("stravalib.protocol.ApiV3._request")
