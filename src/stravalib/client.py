@@ -22,6 +22,7 @@ from typing import (
     Literal,
     NoReturn,
     Protocol,
+    Tuple,
     TypeVar,
     cast,
 )
@@ -182,7 +183,7 @@ class Client:
         client_secret: str,
         code: str,
         return_athlete: bool = False,
-    ) -> AccessInfo | tuple[AccessInfo, model.SummaryAthlete]:
+    ) -> AccessInfo | Tuple[AccessInfo, SummaryAthlete]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -202,13 +203,13 @@ class Client:
 
         Returns
         -------
-        dict
-            Dictionary containing the access_token, refresh_token and
+        AccessInfo
+            TypedDictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided access
             token will expire)
         tuple
             Contains:
-             - the access token dict
+             - the AccessInfo typed dict containing token values
              - a `SummaryAthlete` object representing the authenticated user.
 
         Notes
@@ -223,22 +224,26 @@ class Client:
             code=code,
             return_athlete=return_athlete,
         )
+        if len(raw) == 2:
+            access_info, athlete_data = cast(
+                Tuple[AccessInfo, dict[str, Any]], raw
+            )
         if return_athlete:
             try:
-                athlete_info = SummaryAthlete.model_validate(raw[1])
-                return AccessInfo, athlete_info
+                athlete_info = SummaryAthlete.model_validate(athlete_data)
+                return access_info, athlete_info
             except ValidationError as ve:
                 warn(
-                    "Oops, I can't seem to find athlete data in the return."
-                    "I will return the AccessInfo without athlete info.",
-                    "Please note that returning athlete data is undocumented.",
-                    "Support could be dropped by Strava at any time",
-                    f"The full error is here: {ve}",
+                    f"Athlete data validation failed: {ve}. "
+                    "Returning AccessInfo without athlete info. "
+                    "Note: Returning athlete data is undocumented and could be "
+                    "dropped by Strava at any time.",
+                    UserWarning,
                 )
-                return AccessInfo
+                return access_info
 
         else:
-            return AccessInfo
+            return cast(AccessInfo, raw)
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
