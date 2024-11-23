@@ -25,11 +25,12 @@ from typing import (
     TypeVar,
     cast,
 )
+from warnings import warn
 
 import arrow
 import pint
 import pytz
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from requests import Session
 
 from stravalib import exc, model, strava_model, unit_helper
@@ -41,6 +42,7 @@ from stravalib.exc import (
     warn_param_unofficial,
     warn_param_unsupported,
 )
+from stravalib.model import SummaryAthlete
 from stravalib.protocol import AccessInfo, ApiV3, Scope
 from stravalib.util import limiter
 
@@ -211,16 +213,32 @@ class Client:
 
         Notes
         -----
-        Strava by default returns SummaryAthlete information during
+        Strava by default returns `SummaryAthlete` information during
         this exchange. However this return is currently undocumented
         and could change at any time.
         """
-        return self.protocol.exchange_code_for_token(
+        raw = self.protocol.exchange_code_for_token(
             client_id=client_id,
             client_secret=client_secret,
             code=code,
             return_athlete=return_athlete,
         )
+        if return_athlete:
+            try:
+                athlete_info = SummaryAthlete.model_validate(raw[1])
+                return AccessInfo, athlete_info
+            except ValidationError as ve:
+                warn(
+                    "Oops, I can't seem to find athlete data in the return."
+                    "I will return the AccessInfo without athlete info.",
+                    "Please note that returning athlete data is undocumented.",
+                    "Support could be dropped by Strava at any time",
+                    f"The full error is here: {ve}",
+                )
+                return AccessInfo
+
+        else:
+            return AccessInfo
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str

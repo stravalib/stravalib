@@ -15,7 +15,6 @@ from urllib.parse import urlencode, urljoin, urlunsplit
 import requests
 
 from stravalib import exc
-from stravalib.model import SummaryAthlete
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -168,7 +167,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         client_secret: str,
         code: str,
         return_athlete: bool | None = False,
-    ) -> AccessInfo | tuple[AccessInfo, SummaryAthlete]:
+    ) -> AccessInfo | tuple[AccessInfo, dict]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -193,6 +192,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             expires_at (number of seconds since Epoch when the provided
             access token will expire)
         """
+        # The method returns: No rates present in response headers
         response = self._request(
             f"https://{self.server}/oauth/token",
             params={
@@ -209,10 +209,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
-
         if return_athlete:
-            athlete_info = SummaryAthlete.model_validate(response["athlete"])
-            return access_info, athlete_info
+            # This will return None if the athlete key is missing so it doesn't
+            # fail if the undocumented part of the response is removed
+            return access_info, response.get("athlete")
         else:
             return access_info
 
