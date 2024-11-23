@@ -36,7 +36,6 @@ def mock_token_refresh_response():
 def test_exchange_code_for_token_athlete(
     mock_request, mock_token_exchange_response
 ):
-    # with patch("stravalib.protocol.ApiV3._request") as mock_request:
     # Set _request to return the raw dictionary
     api_instance = ApiV3()
     mock_request.return_value = mock_token_exchange_response
@@ -65,6 +64,5 @@ def test_exchange_code_for_token_no_athlete(
         code="auth_code",
     )
 
-    # If athlete info is requested, return should be a dict of 3 items
     assert len(result) == 3
     assert result["access_token"] == "mock_access_token"
