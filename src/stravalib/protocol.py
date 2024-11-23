@@ -210,8 +210,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         }
         self.access_token = response["access_token"]
         if return_athlete:
-            # This will return None if the athlete key is missing so it doesn't
-            # fail if the undocumented part of the response is removed
+            # This will potentially None if the undocumented athlete response is removed from the endpoint by Strava 
             return access_info, response.get("athlete")
         else:
             return access_info
