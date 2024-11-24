@@ -58,7 +58,7 @@ jobs:
           nox -s tests-${{ matrix.python-version }}
       - name: Upload coverage to Codecov
         if: ${{ matrix.os == 'ubuntu-latest' &&  matrix.python-version == '3.11'}}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
