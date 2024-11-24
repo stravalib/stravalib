@@ -224,6 +224,7 @@ class Client:
             code=code,
             return_athlete=return_athlete,
         )
+        # This won't work because a dict has a length
         if len(raw) == 2:
             access_info, athlete_data = cast(
                 Tuple[AccessInfo, dict[str, Any]], raw

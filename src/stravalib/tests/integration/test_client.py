@@ -3,6 +3,7 @@ import json
 import os
 import warnings
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 import responses
@@ -1082,3 +1083,87 @@ def test_get_activity_kudos(mock_strava_api, client):
     assert isinstance(kudoer_list[0], SummaryAthlete)
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"
+
+
+@pytest.fixture
+def raw_exchange_response():
+    """Expected response from the protocol exchange_code_for_token method."""
+    return (
+        {
+            "access_token": "123456",
+            "refresh_token": "789sdf987",
+            "expires_at": 1732417459,
+        },
+        {
+            "id": 10295934,
+            "username": "foo_bar",
+            "resource_state": 2,
+            "firstname": "Foo",
+            "lastname": "Bar",
+            "bio": "A bio",
+            "city": "City",
+            "state": "State",
+            "country": "Country",
+            "sex": "F",
+            "premium": True,
+            "summit": True,
+        },
+    )
+
+
+@patch("stravalib.protocol.ApiV3.exchange_code_for_token")
+def test_exchange_code_for_token_athlete(
+    mock_request, client, raw_exchange_response
+):
+    """If a user requests athlete data, then it should be returned as a
+    SummaryAthlete object."""
+    mock_request.return_value = raw_exchange_response
+
+    result = client.exchange_code_for_token(
+        client_id=123,
+        client_secret="secret",
+        code="temp_code",
+        return_athlete=True,
+    )
+
+    assert result[0]["access_token"] == "123456"
+    assert len(result) == 2
+
+
+@patch("stravalib.protocol.ApiV3.exchange_code_for_token")
+def test_exchange_code_for_token_missing_athlete(
+    mock_request, client, raw_exchange_response
+):
+    """If a user requests athlete data, then it should be returned as a
+    SummaryAthlete object."""
+    mock_request.return_value = (raw_exchange_response[0], None)
+
+    with pytest.warns(UserWarning, match="Athlete data validation failed"):
+        result = client.exchange_code_for_token(
+            client_id=123,
+            client_secret="secret",
+            code="temp_code",
+            return_athlete=True,
+        )
+
+    assert result["access_token"] == "123456"
+
+
+@patch("stravalib.protocol.ApiV3.exchange_code_for_token")
+def test_exchange_code_for_token_no_athlete(
+    mock_request, client, raw_exchange_response
+):
+    """Make sure that when athlete itn's requested, it only returns
+    the authentication AccessInfo typed dict."""
+    # Protocol shouldn't return a tuple if athlete=False
+    mock_request.return_value = raw_exchange_response[0]
+
+    result = client.exchange_code_for_token(
+        client_id=123,
+        client_secret="secret",
+        code="temp_code",
+        return_athlete=False,
+    )
+
+    assert result["access_token"] == "123456"
+    assert isinstance(result, dict)
