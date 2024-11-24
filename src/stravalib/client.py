@@ -26,12 +26,11 @@ from typing import (
     TypeVar,
     cast,
 )
-from warnings import warn
 
 import arrow
 import pint
 import pytz
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from requests import Session
 
 from stravalib import exc, model, strava_model, unit_helper
@@ -209,7 +208,7 @@ class Client:
             token will expire)
         tuple
             Contains:
-             - the AccessInfo typed dict containing token values
+             - the `AccessInfo` typed dict containing token values
              - a `SummaryAthlete` object representing the authenticated user.
 
         Notes
@@ -218,33 +217,32 @@ class Client:
         this exchange. However this return is currently undocumented
         and could change at any time.
         """
-        raw = self.protocol.exchange_code_for_token(
-            client_id=client_id,
-            client_secret=client_secret,
-            code=code,
-            return_athlete=return_athlete,
-        )
-        # This won't work because a dict has a length
-        if len(raw) == 2:
-            access_info, athlete_data = cast(
-                Tuple[AccessInfo, dict[str, Any]], raw
-            )
         if return_athlete:
-            try:
-                athlete_info = SummaryAthlete.model_validate(athlete_data)
-                return access_info, athlete_info
-            except ValidationError as ve:
-                warn(
-                    f"Athlete data validation failed: {ve}. "
-                    "Returning AccessInfo without athlete info. "
-                    "Note: Returning athlete data is undocumented and could be "
-                    "dropped by Strava at any time.",
-                    UserWarning,
-                )
-                return access_info
+            access_info, athlete_data = self.protocol.exchange_code_for_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                code=code,
+                return_athlete=return_athlete,
+            )
+        else:
+            access_info = self.protocol.exchange_code_for_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                code=code,
+                return_athlete=return_athlete,
+            )
+
+        # # This won't work because a dict has a length
+        # if len(raw) == 2:
+        #     access_info, athlete_data = cast(
+        #         Tuple[AccessInfo, dict[str, Any]], raw
+        #     )
+        if return_athlete:
+            summary_athlete = SummaryAthlete.model_validate(athlete_data)
+            return access_info, summary_athlete
 
         else:
-            return cast(AccessInfo, raw)
+            return access_info
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
