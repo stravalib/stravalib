@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import warnings
 from unittest import mock
 
 import pytest
@@ -8,11 +9,16 @@ import responses
 from responses import matchers
 
 from stravalib.client import ActivityUploader
-from stravalib.exc import AccessUnauthorized, ActivityPhotoUploadFailed
+from stravalib.exc import (
+    AccessUnauthorized,
+    ActivityPhotoUploadFailed,
+)
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unit_helper import miles
+
+warnings.simplefilter("always")
 
 
 @pytest.fixture
@@ -883,6 +889,48 @@ def test_get_segment_effort(mock_strava_api, client):
     )
     effort = client.get_segment_effort(42)
     assert effort.max_heartrate == 170
+
+
+@pytest.mark.parametrize(
+    "params, warning_type, warning_message",
+    [
+        (
+            {"segment_id": 2345, "athlete_id": 12345},
+            DeprecationWarning,
+            'The "athlete_id" parameter is unsupported',
+        ),
+        (
+            {"segment_id": 2345, "limit": 10},
+            DeprecationWarning,
+            'The "limit" parameter is deprecated',
+        ),
+    ],
+)
+def test_get_segment_efforts_warnings(
+    params, warning_type, warning_message, mock_strava_api, client
+):
+    """Test that if provided with deprecated params, the user receives a
+    warning."""
+
+    mock_strava_api.get(
+        "/segment_efforts",
+        response_update={"name": "Best Run Ever"},
+        n_results=1,
+    )
+
+    with pytest.warns(warning_type, match=warning_message):
+        a = client.get_segment_efforts(**params)
+        next(a)
+
+
+def test_get_segment_efforts(client, mock_strava_api):
+    """Test that endpoint returns data as expected."""
+    mock_strava_api.get("/segment_efforts", n_results=4)
+
+    efforts = list(client.get_segment_efforts(segment_id=2345, athlete_id=12345))
+
+    assert len(efforts) == 4
+    assert efforts[0].name == "Alpe d'Huez"
 
 
 def test_get_activities_paged(mock_strava_api, client):

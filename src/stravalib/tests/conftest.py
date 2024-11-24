@@ -1,7 +1,11 @@
+import warnings
+
 import pytest
 
 from stravalib import Client
 from stravalib.tests.integration.strava_api_stub import StravaAPIMock
+
+warnings.simplefilter("always")
 
 
 @pytest.fixture
