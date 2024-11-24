@@ -427,7 +427,7 @@ Strava endpoint which returns an athlete's activities.
 Here, the fixture will bypass trying to access the real online API. And instead, will find the `/athlete/activities`
 endpoint in the Strava online or local `swagger.json` file.
 
-When you call {py:func}`stravalib.client.Client.get_activities()`, the endpoint will return the sample data provided in the `swagger.json` file.
+When you call {py:func}`stravalib.client.Client.get_activities()`, the mocked endpoint will return the sample data provided in the `swagger.json` file.
 
 ```python
 def test_example(mock_strava_api, client):
@@ -470,7 +470,7 @@ def test_example_test(mock_strava_api, client):
 
 :::{tip}
 Stravalib uses lazily loaded entities when returning results from
-endpoint such as activities that may include multiple response objects in the return. As such, a mocked call to {py:func}`stravalib.client.Client.get_activities` will not actually initiative a get response
+endpoint such as activities that may include multiple response objects in the return. As such, a mocked call to {py:func}`stravalib.client.Client.get_activities` will not actually initiate a get response
 until you try to access the first object returned in the {py:class}`stravalib.client.BatchedResultsIterator` object.
 :::
 
