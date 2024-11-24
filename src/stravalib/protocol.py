@@ -167,7 +167,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         client_secret: str,
         code: str,
         return_athlete: bool | None = False,
-    ) -> AccessInfo | tuple[AccessInfo, dict[str, Any]]:
+    ) -> AccessInfo | tuple[AccessInfo, dict[str, Any] | None]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
