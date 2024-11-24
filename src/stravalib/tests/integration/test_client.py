@@ -927,14 +927,10 @@ def test_get_segment_efforts(client, mock_strava_api):
     """Test that endpoint returns data as expected."""
     mock_strava_api.get("/segment_efforts", n_results=4)
 
-    efforts = client.get_segment_efforts(segment_id=2345, athlete_id=12345)
+    efforts = list(client.get_segment_efforts(segment_id=2345, athlete_id=12345))
 
-    for index, effort in enumerate(efforts):
-        if index == 0:
-            name = effort.name
-
-    assert index + 1 == 4
-    assert name == "Alpe d'Huez"
+    assert len(efforts) == 4
+    assert efforts[0].name == "Alpe d'Huez"
 
 
 def test_get_activities_paged(mock_strava_api, client):
