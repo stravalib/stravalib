@@ -349,11 +349,11 @@ actions completes, the report will be processed and returned to the pull request
 
 ## Tests & the stravalib mock fixture
 
-To run integration tests that ensure stravalib is interacting with API data correctly, Stravalib uses a mock object access through a
+To run integration tests that ensure stravalib is interacting with API data correctly, Stravalib uses a mock object accessed through a
 `pytest` fixture `stravalib.tests.integration.strava_api_stub.StravaAPIMock`
 that is based on `responses.RequestsMock`.
 
-This fixture adds a pass-through mock that prevents requests from being made to the Strava API.
+This fixture adds a mock that prevents requests from being made to the Strava API.
 Instead, it creates responses using the endpoint provided and the `swagger.json` file that is found both online and within the `stravalib/src/stravalib/tests/resources/` directory that are based on examples from the published Strava API
 documentation.
 
@@ -366,9 +366,9 @@ Example usages of this fixture can be found in the
 
 flowchart TD
     B["conftest.py"] -- Defines fixture --> C["mock_strava_api fixture"]
-    C -- Calls --> D["StravaAPIMock from strava_api_stub.py module"]
-    D -- Inherits from --> E["requests_mock"]
-    D -- Adds API Call passthru and returns data using: --> G["swagger.json <br>(local or online)"]
+    C -- Creates instance of --> D["StravaAPIMock from strava_api_stub.py module"]
+    D -- Inherits from --> E["responses.RequestsMock"]
+    D -- Returns fake response data using: --> G["swagger.json <br>(local or online)"]
     D -- Calls --> H["_api_method_adapter"]
     A["fab:fa-strava Stravalib Test Suite"] --> B
     style C color:#FFFFFF, stroke:#00C853, fill:#AA00FF
