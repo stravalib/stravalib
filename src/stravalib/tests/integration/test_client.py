@@ -954,7 +954,9 @@ def test_get_segment_efforts(client, mock_strava_api):
     """Test that endpoint returns data as expected."""
     mock_strava_api.get("/segment_efforts", n_results=4)
 
-    efforts = list(client.get_segment_efforts(segment_id=2345, athlete_id=12345))
+    efforts = list(
+        client.get_segment_efforts(segment_id=2345, athlete_id=12345)
+    )
 
     assert len(efforts) == 4
     assert efforts[0].name == "Alpe d'Huez"
@@ -1119,32 +1121,37 @@ def test_exchange_code_for_token_athlete(
     SummaryAthlete object."""
     mock_request.return_value = raw_exchange_response
 
-    result = client.exchange_code_for_token(
+    access_info, summary_athlete = client.exchange_code_for_token(
         client_id=123,
         client_secret="secret",
         code="temp_code",
         return_athlete=True,
     )
 
-    assert result[0]["access_token"] == "123456"
-    assert len(result) == 2
+    assert access_info["access_token"] == "123456"
+    assert summary_athlete.firstname == "Foo"
 
 
 @patch("stravalib.protocol.ApiV3.exchange_code_for_token")
 def test_exchange_code_for_token_missing_athlete(
     mock_request, client, raw_exchange_response
 ):
-    """If athlete=True but strava modifies the api response and athlete return
-    is None, raise a warning."""
+    """If athlete=True but Strava modifies the api response and athlete return
+    is None client should only return AccessInfo object"""
     mock_request.return_value = (raw_exchange_response[0], None)
+    access_info = client.exchange_code_for_token(
+        client_id=123,
+        client_secret="secret",
+        code="temp_code",
+        return_athlete=True,
+    )
 
-    with pytest.warns(UserWarning, match="Athlete data validation failed"):
-        result = client.exchange_code_for_token(
-            client_id=123,
-            client_secret="secret",
-            code="temp_code",
-            return_athlete=True,
-        )
+    result = client.exchange_code_for_token(
+        client_id=123,
+        client_secret="secret",
+        code="temp_code",
+        return_athlete=True,
+    )
 
     assert result["access_token"] == "123456"
 

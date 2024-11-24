@@ -232,12 +232,9 @@ class Client:
                 return_athlete=return_athlete,
             )
 
-        # # This won't work because a dict has a length
-        # if len(raw) == 2:
-        #     access_info, athlete_data = cast(
-        #         Tuple[AccessInfo, dict[str, Any]], raw
-        #     )
-        if return_athlete:
+        # Only return both if both exist, this will fail quietly if Strava
+        # modifies the end point return
+        if return_athlete and athlete_data:
             summary_athlete = SummaryAthlete.model_validate(athlete_data)
             return access_info, summary_athlete
 

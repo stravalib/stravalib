@@ -166,7 +166,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         client_id: int,
         client_secret: str,
         code: str,
-        return_athlete: bool | None = False,
+        return_athlete: bool = False,
     ) -> AccessInfo | tuple[AccessInfo, dict[str, Any] | None]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
@@ -212,7 +212,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         if return_athlete:
             # This will None if Strava removes undocumented athlete response
             # from the undocumented endpoint return
-            return access_info, response.get("athlete")
+            return (access_info, response.get("athlete"))
         else:
             return access_info
 
