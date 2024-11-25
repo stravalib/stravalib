@@ -365,15 +365,11 @@ Example usages of this fixture can be found in the
 :::{mermaid}
 
 flowchart TD
-    B["conftest.py"] -- Defines fixture --> C["mock_strava_api fixture"]
-    C -- Creates instance of --> D["StravaAPIMock from strava_api_stub.py module"]
-    D -- Inherits from --> E["responses.RequestsMock"]
-    D -- Returns fake response data using: --> G["swagger.json <br>(local or online)"]
-    D -- Calls --> H["_api_method_adapter"]
-    A["fab:fa-strava Stravalib Test Suite"] --> B
+    A["fab:fa-strava Stravalib Test Suite"] --> C["**mock_strava_api fixture** <br>(defined in conftest)"]
+    C -- Creates instance of --> D["**StravaAPIMock** <br> strava_api_stub.py module <br> Inherits from responses.RequestsMock"]
+    D -- Returns fake response data using: --> G["**swagger.json** <br>(local or online)"]
     style C color:#FFFFFF, stroke:#00C853, fill:#AA00FF
     style G color:#FFFFFF, fill:#d35400, stroke:#AA00FF
-    style H color:#FFFFFF, stroke:#00C853, fill:#00C853
     style A color:#FFFFFF, fill:#d35400, stroke:#AA00FF
 :::
 
