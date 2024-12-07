@@ -32,7 +32,7 @@ setting up a Strava app](https://medium.com/analytics-vidhya/accessing-user-data
 
 ## Requesting Authorization
 
-Once you have set up your Strava API app, you are ready to authenticate.
+You are ready to authenticate once you have set up your Strava API app.
 
 The {py:class}`stravalib.client.Client` class contains the
 {py:func}`stravalib.client.Client.authorization_url` method

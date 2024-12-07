@@ -2,12 +2,13 @@
 
 ## Unreleased
 
-### Fixed
-- Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
-
 ### Added
 
 - Add: `SummaryAthlete` return to exchange_code_for_token (@lwasser, #552)
+- Add: Add more information about how our mock text fixture works (@lwasser, #292)
+
+### Fixed
+- Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
 
 ## v2.1.0
 
