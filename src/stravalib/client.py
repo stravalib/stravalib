@@ -22,6 +22,7 @@ from typing import (
     Literal,
     NoReturn,
     Protocol,
+    Tuple,
     TypeVar,
     cast,
 )
@@ -41,6 +42,7 @@ from stravalib.exc import (
     warn_param_unofficial,
     warn_param_unsupported,
 )
+from stravalib.model import SummaryAthlete
 from stravalib.protocol import AccessInfo, ApiV3, Scope
 from stravalib.util import limiter
 
@@ -175,8 +177,12 @@ class Client:
         )
 
     def exchange_code_for_token(
-        self, client_id: int, client_secret: str, code: str
-    ) -> AccessInfo:
+        self,
+        client_id: int,
+        client_secret: str,
+        code: str,
+        return_athlete: bool = False,
+    ) -> AccessInfo | Tuple[AccessInfo, SummaryAthlete]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -189,17 +195,51 @@ class Client:
             The developer client secret
         code : str
             The temporary authorization code
+        return_athlete : bool (default = False)
+            Whether to return a SummaryAthlete object (or not)
+            This parameter is currently undocumented and could change
+            at any time.
 
         Returns
         -------
-        dict
-            Dictionary containing the access_token, refresh_token and
+        AccessInfo
+            TypedDictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided access
             token will expire)
+        tuple
+            Contains:
+             - the `AccessInfo` typed dict containing token values
+             - a `SummaryAthlete` object representing the authenticated user.
+
+        Notes
+        -----
+        Strava by default returns `SummaryAthlete` information during
+        this exchange. However this return is currently undocumented
+        and could change at any time.
         """
-        return self.protocol.exchange_code_for_token(
-            client_id=client_id, client_secret=client_secret, code=code
-        )
+        if return_athlete:
+            access_info, athlete_data = self.protocol.exchange_code_for_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                code=code,
+                return_athlete=return_athlete,
+            )
+        else:
+            access_info = self.protocol.exchange_code_for_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                code=code,
+                return_athlete=return_athlete,
+            )
+
+        # Only return both if both exist, this will fail quietly if Strava
+        # modifies the end point return
+        if return_athlete and athlete_data:
+            summary_athlete = SummaryAthlete.model_validate(athlete_data)
+            return access_info, summary_athlete
+
+        else:
+            return access_info
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
