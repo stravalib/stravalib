@@ -210,7 +210,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         }
         self.access_token = response["access_token"]
         if return_athlete:
-            # This will None if Strava removes undocumented athlete response
+            # This will be None if Strava removes undocumented athlete response
             # from the undocumented endpoint return
             return access_info, response.get("athlete")
         else:
