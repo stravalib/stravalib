@@ -58,11 +58,12 @@ def test_exchange_code_for_token_no_athlete(
     api_instance = ApiV3()
     mock_request.return_value = mock_token_exchange_response
 
-    result = api_instance.exchange_code_for_token(
+    access_info, athlete_info = api_instance.exchange_code_for_token(
         client_id=123,
         client_secret="secret",
         code="auth_code",
     )
 
-    assert len(result) == 3
-    assert result["access_token"] == "mock_access_token"
+    assert athlete_info is None
+    assert len(access_info) == 3
+    assert access_info["access_token"] == "mock_access_token"

@@ -182,7 +182,7 @@ class Client:
         client_secret: str,
         code: str,
         return_athlete: bool = False,
-    ) -> AccessInfo | Tuple[AccessInfo, SummaryAthlete]:
+    ) -> AccessInfo | Tuple[AccessInfo, SummaryAthlete | None]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -217,27 +217,21 @@ class Client:
         this exchange. However this return is currently undocumented
         and could change at any time.
         """
+        access_info, athlete_data = self.protocol.exchange_code_for_token(
+            client_id=client_id,
+            client_secret=client_secret,
+            code=code,
+            return_athlete=return_athlete,
+        )
+
+        # Return both access_info and athlete if requested. Athlete will be None if Strava
+        # doesn't return it in their end point response.
         if return_athlete:
-            access_info, athlete_data = self.protocol.exchange_code_for_token(
-                client_id=client_id,
-                client_secret=client_secret,
-                code=code,
-                return_athlete=return_athlete,
-            )
-        else:
-            access_info = self.protocol.exchange_code_for_token(
-                client_id=client_id,
-                client_secret=client_secret,
-                code=code,
-                return_athlete=return_athlete,
-            )
-
-        # Only return both if both exist, this will fail quietly if Strava
-        # modifies the end point return
-        if return_athlete and athlete_data:
-            summary_athlete = SummaryAthlete.model_validate(athlete_data)
+            if athlete_data:
+                summary_athlete = SummaryAthlete.model_validate(athlete_data)
+            else:
+                summary_athlete = None
             return access_info, summary_athlete
-
         else:
             return access_info
 

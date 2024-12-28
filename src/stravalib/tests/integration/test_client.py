@@ -1115,11 +1115,11 @@ def test_get_activity_kudos(mock_strava_api, client):
 
 @patch("stravalib.protocol.ApiV3.exchange_code_for_token")
 def test_exchange_code_for_token_athlete(
-    mock_request, client, raw_exchange_response
+    mock_protocol_exchange_code, client, raw_exchange_response
 ):
     """If a user requests athlete data, then it should be returned as a
     SummaryAthlete object."""
-    mock_request.return_value = raw_exchange_response
+    mock_protocol_exchange_code.return_value = raw_exchange_response
 
     access_info, summary_athlete = client.exchange_code_for_token(
         client_id=123,
@@ -1134,42 +1134,37 @@ def test_exchange_code_for_token_athlete(
 
 @patch("stravalib.protocol.ApiV3.exchange_code_for_token")
 def test_exchange_code_for_token_missing_athlete(
-    mock_request, client, raw_exchange_response
+    mock_protocol_exchange_code, client, raw_exchange_response
 ):
     """If athlete=True but Strava modifies the api response and athlete return
     is None client should only return AccessInfo object"""
-    mock_request.return_value = (raw_exchange_response[0], None)
-    access_info = client.exchange_code_for_token(
+    mock_protocol_exchange_code.return_value = (raw_exchange_response[0], None)
+    access_info, athlete = client.exchange_code_for_token(
         client_id=123,
         client_secret="secret",
         code="temp_code",
         return_athlete=True,
     )
 
-    result = client.exchange_code_for_token(
-        client_id=123,
-        client_secret="secret",
-        code="temp_code",
-        return_athlete=True,
-    )
-
-    assert result["access_token"] == "123456"
+    assert athlete is None
+    assert access_info["access_token"] == "123456"
 
 
 @patch("stravalib.protocol.ApiV3.exchange_code_for_token")
 def test_exchange_code_for_token_no_athlete(
-    mock_request, client, raw_exchange_response
+    mock_protocol_exchange_code, client, raw_exchange_response
 ):
     """When athlete isn't True, only return AccessInfo Typed Dict."""
-    # Protocol shouldn't return a tuple if athlete=False
-    mock_request.return_value = raw_exchange_response[0]
+    mock_protocol_exchange_code.return_value = raw_exchange_response
 
-    result = client.exchange_code_for_token(
+    access_info = client.exchange_code_for_token(
         client_id=123,
         client_secret="secret",
         code="temp_code",
         return_athlete=False,
     )
 
-    assert result["access_token"] == "123456"
-    assert isinstance(result, dict)
+    assert (
+        access_info["access_token"] == raw_exchange_response[0]["access_token"]
+    )
+    assert isinstance(access_info, dict)
