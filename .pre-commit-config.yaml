@@ -37,7 +37,7 @@ repos:
 
   # Linting code using ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.8.6
     hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
@@ -52,7 +52,7 @@ repos:
         args: ["--line-length=79"]
 
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: "1.19.0"
+    rev: "1.19.1"
     hooks:
       - id: blacken-docs
 
