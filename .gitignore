@@ -21,9 +21,10 @@ examples/strava-oauth/settings.cfg
 .nox
 .vscode/*
 docs/_build/*
+.env
 
 
-# so people don't mistakenly delete and submit a pr with these
+# So people don't mistakenly delete and submit a pr with these
 stravalib/tests/test.ini-example
 stravalib/tests/test.ini
 stravalib/docs/api

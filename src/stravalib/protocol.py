@@ -8,11 +8,14 @@ from __future__ import annotations
 import abc
 import functools
 import logging
+import os
+import time
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
+from dotenv import load_dotenv
 
 from stravalib import exc
 
@@ -30,6 +33,35 @@ Scope = Literal[
 ]
 
 RequestMethod = Literal["GET", "POST", "PUT", "DELETE"]
+
+
+def refresh_expired_token(func):
+    """Decorator to ensure the access_token is valid before making a request.
+
+    This decorator first checks to see if the token is expired. If it is, it
+    triggers a refresh using the refresh_token.
+    """
+
+    def wrapper(self, *args, **kwargs):
+        # Check if the token has expired
+        load_dotenv()
+        try:
+            client_id = os.environ["CLIENT_ID"]
+            client_secret = os.environ["CLIENT_SECRET"]
+        # # We don't want this to fail loudly as this is a feature
+        # # and it will break existing builds if we do that
+        except KeyError:
+            print("I couldn't find your Strava app client id and secret.")
+        if self.token_expired():
+            print("Token expired. Refreshing...")
+            self.refresh_access_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                refresh_token=self.token_refresh,
+            )
+        return func(self, *args, **kwargs)
+
+    return wrapper
 
 
 class AccessInfo(TypedDict):
@@ -64,6 +96,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         rate_limiter: (
             Callable[[dict[str, str], RequestMethod], None] | None
         ) = None,
+        token_expires: int | None = None,
+        token_refresh: str | None = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
@@ -74,12 +108,21 @@ class ApiV3(metaclass=abc.ABCMeta):
             The token that provides access to a specific Strava account.
         requests_session : :class:`requests.Session`
             An existing :class:`requests.Session` object to use.
-
+        rate_limiter : Callable[[dict[str, str], RequestMethod], None], optional
+            A callable used to enforce rate-limiting for API requests.
+            The callable accepts a dict of headers and the
+            HTTP request method as arguments. Defaults to None.
+        token_expires: int
+            Epoch time in seconds when the token expires
+        token_refresh: str
+            Refresh token used to re-authenticate with Strava
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
         self.access_token = access_token
+        self.token_expires = token_expires
+        self.token_refresh = token_refresh
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -88,6 +131,65 @@ class ApiV3(metaclass=abc.ABCMeta):
         self.rate_limiter = rate_limiter or (
             lambda _request_params, _method: None
         )
+
+    def _token_expired(self, verbose=False):
+        """Checks if a token has expired or not. Returns True if it expired.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            _description_, by default False
+
+        Returns
+        -------
+        bool
+            True if token has expired, otherwise returns false
+        """
+        # Right now the issue is the self.token_expires is not being populated
+        if verbose:
+            print("Your token has expired; Refreshing it now.")
+        if time.time() > self.token_expires:
+            return True
+        else:
+            return False
+
+    def refresh_expired_token(self) -> None:
+        """Checks to see if a token has expired and auto refreshes it
+        if the user has setup their environment with the client
+        secret information.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        None
+            If all is setup properly, updates and resets the access_token
+            attribute. Otherwise prints a statement letting the user know that
+            they can set that up if they wish.
+
+        """
+        # Supports a .env file returns None if it doesn't exist
+        load_dotenv()
+        try:
+            # Checks users environment for CLIENT_ID and CLIENT_SECRET
+            client_id = os.environ["CLIENT_ID"]
+            client_secret = os.environ["CLIENT_SECRET"]
+        # "Fail" quietly if things are setup properly
+        except KeyError:
+            print(
+                "I couldn't find your Strava app client id and secret."
+                "You will need to manually refresh your token."
+            )
+        if self._token_expired():
+            print("Token expired. Refreshing...")
+            self.refresh_access_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                refresh_token=self.token_refresh,
+            )
+        # Mypy wants an explicit return
+        return None
 
     def authorization_url(
         self,
@@ -202,6 +304,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "grant_type": "authorization_code",
             },
             method="POST",
+            refresh_expired_token=False,
         )
         access_info: AccessInfo = {
             "access_token": response["access_token"],
@@ -217,7 +320,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             return access_info, None
 
     def refresh_access_token(
-        self, client_id: int, client_secret: str, refresh_token: str
+        self,
+        client_id: int,
+        client_secret: str,
+        refresh_token: str,
+        auto_refresh_token: bool = False,
     ) -> AccessInfo:
         """Exchanges the previous refresh token for a short-lived access token
         and a new refresh token (used to obtain the next access token later on)
@@ -231,6 +338,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         refresh_token : str
             The refresh token obtain from a previous authorization
             request
+        auto_refresh_token : bool (False)
+            Always set to false for this method to avoid recursion.
 
         Returns
         -------
@@ -248,6 +357,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "grant_type": "refresh_token",
             },
             method="POST",
+            auto_refresh_token=False,
         )
         access_info: AccessInfo = {
             "access_token": response["access_token"],
@@ -255,6 +365,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
+        # Also update expires_at and refresh to support automatic refresh
+        self.refresh_token = response["refresh_token"]
+        self.expires_at = response["expires_at"]
 
         return access_info
 
@@ -285,8 +398,13 @@ class ApiV3(metaclass=abc.ABCMeta):
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         method: RequestMethod = "GET",
         check_for_errors: bool = True,
+        auto_refresh_token: bool = True,
     ) -> Any:
         """Perform the underlying request, returning the parsed JSON results.
+
+        This method before running will check to make sure that your
+        access_token is valid. If it isn't, it will refresh it and then make
+        the requested Strava API call.
 
         Parameters
         ----------
@@ -299,13 +417,20 @@ class ApiV3(metaclass=abc.ABCMeta):
         method : str
             The request method (GET/POST/etc.)
         check_for_errors : bool
-            Whether to raise
+            Whether to raise an error or not.
+        auto_refresh_token : bool (default True)
+            Whether to automagically refresh the users token or not.
+            Requires environment setup to work.
 
         Returns
         -------
-        Dict[str,Any]
+        Dict[str, Any]
             The parsed JSON response.
         """
+        # Try to refresh the token unless told to not try
+        if auto_refresh_token:
+            self.refresh_expired_token()
+
         url = self.resolve_url(url)
         self.log.info(
             "{method} {url!r} with params {params!r}".format(
