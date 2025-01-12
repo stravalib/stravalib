@@ -9,6 +9,7 @@
 ### Fixed
 
 - Fix: Update segment_efforts api and return warnings (@lwasser, #321)
+- Fix: Docs should be linked rather than repeating information (@lwasser, #613)
 
 ## v2.1.0
 
