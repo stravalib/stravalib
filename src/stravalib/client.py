@@ -174,6 +174,8 @@ class Client:
 
         Returns
         -------
+        None
+            Updates the `refresh_token` attribute in the Client class.
 
         """
         self.protocol.refresh_token = refresh_value
