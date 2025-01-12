@@ -132,23 +132,16 @@ class ApiV3(metaclass=abc.ABCMeta):
             lambda _request_params, _method: None
         )
 
-    def _token_expired(self, verbose=False):
-        """Checks if a token has expired or not. Returns True if it expired.
-
-        Parameters
-        ----------
-        verbose : bool, optional
-            _description_, by default False
+    def _token_expired(self) -> bool:
+        """Checks if a token has expired or not. Returns True if it's expired.
 
         Returns
         -------
         bool
             True if token has expired, otherwise returns false
         """
-        # Right now the issue is the self.token_expires is not being populated
-        if verbose:
-            print("Your token has expired; Refreshing it now.")
         if time.time() > self.token_expires:
+            print("Your token has expired; Refreshing it now.")
             return True
         else:
             return False
@@ -158,36 +151,36 @@ class ApiV3(metaclass=abc.ABCMeta):
         if the user has setup their environment with the client
         secret information.
 
-        Parameters
-        ----------
-
         Returns
         -------
         None
             If all is setup properly, updates and resets the access_token
             attribute. Otherwise prints a statement letting the user know that
-            they can set that up if they wish.
+            they can set that up if they wish or they need to refresh their
+            token.
 
         """
         # Supports a .env file returns None if it doesn't exist
         load_dotenv()
-        try:
-            # Checks users environment for CLIENT_ID and CLIENT_SECRET
-            client_id = os.environ["CLIENT_ID"]
-            client_secret = os.environ["CLIENT_SECRET"]
-        # "Fail" quietly if things are setup properly
-        except KeyError:
-            print(
-                "I couldn't find your Strava app client id and secret."
-                "You will need to manually refresh your token."
-            )
+        client_id = os.environ.get("CLIENT_ID")
+        client_secret = os.environ.get("CLIENT_SECRET")
+
         if self._token_expired():
-            print("Token expired. Refreshing...")
-            self.refresh_access_token(
-                client_id=client_id,
-                client_secret=client_secret,
-                refresh_token=self.token_refresh,
-            )
+            # Let users know that they can setup automatic auth if they want to
+            if client_id and client_secret:
+                print("Token expired. Refreshing...")
+                self.refresh_access_token(
+                    client_id=client_id,
+                    client_secret=client_secret,
+                    refresh_token=self.token_refresh,
+                )
+            # The user hasn't setup their environment
+            else:
+                print(
+                    "I couldn't find your Strava app client id and secret. "
+                    "Check out the stravalib docs for more on setting automatic refresh up."
+                )
+
         # Mypy wants an explicit return
         return None
 
@@ -365,9 +358,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
-        # Also update expires_at and refresh to support automatic refresh
-        self.refresh_token = response["refresh_token"]
-        self.expires_at = response["expires_at"]
+        # Update expires_at and refresh to support automatic refresh
+        self.token_refresh = response["refresh_token"]
+        self.token_expires = response["expires_at"]
 
         return access_info
 
@@ -391,6 +384,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
         return url
 
+    # mypy is flagging this method. Not sure why.
     def _request(
         self,
         url: str,
