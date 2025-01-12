@@ -70,7 +70,7 @@ class Client:
         rate_limiter: limiter.RateLimiter | None = None,
         requests_session: Session | None = None,
         token_expires: int | None = None,
-        token_refresh: str | None = None,
+        refresh_token: str | None = None,
     ) -> None:
         """
         Initialize a new client object.
@@ -93,7 +93,7 @@ class Client:
             This represents the date and time that the token will expire. It is
             used to automatically check and refresh the token in the client
             method on all API requests.
-        token_refresh : str
+        refresh_token : str
 
         """
         self.log = logging.getLogger(
@@ -111,7 +111,7 @@ class Client:
 
         self.protocol = ApiV3(
             access_token=access_token,
-            token_refresh=token_refresh,
+            refresh_token=refresh_token,
             token_expires=token_expires,
             requests_session=requests_session,
             rate_limiter=rate_limiter,
@@ -159,12 +159,12 @@ class Client:
         self.protocol.token_expires = expires_value
 
     @property
-    def token_refresh(self) -> str | None:
+    def refresh_token(self) -> str | None:
         """The currently configured authorization token."""
-        return self.protocol.token_refresh
+        return self.protocol.refresh_token
 
-    @token_refresh.setter
-    def token_refresh(self, refresh_value: str) -> None:
+    @refresh_token.setter
+    def refresh_token(self, refresh_value: str) -> None:
         """Used to set and update the refresh token.
 
         Parameters
@@ -176,7 +176,7 @@ class Client:
         -------
 
         """
-        self.protocol.token_refresh = refresh_value
+        self.protocol.refresh_token = refresh_value
 
     def authorization_url(
         self,

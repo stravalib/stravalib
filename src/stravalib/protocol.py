@@ -67,7 +67,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             Callable[[dict[str, str], RequestMethod], None] | None
         ) = None,
         token_expires: int | None = None,
-        token_refresh: str | None = None,
+        refresh_token: str | None = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
@@ -84,7 +84,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             HTTP request method as arguments. Defaults to None.
         token_expires: int
             Epoch time in seconds when the token expires
-        token_refresh: str
+        refresh_token: str
             Refresh token used to re-authenticate with Strava
         """
         self.log = logging.getLogger(
@@ -92,7 +92,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
         self.access_token = access_token
         self.token_expires = token_expires
-        self.token_refresh = token_refresh
+        self.token_refresh = refresh_token
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -242,7 +242,6 @@ class ApiV3(metaclass=abc.ABCMeta):
             # mypy has a valid argument that a use could mistakenly
             # store a string in their envt file or an incorrect client id val
             if self._token_expired():
-                print("Token expired. Refreshing...")
                 self.refresh_access_token(
                     client_id=client_id,
                     client_secret=client_secret,
