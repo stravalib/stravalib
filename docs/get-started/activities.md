@@ -43,6 +43,10 @@ The distance is: 1234
 
 ## Stravalib offers unit conversion helpers
 
+stravalib uses the [python Pint library](https://pypi.org/project/Pint/) to facilitate working
+with the values in the API that have associated units (e.g. distance, speed). You can use the pint library
+directly or through the `stravalib.unithelper` module for shortcuts
+
 You can convert the distance value to another unit if you import stravalib's
 `stravalib.unit_helper` module.
 
