@@ -219,7 +219,6 @@ class ApiV3(metaclass=abc.ABCMeta):
             attribute. Otherwise prints a statement letting the user know that
             they can set that up if they wish or they need to refresh their
             token.
-
         """
 
         # os.environ.get returns strings by default
@@ -245,9 +244,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         # The user hasn't setup their environment
         else:
             logging.warning(
-                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your ",
-                " environment. Please refresh your access_token manually.",
-                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment.",
+                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
+                " environment. Please refresh your access_token manually."
+                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
             )
 
         # Mypy wants an explicit return
