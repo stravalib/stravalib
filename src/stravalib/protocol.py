@@ -11,7 +11,7 @@ import logging
 import os
 import time
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Literal, TypedDict, cast
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
@@ -102,6 +102,91 @@ class ApiV3(metaclass=abc.ABCMeta):
             lambda _request_params, _method: None
         )
 
+        # mypy is flagging this method. Not sure why.
+
+    def _request(
+        self,
+        url: str,
+        params: dict[str, Any] | None = None,
+        files: dict[str, SupportsRead[str | bytes]] | None = None,
+        method: RequestMethod = "GET",
+        check_for_errors: bool = True,
+        refresh_expired_token: bool = True,
+    ) -> Any:
+        """Perform the underlying request, returning the parsed JSON results.
+
+        This method before running will check to make sure that your
+        access_token is valid. If it isn't, it will refresh it and then make
+        the requested Strava API call.
+
+        Parameters
+        ----------
+        url : str
+            The request URL.
+        params : Dict[str,Any]
+            Request parameters
+        files : Dict[str,file]
+            Dictionary of file name to file-like objects.
+        method : str
+            The request method (GET/POST/etc.)
+        check_for_errors : bool
+            Whether to raise an error or not.
+        refresh_expired_token : bool (default True)
+            Whether to automagically refresh the users token or not.
+            Requires environment setup to work.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The parsed JSON response.
+        """
+        # Try to refresh the token unless told to not try
+        if refresh_expired_token:
+            self.refresh_expired_token()
+
+        url = self.resolve_url(url)
+        self.log.info(
+            "{method} {url!r} with params {params!r}".format(
+                method=method, url=url, params=params
+            )
+        )
+        if params is None:
+            params = {}
+        if self.access_token:
+            params["access_token"] = self.access_token
+
+        methods = {
+            "GET": self.rsession.get,
+            "POST": functools.partial(self.rsession.post, files=files),
+            "PUT": self.rsession.put,
+            "DELETE": self.rsession.delete,
+        }
+
+        try:
+            requester = methods[method.upper()]
+        except KeyError:
+            raise ValueError(
+                "Invalid/unsupported request method specified: {}".format(
+                    method
+                )
+            )
+
+        raw = requester(url, params=params)  # type: ignore[operator]
+        # Rate limits are taken from HTTP response headers
+        # https://developers.strava.com/docs/rate-limits/
+        self.rate_limiter(raw.headers, method)
+
+        if check_for_errors:
+            self._handle_protocol_error(raw)
+
+        # 204 = No content
+        if raw.status_code in [204]:
+            resp = {}
+        else:
+            resp = raw.json()
+
+        return resp
+
     def _token_expired(self) -> bool:
         """Checks if a token has expired or not. Returns True if it's expired.
 
@@ -138,9 +223,8 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         """
         try:
-            # Load the .env file only if `dotenv` is installed
-            # Mypy doesn't seem to like this import?
-            # Am I missing something?
+            # If the package is not typed, mypy is not happy, ignore
+            # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
             from dotenv import load_dotenv  # type: ignore
 
             load_dotenv()
@@ -151,24 +235,23 @@ class ApiV3(metaclass=abc.ABCMeta):
                 " If you need .env support, please install `python-dotenv`."
             )
         # os.environ.get returns strings by default
-        client_id = os.environ.get("CLIENT_ID")
+        client_id = int(os.environ.get("CLIENT_ID"))
         client_secret = os.environ.get("CLIENT_SECRET")
 
         if client_id and client_secret:
-            # To address mypy's concern of the envt var being a str
-            # I suppose a user could mistakenly provide letters ?
-            # SHould this then fail?
-            try:
-                client_id = int(client_id)
-                client_id = cast(int, client_id)
-            except ValueError:
-                logging.error("CLIENT_ID must be a valid integer.")
-
+            # mypy has a valid argument that a use could mistakenly
+            # store a string in their envt file or an incorrect client id val
             if self._token_expired():
                 print("Token expired. Refreshing...")
                 self.refresh_access_token(
                     client_id=client_id,
                     client_secret=client_secret,
+                    # I think we might need better variable names it's
+                    # getting confusing. I think this is the actual
+                    # refresh_token_value maybe rename token_refresh to
+                    # token_refresh_value ??
+                    # mypy error - i think it's angry because this could be
+                    # None
                     refresh_token=self.token_refresh,
                 )
         # The user hasn't setup their environment
@@ -347,7 +430,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "grant_type": "refresh_token",
             },
             method="POST",
-            auto_refresh_token=False,
+            refresh_expired_token=False,
         )
         access_info: AccessInfo = {
             "access_token": response["access_token"],
@@ -380,90 +463,6 @@ class ApiV3(metaclass=abc.ABCMeta):
                 self.api_base + "/" + url.strip("/"),
             )
         return url
-
-    # mypy is flagging this method. Not sure why.
-    def _request(
-        self,
-        url: str,
-        params: dict[str, Any] | None = None,
-        files: dict[str, SupportsRead[str | bytes]] | None = None,
-        method: RequestMethod = "GET",
-        check_for_errors: bool = True,
-        auto_refresh_token: bool = True,
-    ) -> Any:
-        """Perform the underlying request, returning the parsed JSON results.
-
-        This method before running will check to make sure that your
-        access_token is valid. If it isn't, it will refresh it and then make
-        the requested Strava API call.
-
-        Parameters
-        ----------
-        url : str
-            The request URL.
-        params : Dict[str,Any]
-            Request parameters
-        files : Dict[str,file]
-            Dictionary of file name to file-like objects.
-        method : str
-            The request method (GET/POST/etc.)
-        check_for_errors : bool
-            Whether to raise an error or not.
-        auto_refresh_token : bool (default True)
-            Whether to automagically refresh the users token or not.
-            Requires environment setup to work.
-
-        Returns
-        -------
-        Dict[str, Any]
-            The parsed JSON response.
-        """
-        # Try to refresh the token unless told to not try
-        if auto_refresh_token:
-            self.refresh_expired_token()
-
-        url = self.resolve_url(url)
-        self.log.info(
-            "{method} {url!r} with params {params!r}".format(
-                method=method, url=url, params=params
-            )
-        )
-        if params is None:
-            params = {}
-        if self.access_token:
-            params["access_token"] = self.access_token
-
-        methods = {
-            "GET": self.rsession.get,
-            "POST": functools.partial(self.rsession.post, files=files),
-            "PUT": self.rsession.put,
-            "DELETE": self.rsession.delete,
-        }
-
-        try:
-            requester = methods[method.upper()]
-        except KeyError:
-            raise ValueError(
-                "Invalid/unsupported request method specified: {}".format(
-                    method
-                )
-            )
-
-        raw = requester(url, params=params)  # type: ignore[operator]
-        # Rate limits are taken from HTTP response headers
-        # https://developers.strava.com/docs/rate-limits/
-        self.rate_limiter(raw.headers, method)
-
-        if check_for_errors:
-            self._handle_protocol_error(raw)
-
-        # 204 = No content
-        if raw.status_code in [204]:
-            resp = {}
-        else:
-            resp = raw.json()
-
-        return resp
 
     def _handle_protocol_error(
         self, response: requests.Response

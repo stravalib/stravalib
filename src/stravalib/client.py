@@ -144,7 +144,7 @@ class Client:
         return self.protocol.token_expires
 
     @token_expires.setter
-    def token_expires(self, expires_value: str) -> None:
+    def token_expires(self, expires_value: int) -> None:
         """Used to set and update the refresh token.
 
         Parameters
