@@ -202,8 +202,8 @@ class ApiV3(metaclass=abc.ABCMeta):
                 return False
         else:
             logging.warning(
-                "Please make sure you're set client.token_expires if you",
-                " want automatic token refresh to work",
+                "Please make sure you've set client.token_expires if you"
+                " want automatic token refresh to work"
             )
             return False
 
@@ -223,10 +223,16 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
 
         # os.environ.get returns strings by default
-        client_id = int(os.environ.get("STRAVA_CLIENT_ID"))
+        client_id = os.environ.get("STRAVA_CLIENT_ID")
         client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
 
         if client_id and client_secret:
+            # Make sure client_id is a valid int
+            try:
+                client_id = int(client_id)
+            except ValueError:
+                logging.error("STRAVA_CLIENT_ID must be a valid integer.")
+                return None
             # mypy has a valid argument that a use could mistakenly
             # store a string in their envt file or an incorrect client id val
             if self._token_expired():
@@ -379,7 +385,6 @@ class ApiV3(metaclass=abc.ABCMeta):
         client_id: int,
         client_secret: str,
         refresh_token: str,
-        auto_refresh_token: bool = False,
     ) -> AccessInfo:
         """Exchanges the previous refresh token for a short-lived access token
         and a new refresh token (used to obtain the next access token later on)
@@ -393,8 +398,6 @@ class ApiV3(metaclass=abc.ABCMeta):
         refresh_token : str
             The refresh token obtain from a previous authorization
             request
-        auto_refresh_token : bool (False)
-            Always set to false for this method to avoid recursion.
 
         Returns
         -------
