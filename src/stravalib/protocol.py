@@ -92,7 +92,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
         self.access_token = access_token
         self.token_expires = token_expires
-        self.token_refresh = refresh_token
+        self.refresh_token = refresh_token
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -131,17 +131,16 @@ class ApiV3(metaclass=abc.ABCMeta):
             The request method (GET/POST/etc.)
         check_for_errors : bool
             Whether to raise an error or not.
-        refresh_expired_token : bool (default True)
-            Whether to automagically refresh the users token or not.
-            Requires environment setup to work.
 
         Returns
         -------
         Dict[str, Any]
             The parsed JSON response.
         """
-        # Try to refresh the token unless told to not try
-        if refresh_expired_token:
+
+        # If the request is a token request, skip, otherwise
+        # refresh token
+        if "/oauth/token" not in url:
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
@@ -222,21 +221,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             token.
 
         """
-        try:
-            # If the package is not typed, mypy is not happy, ignore
-            # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
-            from dotenv import load_dotenv  # type: ignore
 
-            load_dotenv()
-            logging.info("Loaded .env file successfully.")
-        except ImportError:
-            logging.debug(
-                "python-dotenv is not installed. Skipping .env file loading."
-                " If you need .env support, please install `python-dotenv`."
-            )
         # os.environ.get returns strings by default
-        client_id = int(os.environ.get("CLIENT_ID"))
-        client_secret = os.environ.get("CLIENT_SECRET")
+        client_id = int(os.environ.get("STRAVA_CLIENT_ID"))
+        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
 
         if client_id and client_secret:
             # mypy has a valid argument that a use could mistakenly
@@ -245,19 +233,15 @@ class ApiV3(metaclass=abc.ABCMeta):
                 self.refresh_access_token(
                     client_id=client_id,
                     client_secret=client_secret,
-                    # I think we might need better variable names it's
-                    # getting confusing. I think this is the actual
-                    # refresh_token_value maybe rename token_refresh to
-                    # token_refresh_value ??
-                    # mypy error - i think it's angry because this could be
-                    # None
-                    refresh_token=self.token_refresh,
+                    # mypy error - I think it's angry because this could be None
+                    refresh_token=self.refresh_token,
                 )
         # The user hasn't setup their environment
         else:
             logging.warning(
-                "Client ID and secret not found. You need to manually refresh"
-                " your token or set up environment variables."
+                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your ",
+                " environment. Please refresh your access_token manually.",
+                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment.",
             )
 
         # Mypy wants an explicit return
@@ -376,7 +360,6 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "grant_type": "authorization_code",
             },
             method="POST",
-            refresh_expired_token=False,
         )
         access_info: AccessInfo = {
             "access_token": response["access_token"],
@@ -438,7 +421,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         }
         self.access_token = response["access_token"]
         # Update expires_at and refresh to support automatic refresh
-        self.token_refresh = response["refresh_token"]
+        self.refresh_token = response["refresh_token"]
         self.token_expires = response["expires_at"]
 
         return access_info
