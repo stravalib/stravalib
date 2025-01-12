@@ -11,7 +11,7 @@ import logging
 import os
 import time
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict, cast
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
@@ -110,10 +110,17 @@ class ApiV3(metaclass=abc.ABCMeta):
         bool
             True if token has expired, otherwise returns false
         """
-        if time.time() > self.token_expires:
-            print("Your token has expired; Refreshing it now.")
-            return True
+        if self.token_expires:
+            if time.time() > self.token_expires:
+                print("Your token has expired; Refreshing it now.")
+                return True
+            else:
+                return False
         else:
+            logging.warning(
+                "Please make sure you're set client.token_expires if you",
+                " want automatic token refresh to work",
+            )
             return False
 
     def refresh_expired_token(self) -> None:
@@ -132,35 +139,44 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         try:
             # Load the .env file only if `dotenv` is installed
-            from dotenv import load_dotenv
+            # Mypy doesn't seem to like this import?
+            # Am I missing something?
+            from dotenv import load_dotenv  # type: ignore
 
             load_dotenv()
             logging.info("Loaded .env file successfully.")
-            # I'm not sure what percentage of users will want to see this message
-            # would a logging approach be better here?
         except ImportError:
             logging.debug(
                 "python-dotenv is not installed. Skipping .env file loading."
                 " If you need .env support, please install `python-dotenv`."
             )
+        # os.environ.get returns strings by default
         client_id = os.environ.get("CLIENT_ID")
         client_secret = os.environ.get("CLIENT_SECRET")
 
-        if self._token_expired():
-            # Let users know that they can setup automatic auth if they want to
-            if client_id and client_secret:
+        if client_id and client_secret:
+            # To address mypy's concern of the envt var being a str
+            # I suppose a user could mistakenly provide letters ?
+            # SHould this then fail?
+            try:
+                client_id = int(client_id)
+                client_id = cast(int, client_id)
+            except ValueError:
+                logging.error("CLIENT_ID must be a valid integer.")
+
+            if self._token_expired():
                 print("Token expired. Refreshing...")
                 self.refresh_access_token(
                     client_id=client_id,
                     client_secret=client_secret,
                     refresh_token=self.token_refresh,
                 )
-            # The user hasn't setup their environment
-            else:
-                logging.warning(
-                    "Client ID and secret not found. You need to manually refresh"
-                    " your token or set up environment variables."
-                )
+        # The user hasn't setup their environment
+        else:
+            logging.warning(
+                "Client ID and secret not found. You need to manually refresh"
+                " your token or set up environment variables."
+            )
 
         # Mypy wants an explicit return
         return None
