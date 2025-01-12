@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
 
 import requests
-from dotenv import load_dotenv
 
 from stravalib import exc
 
@@ -131,8 +130,19 @@ class ApiV3(metaclass=abc.ABCMeta):
             token.
 
         """
-        # Supports a .env file returns None if it doesn't exist
-        load_dotenv()
+        try:
+            # Load the .env file only if `dotenv` is installed
+            from dotenv import load_dotenv
+
+            load_dotenv()
+            logging.info("Loaded .env file successfully.")
+            # I'm not sure what percentage of users will want to see this message
+            # would a logging approach be better here?
+        except ImportError:
+            logging.debug(
+                "python-dotenv is not installed. Skipping .env file loading."
+                " If you need .env support, please install `python-dotenv`."
+            )
         client_id = os.environ.get("CLIENT_ID")
         client_secret = os.environ.get("CLIENT_SECRET")
 
@@ -147,9 +157,9 @@ class ApiV3(metaclass=abc.ABCMeta):
                 )
             # The user hasn't setup their environment
             else:
-                print(
-                    "I couldn't find your Strava app client id and secret. "
-                    "Check out the stravalib docs for more on setting automatic refresh up."
+                logging.warning(
+                    "Client ID and secret not found. You need to manually refresh"
+                    " your token or set up environment variables."
                 )
 
         # Mypy wants an explicit return

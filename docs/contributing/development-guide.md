@@ -219,7 +219,7 @@ force the branch to be in the same commit state as your local branch.
 
 ### Typing using mypy
 
-To ensure proper typing throughout our library we use [mypy](https://mypy.readthedocs.io/). To run `mypy` across Python versions use:
+We use [mypy](https://mypy.readthedocs.io/) to ensure proper typing throughout our library. To run `mypy` across Python versions, use:
 
 `nox -s mypy`
 
@@ -345,7 +345,6 @@ The actual code coverage report is
 uploaded on the GitHub action run on `ubuntu` and `Python 3.11`. When that step in the
 actions completes, the report will be processed and returned to the pull request.
 ```
-
 
 ## Tests & the stravalib mock fixture
 
