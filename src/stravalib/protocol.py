@@ -35,35 +35,6 @@ Scope = Literal[
 RequestMethod = Literal["GET", "POST", "PUT", "DELETE"]
 
 
-def refresh_expired_token(func):
-    """Decorator to ensure the access_token is valid before making a request.
-
-    This decorator first checks to see if the token is expired. If it is, it
-    triggers a refresh using the refresh_token.
-    """
-
-    def wrapper(self, *args, **kwargs):
-        # Check if the token has expired
-        load_dotenv()
-        try:
-            client_id = os.environ["CLIENT_ID"]
-            client_secret = os.environ["CLIENT_SECRET"]
-        # # We don't want this to fail loudly as this is a feature
-        # # and it will break existing builds if we do that
-        except KeyError:
-            print("I couldn't find your Strava app client id and secret.")
-        if self.token_expired():
-            print("Token expired. Refreshing...")
-            self.refresh_access_token(
-                client_id=client_id,
-                client_secret=client_secret,
-                refresh_token=self.token_refresh,
-            )
-        return func(self, *args, **kwargs)
-
-    return wrapper
-
-
 class AccessInfo(TypedDict):
     """Dictionary containing token exchange response from Strava."""
 
