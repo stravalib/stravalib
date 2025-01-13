@@ -1,3 +1,22 @@
+"""A series of unit tests to ensure the refresh token operations
+work as expected whether the user has set things up or not.
+
+TODO:
+
+exchange_code_for_token
+* make sure that access token and token expires are set properly in the
+ - protocol.py:360-370 & 414-419 (how are these different?)
+
+ ## Client.py
+ * in client - make sure the access token, refresh value and expires at are all
+  set client.py:120-179
+* refresh access token: 258
+i think these will be integration tests to add to client?
+vs unit
+
+
+"""
+
 import logging
 import os
 import time
