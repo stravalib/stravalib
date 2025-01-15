@@ -90,9 +90,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
-        self.access_token = access_token
-        self.token_expires = token_expires
-        self.refresh_token = refresh_token
+        self.access_token: str | None = access_token
+        self.token_expires: int | None = token_expires
+        self.refresh_token: str | None = refresh_token
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -102,7 +102,43 @@ class ApiV3(metaclass=abc.ABCMeta):
             lambda _request_params, _method: None
         )
 
-        # mypy is flagging this method. Not sure why.
+    # (pylance?) mypy is flagging this method. Not sure why.
+
+    def _check_credentials(self) -> tuple[int, str] | None:
+        """Gets Strava client_id and secret credentials from user's environment.
+
+        If the user environment is populated with both values and
+        client_id is a proper int, it returns a tuple with both values.
+        Otherwise it returns None.
+
+        Returns
+        -------
+        Tuple or None
+            Tuple with the Client id and secret if the values exist in the users
+            environment, otherwise None.
+
+        """
+
+        client_id_str = os.environ.get("STRAVA_CLIENT_ID")
+        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
+        # Make sure client_id exists and can be cast to int
+        if client_id_str:
+            try:
+                # Make sure client_id is a valid int
+                client_id: int = int(client_id_str)
+            except ValueError:
+                logging.error("STRAVA_CLIENT_ID must be a valid integer.")
+                return None
+
+        if client_id and client_secret:
+            return client_id, client_secret
+        else:
+            logging.warning(
+                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
+                " environment. Please refresh your access_token manually."
+                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
+            )
+            return None
 
     def _request(
         self,
@@ -111,11 +147,10 @@ class ApiV3(metaclass=abc.ABCMeta):
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         method: RequestMethod = "GET",
         check_for_errors: bool = True,
-        refresh_expired_token: bool = True,
     ) -> Any:
         """Perform the underlying request, returning the parsed JSON results.
 
-        This method before running will check to make sure that your
+        Before running, this method will check to make sure that your
         access_token is valid. If it isn't, it will refresh it and then make
         the requested Strava API call.
 
@@ -140,8 +175,13 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         # If the request is a token request, skip, otherwise
         # refresh token
-        if "/oauth/token" not in url:
-            self.refresh_expired_token()
+        # This feels sloppy but if check credentials is None then that means
+        # users environment isn't setup
+        credentials = self._check_credentials()
+
+        # Only refresh token if we know the users' environment is setup
+        if "/oauth/token" not in url and credentials:
+            self.refresh_expired_token(credentials[0], credentials[1])
 
         url = self.resolve_url(url)
         self.log.info(
@@ -207,46 +247,37 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
             return False
 
-    def refresh_expired_token(self) -> None:
+    def refresh_expired_token(
+        self, client_id: int, client_secret: str
+    ) -> None:
         """Checks to see if a token has expired and auto refreshes it
         if the user has setup their environment with the client
         secret information.
+
+        Parameters
+        ----------
+        client_id: int
+             The client_id for the user's Strava app.
+        client_secret: str
+            The client_secret for the user's Strava app.
 
         Returns
         -------
         None
             If all is setup properly, updates and resets the access_token
-            attribute. Otherwise prints a statement letting the user know that
-            they can set that up if they wish or they need to refresh their
-            token.
+            attribute. Otherwise it logs a warning
         """
-
-        # os.environ.get returns strings by default
-        client_id = os.environ.get("STRAVA_CLIENT_ID")
-        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
-
-        if client_id and client_secret:
-            # Make sure client_id is a valid int
-            try:
-                client_id = int(client_id)
-            except ValueError:
-                logging.error("STRAVA_CLIENT_ID must be a valid integer.")
-                return None
-            # mypy has a valid argument that a use could mistakenly
-            # store a string in their envt file or an incorrect client id val
-            if self._token_expired():
-                self.refresh_access_token(
-                    client_id=client_id,
-                    client_secret=client_secret,
-                    # mypy error - I think it's angry because this could be None
-                    refresh_token=self.refresh_token,
-                )
-        # The user hasn't setup their environment
+        # If the token is expired AND the refresh token exists
+        if self._token_expired() and self.refresh_token:
+            self.refresh_access_token(
+                client_id=client_id,
+                client_secret=client_secret,
+                refresh_token=self.refresh_token,
+            )
         else:
             logging.warning(
-                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
-                " environment. Please refresh your access_token manually."
-                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
+                "Please make sure you've set up your environment properly"
+                " I can't find your refresh_token"
             )
 
         # Mypy wants an explicit return
@@ -414,7 +445,6 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "grant_type": "refresh_token",
             },
             method="POST",
-            refresh_expired_token=False,
         )
         access_info: AccessInfo = {
             "access_token": response["access_token"],
