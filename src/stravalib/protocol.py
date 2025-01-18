@@ -102,8 +102,6 @@ class ApiV3(metaclass=abc.ABCMeta):
             lambda _request_params, _method: None
         )
 
-    # (pylance?) mypy is flagging this method. Not sure why.
-
     def _check_credentials(self) -> tuple[int, str] | None:
         """Gets Strava client_id and secret credentials from user's environment.
 
@@ -129,6 +127,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             except ValueError:
                 logging.error("STRAVA_CLIENT_ID must be a valid integer.")
                 return None
+        else:
+            logging.error(
+                "Please make sure your STRAVA_CLIENT_ID is set in your environment."
+            )
+            return None
 
         if client_id and client_secret:
             return client_id, client_secret
@@ -173,10 +176,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             The parsed JSON response.
         """
 
-        # If the request is a token request, skip, otherwise
-        # refresh token
-        # This feels sloppy but if check credentials is None then that means
-        # users environment isn't setup
+        # Check if refresh token credentials are setup
         credentials = self._check_credentials()
 
         # Only refresh token if we know the users' environment is setup
@@ -276,7 +276,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
         else:
             logging.warning(
-                "Please make sure you've set up your environment properly"
+                "Please make sure you've set up your environment."
                 " I can't find your refresh_token"
             )
 

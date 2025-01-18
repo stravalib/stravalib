@@ -3,6 +3,7 @@ import warnings
 import pytest
 
 from stravalib import Client
+from stravalib.protocol import ApiV3
 from stravalib.tests.integration.strava_api_stub import StravaAPIMock
 
 warnings.simplefilter("always")
@@ -18,3 +19,10 @@ def mock_strava_api():
 @pytest.fixture
 def client():
     return Client()
+
+
+@pytest.fixture
+def apiv3_instance():
+    """Fixture to create an ApiV3 instance for testing."""
+
+    return ApiV3(access_token="dummy_access_token")

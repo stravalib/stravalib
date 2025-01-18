@@ -64,7 +64,8 @@ tests = [
   "pytest-cov",
   # Run tests in parallel
   "pytest-xdist",
-  "responses"
+  "responses",
+  "pytest-mock"
 ]
 docs = [
   "sphinx",
