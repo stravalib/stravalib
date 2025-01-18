@@ -137,7 +137,6 @@ class Client:
         """
         self.protocol.access_token = token_value
 
-    # TODO: if we go this route create a function to set up these attrs
     @property
     def token_expires(self) -> int | None:
         """The currently configured authorization token."""
