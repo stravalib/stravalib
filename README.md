@@ -38,8 +38,8 @@ Most of the methods that you will use with stravalib are in the `stravalib.clien
 
 You may be interested in the following tutorials to get started
 
-1. [Instructions on creating
-an app with Strava - we will be updating our docs with this information soon.](https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17)
+1. [How to create
+a Strava app.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html#authenticate-with-the-strava-api-using-stravalib)
 1. [How to authenticate with Strava using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html)
 1. [How to get activities using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/activities.html)
 2. [Athlete data using stravalib](https://stravalib.readthedocs.io/en/latest/get-started/athletes.html)
