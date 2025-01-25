@@ -4,11 +4,11 @@
 
 ### Added
 
-- Add: Add more information about how our mock fixture works (@lwasser, #292)
+- Add: `SummaryAthlete` return to exchange_code_for_token (@lwasser, #552)
+- Add: Add more information about how our mock test fixture works (@lwasser, #292)
 
 ### Fixed
-
-- Fix: Update segment_efforts api and return warnings (@lwasser, #321)
+- Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
 
 ## v2.1.0
 

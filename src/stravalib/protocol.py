@@ -162,8 +162,12 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
 
     def exchange_code_for_token(
-        self, client_id: int, client_secret: str, code: str
-    ) -> AccessInfo:
+        self,
+        client_id: int,
+        client_secret: str,
+        code: str,
+        return_athlete: bool = False,
+    ) -> tuple[AccessInfo, dict[str, Any] | None]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -176,6 +180,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             The developer client secret
         code : str
             The temporary authorization code
+        return_athlete : bool (optional, default=False)
+            Whether to return the `SummaryAthlete` object with the token
+            response. This behavior is currently undocumented and could
+            change at any time. Default is `False`.
 
         Returns
         -------
@@ -184,6 +192,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             expires_at (number of seconds since Epoch when the provided
             access token will expire)
         """
+        # The method returns: No rates present in response headers
         response = self._request(
             f"https://{self.server}/oauth/token",
             params={
@@ -200,7 +209,12 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
-        return access_info
+        if return_athlete:
+            # This will be None if Strava removes undocumented athlete response
+            # from the undocumented endpoint return
+            return access_info, response.get("athlete")
+        else:
+            return access_info, None
 
     def refresh_access_token(
         self, client_id: int, client_secret: str, refresh_token: str
