@@ -8,6 +8,8 @@
 - Add: Add more information about how our mock test fixture works (@lwasser, #292)
 
 ### Fixed
+
+- Fix: Docs should be linked rather than repeating information (@lwasser, #613)
 - Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
 
 ## v2.1.0
