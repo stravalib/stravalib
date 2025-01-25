@@ -93,6 +93,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         self.access_token: str | None = access_token
         self.token_expires: int | None = token_expires
         self.refresh_token: str | None = refresh_token
+        self.client_id: int | None = None
+        self.client_secret: str | None = None
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -101,8 +103,10 @@ class ApiV3(metaclass=abc.ABCMeta):
         self.rate_limiter = rate_limiter or (
             lambda _request_params, _method: None
         )
+        # Check for credentials when initializing
+        self._check_credentials()
 
-    def _check_credentials(self) -> tuple[int, str] | None:
+    def _check_credentials(self) -> tuple[int | None, str | None]:
         """Gets Strava client_id and secret credentials from user's environment.
 
         If the user environment is populated with both values and
@@ -111,10 +115,9 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         Returns
         -------
-        Tuple or None
-            Tuple with the Client id and secret if the values exist in the users
-            environment, otherwise None.
-
+        None
+            If the client_id and secret are available it populates self
+            with both variables to support automatic token refresh.
         """
 
         client_id_str = os.environ.get("STRAVA_CLIENT_ID")
@@ -126,22 +129,21 @@ class ApiV3(metaclass=abc.ABCMeta):
                 client_id: int = int(client_id_str)
             except ValueError:
                 logging.error("STRAVA_CLIENT_ID must be a valid integer.")
-                return None
         else:
             logging.error(
                 "Please make sure your STRAVA_CLIENT_ID is set in your environment."
             )
-            return None
 
         if client_id and client_secret:
-            return client_id, client_secret
+            self.client_id = client_id
+            self.client_secret = client_secret
         else:
             logging.warning(
                 "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
                 " environment. Please refresh your access_token manually."
                 " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
             )
-            return None
+        return None
 
     def _request(
         self,
@@ -176,12 +178,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             The parsed JSON response.
         """
 
-        # Check if refresh token credentials are setup
-        credentials = self._check_credentials()
-
         # Only refresh token if we know the users' environment is setup
-        if "/oauth/token" not in url and credentials:
-            self.refresh_expired_token(credentials[0], credentials[1])
+        if "/oauth/token" not in url and self.client_id and self.client_secret:
+            self.refresh_expired_token()
 
         url = self.resolve_url(url)
         self.log.info(
@@ -247,19 +246,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
             return False
 
-    def refresh_expired_token(
-        self, client_id: int, client_secret: str
-    ) -> None:
+    def refresh_expired_token(self) -> None:
         """Checks to see if a token has expired and auto refreshes it
         if the user has setup their environment with the client
         secret information.
-
-        Parameters
-        ----------
-        client_id: int
-             The client_id for the user's Strava app.
-        client_secret: str
-            The client_secret for the user's Strava app.
 
         Returns
         -------
@@ -270,8 +260,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         # If the token is expired AND the refresh token exists
         if self._token_expired() and self.refresh_token:
             self.refresh_access_token(
-                client_id=client_id,
-                client_secret=client_secret,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
                 refresh_token=self.refresh_token,
             )
         else:
@@ -435,6 +425,12 @@ class ApiV3(metaclass=abc.ABCMeta):
             Dictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided
             access token will expire)
+
+        Notes
+        -----
+        This method is user facing so we don't populate client_id and
+        client_secret from self in case user wish to manually populate
+        those values.
         """
         response = self._request(
             f"https://{self.server}/oauth/token",
