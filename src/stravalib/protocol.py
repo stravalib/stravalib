@@ -68,6 +68,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         ) = None,
         token_expires: int | None = None,
         refresh_token: str | None = None,
+        client_id: int | None = None,
+        client_secret: str | None = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
@@ -86,6 +88,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             Epoch time in seconds when the token expires
         refresh_token: str
             Refresh token used to re-authenticate with Strava
+        client_id: int
+            client id for the Strava APP pulled from the users envt
+        client_secret: str
+            client secret for the Strava app pulled from the users envt
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
@@ -106,7 +112,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         # Check for credentials when initializing
         self._check_credentials()
 
-    def _check_credentials(self) -> tuple[int | None, str | None]:
+    def _check_credentials(self) -> None:
         """Gets Strava client_id and secret credentials from user's environment.
 
         If the user environment is populated with both values and
@@ -119,6 +125,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             If the client_id and secret are available it populates self
             with both variables to support automatic token refresh.
         """
+        # Default both to None; set if they are available in the correct format
+        client_id: int | None = None
+        client_secret: str | None = None
 
         client_id_str = os.environ.get("STRAVA_CLIENT_ID")
         client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
@@ -126,7 +135,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         if client_id_str:
             try:
                 # Make sure client_id is a valid int
-                client_id: int = int(client_id_str)
+                client_id = int(client_id_str)
             except ValueError:
                 logging.error("STRAVA_CLIENT_ID must be a valid integer.")
         else:
@@ -257,6 +266,24 @@ class ApiV3(metaclass=abc.ABCMeta):
             If all is setup properly, updates and resets the access_token
             attribute. Otherwise it logs a warning
         """
+        if not self.refresh_token:
+            logging.warning(
+                "Please set client.refresh_token if you want to use"
+                "the auto token-refresh feature"
+            )
+            return
+
+        # Token is not yet expired, move on
+        if not self._token_expired():
+            return
+
+        # This should never be false, BUT mypy wants a reminder that these values
+        # are populated
+        assert self.client_id is not None, "client_id is required but is None."
+        assert (
+            self.client_secret is not None
+        ), "client_secret is required but is None."
+
         # If the token is expired AND the refresh token exists
         if self._token_expired() and self.refresh_token:
             self.refresh_access_token(
@@ -264,14 +291,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 client_secret=self.client_secret,
                 refresh_token=self.refresh_token,
             )
-        else:
-            logging.warning(
-                "Please make sure you've set up your environment."
-                " I can't find your refresh_token"
-            )
-
-        # Mypy wants an explicit return
-        return None
+            return
 
     def authorization_url(
         self,
@@ -428,8 +448,8 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         Notes
         -----
-        This method is user facing so we don't populate client_id and
-        client_secret from self in case user wish to manually populate
+        This method is user facing. Here, we don't populate client_id and
+        client_secret from self; A user can call this method and refresh the token manually.
         those values.
         """
         response = self._request(

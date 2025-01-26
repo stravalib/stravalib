@@ -1,4 +1,6 @@
+import os
 import warnings
+from unittest.mock import patch
 
 import pytest
 
@@ -22,7 +24,24 @@ def client():
 
 
 @pytest.fixture
-def apiv3_instance():
-    """Fixture to create an ApiV3 instance for testing."""
+def mock_strava_env():
+    """Fixture that mocks Strava environment variables."""
+    with patch.dict(
+        os.environ,
+        {"STRAVA_CLIENT_ID": "12345", "STRAVA_CLIENT_SECRET": "123ghp234"},
+        clear=True,  # Ensures other environment variables are not leaked
+    ):
+        yield
 
-    return ApiV3(access_token="dummy_access_token")
+
+@pytest.fixture
+def apiv3_instance(mock_strava_env):
+    """Fixture to create an ApiV3 instance for testing. Takes the
+    mock_strava_env which sets up environment variables"""
+    mock_strava_env
+    return ApiV3(
+        access_token="dummy_access_token",
+        client_id=123456,
+        client_secret="clientfoosecret",
+        refresh_token="refresh_value123",
+    )
