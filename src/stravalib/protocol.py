@@ -449,7 +449,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         Notes
         -----
         This method is user facing. Here, we don't populate client_id and
-        client_secret from self; A user can call this method and refresh the token manually.
+        client_secret from self; A user can call this method and refresh the token manually with
         those values.
         """
         response = self._request(
