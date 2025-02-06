@@ -5,7 +5,8 @@
 ### Added
 
 - Add: `SummaryAthlete` return to exchange_code_for_token (@lwasser, #552)
-- Add: Add more information about how our mock test fixture works (@lwasser, #292)
+- Add: Add more information about how our mock fixture works (@lwasser, #292)
+- Add(feature): Automatic token refresh :sparkles: built into stravalib (@lwasser, @jsamoocha, #585)
 
 ### Fixed
 

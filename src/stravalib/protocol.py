@@ -8,6 +8,8 @@ from __future__ import annotations
 import abc
 import functools
 import logging
+import os
+import time
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 from urllib.parse import urlencode, urljoin, urlunsplit
@@ -64,6 +66,10 @@ class ApiV3(metaclass=abc.ABCMeta):
         rate_limiter: (
             Callable[[dict[str, str], RequestMethod], None] | None
         ) = None,
+        token_expires: int | None = None,
+        refresh_token: str | None = None,
+        client_id: int | None = None,
+        client_secret: str | None = None,
     ):
         """Initialize this protocol client, optionally providing a (shared)
         :class:`requests.Session` object.
@@ -74,12 +80,27 @@ class ApiV3(metaclass=abc.ABCMeta):
             The token that provides access to a specific Strava account.
         requests_session : :class:`requests.Session`
             An existing :class:`requests.Session` object to use.
-
+        rate_limiter : Callable[[dict[str, str], RequestMethod], None], optional
+            A callable used to enforce rate-limiting for API requests.
+            The callable accepts a dict of headers and the
+            HTTP request method as arguments. Defaults to None.
+        token_expires: int
+            Epoch time in seconds when the token expires
+        refresh_token: str
+            Refresh token used to re-authenticate with Strava
+        client_id: int
+            client id for the Strava APP pulled from the users envt
+        client_secret: str
+            client secret for the Strava app pulled from the users envt
         """
         self.log = logging.getLogger(
             "{0.__module__}.{0.__name__}".format(self.__class__)
         )
-        self.access_token = access_token
+        self.access_token: str | None = access_token
+        self.token_expires: int | None = token_expires
+        self.refresh_token: str | None = refresh_token
+        self.client_id: int | None = None
+        self.client_secret: str | None = None
         if requests_session:
             self.rsession: requests.Session = requests_session
         else:
@@ -88,6 +109,189 @@ class ApiV3(metaclass=abc.ABCMeta):
         self.rate_limiter = rate_limiter or (
             lambda _request_params, _method: None
         )
+        # Check for credentials when initializing
+        self._check_credentials()
+
+    def _check_credentials(self) -> None:
+        """Gets Strava client_id and secret credentials from user's environment.
+
+        If the user environment is populated with both values and
+        client_id is a proper int, it returns a tuple with both values.
+        Otherwise it returns None.
+
+        Returns
+        -------
+        None
+            If the client_id and secret are available it populates self
+            with both variables to support automatic token refresh.
+        """
+        # Default both to None; set if they are available in the correct format
+        client_id: int | None = None
+        client_secret: str | None = None
+
+        client_id_str = os.environ.get("STRAVA_CLIENT_ID")
+        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
+        # Make sure client_id exists and can be cast to int
+        if client_id_str:
+            try:
+                # Make sure client_id is a valid int
+                client_id = int(client_id_str)
+            except ValueError:
+                logging.error("STRAVA_CLIENT_ID must be a valid integer.")
+        else:
+            logging.error(
+                "Please make sure your STRAVA_CLIENT_ID is set in your environment."
+            )
+
+        if client_id and client_secret:
+            self.client_id = client_id
+            self.client_secret = client_secret
+        else:
+            logging.warning(
+                "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
+                " environment. Please refresh your access_token manually."
+                " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
+            )
+        return None
+
+    def _request(
+        self,
+        url: str,
+        params: dict[str, Any] | None = None,
+        files: dict[str, SupportsRead[str | bytes]] | None = None,
+        method: RequestMethod = "GET",
+        check_for_errors: bool = True,
+    ) -> Any:
+        """Perform the underlying request, returning the parsed JSON results.
+
+        Before running, this method will check to make sure that your
+        access_token is valid. If it isn't, it will refresh it and then make
+        the requested Strava API call.
+
+        Parameters
+        ----------
+        url : str
+            The request URL.
+        params : Dict[str,Any]
+            Request parameters
+        files : Dict[str,file]
+            Dictionary of file name to file-like objects.
+        method : str
+            The request method (GET/POST/etc.)
+        check_for_errors : bool
+            Whether to raise an error or not.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The parsed JSON response.
+        """
+
+        # Only refresh token if we know the users' environment is setup
+        if "/oauth/token" not in url and self.client_id and self.client_secret:
+            self.refresh_expired_token()
+
+        url = self.resolve_url(url)
+        self.log.info(
+            "{method} {url!r} with params {params!r}".format(
+                method=method, url=url, params=params
+            )
+        )
+        if params is None:
+            params = {}
+        if self.access_token:
+            params["access_token"] = self.access_token
+
+        methods = {
+            "GET": self.rsession.get,
+            "POST": functools.partial(self.rsession.post, files=files),
+            "PUT": self.rsession.put,
+            "DELETE": self.rsession.delete,
+        }
+
+        try:
+            requester = methods[method.upper()]
+        except KeyError:
+            raise ValueError(
+                "Invalid/unsupported request method specified: {}".format(
+                    method
+                )
+            )
+
+        raw = requester(url, params=params)  # type: ignore[operator]
+        # Rate limits are taken from HTTP response headers
+        # https://developers.strava.com/docs/rate-limits/
+        self.rate_limiter(raw.headers, method)
+
+        if check_for_errors:
+            self._handle_protocol_error(raw)
+
+        # 204 = No content
+        if raw.status_code in [204]:
+            resp = {}
+        else:
+            resp = raw.json()
+
+        return resp
+
+    def _token_expired(self) -> bool:
+        """Checks if a token has expired or not. Returns True if it's expired.
+
+        Returns
+        -------
+        bool
+            True if token has expired, otherwise returns false
+        """
+        if self.token_expires:
+            if time.time() > self.token_expires:
+                print("Your token has expired; Refreshing it now.")
+                return True
+            else:
+                return False
+        else:
+            logging.warning(
+                "Please make sure you've set client.token_expires if you"
+                " want automatic token refresh to work"
+            )
+            return False
+
+    def refresh_expired_token(self) -> None:
+        """Checks to see if a token has expired and auto refreshes it
+        if the user has setup their environment with the client
+        secret information.
+
+        Returns
+        -------
+        None
+            If all is setup properly, updates and resets the access_token
+            attribute. Otherwise it logs a warning
+        """
+        if not self.refresh_token:
+            logging.warning(
+                "Please set client.refresh_token if you want to use"
+                "the auto token-refresh feature"
+            )
+            return
+
+        # Token is not yet expired, move on
+        if not self._token_expired():
+            return
+
+        # This should never be false, BUT mypy wants a reminder that these values
+        # are populated
+        assert self.client_id is not None, "client_id is required but is None."
+        assert (
+            self.client_secret is not None
+        ), "client_secret is required but is None."
+
+        # If the token is expired AND the refresh token exists
+        if self._token_expired() and self.refresh_token:
+            self.refresh_access_token(
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                refresh_token=self.refresh_token,
+            )
+            return
 
     def authorization_url(
         self,
@@ -217,7 +421,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             return access_info, None
 
     def refresh_access_token(
-        self, client_id: int, client_secret: str, refresh_token: str
+        self,
+        client_id: int,
+        client_secret: str,
+        refresh_token: str,
     ) -> AccessInfo:
         """Exchanges the previous refresh token for a short-lived access token
         and a new refresh token (used to obtain the next access token later on)
@@ -238,6 +445,12 @@ class ApiV3(metaclass=abc.ABCMeta):
             Dictionary containing the access_token, refresh_token and
             expires_at (number of seconds since Epoch when the provided
             access token will expire)
+
+        Notes
+        -----
+        This method is user facing. Here, we don't populate client_id and
+        client_secret from self; A user can call this method and refresh the token manually with
+        those values.
         """
         response = self._request(
             f"https://{self.server}/oauth/token",
@@ -255,6 +468,9 @@ class ApiV3(metaclass=abc.ABCMeta):
             "expires_at": response["expires_at"],
         }
         self.access_token = response["access_token"]
+        # Update expires_at and refresh to support automatic refresh
+        self.refresh_token = response["refresh_token"]
+        self.token_expires = response["expires_at"]
 
         return access_info
 
@@ -277,77 +493,6 @@ class ApiV3(metaclass=abc.ABCMeta):
                 self.api_base + "/" + url.strip("/"),
             )
         return url
-
-    def _request(
-        self,
-        url: str,
-        params: dict[str, Any] | None = None,
-        files: dict[str, SupportsRead[str | bytes]] | None = None,
-        method: RequestMethod = "GET",
-        check_for_errors: bool = True,
-    ) -> Any:
-        """Perform the underlying request, returning the parsed JSON results.
-
-        Parameters
-        ----------
-        url : str
-            The request URL.
-        params : Dict[str,Any]
-            Request parameters
-        files : Dict[str,file]
-            Dictionary of file name to file-like objects.
-        method : str
-            The request method (GET/POST/etc.)
-        check_for_errors : bool
-            Whether to raise
-
-        Returns
-        -------
-        Dict[str,Any]
-            The parsed JSON response.
-        """
-        url = self.resolve_url(url)
-        self.log.info(
-            "{method} {url!r} with params {params!r}".format(
-                method=method, url=url, params=params
-            )
-        )
-        if params is None:
-            params = {}
-        if self.access_token:
-            params["access_token"] = self.access_token
-
-        methods = {
-            "GET": self.rsession.get,
-            "POST": functools.partial(self.rsession.post, files=files),
-            "PUT": self.rsession.put,
-            "DELETE": self.rsession.delete,
-        }
-
-        try:
-            requester = methods[method.upper()]
-        except KeyError:
-            raise ValueError(
-                "Invalid/unsupported request method specified: {}".format(
-                    method
-                )
-            )
-
-        raw = requester(url, params=params)  # type: ignore[operator]
-        # Rate limits are taken from HTTP response headers
-        # https://developers.strava.com/docs/rate-limits/
-        self.rate_limiter(raw.headers, method)
-
-        if check_for_errors:
-            self._handle_protocol_error(raw)
-
-        # 204 = No content
-        if raw.status_code in [204]:
-            resp = {}
-        else:
-            resp = raw.json()
-
-        return resp
 
     def _handle_protocol_error(
         self, response: requests.Response

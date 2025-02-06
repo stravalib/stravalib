@@ -62,7 +62,10 @@ build = ["build"]
 tests = [
   "pytest",
   "pytest-cov",
-  "responses"
+  # Run tests in parallel
+  "pytest-xdist",
+  "responses",
+  "pytest-mock"
 ]
 docs = [
   "sphinx",

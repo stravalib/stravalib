@@ -69,6 +69,8 @@ class Client:
         rate_limit_requests: bool = True,
         rate_limiter: limiter.RateLimiter | None = None,
         requests_session: Session | None = None,
+        token_expires: int | None = None,
+        refresh_token: str | None = None,
     ) -> None:
         """
         Initialize a new client object.
@@ -86,6 +88,12 @@ class Client:
             :class:`stravalib.util.limiter.DefaultRateLimiter` will be used.
         requests_session : requests.Session() object
             (Optional) pass request session object.
+        token_expires : int
+            epoch timestamp -- seconds since jan 1 1970 (Epoch timestamp)
+            This represents the date and time that the token will expire. It is
+            used to automatically check and refresh the token in the client
+            method on all API requests.
+        refresh_token : str
 
         """
         self.log = logging.getLogger(
@@ -103,6 +111,8 @@ class Client:
 
         self.protocol = ApiV3(
             access_token=access_token,
+            refresh_token=refresh_token,
+            token_expires=token_expires,
             requests_session=requests_session,
             rate_limiter=rate_limiter,
         )
@@ -113,20 +123,61 @@ class Client:
         return self.protocol.access_token
 
     @access_token.setter
-    def access_token(self, token_value: str) -> None:
+    def access_token(self, token_value: str | None) -> None:
         """Set the currently configured authorization token.
 
         Parameters
         ----------
-        token_value : int
-             User's access token for authentication.
-
+        access_token : str
+             User's access token
 
         Returns
         -------
 
         """
         self.protocol.access_token = token_value
+
+    @property
+    def token_expires(self) -> int | None:
+        """The currently configured authorization token."""
+        return self.protocol.token_expires
+
+    @token_expires.setter
+    def token_expires(self, expires_value: int) -> None:
+        """Used to set and update the refresh token.
+
+        Parameters
+        ----------
+        expires_value : int
+             Current token expiration time (epoch seconds)
+
+        Returns
+        -------
+
+        """
+        self.protocol.token_expires = expires_value
+
+    @property
+    def refresh_token(self) -> str | None:
+        """The currently configured authorization token."""
+        return self.protocol.refresh_token
+
+    @refresh_token.setter
+    def refresh_token(self, refresh_value: str) -> None:
+        """Used to set and update the refresh token.
+
+        Parameters
+        ----------
+        refresh_value : str
+             Current token refresh value.
+
+        Returns
+        -------
+        None
+            Updates the `refresh_token` attribute in the Client class.
+
+        """
+        self.protocol.refresh_token = refresh_value
 
     def authorization_url(
         self,
