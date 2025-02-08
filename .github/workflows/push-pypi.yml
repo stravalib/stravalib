@@ -53,8 +53,7 @@ jobs:
   publish:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
-
-        # Only publish to real PyPI on release
+    # Only publish to PyPI on release
     if: github.event_name == 'release'
     needs:
       - build
@@ -62,15 +61,16 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/stravalib
-      permissions:
-        id-token: write  # this permission is mandatory for pypi publishing
-      steps:
-        - name: Download all dists
-          uses: actions/download-artifact@v4
-          with:
-            name: python-package-distributions
-            path: dist/
-        - name: Publish package to PyPI
-          # Only publish to real PyPI on release
-          if: github.event_name == 'release'
-          uses: pypa/gh-action-pypi-publish@release/v1
+    permissions:
+      id-token: write  # Mandatory for pypi publishing
+     
+    steps:
+      - name: Download all dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish package to PyPI
+        # Only publish to real PyPI on release
+        if: github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@release/v1
