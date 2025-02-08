@@ -63,7 +63,7 @@ jobs:
       url: https://pypi.org/p/stravalib
     permissions:
       id-token: write  # Mandatory for pypi publishing
-     
+
     steps:
       - name: Download all dists
         uses: actions/download-artifact@v4
