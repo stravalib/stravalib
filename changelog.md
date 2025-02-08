@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+### Fixed
+
+- Fix: Setup trusted publishing & enhance publish step security (@lwasser, #617)
+
 ## v2.2.0
 
 ### Added
