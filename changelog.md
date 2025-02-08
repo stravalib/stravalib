@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.2.0
+
 ### Added
 
 - Add: `SummaryAthlete` return to exchange_code_for_token (@lwasser, #552)
@@ -12,6 +14,9 @@
 
 - Fix: Docs should be linked rather than repeating information (@lwasser, #613)
 - Fix: Update `segment_efforts` api and return warnings (@lwasser, #321)
+
+### Contributors to this release
+@jsamoocha, @lwasser
 
 ## v2.1.0
 
