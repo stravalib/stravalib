@@ -1,16 +1,16 @@
 # Stravalib build and release guide
 
-This page outlines the build structure and release workflow for stravalib.
+This page outlines stravalibs release, build and PyPI deployment workflow.
 
 ## Stravalib packaging overview
 
-For packaging we use `setuptools` for packaging and the `build` package to
+For packaging, we use `setuptools` for packaging and the `build` package to
 create a wheel and distribution for pushing to PyPI.
 
 ## Package versioning
 
 To keep track of stravalib versioning, we use `setuptools_scm`. Setuptools_scm
-is a behind the scenes tool that uses the most current tag in the repository
+uses the most current tag in the repository
 to determine what version of the package is being built.
 
 `setuptools_scm` creates a `_version_generated.py` file upon build using that tag.
@@ -20,26 +20,26 @@ If you build the package locally, the `_version_generated.py` file should NEVER
 be committed to version control. It should be ignored via our `.gitignore` file
 ```
 
-If you wish to build stravalib locally to check out the .whl and source distribution (SDist):
-
-```
-make build
-```
-
-When you run `make build`, it will do a few things
-
-1. it will create a `dist` directory with the wheel and the package SDist tarball. You can see the version of `stravalib` in the name of those files:
+If you wish to build stravalib locally to check out the .whl and source distribution (sdist) run:
 
 ```bash
+nox -s build
+```
+
+When you run, this, nox will:
+
+1. create a `dist` directory with the wheel and the package sdist tarball. You can see the version of `stravalib` in the name of those files:
+
+```console
 dist/
    stravalib-1.0.0.post27-py3-non-any.whl
    stravalib-1.0.0.post27.tar.gz
 
 ```
 
-2. `make build` also invokes `setuptools_scm` to create a `_version_generated.py` file in the stravalib package directory:
+2. invoke build to call `setuptools_scm` to create a `_version_generated.py` file in the stravalib package directory:
 
-```bash
+```console
 stravalib/
     stravalib/
         _version_generated,py
@@ -47,22 +47,19 @@ stravalib/
 
 ## Our PyPI release workflow
 
-The entire release workflow is automated and can be completed on fully
-in the GitHub.com interface if you wish.
+Our release workflow is automated and can be triggered and run using the
+GitHub.com interface.
 
 We follow [semantic version](https://semver.org/) best practices for our release workflow as follows:
 
 - MAJOR version when you make incompatible API changes
-- MINOR version when you add functionality in a backwards compatible manner
-- PATCH version when you make backwards compatible bug fixes
+- MINOR version when you add functionality in a backward-compatible manner
+- PATCH version when you make backwards-compatible bug fixes
 
 ### How to make a release to PyPI
 
 ```{note}
-The build workflow explained below will run and push to test PyPI on every merge to the main branch of stravalib. Thus before you create a pull request to initiate a new release, please check out stravalib on [test pypi](https://pypi.org/project/stravalib/) to:
-
-1. Make sure that the README file and other elements are rendering properly
-2. You can also install the package from test PyPI as an additional check!
+The build workflow explained below will run on every merge to the main branch of stravalib to ensure that our distribution files are still valid.
 ```
 
 To make a release:
@@ -70,11 +67,11 @@ To make a release:
 - ✔️ 1. Determine with the other maintainers what release version we are moving to. This can be done in an issue.
 - ✔️ 2. Create a new **pull request** using the release pull request template that does the following:
 
-  - Organizes the changelog.md unreleased items into added, fixed and changed sections
+  - Organizes the changelog.md unreleased items into added, fixed, and changed sections
   - Lists contributors to this release using GitHub handles
   - Adds the version number of that specific release.
 
-Below you can see an example of what these changelog changes looked like when
+Below is an example of the changelog changes when
 we bumped to version 1.0 of stravalib.
 _(Some of the original change log content is removed to keep this page shorter)_
 
@@ -112,13 +109,28 @@ Use `v` in the tag number to maintain consistency with previous releases.
 
 This is the ONLY manual step in the release workflow. Be sure to create the correct tag number: example `v1.0.1` for a patch version.
 
-Copy the updated changelog information into the body of the release.
+Copy the updated changelog information into the release body or use the <kbd>Generate Release Notes</kbd> button to generate release notes automatically.
 
-- ✔️ 5. Now hit `publish release`.
+- ✔️ 5. Hit `publish release`
 
-When you publish the release, a GitHub action will be enabled that will:
+When you publish the release, a GitHub action will be enabled that builds the wheel and SDist.
 
-1. build the wheel and SDist and
-2. publish the distribution to PyPI
+```{figure} /images/stravalib-release.gif
+:name: stravalib-release-deploy
+:width: 80%
+:align: center
+
+To initiate the publish to PyPI workflow, first create a new release. This will trigger the deployment build. To see that process in action, go to Actions --> the workflow that is running and you can watch progress. Once it builds successfully, it will wait to deploy until a maintainer approves the PyPI deployment.
+:::
+
+- ✔️ 6. Authorize the deploy step of the build: The final step is to authorize the deployment to PyPI. Our build uses a GitHub environment called PyPI that is connected to our stravalib PyPI account using PyPI's trusted publisher workflow.   `publish release`. Only our core maintenance team can authorize an action to run using this environment.
+
+```{figure} /images/stravalib-release-deploy.gif
+:name: stravalib-release-deploy
+:width: 80%
+:align: center
+
+Once you have created a release, as a maintainer you can approve the automated deployment process for `stravalib` by going to the actions tab and clicking on the current publish-pypi.yml workflow run.
+:::
 
 Congratulations! You've just created a release of stravalib!
