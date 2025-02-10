@@ -5,9 +5,10 @@
 ![PyPI](https://img.shields.io/pypi/v/stravalib?style=plastic) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stravalib?style=plastic) [![Documentation Status](https://readthedocs.org/projects/stravalib/badge/?version=latest)](https://stravalib.readthedocs.io/en/latest/?badge=latest) ![Package Tests Status](https://github.com/stravalib/stravalib/actions/workflows/build-test.yml/badge.svg) ![PyPI - Downloads](https://img.shields.io/pypi/dm/stravalib?style=plastic) [![codecov](https://codecov.io/gh/stravalib/stravalib/branch/main/graph/badge.svg?token=sHbFJn7epy)](https://codecov.io/gh/stravalib/stravalib)
 
 The **stravalib** Python package provides easy-to-use tools for accessing and
-downloading Strava data from the Strava V3 web service. Stravalib provides a Client class that supports:
+downloading Strava data from the Strava V3 API. Stravalib provides a `Client` class that supports:
 
 - Authenticating with stravalib
+- Managing your authentication to ensure it's current (if you have your environment setup)
 - Accessing and downloading Strava activity, club, and profile data
 - Making changes to account activities
 
@@ -16,7 +17,7 @@ and quantities through the [Python Pint library](https://pypi.org/project/Pint/)
 
 ## Dependencies
 
-- Python 3.9+
+- Python 3.10+
 - [Setuptools](https://pypi.org/project/setuptools/) for building stravalib
 - Other Python libraries (installed automatically when using pip):
      - [requests](https://pypi.org/project/requests/),
@@ -34,18 +35,18 @@ stravalib is available on [PyPI](https://pypi.org/project/stravalib/) and can be
 
 ## Get started using Stravalib
 
-Most of the methods that you will use with stravalib are in the `stravalib.client.Client` class.
+Most of the methods you will use with stravalib are in the `stravalib.client.Client` class.
 
 You may be interested in the following tutorials to get started
 
 1. [How to create
 a Strava app.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html#authenticate-with-the-strava-api-using-stravalib)
-1. [How to authenticate with Strava using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html)
+1. [How to refresh and auto refresh your app token using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started//get-started/authenticate-with-strava.html#step-3-refresh-your-token.html)
 1. [How to get activities using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/activities.html)
 2. [Athlete data using stravalib](https://stravalib.readthedocs.io/en/latest/get-started/athletes.html)
 3. [Unit conversion and stravalib](https://stravalib.readthedocs.io/en/latest/get-started/activities.html#stravalib-offers-unit-conversion-helpers)
 
-We welcome contributions to our tutorials and get started documentation if you are a stravalib user and want to contribute!
+We welcome contributions to our tutorials and get-started documentation if you are a stravalib user and want to contribute!
 
 
 ## How to Contribute to Stravalib
