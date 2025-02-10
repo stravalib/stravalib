@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add: Documentation on using auto-token-refresh in stravalib (@lwasser, 622)
+
 ### Fixed
 
 - Fix: Setup trusted publishing & enhance publish step security (@lwasser, #617)
