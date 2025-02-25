@@ -54,7 +54,7 @@ We follow [semantic version](https://semver.org/) best practices for our release
 
 - MAJOR version when you make incompatible API changes
 - MINOR version when you add functionality in a backward-compatible manner
-- PATCH version when you make backwards-compatible bug fixes
+- PATCH version when you make backward-compatible bug fixes
 
 ### How to make a release to PyPI
 
