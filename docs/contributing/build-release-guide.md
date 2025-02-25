@@ -1,6 +1,6 @@
 # Stravalib build and release guide
 
-This page outlines stravalibs release, build and PyPI deployment workflow.
+This page outlines stravalib's release, build and PyPI deployment workflow.
 
 ## Stravalib packaging overview
 
@@ -26,7 +26,7 @@ If you wish to build stravalib locally to check out the .whl and source distribu
 nox -s build
 ```
 
-When you run, this, nox will:
+When you run this, nox will:
 
 1. create a `dist` directory with the wheel and the package sdist tarball. You can see the version of `stravalib` in the name of those files:
 
