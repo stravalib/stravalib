@@ -42,7 +42,7 @@ dist/
 ```console
 stravalib/
     stravalib/
-        _version_generated,py
+        _version_generated.py
 ```
 
 ## Our PyPI release workflow
