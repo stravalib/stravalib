@@ -3,7 +3,7 @@ import logging
 import os
 import re
 from functools import lru_cache, wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 import requests
 from responses import BaseResponse, RequestsMock
@@ -33,7 +33,7 @@ def _get_strava_api_paths():
             "(potentially stale) version from local resources"
         )
         with open(
-            os.path.join(RESOURCES_DIR, "strava_swagger.json"), "r"
+            os.path.join(RESOURCES_DIR, "strava_swagger.json")
         ) as swagger_file:
             return json.load(swagger_file)["paths"]
     else:
@@ -48,7 +48,7 @@ def _api_method_adapter(api_method: Callable) -> Callable:
     @wraps(api_method)
     def method_wrapper(
         *args,
-        response_update: Dict[str, Any] = None,
+        response_update: dict[str, Any] = None,
         n_results: Optional[int] = None,
         **kwargs,
     ) -> BaseResponse:

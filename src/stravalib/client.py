@@ -17,12 +17,10 @@ from io import BytesIO
 from typing import (
     TYPE_CHECKING,
     Any,
-    Deque,
     Generic,
     Literal,
     NoReturn,
     Protocol,
-    Tuple,
     TypeVar,
     cast,
 )
@@ -97,7 +95,7 @@ class Client:
 
         """
         self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
         )
 
         if rate_limit_requests:
@@ -233,7 +231,7 @@ class Client:
         client_secret: str,
         code: str,
         return_athlete: bool = False,
-    ) -> AccessInfo | Tuple[AccessInfo, SummaryAthlete | None]:
+    ) -> AccessInfo | tuple[AccessInfo, SummaryAthlete | None]:
         """Exchange the temporary authorization code (returned with redirect
         from Strava authorization URL) for a short-lived access token and a
         refresh token (used to obtain the next access token later on).
@@ -1091,9 +1089,7 @@ class Client:
                 activity_file = BytesIO(activity_file)
             else:
                 raise TypeError(
-                    "Invalid type specified for activity_file: {}".format(
-                        type(activity_file)
-                    )
+                    f"Invalid type specified for activity_file: {type(activity_file)}"
                 )
 
         valid_data_types = ("fit", "fit.gz", "tcx", "tcx.gz", "gpx", "gpx.gz")
@@ -1597,9 +1593,7 @@ class Client:
         if activity_type is not None:
             if activity_type not in ("riding", "running"):
                 raise ValueError(
-                    "Invalid activity type: {}.  Possible values: {!r}".format(
-                        activity_type, valid_activity_types
-                    )
+                    f"Invalid activity type: {activity_type}.  Possible values: {valid_activity_types!r}"
                 )
             params["activity_type"] = activity_type
 
@@ -2151,7 +2145,7 @@ class BatchedResultsIterator(Generic[T]):
             How many rows to fetch per page (default is 200).
         """
         self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
         )
         self.entity = entity
         self.bind_client = bind_client
@@ -2163,13 +2157,11 @@ class BatchedResultsIterator(Generic[T]):
         else:
             self.per_page = BatchedResultsIterator.default_per_page
 
-        self._buffer: None | Deque[T]
+        self._buffer: None | collections.deque[T]
         self.reset()
 
     def __repr__(self) -> str:
-        return "<{} entity={}>".format(
-            self.__class__.__name__, self.entity.__name__
-        )
+        return f"<{self.__class__.__name__} entity={self.entity.__name__}>"
 
     def reset(self) -> None:
         self._counter = 0
@@ -2196,9 +2188,7 @@ class BatchedResultsIterator(Generic[T]):
         self._buffer = collections.deque(entities)
 
         self.log.debug(
-            "Requested page {} (got: {} items)".format(
-                self._page, len(self._buffer)
-            )
+            f"Requested page {self._page} (got: {len(self._buffer)} items)"
         )
         if len(self._buffer) < self.per_page:
             self._all_results_fetched = True

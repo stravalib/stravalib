@@ -279,7 +279,7 @@ def test_timezone(arg, expected_value):
 
 class ModelTest(TestBase):
     def setUp(self):
-        super(ModelTest, self).setUp()
+        super().setUp()
 
     def test_entity_collections(self) -> None:
         """Test that club information parsed from the API in a dict format can

@@ -74,9 +74,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 )
                 access_token = token_response["access_token"]
                 self.server.logger.info(
-                    "Exchanged code {} for access token {}".format(
-                        code, access_token
-                    )
+                    f"Exchanged code {code} for access token {access_token}"
                 )
                 self.wfile.write(b"Access Token: {}\n".format(access_token))
             else:
@@ -85,9 +83,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             url = client.authorization_url(
                 client_id=self.server.client_id,
-                redirect_uri="http://localhost:{}/authorization".format(
-                    self.server.server_port
-                ),
+                redirect_uri=f"http://localhost:{self.server.server_port}/authorization",
             )
 
             self.send_response(302)
@@ -103,7 +99,7 @@ def main(port, client_id, client_secret):
     )
 
     logger = logging.getLogger("auth_responder")
-    logger.info("Listening on localhost:%s" % port)
+    logger.info(f"Listening on localhost:{port}")
 
     server = StravaAuthHTTPServer(
         ("", port),

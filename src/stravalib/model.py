@@ -937,12 +937,7 @@ class ActivityPhoto(BaseModel):
             idfield = "id"
             idval = self.uid
 
-        return "<{clz} {type} {idfield}={id}>".format(
-            clz=self.__class__.__name__,
-            type=photo_type,
-            idfield=idfield,
-            id=idval,
-        )
+        return f"<{self.__class__.__name__} {photo_type} {idfield}={idval}>"
 
 
 class Lap(
