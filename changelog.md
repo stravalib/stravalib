@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add: Support for Python 3.13 (@hugovk, #627)
 - Add: Documentation on using auto-token-refresh in stravalib (@lwasser, 622)
 
 ### Fixed
