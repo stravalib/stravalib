@@ -25,7 +25,7 @@ warnings.simplefilter("always")
 @pytest.fixture
 def zone_response():
     file_path = os.path.join(RESOURCES_DIR, "example_zone_response.json")
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         data = json.load(file)
     return data
 
@@ -695,7 +695,7 @@ def test_activity_uploader(mock_strava_api, client):
 
 def test_get_route(mock_strava_api, client):
     with open(
-        os.path.join(RESOURCES_DIR, "example_route_response.json"), "r"
+        os.path.join(RESOURCES_DIR, "example_route_response.json")
     ) as route_response_fp:
         route_response = json.load(route_response_fp)
     mock_strava_api.get("/routes/{id}", status=200, json=route_response)

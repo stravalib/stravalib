@@ -170,7 +170,7 @@ class SleepingRateLimitRule:
             )
 
         self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
         )
         self.priority = priority
 
@@ -223,7 +223,7 @@ class SleepingRateLimitRule:
 class RateLimiter:
     def __init__(self) -> None:
         self.log: Logger = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
         )
         self.rules: list[Callable[[dict[str, str], RequestMethod], None]] = []
 

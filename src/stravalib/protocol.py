@@ -94,7 +94,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             client secret for the Strava app pulled from the users envt
         """
         self.log = logging.getLogger(
-            "{0.__module__}.{0.__name__}".format(self.__class__)
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
         )
         self.access_token: str | None = access_token
         self.token_expires: int | None = token_expires
@@ -192,11 +192,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
-        self.log.info(
-            "{method} {url!r} with params {params!r}".format(
-                method=method, url=url, params=params
-            )
-        )
+        self.log.info(f"{method} {url!r} with params {params!r}")
         if params is None:
             params = {}
         if self.access_token:
@@ -213,9 +209,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             requester = methods[method.upper()]
         except KeyError:
             raise ValueError(
-                "Invalid/unsupported request method specified: {}".format(
-                    method
-                )
+                f"Invalid/unsupported request method specified: {method}"
             )
 
         raw = requester(url, params=params)  # type: ignore[operator]
@@ -347,9 +341,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             "activity:write",
         }
 
-        assert not unsupported, "Unsupported scope value(s): {}".format(
-            unsupported
-        )
+        assert not unsupported, f"Unsupported scope value(s): {unsupported}"
 
         params = {
             "client_id": client_id,
@@ -530,18 +522,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             msg = f"{response.reason}: {error_str}"
             raise exc.AccessUnauthorized(msg, response=response)
         elif 400 <= response.status_code < 500:
-            msg = "{} Client Error: {} [{}]".format(
-                response.status_code,
-                response.reason,
-                error_str,
-            )
+            msg = f"{response.status_code} Client Error: {response.reason} [{error_str}]"
             raise exc.Fault(msg, response=response)
         elif 500 <= response.status_code < 600:
-            msg = "{} Server Error: {} [{}]".format(
-                response.status_code,
-                response.reason,
-                error_str,
-            )
+            msg = f"{response.status_code} Server Error: {response.reason} [{error_str}]"
             raise exc.Fault(msg, response=response)
         elif error_str:
             msg = error_str
