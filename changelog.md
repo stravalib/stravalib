@@ -13,6 +13,10 @@
 
 - Fix: Setup trusted publishing & enhance publish step security (@lwasser, #617)
 
+
+### Contributors to this release
+@hugovk, @lwasser
+
 ## v2.2.0
 
 ### Added
