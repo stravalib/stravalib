@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.3.0
+
 ### Added
 
 - Add: Support for Python 3.13 (@hugovk, #627)
