@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: corrects name of environment variables in docs (@jsamoocha, #631)
+
 ## v2.3.0
 
 ### Added
