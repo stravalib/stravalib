@@ -161,11 +161,11 @@ To enable stravalib to manage the token refresh process, setup two things:
 2. Setup your environment with your `client_id` and `client_secret` like this:
 
 ```
-CLIENT_ID=123445
-CLIENT_SECRET=secretvalueshere123
+STRAVA_CLIENT_ID=123445
+STRAVA_CLIENT_SECRET=secretvalueshere123
 ```
 
-`CLIENT_ID` should always be an integer. `CLIENT_SECRET` is always a string.
+`STRAVA_CLIENT_ID` should always be an integer. `STRAVA_CLIENT_SECRET` is always a string.
 
 Once you have setup the `client_id` and `client_secret` values in your environment, one way to retrieve them is to use the [python_dotenv](https://pypi.org/project/python-dotenv/) package.
 
@@ -188,7 +188,7 @@ json_path = os.path.join("path", "to", "json")
 with open(json_path, "r") as f:
     token_refresh = json.load(f)
 
-# Read the CLIENT_ID and CLIENT_SECRET
+# Read the STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET environment variables
 load_dotenv()
 print("Expires at", token_refresh["expires_at"])
 
