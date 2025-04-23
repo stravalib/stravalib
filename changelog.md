@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix: corrects name of environment variables in docs (@jsamoocha, #631)
+- Fix: replaces print statement by logging (@jsamoocha, #634)
 
 ## v2.3.0
 
