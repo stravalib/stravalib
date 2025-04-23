@@ -238,7 +238,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         if self.token_expires:
             if time.time() > self.token_expires:
-                print("Your token has expired; Refreshing it now.")
+                logging.info("Your token has expired; Refreshing it now.")
                 return True
             else:
                 return False
