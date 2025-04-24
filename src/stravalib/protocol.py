@@ -278,14 +278,12 @@ class ApiV3(metaclass=abc.ABCMeta):
             self.client_secret is not None
         ), "client_secret is required but is None."
 
-        # If the token is expired AND the refresh token exists
-        if self._token_expired() and self.refresh_token:
-            self.refresh_access_token(
-                client_id=self.client_id,
-                client_secret=self.client_secret,
-                refresh_token=self.refresh_token,
-            )
-            return
+        self.refresh_access_token(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            refresh_token=self.refresh_token,
+        )
+        return
 
     def authorization_url(
         self,
