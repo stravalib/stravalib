@@ -41,7 +41,7 @@ You may be interested in the following tutorials to get started
 
 1. [How to create
 a Strava app.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html#authenticate-with-the-strava-api-using-stravalib)
-1. [How to refresh and auto refresh your app token using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started//get-started/authenticate-with-strava.html#step-3-refresh-your-token.html)
+1. [How to refresh and auto refresh your app token using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/authenticate-with-strava.html#step-3-refresh-your-token.html)
 1. [How to get activities using stravalib.](https://stravalib.readthedocs.io/en/latest/get-started/activities.html)
 2. [Athlete data using stravalib](https://stravalib.readthedocs.io/en/latest/get-started/athletes.html)
 3. [Unit conversion and stravalib](https://stravalib.readthedocs.io/en/latest/get-started/activities.html#stravalib-offers-unit-conversion-helpers)
