@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix: corrects name of environment variables in docs (@jsamoocha, #631)
+- Fix: replaces print statement by logging (@jsamoocha, #634)
 - Remove: redundant check to prevent duplicate warning on refresh_expired_token (@renoviana, #636)
 
 ## v2.3.0
