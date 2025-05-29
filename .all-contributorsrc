@@ -104,7 +104,8 @@
       "profile": "http://www.renoviana.com",
       "contributions": [
         "code",
-        "bug"
+        "bug",
+        "review"
       ]
     }
   ]
