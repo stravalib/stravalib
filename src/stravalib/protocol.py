@@ -131,8 +131,10 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         client_id_str = os.environ.get("STRAVA_CLIENT_ID")
         client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
+        silence_token_warning = os.environ.get("SILENCE_TOKEN_WARNINGS")
+
         # Make sure client_id exists and can be cast to int
-        if client_id_str:
+        if client_id_str or silence_token_warning:
             try:
                 # Make sure client_id is a valid int
                 client_id = int(client_id_str)
@@ -143,7 +145,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "Please make sure your STRAVA_CLIENT_ID is set in your environment."
             )
 
-        if client_id and client_secret:
+        if (client_id and client_secret) or silence_token_warning:
             self.client_id = client_id
             self.client_secret = client_secret
         else:
@@ -277,7 +279,6 @@ class ApiV3(metaclass=abc.ABCMeta):
         assert (
             self.client_secret is not None
         ), "client_secret is required but is None."
-
 
         self.refresh_access_token(
             client_id=self.client_id,
