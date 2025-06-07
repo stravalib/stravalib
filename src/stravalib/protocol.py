@@ -143,6 +143,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         elif silence_token_warning:
             logging.error(
                 "Please make sure your STRAVA_CLIENT_ID is set in your environment."
+                "Add SILENCE_TOKEN_WARNINGS=true to your environment to disable this error."
             )
 
         if (client_id and client_secret) or silence_token_warning:
@@ -153,6 +154,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found in your "
                 " environment. Please refresh your access_token manually."
                 " Or add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to your environment."
+                "Add SILENCE_TOKEN_WARNINGS=true to your environment to silence this warning."
             )
         return None
 
