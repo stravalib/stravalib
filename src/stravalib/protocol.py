@@ -134,13 +134,13 @@ class ApiV3(metaclass=abc.ABCMeta):
         silence_token_warning = os.environ.get("SILENCE_TOKEN_WARNINGS")
 
         # Make sure client_id exists and can be cast to int
-        if client_id_str or silence_token_warning:
+        if client_id_str:
             try:
                 # Make sure client_id is a valid int
                 client_id = int(client_id_str)
             except ValueError:
                 logging.error("STRAVA_CLIENT_ID must be a valid integer.")
-        else:
+        elif silence_token_warning:
             logging.error(
                 "Please make sure your STRAVA_CLIENT_ID is set in your environment."
             )
