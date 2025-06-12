@@ -141,7 +141,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             except ValueError:
                 logging.error("STRAVA_CLIENT_ID must be a valid integer.")
         elif silence_token_warning is None:
-            logging.error(
+            logging.warning(
                 "Please make sure your STRAVA_CLIENT_ID is set in your environment."
                 "Add SILENCE_TOKEN_WARNINGS=true to your environment to disable this error."
             )
