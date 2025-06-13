@@ -99,7 +99,10 @@ class TestCheckCredentials:
         with patch.dict(os.environ, env_vars, clear=True):
             with caplog.at_level(logging.WARNING):
                 credentials = self.apiv3._check_credentials()
-                assert expected_log_message in caplog.text
+                if expected_log_message:
+                    assert expected_log_message in caplog.text
+                else:
+                    assert not caplog.records
                 assert credentials is None
 
 
