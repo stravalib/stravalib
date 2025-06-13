@@ -6,6 +6,7 @@
 - Fix: replaces print statement by logging (@jsamoocha, #634)
 - Remove: redundant check to prevent duplicate warning on refresh_expired_token (@renoviana, #636)
 - Doc: fix stravalib 2.x announcement link (@kevsteramp, #641)
+- Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
 
 ## v2.3.0
 
