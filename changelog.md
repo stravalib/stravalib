@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## v2.4.0
+## v2.3.1
 
 ### Added
 - Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
