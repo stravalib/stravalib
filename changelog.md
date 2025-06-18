@@ -9,6 +9,7 @@
 - Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
 - Fix: Pin GHA dependencies throughout to optimize security (@miketheman, #645)
 - Fix: Update Dependabot config to also update GitHub Actions dependencies (@miketheman, #646)
+- Add: Add zizmore action to build (@miketheman, #649)
 - Fix: Narrow permissions used in GitHub Actions workflows (@miketheman, #648)
 
 ## v2.3.0
