@@ -5,12 +5,16 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   update-model:
     name: Update Model
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Fetch API
         run: curl https://developers.strava.com/swagger/swagger.json > src/stravalib/tests/resources/strava_swagger.json
       - name: Fetch API Schema

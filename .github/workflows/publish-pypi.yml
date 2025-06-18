@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: "read"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,6 +21,7 @@ jobs:
         with:
           # So scm can view previous commits
           fetch-depth: 100
+          persist-credentials: false
 
       # Need the tags so that setuptools-scm can form a valid version number
       - name: Fetch git tags
