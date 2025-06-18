@@ -16,7 +16,7 @@ First, create a new application in your Strava account. To do this:
 :alt: "Screenshot of the Strava API create application page"
 :name: strava-api-create-application
 
-The above Strava documentation page image shows the Strava API create application page. The website value in this image is "localhost." This value can be any if you authenticate to gain local access to your Strava data. But if you plan to build a web application, you should place the URL of your application in that field.
+The above image shows the Strava API create application page. Here, the website url is "localhost." This value can be any if you authenticate to gain local access to your Strava data. But if you plan to build a web application, you should place the URL of your application in that field.
 :::
 
 
@@ -41,7 +41,7 @@ grant your application access to Strava account data.
 
 :::{figure} ../images/strava_api_values.png
 :alt: "Screenshot of the Strava API create application page"
-:name: strava-api-create-application
+:name: strava-api-values
 
 An image from the Strava documentation page shows what your API page will look like after creating your app above. For the step below, you will need the Client ID value provided in your app.
 :::
@@ -134,7 +134,7 @@ A token is valid for 6 hours. After that time period, you need to refresh it if 
 
 To refresh your token manually, use the {py:func}`stravalib.client.Client.refresh_access_token` method.
 
-:::{python}
+```python
 from stravalib import Client
 
 client = Client()
@@ -144,7 +144,7 @@ token_response = client.refresh_access_token(
     refresh_token=last_refresh_token,
 )
 new_access_token = token_response["access_token"]
-:::
+```
 
 :::{tip}
 See the [strava-oauth directory](https://github.com/stravalib/stravalib/tree/main/examples/strava-oauth) for an example of a Flask application that fetches a Strava authentication token.

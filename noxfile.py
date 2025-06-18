@@ -35,7 +35,7 @@ AUTOBUILD_INCLUDE = [pathlib.Path("_static", "pyos.css")]
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 
-@nox.session(name="docs-test", python="3.11")
+@nox.session(name="docs-test", python="3.12")
 def docs_test(session):
     """A session that builds the docs statically and returns any errors that
     it finds."""

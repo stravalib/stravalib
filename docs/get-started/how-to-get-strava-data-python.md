@@ -103,7 +103,7 @@ The figures below are from the Strava setup link provided above. They show you:
 1. The Strava application setup screen and
 2. The Strava application, once it's been set up with the client ID and access token values.
 
-:::{figure-md} fig-target
+:::{figure-md} app-account
 :class: myclass
 
 <img src="https://developers.strava.com/images/getting-started-2.png" alt="Image showing the settings for the application that you will create in your Strava account" class="bg-primary mb-1" width="700px">
@@ -114,7 +114,7 @@ Domain if you are only using this locally. Otherwise, you likely have a website
 URL that you will enter here.
 :::
 
-:::{figure-md} fig-target
+:::{figure-md} app-secrets
 :class: myclass
 
 <img src="https://developers.strava.com/images/getting-started-1.png" alt="Image showing the application and application client secret, access token and refresh token." class="bg-primary mb-1" width="700px">
