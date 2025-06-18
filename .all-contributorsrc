@@ -107,6 +107,17 @@
         "bug",
         "review"
       ]
+    },
+    {
+      "login": "miketheman",
+      "name": "Mike Fiedler",
+      "avatar_url": "https://avatars.githubusercontent.com/u/529516?v=4",
+      "profile": "https://www.miketheman.net",
+      "contributions": [
+        "code",
+        "review",
+        "security"
+      ]
     }
   ]
 }
