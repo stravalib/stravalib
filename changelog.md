@@ -7,7 +7,8 @@
 - Remove: redundant check to prevent duplicate warning on refresh_expired_token (@renoviana, #636)
 - Doc: fix stravalib 2.x announcement link (@kevsteramp, #641)
 - Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
-- Fix: Pin GHS dependencies throughout to optimize security (@miketheman, #645)
+- Fix: Pin GHA dependencies throughout to optimize security (@miketheman, #645)
+- Fix: Update Dependabot config to also update GitHub Actions dependencies (@miketheman, #646)
 
 ## v2.3.0
 
