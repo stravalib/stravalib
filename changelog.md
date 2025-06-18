@@ -7,6 +7,7 @@
 - Remove: redundant check to prevent duplicate warning on refresh_expired_token (@renoviana, #636)
 - Doc: fix stravalib 2.x announcement link (@kevsteramp, #641)
 - Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
+- Fix: Add zizmor to build and pin action steps (@miketheman, #645)
 
 ## v2.3.0
 
