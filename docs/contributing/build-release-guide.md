@@ -121,16 +121,9 @@ When you publish the release, a GitHub action will be enabled that builds the wh
 :align: center
 
 To initiate the publish to PyPI workflow, first create a new release. This will trigger the deployment build. To see that process in action, go to Actions --> the workflow that is running and you can watch progress. Once it builds successfully, it will wait to deploy until a maintainer approves the PyPI deployment.
+Once you have created a release, a maintainer can approve the automated deployment process for `stravalib` by going to the actions tab and clicking on the current publish-pypi.yml workflow run.
 :::
 
 - ✔️ 6. Authorize the deploy step of the build: The final step is to authorize the deployment to PyPI. Our build uses a GitHub environment called PyPI that is connected to our stravalib PyPI account using PyPI's trusted publisher workflow.   `publish release`. Only our core maintenance team can authorize an action to run using this environment.
-
-```{figure} /images/stravalib-release-deploy.gif
-:name: stravalib-release-deploy
-:width: 80%
-:align: center
-
-Once you have created a release, as a maintainer you can approve the automated deployment process for `stravalib` by going to the actions tab and clicking on the current publish-pypi.yml workflow run.
-:::
 
 Congratulations! You've just created a release of stravalib!

@@ -5,7 +5,7 @@ This page is designed to mirror the documentation structure at [Strava API Athle
 
 ## Retrieve Current Athlete
 
-This is the simplest request. It is provided by the {py:fun}`stravalib.client.Client.get_athlete` when called with no parameters.
+This is the simplest request. It is provided by the {py:func}`stravalib.client.Client.get_athlete` when called with no parameters.
 
 ```python
 athlete = client.get_athlete()
@@ -36,7 +36,7 @@ describe the methods for working with athlete data in the Strava API.
 
 ## Retrieve current athlete
 
-This is the simplest request.  It is provided by the {py:fun}`stravalib.client.Client.get_athlete` when called
+This is the simplest request.  It is provided by the {py:func}`stravalib.client.Client.get_athlete` when called
 with no parameters.
 
 ```python
@@ -49,7 +49,7 @@ See the {py:class}`stravalib.model.Athlete` class for details on what is returne
 ## Retrieve Another Athlete
 
 
-A variation on the above request, this is provided by the {py:fun}`stravalib.client.Client.get_athlete` when called with an athlete ID.
+A variation on the above request, this is provided by the {py:func}`stravalib.client.Client.get_athlete` when called with an athlete ID.
 
 ```python
 athlete = client.get_athlete(227615)
