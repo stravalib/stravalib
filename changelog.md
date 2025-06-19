@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+## v2.4
+
+### Added
+- Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
+- Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
+- Add: Add zizmore action to build (@miketheman, #649)
+
+### Fixed
+- Fix: corrects name of environment variables in docs (@jsamoocha, #631)
+- Fix: replaces print statement by logging (@jsamoocha, #634)
+- Doc: fix stravalib 2.x announcement link (@kevsteramp, #641)
+- Fix: Pin GHA dependencies throughout to optimize security (@miketheman, #645)
+- Fix: Update Dependabot config to also update GitHub Actions dependencies (@miketheman, #646)
+- Fix: Narrow permissions used in GitHub Actions workflows (@miketheman, #648)
+
+### Removed
+- Remove: redundant check to prevent duplicate warning on refresh_expired_token (@renoviana, #636)
+
+### Contributors to this release
+@kevsteramp, @renoviana, @miketheman, @jsamoocha
+
+## v2.3.0
+
 ### Added
 
 - Add: Support for Python 3.13 (@hugovk, #627)
@@ -10,6 +33,10 @@
 ### Fixed
 
 - Fix: Setup trusted publishing & enhance publish step security (@lwasser, #617)
+
+
+### Contributors to this release
+@hugovk, @lwasser
 
 ## v2.2.0
 

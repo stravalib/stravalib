@@ -5,20 +5,24 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   update-model:
     name: Update Model
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Fetch API
         run: curl https://developers.strava.com/swagger/swagger.json > src/stravalib/tests/resources/strava_swagger.json
       - name: Fetch API Schema
-        uses: stravalib/strava_swagger2pydantic@v1
+        uses: stravalib/strava_swagger2pydantic@b4693fe033ae2061f0bfd26bf0e5e5538a6571c5 # v1.0.10
         with:
           model_file: "src/stravalib/strava_model.py"
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           add-paths: |
             src/stravalib

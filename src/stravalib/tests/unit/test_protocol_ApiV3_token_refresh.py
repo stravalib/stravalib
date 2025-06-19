@@ -77,6 +77,14 @@ class TestCheckCredentials:
                 {"STRAVA_CLIENT_ID": "12345"},
                 "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET not found",
             ),  # Missing secret
+            (
+                {
+                    "STRAVA_CLIENT_ID": "",
+                    "STRAVA_CLIENT_SECRET": "",
+                    "SILENCE_TOKEN_WARNINGS": "TRUE",
+                },
+                "",
+            ),  # Disable warnings if SILENCE_TOKEN_WARNINGS is present
         ],
     )
     def test_check_credentials_missing_vals(
@@ -91,7 +99,10 @@ class TestCheckCredentials:
         with patch.dict(os.environ, env_vars, clear=True):
             with caplog.at_level(logging.WARNING):
                 credentials = self.apiv3._check_credentials()
-                assert expected_log_message in caplog.text
+                if expected_log_message:
+                    assert expected_log_message in caplog.text
+                else:
+                    assert not caplog.records
                 assert credentials is None
 
 
