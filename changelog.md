@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fix: Numerous documentation fixes (@lwasser, #651)
+
 ## v2.4
 
 ### Added
