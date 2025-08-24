@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
 
 ### Fixed
 - Fix: Numerous documentation fixes (@lwasser, #651)
