@@ -21,7 +21,7 @@ jobs:
       - name: Fetch API
         run: curl https://developers.strava.com/swagger/swagger.json > src/stravalib/tests/resources/strava_swagger.json
       - name: Fetch API Schema
-        uses: stravalib/strava_swagger2pydantic@b4693fe033ae2061f0bfd26bf0e5e5538a6571c5 # v1.0.10
+        uses: stravalib/strava_swagger2pydantic@ce6901c427e48568ea4a1c7096a84ab36e74da1d # v1.0.11
         with:
           model_file: "src/stravalib/strava_model.py"
       - name: Create Pull Request
