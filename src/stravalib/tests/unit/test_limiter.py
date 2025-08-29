@@ -13,48 +13,48 @@ from stravalib.util.limiter import (
 # 2023 developer program:
 
 fake_response_unenrolled = {
-    "Status": "404 Not Found",
-    "X-Request-Id": "a1a4a4973962ffa7e0f18d7c485fe741",
-    "Content-Encoding": "gzip",
-    "Content-Length": "104",
-    "Connection": "keep-alive",
-    "X-RateLimit-Limit": "600,30000",
-    "X-UA-Compatible": "IE=Edge,chrome=1",
-    "Cache-Control": "no-cache, private",
-    "Date": "Tue, 14 Nov 2017 11:29:15 GMT",
-    "X-FRAME-OPTIONS": "DENY",
-    "Content-Type": "application/json; charset=UTF-8",
-    "X-RateLimit-Usage": "4,67",
+    "status": "404 Not Found",
+    "x-request-id": "a1a4a4973962ffa7e0f18d7c485fe741",
+    "content-encoding": "gzip",
+    "content-length": "104",
+    "connection": "keep-alive",
+    "x-ratelimit-limit": "600,30000",
+    "x-ua-compatible": "IE=Edge,chrome=1",
+    "cache-control": "no-cache, private",
+    "date": "Tue, 14 Nov 2017 11:29:15 GMT",
+    "x-frame-options": "DENY",
+    "content-type": "application/json; charset=UTF-8",
+    "x-ratelimit-usage": "4,67",
 }
 
 fake_response_unenrolled_limit_exceeded = fake_response_unenrolled | {
-    "X-RateLimit-Usage": "601, 602"
+    "x-ratelimit-usage": "601, 602"
 }
 
 fake_response_unenrolled_no_rates = {
-    "Status": "200 OK",
-    "X-Request-Id": "d465159561420f6e0239dc24429a7cf3",
-    "Content-Encoding": "gzip",
-    "Content-Length": "371",
-    "Connection": "keep-alive",
-    "X-UA-Compatible": "IE=Edge,chrome=1",
-    "Cache-Control": "max-age=0, private, must-revalidate",
-    "Date": "Tue, 14 Nov 2017 13:19:31 GMT",
-    "X-FRAME-OPTIONS": "DENY",
-    "Content-Type": "application/json; charset=UTF-8",
+    "status": "200 OK",
+    "x-request-id": "d465159561420f6e0239dc24429a7cf3",
+    "content-encoding": "gzip",
+    "content-length": "371",
+    "connection": "keep-alive",
+    "x-ua-compatible": "IE=Edge,chrome=1",
+    "cache-control": "max-age=0, private, must-revalidate",
+    "date": "Tue, 14 Nov 2017 13:19:31 GMT",
+    "x-frame-options": "DENY",
+    "content-type": "application/json; charset=UTF-8",
 }
 
 # Example responses for Strava 3rd party apps that are enrolled:
 fake_reponse_enrolled = fake_response_unenrolled | {
-    "X-ReadRateLimit-Usage": "2,32",
-    "X-ReadRateLimit-Limit": "300,15000",
+    "x-readratelimit-usage": "2,32",
+    "x-readratelimit-limit": "300,15000",
 }
 
 fake_reponse_enrolled_read_limit_exceeded = fake_reponse_enrolled | {
-    "X-ReadRateLimit-Usage": "301,302"
+    "x-readratelimit-usage": "301,302"
 }
 fake_reponse_enrolled_overall_limit_exceeded = fake_reponse_enrolled | {
-    "X-RateLimit-Usage": "601,602"
+    "x-ratelimit-usage": "601,602"
 }
 
 
