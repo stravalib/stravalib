@@ -118,6 +118,15 @@
         "review",
         "security"
       ]
+    },
+    {
+      "login": "BPR02",
+      "name": "BPR",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40612230?v=4",
+      "profile": "https://github.com/BPR02",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
