@@ -69,17 +69,18 @@ def get_rates_from_response_headers(
         present in response.
     """
     usage_rates = limit_rates = []
+    headers = {key.casefold(): value for key, value in headers.items()}
 
-    if "X-ReadRateLimit-Usage" in headers and method == "GET":
+    if "x-readratelimit-usage" in headers and method == "GET":
         usage_rates = [
-            int(v) for v in headers["X-ReadRateLimit-Usage"].split(",")
+            int(v) for v in headers["x-readratelimit-usage"].split(",")
         ]
         limit_rates = [
-            int(v) for v in headers["X-ReadRateLimit-Limit"].split(",")
+            int(v) for v in headers["x-readratelimit-limit"].split(",")
         ]
-    elif "X-RateLimit-Usage" in headers:
-        usage_rates = [int(v) for v in headers["X-RateLimit-Usage"].split(",")]
-        limit_rates = [int(v) for v in headers["X-RateLimit-Limit"].split(",")]
+    elif "x-ratelimit-usage" in headers:
+        usage_rates = [int(v) for v in headers["x-ratelimit-usage"].split(",")]
+        limit_rates = [int(v) for v in headers["x-ratelimit-limit"].split(",")]
 
     if usage_rates and limit_rates:
         return RequestRate(

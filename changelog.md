@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fix: Improve response header handling (@BPR02, #664)
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
 - Chore(ci): Update and fix dependabot (@lwasser, #657)
 - Fix: Numerous documentation fixes (@lwasser, #651)
