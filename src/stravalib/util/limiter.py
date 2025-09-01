@@ -29,7 +29,6 @@ from logging import Logger
 from typing import Literal, NamedTuple
 
 import arrow
-from requests.structures import CaseInsensitiveDict
 
 from stravalib.protocol import RequestMethod
 
@@ -51,7 +50,7 @@ class RequestRate(NamedTuple):
 
 
 def get_rates_from_response_headers(
-    headers: CaseInsensitiveDict[str, str], method: RequestMethod
+    headers: dict[str, str], method: RequestMethod
 ) -> RequestRate | None:
     """Returns a namedtuple with values for short - and long usage and limit
     rates found in provided HTTP response headers
