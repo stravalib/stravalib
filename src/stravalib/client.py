@@ -2340,17 +2340,35 @@ class ActivityUploader:
 
     @property
     def is_processing(self) -> bool:
-        """ """
+        """Check if the activity upload is still being processed.
+        
+        Returns
+        -------
+        bool
+            True if the upload is still processing (no activity_id yet and no error).
+        """
         return self.activity_id is None and self.error is None
 
     @property
     def is_error(self) -> bool:
-        """ """
+        """Check if the activity upload encountered an error.
+        
+        Returns
+        -------
+        bool
+            True if an error occurred during upload.
+        """
         return self.error is not None
 
     @property
     def is_complete(self) -> bool:
-        """ """
+        """Check if the activity upload completed successfully.
+        
+        Returns
+        -------
+        bool
+            True if the upload completed and an activity_id was assigned.
+        """
         return self.activity_id is not None
 
     def raise_for_error(self) -> None:
