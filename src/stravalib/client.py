@@ -2341,7 +2341,7 @@ class ActivityUploader:
     @property
     def is_processing(self) -> bool:
         """Check if the activity upload is still being processed.
-        
+
         Returns
         -------
         bool
@@ -2352,7 +2352,7 @@ class ActivityUploader:
     @property
     def is_error(self) -> bool:
         """Check if the activity upload encountered an error.
-        
+
         Returns
         -------
         bool
@@ -2363,7 +2363,7 @@ class ActivityUploader:
     @property
     def is_complete(self) -> bool:
         """Check if the activity upload completed successfully.
-        
+
         Returns
         -------
         bool
@@ -2373,7 +2373,7 @@ class ActivityUploader:
 
     def raise_for_error(self) -> None:
         """Raise an appropriate exception if the upload encountered an error.
-        
+
         Raises
         ------
         stravalib.exc.ErrorProcessingActivity
@@ -2390,7 +2390,7 @@ class ActivityUploader:
                 error_msg += f" (Upload ID: {self.upload_id})"
             if self.external_id:
                 error_msg += f" (External ID: {self.external_id})"
-            
+
             # Check for specific error types
             if "processing" in str(self.error).lower():
                 raise exc.ErrorProcessingActivity(error_msg)
