@@ -2324,8 +2324,14 @@ class ActivityUploader:
         if response.get("error"):
             self.error = response.get("error")
         elif response.get("errors"):
-            # This appears to be an undocumented API; this is a temp hack
-            self.error = str(response.get("errors"))
+            # Handle errors field which may contain a list or dict of errors
+            errors = response.get("errors")
+            if isinstance(errors, list):
+                self.error = "; ".join(str(e) for e in errors)
+            elif isinstance(errors, dict):
+                self.error = "; ".join(f"{k}: {v}" for k, v in errors.items())
+            else:
+                self.error = str(errors)
         else:
             self.error = None
 
@@ -2348,11 +2354,30 @@ class ActivityUploader:
         return self.activity_id is not None
 
     def raise_for_error(self) -> None:
-        """ """
-        # FIXME: We need better handling of the actual responses, once those are
-        # more accurately documented.
+        """Raise an appropriate exception if the upload encountered an error.
+        
+        Raises
+        ------
+        stravalib.exc.ErrorProcessingActivity
+            If the upload status indicates a processing error.
+        stravalib.exc.CreatedActivityDeleted
+            If the created activity was deleted.
+        stravalib.exc.ActivityUploadFailed
+            For other upload failures.
+        """
         if self.error:
-            raise exc.ActivityUploadFailed(self.error)
+            # Provide more context about the upload failure
+            error_msg = f"Activity upload failed: {self.error}"
+            if self.upload_id:
+                error_msg += f" (Upload ID: {self.upload_id})"
+            if self.external_id:
+                error_msg += f" (External ID: {self.external_id})"
+            
+            # Check for specific error types
+            if "processing" in str(self.error).lower():
+                raise exc.ErrorProcessingActivity(error_msg)
+            else:
+                raise exc.ActivityUploadFailed(error_msg)
         elif self.status == "The created activity has been deleted.":
             raise exc.CreatedActivityDeleted(self.status)
 
