@@ -549,9 +549,16 @@ class Client:
         if athlete_id is None:
             athlete_id = self.get_athlete().id
 
-        raw = self.protocol.get("/athletes/{id}/stats", id=athlete_id)
-        # TODO: Better error handling - this will return a 401 if this athlete
-        #       is not the authenticated athlete.
+        try:
+            raw = self.protocol.get("/athletes/{id}/stats", id=athlete_id)
+        except exc.AccessUnauthorized as e:
+            # Re-raise with more helpful error message
+            raise exc.AccessUnauthorized(
+                f"Unable to retrieve stats for athlete {athlete_id}. "
+                "Athlete stats can only be retrieved for the currently authenticated athlete. "
+                "Ensure you are requesting stats for your own athlete ID.",
+                response=e.response,
+            ) from e
 
         return model.AthleteStats.model_validate(raw)
 
