@@ -7,6 +7,10 @@
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
 - Chore(ci): Update and fix dependabot (@lwasser, #657)
 - Fix: Numerous documentation fixes (@lwasser, #651)
+- Fix: Improve error handling in get_athlete_stats with detailed 401 error messages (@HzaCode)
+- Fix: Enhance ActivityUploader error handling with better parsing and context (@HzaCode)
+- Docs: Add comprehensive docstrings to ActivityUploader properties (@HzaCode)
+- Docs: Add detailed DefaultRateLimiter documentation with priority level examples (@HzaCode)
 
 ## v2.4
 
