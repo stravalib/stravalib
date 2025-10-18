@@ -705,7 +705,7 @@ def test_activity_uploader_error_list(client):
     uploader = ActivityUploader(client, response=response, raise_exc=False)
     assert uploader.error == "Error 1; Error 2; Error 3"
     assert uploader.is_error
-    
+
     with pytest.raises(ActivityUploadFailed) as exc_info:
         uploader.raise_for_error()
     error_msg = str(exc_info.value)
@@ -727,7 +727,7 @@ def test_activity_uploader_error_dict(client):
     assert "field1: error message 1" in uploader.error
     assert "field2: error message 2" in uploader.error
     assert uploader.is_error
-    
+
     with pytest.raises(ActivityUploadFailed) as exc_info:
         uploader.raise_for_error()
     error_msg = str(exc_info.value)
@@ -747,7 +747,7 @@ def test_activity_uploader_error_processing(client):
     }
     uploader = ActivityUploader(client, response=response, raise_exc=False)
     assert uploader.is_error
-    
+
     with pytest.raises(ErrorProcessingActivity) as exc_info:
         uploader.raise_for_error()
     error_msg = str(exc_info.value)
@@ -765,7 +765,7 @@ def test_activity_uploader_error_without_ids(client):
     }
     uploader = ActivityUploader(client, response=response, raise_exc=False)
     assert uploader.is_error
-    
+
     with pytest.raises(ActivityUploadFailed) as exc_info:
         uploader.raise_for_error()
     error_msg = str(exc_info.value)
