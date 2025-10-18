@@ -751,7 +751,9 @@ def test_activity_uploader_error_processing(client):
     with pytest.raises(ErrorProcessingActivity) as exc_info:
         uploader.raise_for_error()
     error_msg = str(exc_info.value)
-    assert "Activity upload failed: Error processing your activity" in error_msg
+    assert (
+        "Activity upload failed: Error processing your activity" in error_msg
+    )
     assert "Upload ID: 789" in error_msg
     assert "External ID: proc_error_id" in error_msg
 
@@ -938,7 +940,9 @@ def test_get_athlete_stats(
             client.get_athlete_stats(athlete_id)
         # Verify the enhanced error message
         error_msg = str(exc_info.value)
-        assert f"Unable to retrieve stats for athlete {athlete_id}" in error_msg
+        assert (
+            f"Unable to retrieve stats for athlete {athlete_id}" in error_msg
+        )
         assert "currently authenticated athlete" in error_msg
     else:
         stats = client.get_athlete_stats(athlete_id)
