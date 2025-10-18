@@ -248,9 +248,10 @@ class DefaultRateLimiter(RateLimiter):
     - **high**: No cool-down period between requests. Requests are made as fast
       as possible until limits are reached, then waits until the limit period expires.
     - **medium**: Applies a cool-down period to avoid exceeding short-term limits
-      (600 requests per 15 minutes).
+      (e.g., 600 requests per 15 minutes, actual limits are app-specific).
     - **low**: Applies a cool-down period to avoid exceeding long-term limits
-      (30,000 requests per day), spreading requests evenly throughout the day.
+      (e.g., 30,000 requests per day, actual limits are app-specific), spreading
+      requests evenly throughout the day.
 
     Examples
     --------

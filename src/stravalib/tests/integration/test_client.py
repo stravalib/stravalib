@@ -693,6 +693,88 @@ def test_activity_uploader(mock_strava_api, client):
         assert activity.id == test_activity_id
 
 
+def test_activity_uploader_error_list(client):
+    """Test ActivityUploader handles errors field as a list."""
+    from stravalib.exc import ActivityUploadFailed
+
+    response = {
+        "id": 123,
+        "external_id": "test_external_id",
+        "errors": ["Error 1", "Error 2", "Error 3"],
+    }
+    uploader = ActivityUploader(client, response=response, raise_exc=False)
+    assert uploader.error == "Error 1; Error 2; Error 3"
+    assert uploader.is_error
+    
+    with pytest.raises(ActivityUploadFailed) as exc_info:
+        uploader.raise_for_error()
+    error_msg = str(exc_info.value)
+    assert "Activity upload failed: Error 1; Error 2; Error 3" in error_msg
+    assert "Upload ID: 123" in error_msg
+    assert "External ID: test_external_id" in error_msg
+
+
+def test_activity_uploader_error_dict(client):
+    """Test ActivityUploader handles errors field as a dict."""
+    from stravalib.exc import ActivityUploadFailed
+
+    response = {
+        "id": 456,
+        "external_id": "test_ext_id",
+        "errors": {"field1": "error message 1", "field2": "error message 2"},
+    }
+    uploader = ActivityUploader(client, response=response, raise_exc=False)
+    assert "field1: error message 1" in uploader.error
+    assert "field2: error message 2" in uploader.error
+    assert uploader.is_error
+    
+    with pytest.raises(ActivityUploadFailed) as exc_info:
+        uploader.raise_for_error()
+    error_msg = str(exc_info.value)
+    assert "Activity upload failed:" in error_msg
+    assert "Upload ID: 456" in error_msg
+    assert "External ID: test_ext_id" in error_msg
+
+
+def test_activity_uploader_error_processing(client):
+    """Test ActivityUploader raises ErrorProcessingActivity for processing errors."""
+    from stravalib.exc import ErrorProcessingActivity
+
+    response = {
+        "id": 789,
+        "external_id": "proc_error_id",
+        "error": "Error processing your activity",
+    }
+    uploader = ActivityUploader(client, response=response, raise_exc=False)
+    assert uploader.is_error
+    
+    with pytest.raises(ErrorProcessingActivity) as exc_info:
+        uploader.raise_for_error()
+    error_msg = str(exc_info.value)
+    assert "Activity upload failed: Error processing your activity" in error_msg
+    assert "Upload ID: 789" in error_msg
+    assert "External ID: proc_error_id" in error_msg
+
+
+def test_activity_uploader_error_without_ids(client):
+    """Test ActivityUploader error message without upload_id and external_id."""
+    from stravalib.exc import ActivityUploadFailed
+
+    response = {
+        "error": "Generic upload error",
+    }
+    uploader = ActivityUploader(client, response=response, raise_exc=False)
+    assert uploader.is_error
+    
+    with pytest.raises(ActivityUploadFailed) as exc_info:
+        uploader.raise_for_error()
+    error_msg = str(exc_info.value)
+    assert "Activity upload failed: Generic upload error" in error_msg
+    # Should not contain ID information
+    assert "Upload ID:" not in error_msg
+    assert "External ID:" not in error_msg
+
+
 def test_get_route(mock_strava_api, client):
     with open(
         os.path.join(RESOURCES_DIR, "example_route_response.json")
@@ -852,8 +934,12 @@ def test_get_athlete_stats(
             status=401,
         )
     if expected_exception:
-        with pytest.raises(expected_exception):
+        with pytest.raises(expected_exception) as exc_info:
             client.get_athlete_stats(athlete_id)
+        # Verify the enhanced error message
+        error_msg = str(exc_info.value)
+        assert f"Unable to retrieve stats for athlete {athlete_id}" in error_msg
+        assert "currently authenticated athlete" in error_msg
     else:
         stats = client.get_athlete_stats(athlete_id)
         assert stats.biggest_ride_distance == expected_biggest_ride_distance
