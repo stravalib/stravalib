@@ -1897,7 +1897,7 @@
       "get": {
         "operationId": "getClubById",
         "summary": "Get Club",
-        "description": "Returns a given club using its identifier.",
+        "description": "Returns a given a club using its identifier.",
         "parameters": [
           {
             "name": "id",
