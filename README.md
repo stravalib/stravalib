@@ -46,6 +46,55 @@ a Strava app.](https://stravalib.readthedocs.io/en/latest/get-started/authentica
 2. [Athlete data using stravalib](https://stravalib.readthedocs.io/en/latest/get-started/athletes.html)
 3. [Unit conversion and stravalib](https://stravalib.readthedocs.io/en/latest/get-started/activities.html#stravalib-offers-unit-conversion-helpers)
 
+## Command-line interface
+
+stravalib now ships with a Typer-powered CLI that mirrors the `Client` API. Once
+installed (either from PyPI or locally with `uv pip install -e .`), explore the
+command tree via:
+
+```bash
+$ uv run stravalib --help
+```
+
+The CLI keeps a few root-level shortcuts (`whoami`, `activities-recent`, `activity`,
+`activity-streams`) and organises the rest into subcommands:
+
+- `auth` – authorization URLs, token exchanges/refreshes, and deauthorize.
+- `athlete` – profile, zones, stats, KOMs, and club memberships.
+- `activities` – list/get, create/update, uploads, comments, zones, photos,
+  laps, streams, and kudos.
+- `clubs` – lookups, members, activities, admins, join/leave actions.
+- `segments` – lookups, starred segments, effort queries, explore, streams.
+- `routes` – saved routes and their streams.
+- `gear` – fetch gear metadata by ID.
+- `subscriptions` – webhook subscription lifecycle and callback helpers.
+
+Every command honours the usual environment variables (`STRAVA_ACCESS_TOKEN`,
+`STRAVA_REFRESH_TOKEN`, `STRAVA_TOKEN_EXPIRES_AT`, `STRAVA_CLIENT_ID`,
+`STRAVA_CLIENT_SECRET`). You can override them per-invocation with the shared
+global options (`--access-token`, `--refresh-token`, etc.).
+
+Examples:
+
+```bash
+# Fetch the authenticated athlete profile
+$ uv run stravalib athlete profile
+
+# List recent activities (alias and grouped command both work)
+$ uv run stravalib activities --limit 5
+$ uv run stravalib activities list --limit 5
+
+# Explore segments within a bounding box
+$ uv run stravalib segments explore \
+    --south-lat 29.60 --west-lng -95.80 --north-lat 29.90 --east-lng -95.10
+
+# Upload a FIT file and poll until processing completes
+$ uv run stravalib activities upload ./ride.fit --data-type fit --poll
+```
+
+See the "CLI" guide under the documentation `get-started` section for more
+workflow-oriented examples.
+
 We welcome contributions to our tutorials and get-started documentation if you are a stravalib user and want to contribute!
 
 

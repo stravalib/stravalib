@@ -50,12 +50,22 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = ["pint", "pytz", "arrow", "requests", "pydantic>=2.0"]
+dependencies = [
+    "pint",
+    "pytz",
+    "arrow",
+    "requests",
+    "pydantic>=2.0",
+    "typer",
+]
 
 [project.urls]
 documentation = "https://stravalib.readthedocs.io"
 repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
+
+[project.scripts]
+stravalib = "stravalib.cli:main_entry"
 
 
 [project.optional-dependencies]
