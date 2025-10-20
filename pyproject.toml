@@ -89,7 +89,8 @@ lint = [
   "types-requests",
   "types-pytz",
   "types-Flask",
-  "ruff"
+  "ruff",
+  "types-python-dateutil"
 ]
 
 [tool.black]
