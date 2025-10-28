@@ -546,6 +546,10 @@ class SummaryActivity(MetaActivity):
     """
     Whether this activity is a commute
     """
+    device_name: str | None = None
+    """
+    The name of the device used to record the activity
+    """
     device_watts: bool | None = None
     """
     Whether the watts are from a power meter, false if estimated
