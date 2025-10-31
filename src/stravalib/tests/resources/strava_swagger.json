@@ -1012,7 +1012,7 @@
       "get": {
         "operationId": "getActivityById",
         "summary": "Get Activity",
-        "description": "Returns the given activity that is owned by the authenticated athlete. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities.",
+        "description": "Returns the given activity that is owned by the authenticated athlete. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities.\n\nWe strongly encourage you to display the appropriate attribution that identifies Garmin as the data source and the device name in your application. Please see example below from VeloViewer (that provides an attribution for a Garmin Forerunner device).\n\n![Attribution](/images/device-attribution-image.png)",
         "parameters": [
           {
             "name": "id",
@@ -1561,6 +1561,7 @@
                             "summary_polyline": null,
                             "resource_state": 2
                         },
+                        "device_name": "Garmin Edge 1030",
                         "trainer": true,
                         "commute": false,
                         "manual": false,
@@ -1620,6 +1621,7 @@
                             "summary_polyline": null,
                             "resource_state": 2
                         },
+                        "device_name": "Garmin Edge 1030",
                         "trainer": true,
                         "commute": false,
                         "manual": false,

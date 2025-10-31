@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
+
 ### Fixed
 - Fix: Improve response header handling (@BPR02, #664)
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
