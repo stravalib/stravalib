@@ -9,6 +9,7 @@ Overview <overview>
 Authentication <authenticate-with-strava>
 Activities <activities>
 Athletes <athletes>
+CLI <cli>
 
 ```
 
