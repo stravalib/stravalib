@@ -38,7 +38,7 @@ body:
     attributes:
       label: What version of python or you running?
       description: >
-        Example: 3.10.12
+        Example: 3.11
       placeholder: >
         Enter the version here.
 
