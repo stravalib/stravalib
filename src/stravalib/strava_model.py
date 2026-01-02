@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -943,7 +943,7 @@ class Waypoint(BaseModel):
     """
     A description of the waypoint (optional)
     """
-    distance_into_route: Any | None = None
+    distance_into_route: float | None = None
     """
     The number meters along the route that the waypoint is located
     """
