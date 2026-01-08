@@ -14,6 +14,7 @@
 - Fix: Enhance ActivityUploader error handling with better parsing and context (@HzaCode)
 - Docs: Add comprehensive docstrings to ActivityUploader properties (@HzaCode)
 - Docs: Add detailed DefaultRateLimiter documentation with priority level examples (@HzaCode)
+- Fix: Adds type parameters to generic Pint objects (@jsamoocha, #687)
 
 ## v2.4
 

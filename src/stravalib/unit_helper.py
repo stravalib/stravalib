@@ -22,7 +22,7 @@ class _Quantity(float):
     The quantity's unit
     """
 
-    def quantity(self) -> pint.Quantity:
+    def quantity(self) -> pint.Quantity[float]:
         """
         Returns the base type (e.g., float) as a pint.Quantity by attaching
         the unit to it.
@@ -39,7 +39,7 @@ class UnitConverter:
         self.unit = unit
 
     def __call__(
-        self, q: _Quantity | pint.Quantity | float
+        self, q: _Quantity | pint.Quantity[float] | float
     ) -> PlainQuantity[Any]:
         if isinstance(q, pint.Quantity):
             return q.to(self.unit)
