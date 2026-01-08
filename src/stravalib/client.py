@@ -848,7 +848,7 @@ class Client:
         sport_type: SportType | None = None,
         activity_type: ActivityType | None = None,
         description: str | None = None,
-        distance: pint.Quantity | float | None = None,
+        distance: pint.Quantity[float] | float | None = None,
         trainer: bool | None = None,
         commute: bool | None = None,
     ) -> model.DetailedActivity:
