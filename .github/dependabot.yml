@@ -11,3 +11,7 @@ updates:
       interval: "monthly"
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
