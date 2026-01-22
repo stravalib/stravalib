@@ -12,7 +12,7 @@ jobs:
   build-doc:
     runs-on: ubuntu-latest
     env:
-      PYTHON-VERSION: "3.11"
+      PYTHON-VERSION: "3.12"
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
