@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON-VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
       - name: Upgrade pip & install nox
         run: |
           # install pip=>20.1 to use "pip cache dir"
