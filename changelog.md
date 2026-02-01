@@ -4,6 +4,7 @@
 
 ### Added
 - Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
+- Add: replace pytz with ZoneInfo (@jsamoocha, #706)
 - Add: Support for Python 3.14 (@lwasser)
 
 ### Fixed
