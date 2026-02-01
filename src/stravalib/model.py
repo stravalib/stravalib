@@ -368,14 +368,9 @@ class Timezone(str):
 
         Returns
         -------
-        tzinfo or None
-            The corresponding ZoneInfo time zone object if the time zone string
+        tzinfo | None
+            The corresponding ZoneInfo instance if the time zone string
             is recognized, otherwise `None`.
-
-        Raises
-        ------
-        `ZoneInfoNotFoundError`
-            If the time zone string is not recognized.
         """
         if " " in self:
             # (GMT-08:00) America/Los_Angeles
