@@ -137,3 +137,77 @@ def test_get_wait_time(
         )
         == expected_wait_time
     )
+
+
+@pytest.mark.parametrize(
+    "priority,rates,seconds_until_short_limit,seconds_until_long_limit,expected_wait_time",
+    (
+        # Test 1: "low" priority should respect 15-min limit when tighter
+        # Bug scenario: end of day with many daily requests left but few 15-min
+        (
+            "low",
+            RequestRate(595, 20000, 600, 30000),
+            600,
+            300,
+            120.0,  # max(600/5, 300/10000) = max(120, 0.03) = 120
+        ),
+        # Test 2: "medium" priority should respect daily limit when >50% used
+        (
+            "medium",
+            RequestRate(50, 29990, 600, 30000),  # 99.97% of daily used
+            600,
+            43200,
+            4320.0,  # max(600/550, 43200/10) = max(1.09, 4320) = 4320
+        ),
+        # Test 3: "medium" priority ignores daily limit when <50% used
+        (
+            "medium",
+            RequestRate(550, 5000, 600, 30000),  # 16.67% of daily used
+            600,
+            43200,
+            12.0,  # Only short_wait: 600/50 = 12 (ignores long_wait)
+        ),
+        # Test 4: "low" priority normal case (daily is tighter)
+        (
+            "low",
+            RequestRate(100, 28000, 600, 30000),
+            600,
+            43200,
+            21.6,  # max(600/500, 43200/2000) = max(1.2, 21.6) = 21.6
+        ),
+        # Test 5: "high" priority unchanged (no wait when under limits)
+        (
+            "high",
+            RequestRate(595, 29990, 600, 30000),
+            600,
+            300,
+            0,  # Still returns 0
+        ),
+        # Test 6: Extreme case - very few requests left in both windows
+        (
+            "low",
+            RequestRate(599, 29999, 600, 30000),
+            300,
+            300,
+            300.0,  # max(300/1, 300/1) = 300
+        ),
+    ),
+)
+def test_get_wait_time_respects_both_limits(
+    priority,
+    rates,
+    seconds_until_short_limit,
+    seconds_until_long_limit,
+    expected_wait_time,
+):
+    """Test that rate limiter respects BOTH short-term and long-term limits.
+
+    This addresses issue #615 where the limiter could violate the 15-minute
+    limit when many daily requests remained at day's end.
+    """
+    rule = SleepingRateLimitRule(priority=priority)
+    actual_wait = rule._get_wait_time(
+        rates, seconds_until_short_limit, seconds_until_long_limit
+    )
+    # Use pytest.approx for floating point comparison
+    assert actual_wait == pytest.approx(expected_wait_time, rel=1e-2)

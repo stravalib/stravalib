@@ -184,6 +184,7 @@ class SleepingRateLimitRule:
         """Calculate how much time user has until they can make another
         request"""
 
+        # If limits are exceeded, wait until they reset
         if rates.long_usage >= rates.long_limit:
             self.log.warning("Long term API rate limit exceeded")
             return seconds_until_long_limit
@@ -191,16 +192,28 @@ class SleepingRateLimitRule:
             self.log.warning("Short term API rate limit exceeded")
             return seconds_until_short_limit
 
+        # High priority: no wait time
         if self.priority == "high":
             return 0
-        elif self.priority == "medium":
-            return seconds_until_short_limit / (
-                rates.short_limit - rates.short_usage
-            )
+
+        # Calculate wait times for BOTH limits
+        short_wait = seconds_until_short_limit / (
+            rates.short_limit - rates.short_usage
+        )
+        long_wait = seconds_until_long_limit / (
+            rates.long_limit - rates.long_usage
+        )
+
+        if self.priority == "medium":
+            # Focus on short-term limit, but also respect daily limit
+            # when at least half of the daily quota is used
+            if rates.long_usage >= rates.long_limit / 2:
+                return max(short_wait, long_wait)
+            else:
+                return short_wait
         elif self.priority == "low":
-            return seconds_until_long_limit / (
-                rates.long_limit - rates.long_usage
-            )
+            # Spread requests over the day, but always respect both limits
+            return max(short_wait, long_wait)
 
     def __call__(
         self, response_headers: dict[str, str], method: RequestMethod
