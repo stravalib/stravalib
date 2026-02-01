@@ -12,7 +12,7 @@ import functools
 import logging
 import time
 from collections.abc import Iterable
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from typing import (
     TYPE_CHECKING,
@@ -27,7 +27,6 @@ from typing import (
 
 import arrow
 import pint
-import pytz
 from pydantic import BaseModel
 from requests import Session
 
@@ -342,7 +341,7 @@ class Client:
             activity_datetime = arrow.get(activity_datetime).datetime
         assert isinstance(activity_datetime, datetime)
         if activity_datetime.tzinfo:
-            activity_datetime = activity_datetime.astimezone(pytz.utc)
+            activity_datetime = activity_datetime.astimezone(timezone.utc)
 
         return calendar.timegm(activity_datetime.timetuple())
 

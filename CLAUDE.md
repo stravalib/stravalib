@@ -165,10 +165,11 @@ The codebase uses Pydantic v2. When working with models:
 
 Core dependencies (see pyproject.toml):
 - pint: Unit conversion
-- pytz: Timezone handling
 - arrow: Advanced datetime handling
 - requests: HTTP client
 - pydantic>=2.0: Data validation and serialization
+
+Note: Timezone handling uses the standard library `zoneinfo` module (Python 3.9+)
 
 ## CI/CD
 

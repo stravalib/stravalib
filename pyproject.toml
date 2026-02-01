@@ -50,7 +50,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = ["pint", "pytz", "arrow", "requests", "pydantic>=2.0"]
+dependencies = ["pint", "arrow", "requests", "pydantic>=2.0"]
 
 [project.urls]
 documentation = "https://stravalib.readthedocs.io"
@@ -87,7 +87,6 @@ lint = [
   "pre-commit",
   "mypy",
   "types-requests",
-  "types-pytz",
   "types-Flask",
   "ruff",
   "types-python-dateutil"

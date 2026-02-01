@@ -21,7 +21,6 @@ and quantities through the [Python Pint library](https://pypi.org/project/Pint/)
 - [Setuptools](https://pypi.org/project/setuptools/) for building stravalib
 - Other Python libraries (installed automatically when using pip):
      - [requests](https://pypi.org/project/requests/),
-     - [pytz](https://pypi.org/project/pytz/)
      - [pint](https://pypi.org/project/pint/)
      - [arrow](https://pypi.org/project/arrow/),
      - [pydantic 2.x](https://pypi.org/project/pydantic/)
