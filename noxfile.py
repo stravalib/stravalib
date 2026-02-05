@@ -80,7 +80,7 @@ def docs_live(session):
 
 
 # Use this for venv envs nox -s test
-@nox.session(python=["3.11", "3.12", "3.13"])
+@nox.session(python=["3.11", "3.12", "3.13", "3.14"])
 def tests(session):
     """Install requirements in a venv and run tests."""
     session.install(".[tests]")
