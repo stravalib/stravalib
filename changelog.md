@@ -6,6 +6,8 @@
 - Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
 
 ### Fixed
+
+- Fix: drop support for Python 3.10 (@lwasser, #687)
 - Fix: Improve response header handling (@BPR02, #664)
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
 - Chore(ci): Update and fix dependabot (@lwasser, #657)

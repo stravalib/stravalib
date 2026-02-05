@@ -17,7 +17,7 @@ and quantities through the [Python Pint library](https://pypi.org/project/Pint/)
 
 ## Dependencies
 
-- Python 3.10+
+- Python 3.11+
 - [Setuptools](https://pypi.org/project/setuptools/) for building stravalib
 - Other Python libraries (installed automatically when using pip):
      - [requests](https://pypi.org/project/requests/),
