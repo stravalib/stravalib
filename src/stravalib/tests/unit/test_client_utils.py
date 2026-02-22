@@ -1,9 +1,8 @@
 import datetime
 import os
+from datetime import timezone
 from unittest import mock
 from urllib import parse as urlparse
-
-import pytz
 
 from stravalib.client import Client
 from stravalib.tests import RESOURCES_DIR, TestBase
@@ -15,7 +14,7 @@ class ClientUtilsTest(TestBase):
     def test_utc_datetime_to_epoch_utc_datetime_given_correct_epoch_returned(
         self,
     ):
-        dt = pytz.utc.localize(datetime.datetime(2014, 1, 1, 0, 0, 0))
+        dt = datetime.datetime(2014, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         self.assertEqual(1388534400, self.client._utc_datetime_to_epoch(dt))
 
 

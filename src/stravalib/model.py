@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping, Sequence
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, tzinfo
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -28,8 +28,8 @@ from typing import (
     Union,
     get_args,
 )
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-import pytz
 from dateutil import parser
 from dateutil.parser import ParserError
 from pydantic import (
@@ -43,7 +43,6 @@ from pydantic import (
 )
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
-from pytz import UnknownTimeZoneError
 
 from stravalib import exc, strava_model
 from stravalib.strava_model import (
@@ -342,12 +341,12 @@ class Timezone(str):
     """A class to represent and manipulate time zone information.
 
     This class extends the built-in `str` class to include a method
-    for converting the time zone string to a pytz time zone object.
+    for converting the time zone string to a ZoneInfo time zone object.
 
     Methods
     -------
-    timezone() -> pytz._UTCclass | pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo | None
-        Converts the time zone string to a pytz time zone object.
+    timezone() -> tzinfo | None
+        Converts the time zone string to a ZoneInfo time zone object.
 
     Examples
     --------
@@ -359,31 +358,19 @@ class Timezone(str):
     <DstTzInfo 'Europe/Amsterdam' LMT+0:18:00 STD>
     """
 
-    def timezone(
-        self,
-    ) -> (
-        pytz._UTCclass
-        | pytz.tzinfo.StaticTzInfo
-        | pytz.tzinfo.DstTzInfo
-        | None
-    ):
+    def timezone(self) -> tzinfo | None:
         """
-        Converts the time zone string to a pytz time zone object.
+        Converts the time zone string to a ZoneInfo time zone object.
 
         This method attempts to convert the time zone string, which can
         either be in the format "(GMT-08:00) America/Los_Angeles" or
-        "America/Los_Angeles", to a corresponding pytz time zone object.
+        "America/Los_Angeles", to a corresponding ZoneInfo time zone object.
 
         Returns
         -------
-        pytz._UTCclass, pytz.tzinfo.StaticTzInfo, `pytz.tzinfo.DstTzInfo`, or
-        `None`The corresponding `pytz` time zone object if the time zone string is
-        recognized, otherwise `None`.
-
-        Raises
-        ------
-        `UnknownTimeZoneError`
-            If the time zone string is not recognized.
+        tzinfo | None
+            The corresponding ZoneInfo instance if the time zone string
+            is recognized, otherwise `None`.
         """
         if " " in self:
             # (GMT-08:00) America/Los_Angeles
@@ -392,8 +379,8 @@ class Timezone(str):
             # America/Los_Angeles
             tzname = self
         try:
-            return pytz.timezone(tzname)
-        except UnknownTimeZoneError as e:
+            return ZoneInfo(tzname)
+        except ZoneInfoNotFoundError as e:
             LOGGER.warning(
                 f"Encountered unknown time zone {tzname}, returning None"
             )

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import pytest
-import pytz
 
 import stravalib.unit_helper as uh
 from stravalib import model
@@ -266,10 +266,10 @@ def test_extended_types_values(
 @pytest.mark.parametrize(
     "arg,expected_value",
     (
-        ("Factory", None),
-        ("(GMT+00:00) Factory", None),
-        ("Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
-        ("(GMT+01:00) Europe/Amsterdam", pytz.timezone("Europe/Amsterdam")),
+        ("Invalid/Timezone", None),
+        ("(GMT+00:00) Invalid/Timezone", None),
+        ("Europe/Amsterdam", ZoneInfo("Europe/Amsterdam")),
+        ("(GMT+01:00) Europe/Amsterdam", ZoneInfo("Europe/Amsterdam")),
     ),
 )
 def test_timezone(arg, expected_value):
