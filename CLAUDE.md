@@ -10,7 +10,7 @@ Stravalib is a Python library providing easy-to-use tools for accessing and down
 
 ### Testing
 
-Run all tests across all supported Python versions (3.10-3.13):
+Run all tests across all supported Python versions (3.10-3.14):
 ```bash
 nox -s tests
 ```
