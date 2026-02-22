@@ -1012,7 +1012,7 @@
       "get": {
         "operationId": "getActivityById",
         "summary": "Get Activity",
-        "description": "Returns the given activity that is owned by the authenticated athlete. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities.",
+        "description": "Returns the given activity that is owned by the authenticated athlete. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities.\n\nWe strongly encourage you to display the appropriate attribution that identifies Garmin as the data source and the device name in your application. Please see example below from VeloViewer (that provides an attribution for a Garmin Forerunner device).\n\n![Attribution](/images/device-attribution-image.png)",
         "parameters": [
           {
             "name": "id",
@@ -1213,8 +1213,8 @@
                     "id": null,
                     "unique_id": "3FDGKL3-204E-4867-9E8D-89FC79EAAE17",
                     "urls": {
-                      "100": "https://dgtzuqphqg23d.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-128x96.jpg",
-                      "600": "https://dgtzuqphqg23d.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-768x576.jpg"
+                      "100": "https://xxxxx.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-128x96.jpg",
+                      "600": "https://xxxxx.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-768x576.jpg"
                     },
                     "source": 1
                   },
@@ -1225,7 +1225,7 @@
                   {
                     "destination_url": "strava://athletes/12345678987654321",
                     "display_name": "Marianne V.",
-                    "avatar_url": "https://dgalywyr863hv.cloudfront.net/pictures/athletes/12345678987654321/12345678987654321/3/medium.jpg",
+                    "avatar_url": "https://xxxxx.cloudfront.net/pictures/athletes/12345678987654321/12345678987654321/3/medium.jpg",
                     "show_name": true
                   }
                 ],
@@ -1453,8 +1453,8 @@
                     "id": null,
                     "unique_id": "3FDGKL3-204E-4867-9E8D-89FC79EAAE17",
                     "urls": {
-                      "100": "https://dgtzuqphqg23d.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-128x96.jpg",
-                      "600": "https://dgtzuqphqg23d.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-768x576.jpg"
+                      "100": "https://xxxxx.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-128x96.jpg",
+                      "600": "https://xxxxx.cloudfront.net/Bv93zv5t_mr57v0wXFbY_JyvtucgmU5Ym6N9z_bKeUI-768x576.jpg"
                     },
                     "source": 1
                   },
@@ -1465,7 +1465,7 @@
                   {
                     "destination_url": "strava://athletes/12345678987654321",
                     "display_name": "Marianne V.",
-                    "avatar_url": "https://dgalywyr863hv.cloudfront.net/pictures/athletes/12345678987654321/12345678987654321/3/medium.jpg",
+                    "avatar_url": "https://xxxxx.cloudfront.net/pictures/athletes/12345678987654321/12345678987654321/3/medium.jpg",
                     "show_name": true
                   }
                 ],
@@ -1561,6 +1561,7 @@
                             "summary_polyline": null,
                             "resource_state": 2
                         },
+                        "device_name": "Garmin Edge 1030",
                         "trainer": true,
                         "commute": false,
                         "manual": false,
@@ -1620,6 +1621,7 @@
                             "summary_polyline": null,
                             "resource_state": 2
                         },
+                        "device_name": "Garmin Edge 1030",
                         "trainer": true,
                         "commute": false,
                         "manual": false,
@@ -1897,7 +1899,7 @@
       "get": {
         "operationId": "getClubById",
         "summary": "Get Club",
-        "description": "Returns a given club using its identifier.",
+        "description": "Returns a given a club using its identifier.",
         "parameters": [
           {
             "name": "id",
@@ -1922,10 +1924,10 @@
                 "id": 1,
                 "resource_state": 3,
                 "name": "Team Strava Cycling",
-                "profile_medium": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/1/1582/4/medium.jpg",
-                "profile": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/1/1582/4/large.jpg",
-                "cover_photo": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/1/4328276/1/large.jpg",
-                "cover_photo_small": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/1/4328276/1/small.jpg",
+                "profile_medium": "https://xxxxx.cloudfront.net/pictures/clubs/1/1582/4/medium.jpg",
+                "profile": "https://xxxxx.cloudfront.net/pictures/clubs/1/1582/4/large.jpg",
+                "cover_photo": "https://xxxxx.cloudfront.net/pictures/clubs/1/4328276/1/large.jpg",
+                "cover_photo_small": "https://xxxxx.cloudfront.net/pictures/clubs/1/4328276/1/small.jpg",
                 "sport_type": "cycling",
                 "activity_types": ["Ride", "VirtualRide", "EBikeRide", "Velomobile", "Handcycle"],
                 "city": "San Francisco",
@@ -2157,10 +2159,10 @@
                   "id": 231407,
                   "resource_state": 2,
                   "name": "The Strava Club",
-                  "profile_medium": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/231407/5319085/1/medium.jpg",
-                  "profile": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/231407/5319085/1/large.jpg",
-                  "cover_photo": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/231407/5098428/4/large.jpg",
-                  "cover_photo_small": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/231407/5098428/4/small.jpg",
+                  "profile_medium": "https://xxxxx.cloudfront.net/pictures/clubs/231407/5319085/1/medium.jpg",
+                  "profile": "https://xxxxx.cloudfront.net/pictures/clubs/231407/5319085/1/large.jpg",
+                  "cover_photo": "https://xxxxx.cloudfront.net/pictures/clubs/231407/5098428/4/large.jpg",
+                  "cover_photo_small": "https://xxxxx.cloudfront.net/pictures/clubs/231407/5098428/4/small.jpg",
                   "sport_type": "other",
                   "city": "San Francisco",
                   "state": "California",

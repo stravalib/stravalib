@@ -2,12 +2,21 @@
 
 ## Unreleased
 
+### Added
+- Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
+
 ### Fixed
 - Fix: Remove false warning about response headers on authentication calls (@BPR02, #667)
+- Fix: drop support for Python 3.10 (@lwasser, #687)
 - Fix: Improve response header handling (@BPR02, #664)
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
 - Chore(ci): Update and fix dependabot (@lwasser, #657)
 - Fix: Numerous documentation fixes (@lwasser, #651)
+- Fix: Improve error handling in get_athlete_stats with detailed 401 error messages (@HzaCode)
+- Fix: Enhance ActivityUploader error handling with better parsing and context (@HzaCode)
+- Docs: Add comprehensive docstrings to ActivityUploader properties (@HzaCode)
+- Docs: Add detailed DefaultRateLimiter documentation with priority level examples (@HzaCode)
+- Fix: Adds type parameters to generic Pint objects (@jsamoocha, #687)
 
 ## v2.4
 

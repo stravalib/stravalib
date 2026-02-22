@@ -32,7 +32,7 @@ maintainers = [
   { name = "Yihong" },
   { name = "Émile Nadeau" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
@@ -44,7 +44,6 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -89,7 +88,8 @@ lint = [
   "types-requests",
   "types-pytz",
   "types-Flask",
-  "ruff"
+  "ruff",
+  "types-python-dateutil"
 ]
 
 [tool.black]
@@ -107,7 +107,7 @@ filterwarnings = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 follow_imports = "silent"
 warn_redundant_casts = true
 warn_unused_ignores = true

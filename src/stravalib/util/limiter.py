@@ -242,6 +242,31 @@ class DefaultRateLimiter(RateLimiter):
 
     Rate limits are enforced by throttling requests based on their method and
     client/app-specific limits imposed by Strava.
+
+    The rate limiter supports three priority levels:
+
+    - **high**: No cool-down period between requests. Requests are made as fast
+      as possible until limits are reached, then waits until the limit period expires.
+    - **medium**: Applies a cool-down period to avoid exceeding short-term limits
+      (e.g., 600 requests per 15 minutes, actual limits are app-specific).
+    - **low**: Applies a cool-down period to avoid exceeding long-term limits
+      (e.g., 30,000 requests per day, actual limits are app-specific), spreading
+      requests evenly throughout the day.
+
+    Examples
+    --------
+    Using default (high priority) rate limiter::
+
+        from stravalib.client import Client
+        client = Client(access_token=token)  # Uses high priority by default
+
+    Using a custom rate limiter with medium priority::
+
+        from stravalib.client import Client
+        from stravalib.util.limiter import DefaultRateLimiter
+
+        rate_limiter = DefaultRateLimiter(priority="medium")
+        client = Client(access_token=token, rate_limiter=rate_limiter)
     """
 
     def __init__(
@@ -260,5 +285,3 @@ class DefaultRateLimiter(RateLimiter):
         super().__init__()
 
         self.rules.append(SleepingRateLimitRule(priority=priority))
-
-        # TODO: This should be added to our documentation

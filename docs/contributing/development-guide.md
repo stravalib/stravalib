@@ -229,10 +229,10 @@ skip that run and continue to the next version.
 ```bash
 
 ❯ nox -s mypy
-nox > Running session mypy-3.10
-nox > Missing interpreters will error by default on CI systems.
-nox > Session mypy-3.10 skipped: Python interpreter 3.10 not found.
 nox > Running session mypy-3.11
+nox > Missing interpreters will error by default on CI systems.
+nox > Session mypy-3.11 skipped: Python interpreter 3.11 not found.
+nox > Running session mypy-3.12
 ```
 
 ## Code format and syntax
@@ -286,10 +286,10 @@ To run tests for a specific Python version use:
 
 `nox -s tests-python-version-here`.
 
-For example, the command below runs our tests on Python 3.10 only.
+For example, the command below runs our tests on Python 3.11 only.
 
 ```bash
-nox -s tests-3.10
+nox -s tests-3.11
 ```
 
 

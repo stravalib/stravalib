@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -546,6 +546,10 @@ class SummaryActivity(MetaActivity):
     """
     Whether this activity is a commute
     """
+    device_name: str | None = None
+    """
+    The name of the device used to record the activity
+    """
     device_watts: bool | None = None
     """
     Whether the watts are from a power meter, false if estimated
@@ -939,7 +943,7 @@ class Waypoint(BaseModel):
     """
     A description of the waypoint (optional)
     """
-    distance_into_route: int | None = None
+    distance_into_route: Any | None = None
     """
     The number meters along the route that the waypoint is located
     """

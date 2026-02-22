@@ -15,17 +15,17 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - name: Fetch API
         run: curl https://developers.strava.com/swagger/swagger.json > src/stravalib/tests/resources/strava_swagger.json
       - name: Fetch API Schema
-        uses: stravalib/strava_swagger2pydantic@ce6901c427e48568ea4a1c7096a84ab36e74da1d # v1.0.11
+        uses: stravalib/strava_swagger2pydantic@d3239d5c8130283ee2d038cfa0845a06f8a4dadb # v1.0.12
         with:
           model_file: "src/stravalib/strava_model.py"
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         with:
           add-paths: |
             src/stravalib
