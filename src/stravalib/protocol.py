@@ -219,7 +219,8 @@ class ApiV3(metaclass=abc.ABCMeta):
         raw = requester(url, params=params)  # type: ignore[operator]
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
-        self.rate_limiter(raw.headers, method)
+        if "/oauth/" not in url:
+            self.rate_limiter(raw.headers, method)
 
         if check_for_errors:
             self._handle_protocol_error(raw)

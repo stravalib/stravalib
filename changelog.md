@@ -6,7 +6,7 @@
 - Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
 
 ### Fixed
-
+- Fix: Remove false warning about response headers on authentication calls (@BPR02, #667)
 - Fix: drop support for Python 3.10 (@lwasser, #687)
 - Fix: Improve response header handling (@BPR02, #664)
 - Fix: Adds necessary permissions for update-model job (@jsamoocha, #654)
