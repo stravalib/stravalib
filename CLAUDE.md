@@ -150,9 +150,9 @@ The `Client` uses `stravalib.util.limiter.RateLimiter` by default to respect Str
 
 ### Python Version Support
 
-- Minimum: Python 3.10
-- Actively tested: 3.10, 3.11, 3.12, 3.13
-- Type checking targets 3.10+ features
+- Minimum: Python 3.11
+- Actively tested: 3.11, 3.12, 3.13, 3.14
+- Type checking targets 3.11+ features
 
 ### Pydantic Usage
 
