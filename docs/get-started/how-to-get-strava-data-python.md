@@ -284,11 +284,9 @@ Now you're ready to use this code to authenticate!
 ```python
 # Open the url that you created above in a web browser
 webbrowser.open(url)
-print(
-    """You will see a URL that looks like this:
+print("""You will see a URL that looks like this:
     http://127.0.0.1:5000/authorization?state=&code=12323423423423423423423550&scope=read,activity:read_all,profile:read_all,read_all
-    Copy the values between code= and & in the URL that you see in the browser."""
-)
+    Copy the values between code= and & in the URL that you see in the browser.""")
 # Using input allows you to copy the code into your Python console (or Jupyter Notebook)
 code = input("Please enter the code that you received: ")
 
