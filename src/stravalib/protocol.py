@@ -216,7 +216,12 @@ class ApiV3(metaclass=abc.ABCMeta):
                 f"Invalid/unsupported request method specified: {method}"
             )
 
-        raw = requester(url, params=params)  # type: ignore[operator]
+        if method.upper() == "PUT":
+            token = {"access_token": params["access_token"]}
+            raw = requester(url, params=token, json=params)
+        else:
+            raw = requester(url, params=params)  # type: ignore[operator]
+
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         if "/oauth/" not in url:
@@ -647,7 +652,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         url = url.format(**kwargs)
         params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
-            url, params=params, method="PUT", check_for_errors=check_for_errors
+            url,
+            params=params,
+            method="PUT",
+            check_for_errors=check_for_errors,
+            # url, json=params, method="PUT", check_for_errors=check_for_errors
         )
 
     def delete(
