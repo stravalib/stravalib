@@ -656,7 +656,6 @@ class ApiV3(metaclass=abc.ABCMeta):
             params=params,
             method="PUT",
             check_for_errors=check_for_errors,
-            # url, json=params, method="PUT", check_for_errors=check_for_errors
         )
 
     def delete(
