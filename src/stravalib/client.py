@@ -1003,10 +1003,10 @@ class Client:
             params["private"] = int(private)
 
         if commute is not None:
-            params["commute"] = int(commute)
+            params["commute"] = commute
 
         if trainer is not None:
-            params["trainer"] = int(trainer)
+            params["trainer"] = trainer
 
         if gear_id is not None:
             params["gear_id"] = gear_id
@@ -1019,7 +1019,7 @@ class Client:
             params["device_name"] = device_name
 
         if hide_from_home is not None:
-            params["hide_from_home"] = int(hide_from_home)
+            params["hide_from_home"] = hide_from_home
 
         # Validate sport and activity types
         params = self._validate_activity_type(

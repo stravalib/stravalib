@@ -8,6 +8,7 @@
 - Add: Support for Python 3.14 (@lwasser)
 
 ### Fixed
+- Fix: Updating an activity to set hide from home, commute, or trainer to false will update correctly (@Taur1ne, #716)
 - Fix: Remove false warning about response headers on authentication calls (@BPR02, #667)
 - Fix: drop support for Python 3.10 (@lwasser, #687)
 - Fix: Improve response header handling (@BPR02, #664)
