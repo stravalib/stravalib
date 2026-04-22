@@ -30,7 +30,7 @@ If you are fixing a bug or adding a feature, we appreciate (but do not require)
 tests to support whatever fix of feature you're implementing.
 
 - [ ] Yes
-- [ ] No, i'd like some help with tests
+- [ ] No, I'd like some help with tests
 - [ ] This change doesn't require tests
 
 ## Did you include your contribution to the change log?
