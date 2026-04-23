@@ -1019,7 +1019,7 @@ class Client:
             params["device_name"] = device_name
 
         if hide_from_home is not None:
-            params["hide_from_home"] = int(hide_from_home)
+            params["hide_from_home"] = hide_from_home
 
         # Validate sport and activity types
         params = self._validate_activity_type(
