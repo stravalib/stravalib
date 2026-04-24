@@ -1000,13 +1000,13 @@ class Client:
 
         if private is not None:
             warn_param_unsupported("private")
-            params["private"] = int(private)
+            params["private"] = private
 
         if commute is not None:
-            params["commute"] = int(commute)
+            params["commute"] = commute
 
         if trainer is not None:
-            params["trainer"] = int(trainer)
+            params["trainer"] = trainer
 
         if gear_id is not None:
             params["gear_id"] = gear_id
@@ -1120,13 +1120,13 @@ class Client:
             params["activity_type"] = activity_type.lower()
         if private is not None:
             warn_param_unsupported("private")
-            params["private"] = int(private)
+            params["private"] = private
         if external_id is not None:
             params["external_id"] = external_id
         if trainer is not None:
-            params["trainer"] = int(trainer)
+            params["trainer"] = trainer
         if commute is not None:
-            params["commute"] = int(commute)
+            params["commute"] = commute
 
         initial_response = self.protocol.post(
             "/uploads",
