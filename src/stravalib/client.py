@@ -1000,13 +1000,13 @@ class Client:
 
         if private is not None:
             warn_param_unsupported("private")
-            params["private"] = int(private)
+            params["private"] = private
 
         if commute is not None:
-            params["commute"] = int(commute)
+            params["commute"] = commute
 
         if trainer is not None:
-            params["trainer"] = int(trainer)
+            params["trainer"] = trainer
 
         if gear_id is not None:
             params["gear_id"] = gear_id
@@ -1019,7 +1019,7 @@ class Client:
             params["device_name"] = device_name
 
         if hide_from_home is not None:
-            params["hide_from_home"] = int(hide_from_home)
+            params["hide_from_home"] = bool(hide_from_home)
 
         # Validate sport and activity types
         params = self._validate_activity_type(
@@ -1120,13 +1120,13 @@ class Client:
             params["activity_type"] = activity_type.lower()
         if private is not None:
             warn_param_unsupported("private")
-            params["private"] = int(private)
+            params["private"] = private
         if external_id is not None:
             params["external_id"] = external_id
         if trainer is not None:
-            params["trainer"] = int(trainer)
+            params["trainer"] = trainer
         if commute is not None:
-            params["commute"] = int(commute)
+            params["commute"] = commute
 
         initial_response = self.protocol.post(
             "/uploads",
