@@ -45,15 +45,15 @@ fake_response_unenrolled_no_rates = {
 }
 
 # Example responses for Strava 3rd party apps that are enrolled:
-fake_reponse_enrolled = fake_response_unenrolled | {
+fake_response_enrolled = fake_response_unenrolled | {
     "x-readratelimit-usage": "2,32",
     "x-readratelimit-limit": "300,15000",
 }
 
-fake_reponse_enrolled_read_limit_exceeded = fake_reponse_enrolled | {
+fake_response_enrolled_read_limit_exceeded = fake_response_enrolled | {
     "x-readratelimit-usage": "301,302"
 }
-fake_reponse_enrolled_overall_limit_exceeded = fake_reponse_enrolled | {
+fake_response_enrolled_overall_limit_exceeded = fake_response_enrolled | {
     "x-ratelimit-usage": "601,602"
 }
 
@@ -66,8 +66,8 @@ fake_reponse_enrolled_overall_limit_exceeded = fake_reponse_enrolled | {
         (fake_response_unenrolled, "POST", (4, 67, 600, 30000)),
         (fake_response_unenrolled_no_rates, "GET", None),
         (fake_response_unenrolled_no_rates, "PUT", None),
-        (fake_reponse_enrolled, "GET", (2, 32, 300, 15000)),
-        (fake_reponse_enrolled, "PUT", (4, 67, 600, 30000)),
+        (fake_response_enrolled, "GET", (2, 32, 300, 15000)),
+        (fake_response_enrolled, "PUT", (4, 67, 600, 30000)),
     ),
 )
 def test_get_rates_from_response_headers(
