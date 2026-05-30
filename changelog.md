@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.5.0
+
 ### Added
 - Add: Strava API Change: Adds several activity types (@bot, #722)
 - Add: Strava API Change: Adds device_name (str) to SummaryActivity (@bot, #684)
@@ -23,10 +25,12 @@
 - Fix: Adds type parameters to generic Pint objects (@jsamoocha, #687)
 - Fix: Corrects rate limiter inconsistency (@jsamoocha, #615)
 
+### Contributors to this release
+@jsamoocha, @HzaCode, @lwasser, @BPR02, @Taur1ne
+
 ## v2.4
 
 ### Added
-- Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
 - Add: allow silencing of warning about missing environment variables (@kevsteramp, @jsamoocha, #643)
 - Add: Add zizmore action to build (@miketheman, #649)
 
