@@ -941,7 +941,7 @@ class Client:
         private: bool | None = None,
         commute: bool | None = None,
         trainer: bool | None = None,
-        gear_id: int | None = None,
+        gear_id: str | None = None,
         device_name: str | None = None,
         hide_from_home: bool | None = None,
     ) -> model.DetailedActivity:
@@ -970,7 +970,7 @@ class Client:
             Whether the activity is a commute.
         trainer : bool, default=None
             Whether this is a trainer activity.
-        gear_id : int, default=None
+        gear_id : str, default=None
             Alphanumeric ID of gear (bike, shoes) used on this activity.
         description : str, default=None
             Description for the activity.
@@ -1008,9 +1008,7 @@ class Client:
             description=description,
             commute=commute,
             trainer=trainer,
-            # gear_id is documented as alphanumeric; coerce to str so an int
-            # passed via the (legacy) signature is still accepted.
-            gear_id=None if gear_id is None else str(gear_id),
+            gear_id=gear_id,
             hide_from_home=hide_from_home,
         ).model_dump(mode="json", exclude_none=True)
 
