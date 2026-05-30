@@ -377,7 +377,7 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
 
 
 @pytest.mark.parametrize(
-    "update_kwargs,expected_params,expected_warning,expected_exception",
+    "update_kwargs,expected_body,expected_warning,expected_exception",
     (
         ({}, {}, None, None),
         ({"activity_type": "Run"}, {"type": "run"}, DeprecationWarning, None),
@@ -388,18 +388,20 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
             None,
             None,
         ),
-        ({"private": True}, {"private": "1"}, DeprecationWarning, None),
-        ({"commute": True}, {"commute": "1"}, None, None),
-        ({"trainer": True}, {"trainer": "1"}, None, None),
+        # private is no longer supported by the API: warn but do not send it
+        ({"private": True}, {}, DeprecationWarning, None),
+        ({"commute": True}, {"commute": True}, None, None),
+        ({"trainer": True}, {"trainer": True}, None, None),
         ({"gear_id": "fb42"}, {"gear_id": "fb42"}, None, None),
         ({"description": "foo"}, {"description": "foo"}, None, None),
+        # device_name is no longer supported: warn but do not send it
         (
             {"device_name": "foo"},
-            {"device_name": "foo"},
+            {},
             DeprecationWarning,
             None,
         ),
-        ({"hide_from_home": False}, {"hide_from_home": "0"}, None, None),
+        ({"hide_from_home": False}, {"hide_from_home": False}, None, None),
         (
             {"name": "My awesome activity"},
             {"name": "My awesome activity"},
@@ -412,7 +414,7 @@ def test_update_activity(
     mock_strava_api,
     client,
     update_kwargs,
-    expected_params,
+    expected_body,
     expected_warning,
     expected_exception,
 ):
@@ -420,7 +422,8 @@ def test_update_activity(
 
     def _call_update_activity():
         _ = client.update_activity(activity_id, **update_kwargs)
-        assert mock_strava_api.calls[-1].request.params == expected_params
+        request = mock_strava_api.calls[-1].request
+        assert json.loads(request.body) == expected_body
 
     if expected_exception:
         with pytest.raises(expected_exception):

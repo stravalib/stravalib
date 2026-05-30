@@ -992,42 +992,35 @@ class Client:
 
         """
 
-        # Convert the kwargs into a params dict
-        params: dict[str, Any] = {}
-
-        if name is not None:
-            params["name"] = name
-
+        # These params are no longer supported by the Strava API. They are
+        # still accepted for backward compatibility, but are not sent.
         if private is not None:
             warn_param_unsupported("private")
-            params["private"] = int(private)
-
-        if commute is not None:
-            params["commute"] = int(commute)
-
-        if trainer is not None:
-            params["trainer"] = int(trainer)
-
-        if gear_id is not None:
-            params["gear_id"] = gear_id
-
-        if description is not None:
-            params["description"] = description
-
         if device_name is not None:
             warn_param_unsupported("device_name")
-            params["device_name"] = device_name
 
-        if hide_from_home is not None:
-            params["hide_from_home"] = int(hide_from_home)
+        # Build a typed payload that is sent as a JSON request body. Using
+        # UpdatableActivity ensures values are serialized as proper JSON types
+        # (e.g. booleans as ``true``/``false`` rather than ``1``/``0``), which
+        # the Strava API requires to apply the update. See GH issue #716.
+        body = strava_model.UpdatableActivity(
+            name=name,
+            description=description,
+            commute=commute,
+            trainer=trainer,
+            # gear_id is documented as alphanumeric; coerce to str so an int
+            # passed via the (legacy) signature is still accepted.
+            gear_id=None if gear_id is None else str(gear_id),
+            hide_from_home=hide_from_home,
+        ).model_dump(mode="json", exclude_none=True)
 
-        # Validate sport and activity types
-        params = self._validate_activity_type(
-            params, activity_type, sport_type
-        )
+        # Validate sport and activity types, adding them to the payload
+        body = self._validate_activity_type(body, activity_type, sport_type)
 
         raw_activity = self.protocol.put(
-            "/activities/{activity_id}", activity_id=activity_id, **params
+            "/activities/{activity_id}",
+            activity_id=activity_id,
+            body=body,
         )
 
         return model.DetailedActivity.model_validate(
