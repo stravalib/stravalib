@@ -163,6 +163,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         url: str,
         params: dict[str, Any] | None = None,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
+        body: dict[str, Any] | None = None,
         method: RequestMethod = "GET",
         check_for_errors: bool = True,
     ) -> Any:
@@ -177,9 +178,14 @@ class ApiV3(metaclass=abc.ABCMeta):
         url : str
             The request URL.
         params : Dict[str,Any]
-            Request parameters
+            Request parameters sent as the URL query string.
         files : Dict[str,file]
             Dictionary of file name to file-like objects.
+        body : Dict[str,Any]
+            Request data sent as a JSON-encoded request body. Use this for
+            endpoints that expect a JSON payload (e.g. PUT) so that values
+            such as booleans are serialized as proper JSON types rather than
+            query-string strings.
         method : str
             The request method (GET/POST/etc.)
         check_for_errors : bool
@@ -216,7 +222,7 @@ class ApiV3(metaclass=abc.ABCMeta):
                 f"Invalid/unsupported request method specified: {method}"
             )
 
-        raw = requester(url, params=params)  # type: ignore[operator]
+        raw = requester(url, params=params, json=body)  # type: ignore[operator]
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         if "/oauth/" not in url:
@@ -626,7 +632,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
 
     def put(
-        self, url: str, check_for_errors: bool = True, **kwargs: Any
+        self,
+        url: str,
+        check_for_errors: bool = True,
+        body: dict[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Any:
         """Performs a generic PUT request for specified params, returning the
         response.
@@ -637,6 +647,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             String representing url to access.
         check_for_errors: bool
             Whether to raise an error (or not)
+        body : dict, optional
+            Data to send as a JSON-encoded request body. Remaining keyword
+            arguments are used to format the URL and are sent as query-string
+            parameters.
 
         Returns
         -------
@@ -647,7 +661,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         url = url.format(**kwargs)
         params = {k: v for k, v in kwargs.items() if k not in referenced}
         return self._request(
-            url, params=params, method="PUT", check_for_errors=check_for_errors
+            url,
+            params=params,
+            body=body,
+            method="PUT",
+            check_for_errors=check_for_errors,
         )
 
     def delete(

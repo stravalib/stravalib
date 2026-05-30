@@ -9,6 +9,7 @@
 - Add: Support for Python 3.14 (@lwasser)
 
 ### Fixed
+- Fix: Send `update_activity` payload as a JSON body so boolean fields (e.g. `hide_from_home`, `commute`, `trainer`) are applied correctly by the Strava API (@jsamoocha, #716)
 - Fix: Remove false warning about response headers on authentication calls (@BPR02, #667)
 - Fix: drop support for Python 3.10 (@lwasser, #687)
 - Fix: Improve response header handling (@BPR02, #664)
