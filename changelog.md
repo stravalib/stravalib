@@ -2,11 +2,15 @@
 
 ## Unreleased
 
-### Changed
-- Change: Send the access token in the `Authorization: Bearer` request header instead of the `access_token` URL query parameter, as advised by RFC 6750 and documented by Strava (@ragusa87, @jsamoocha, #733)
+### Added
+- Add: `exc.ApplicationInactive`, raised on a 403 response that reports an inactive Strava application, with a message that says how to reactivate it (@jsamoocha, #730)
 
 ### Fixed
-- fix: improve license metadata (PEP 639), resolve deprecation warnings (@mwtoews, #728)
+- Fix: Prevent an `AttributeError` in the API error handler when Strava returns a JSON body that is not an object (@jsamoocha, #730)
+- Fix: improve license metadata (PEP 639), resolve deprecation warnings (@mwtoews, #728)
+
+### Changed
+- Change: Send the access token in the `Authorization: Bearer` request header instead of the `access_token` URL query parameter, as advised by RFC 6750 and documented by Strava (@ragusa87, @jsamoocha, #733)
 
 ## v2.5.0
 

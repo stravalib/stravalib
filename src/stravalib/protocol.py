@@ -52,6 +52,43 @@ class AccessInfo(TypedDict):
     will expire"""
 
 
+INACTIVE_APPLICATION_MESSAGE = (
+    "Your Strava API application is inactive, so Strava refuses every "
+    "request. The account that owns the application needs an active "
+    "Strava subscription. Log in with that account, subscribe, then "
+    "reactivate the application at https://www.strava.com/settings/api. "
+    "See "
+    "https://support.strava.com/en-us/articles/15401526-strava-api-and-mcp-faq"
+    " for details."
+)
+
+
+def _is_application_inactive(errors: list[Any]) -> bool:
+    """Checks whether a Strava error payload reports an inactive app.
+
+    Strava marks an application inactive when the account owning it has
+    no active subscription. It then answers every request with a 403
+    and an error entry identifying the application status.
+
+    Parameters
+    ----------
+    errors
+        The error entries from a Strava error response body.
+
+    Returns
+    -------
+    bool
+        True if the errors report an inactive application.
+    """
+    return any(
+        isinstance(error, dict)
+        and error.get("resource") == "Application"
+        and error.get("field") == "Status"
+        and error.get("code") == "Inactive"
+        for error in errors
+    )
+
+
 class ApiV3(metaclass=abc.ABCMeta):
     """This class is responsible for performing the HTTP requests, rate
     limiting, and error handling."""
@@ -528,16 +565,26 @@ class ApiV3(metaclass=abc.ABCMeta):
             If the response contains an error.
         """
         error_str = None
+        errors: list[Any] = []
         try:
             json_response = response.json()
         except ValueError:
             pass
         else:
-            if "message" in json_response or "errors" in json_response:
+            if isinstance(json_response, dict) and (
+                "message" in json_response or "errors" in json_response
+            ):
+                raw_errors = json_response.get("errors")
                 error_str = "{}: {}".format(
                     json_response.get("message", "Undefined error"),
-                    json_response.get("errors"),
+                    raw_errors,
                 )
+                # Strava documents "errors" as an array, but a single
+                # object is handled too, as it is in ActivityUploader.
+                if isinstance(raw_errors, list):
+                    errors = raw_errors
+                elif isinstance(raw_errors, dict):
+                    errors = [raw_errors]
 
         # Special subclasses for some errors
         if response.status_code == 404:
@@ -546,6 +593,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         elif response.status_code == 401:
             msg = f"{response.reason}: {error_str}"
             raise exc.AccessUnauthorized(msg, response=response)
+        elif response.status_code == 403 and _is_application_inactive(errors):
+            msg = f"{INACTIVE_APPLICATION_MESSAGE} [{error_str}]"
+            raise exc.ApplicationInactive(msg, response=response)
         elif 400 <= response.status_code < 500:
             msg = f"{response.status_code} Client Error: {response.reason} [{error_str}]"
             raise exc.Fault(msg, response=response)
