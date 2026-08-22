@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Change: Send the access token in the `Authorization: Bearer` request header instead of the `access_token` URL query parameter, as advised by RFC 6750 and documented by Strava (@jsamoocha, #733)
+
 ### Fixed
 - fix: improve license metadata (PEP 639), resolve deprecation warnings (@mwtoews, #728)
 
