@@ -199,8 +199,13 @@ class ApiV3(metaclass=abc.ABCMeta):
             The parsed JSON response.
         """
 
+        # The token endpoint authenticates with the client id and secret, so
+        # it gets no access token. On the refresh path that token is expired
+        # by definition.
+        is_token_request = "/oauth/token" in url
+
         # Only refresh token if we know the users' environment is setup
-        if "/oauth/token" not in url and self.client_id and self.client_secret:
+        if not is_token_request and self.client_id and self.client_secret:
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
@@ -213,7 +218,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         # logged. The header is also the only method that Strava documents.
         headers = (
             {"Authorization": f"Bearer {self.access_token}"}
-            if self.access_token
+            if self.access_token and not is_token_request
             else {}
         )
 
