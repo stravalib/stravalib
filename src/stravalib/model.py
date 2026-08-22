@@ -621,6 +621,13 @@ class MetaClub(strava_model.MetaClub, BoundClientEntity):
         -------
         List
             A list of club members stored as Athlete objects.
+
+        Warns
+        -----
+        DeprecationWarning
+            Strava removes the Club Members endpoint. The warning gives the
+            removal date, after which this property fails. See
+            https://developers.strava.com/docs/changelog/.
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_members(self.id)
@@ -634,6 +641,13 @@ class MetaClub(strava_model.MetaClub, BoundClientEntity):
         -------
         Iterator
             An iterator of Activity objects representing club activities.
+
+        Warns
+        -----
+        DeprecationWarning
+            Strava removes the Club Activities endpoint. The warning gives the
+            removal date, after which this property fails. See
+            https://developers.strava.com/docs/changelog/.
         """
         assert self.bound_client is not None, "Bound client is not set."
         return self.bound_client.get_club_activities(self.id)

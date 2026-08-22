@@ -45,6 +45,15 @@ Athlete methods
 
 Club related methods
 --------------------
+
+.. warning::
+
+   Strava removes the Club Members, Club Activities, and Club Admins
+   endpoints on September 1, 2026. ``Client.get_club_members``,
+   ``Client.get_club_activities``, and ``Client.get_club_admins`` fail after
+   that date. See the `Strava V3 API changelog
+   <https://developers.strava.com/docs/changelog/>`_.
+
 .. autosummary::
    :toctree: api/
 
@@ -53,6 +62,7 @@ Club related methods
    Client.get_club
    Client.get_club_members
    Client.get_club_activities
+   Client.get_club_admins
 
 Activity related methods
 -------------------------
@@ -72,6 +82,15 @@ Activity related methods
 
 Segment related methods
 -------------------------
+
+.. warning::
+
+   Strava limits the Explore Segments endpoint to the Extended Access Tier on
+   September 1, 2026. Standard Tier is the default for every application, so
+   ``Client.explore_segments`` fails after that date unless Strava approves
+   your application for the Extended Access Tier. See the `Strava V3 API
+   changelog <https://developers.strava.com/docs/changelog/>`_.
+
 .. autosummary::
    :toctree: api/
 

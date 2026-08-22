@@ -34,6 +34,8 @@ from stravalib import exc, model, strava_model, unit_helper
 from stravalib.exc import (
     ActivityPhotoUploadNotSupported,
     warn_attribute_unofficial,
+    warn_method_removal,
+    warn_method_restricted,
     warn_method_unofficial,
     warn_param_deprecation,
     warn_param_unofficial,
@@ -50,6 +52,12 @@ ActivityType = str
 SportType = str
 StreamType = str
 PhotoMetadata = Any
+
+#: Date on which Strava removes the Club Activities, Club Members, and Club
+#: Admins endpoints, and limits the Explore Segments endpoint to the Extended
+#: Access Tier.
+STRAVA_API_CHANGE_DATE = "September 1, 2026"
+STRAVA_API_CHANGELOG_URL = "https://developers.strava.com/docs/changelog/"
 
 
 class Client:
@@ -665,7 +673,20 @@ class Client:
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.Athlete` objects.
 
+        Warns
+        -----
+        DeprecationWarning
+            Strava removes the Club Members endpoint. The warning gives the
+            removal date, after which calls to this method fail. See
+            https://developers.strava.com/docs/changelog/.
+
         """
+        warn_method_removal(
+            "get_club_members",
+            STRAVA_API_CHANGE_DATE,
+            STRAVA_API_CHANGELOG_URL,
+        )
+
         result_fetcher = functools.partial(
             self.protocol.get, "/clubs/{id}/members", id=club_id
         )
@@ -696,7 +717,20 @@ class Client:
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.ClubActivity` objects.
 
+        Warns
+        -----
+        DeprecationWarning
+            Strava removes the Club Activities endpoint. The warning gives the
+            removal date, after which calls to this method fail. See
+            https://developers.strava.com/docs/changelog/.
+
         """
+        warn_method_removal(
+            "get_club_activities",
+            STRAVA_API_CHANGE_DATE,
+            STRAVA_API_CHANGELOG_URL,
+        )
+
         result_fetcher = functools.partial(
             self.protocol.get, "/clubs/{id}/activities", id=club_id
         )
@@ -727,7 +761,19 @@ class Client:
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.SummaryAthlete` objects.
 
+        Warns
+        -----
+        DeprecationWarning
+            Strava removes the Club Admins endpoint. The warning gives the
+            removal date, after which calls to this method fail. See
+            https://developers.strava.com/docs/changelog/.
+
         """
+        warn_method_removal(
+            "get_club_admins",
+            STRAVA_API_CHANGE_DATE,
+            STRAVA_API_CHANGELOG_URL,
+        )
 
         result_fetcher = functools.partial(
             self.protocol.get, "/clubs/{id}/admins", id=club_id
@@ -1570,6 +1616,15 @@ class Client:
         :class:`list`
             An list of :class:`stravalib.model.Segment`.
 
+        Warns
+        -----
+        FutureWarning
+            Strava limits the Explore Segments endpoint to the Extended Access
+            Tier. Standard Tier is the default for every application. The
+            warning gives the date, after which calls from an application in
+            the Standard Tier fail. See
+            https://developers.strava.com/docs/changelog/.
+
         """
         if len(bounds) == 2:
             bounds = (
@@ -1580,8 +1635,8 @@ class Client:
             )
         elif len(bounds) != 4:
             raise ValueError(
-                "Invalid bounds specified: {0!r}. Must be tuple of 4 float "
-                "values or tuple of 2 (lat,lon) tuples."
+                f"Invalid bounds specified: {bounds!r}. Must be tuple of 4 "
+                "float values or tuple of 2 (lat,lon) tuples."
             )
 
         params: dict[str, Any] = {"bounds": ",".join(str(b) for b in bounds)}
@@ -1598,6 +1653,12 @@ class Client:
             params["min_cat"] = min_cat
         if max_cat is not None:
             params["max_cat"] = max_cat
+
+        warn_method_restricted(
+            "explore_segments",
+            STRAVA_API_CHANGE_DATE,
+            STRAVA_API_CHANGELOG_URL,
+        )
 
         raw = self.protocol.get("/segments/explore", **params)
         return [
