@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- fix: improve license metadata (PEP 639), resolve deprecation warnings (@mwtoews, #728)
+
 ## v2.5.0
 
 ### Added

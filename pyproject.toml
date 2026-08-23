@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=77", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -23,7 +23,7 @@ description = "A Python package that makes it easy to access and download data f
 keywords = ["strava", "running", "cycling", "athletes"]
 readme = "README.md"
 dynamic = ["version"]
-license = { text = "Apache 2.0 License" }
+license = "Apache-2.0"
 authors = [{ name = "Hans Lellelid", email = "hans@xmpl.org" }]
 maintainers = [
   { name = "Leah Wasser" },
@@ -38,7 +38,6 @@ classifiers = [
   "Programming Language :: Python",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Apache Software License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering",
