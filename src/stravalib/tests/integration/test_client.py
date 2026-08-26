@@ -13,6 +13,7 @@ from stravalib.client import ActivityUploader, Client
 from stravalib.exc import (
     AccessUnauthorized,
     ActivityPhotoUploadFailed,
+    ApplicationInactive,
 )
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
@@ -1330,3 +1331,25 @@ def test_exchange_code_for_token_no_athlete(
         access_info["access_token"] == raw_exchange_response[0]["access_token"]
     )
     assert isinstance(access_info, dict)
+
+
+def test_inactive_application(mock_strava_api, client):
+    """An inactive app should raise a fault that says how to fix it."""
+    mock_strava_api.get(
+        "/athlete",
+        status=403,
+        json={
+            "message": "Forbidden",
+            "errors": [
+                {
+                    "resource": "Application",
+                    "field": "Status",
+                    "code": "Inactive",
+                }
+            ],
+        },
+    )
+    with pytest.raises(ApplicationInactive) as error:
+        client.get_athlete()
+
+    assert "https://www.strava.com/settings/api" in str(error.value)

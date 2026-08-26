@@ -51,6 +51,17 @@ class AccessUnauthorized(Fault):
     """
 
 
+class ApplicationInactive(Fault):
+    """
+    When we get a 403 back because the Strava application is inactive.
+
+    Strava sets an application to inactive when the account that owns
+    it has no active Strava subscription. All API calls then fail with
+    a 403 response. The owner has to subscribe and reactivate the
+    application at https://www.strava.com/settings/api.
+    """
+
+
 class RateLimitExceeded(RuntimeError):
     """
     Exception raised when the client rate limit has been exceeded.
