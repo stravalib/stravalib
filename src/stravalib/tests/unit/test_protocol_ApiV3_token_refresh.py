@@ -40,6 +40,52 @@ def test_request_skips_refresh_for_oauth_token(
         apiv3_instance.refresh_expired_token.assert_not_called()
 
 
+def test_request_log_omits_parameter_values(apiv3_instance, caplog):
+    """The request log line records parameter names, not values. A value
+    can carry the client secret or the refresh token, and an application
+    that sets this logger to INFO writes them to its own log (issue #740).
+    """
+
+    apiv3_instance.refresh_expired_token = MagicMock()
+    apiv3_instance.rsession.get = MagicMock(
+        return_value=MagicMock(status_code=204, headers={})
+    )
+
+    with caplog.at_level(logging.INFO):
+        apiv3_instance._request(
+            "/athlete", params={"marker": "value_that_must_not_be_logged"}
+        )
+
+    assert "value_that_must_not_be_logged" not in caplog.text
+    assert "marker" in caplog.text
+
+
+def test_request_log_names_form_body_parameters(apiv3_instance, caplog):
+    """A token refresh sends its parameters as a form-encoded body, so the
+    log line must cover `data` as well as `params`. The names appear, the
+    client secret and the refresh token do not (issue #740)."""
+
+    mock_response = MagicMock(status_code=200, headers={})
+    mock_response.json.return_value = {
+        "access_token": "new_access_token",
+        "refresh_token": "new_refresh_token",
+        "expires_at": 9876543210,
+    }
+    apiv3_instance.rsession.post = MagicMock(return_value=mock_response)
+
+    with caplog.at_level(logging.INFO):
+        apiv3_instance.refresh_access_token(
+            client_id=123456,
+            client_secret="clientfoosecret",
+            refresh_token="refresh_value123",
+        )
+
+    assert "clientfoosecret" not in caplog.text
+    assert "refresh_value123" not in caplog.text
+    assert "client_secret" in caplog.text
+    assert "refresh_token" in caplog.text
+
+
 ###### _check_credentials helper ######
 
 

@@ -251,7 +251,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
-        self.log.info(f"{method} {url!r} with params {params!r}")
+        # Log the names only. The token endpoint carries the client
+        # secret and the refresh token, and an application that sets this
+        # logger to INFO writes them to its own log file (issue #740).
+        sent_keys = sorted((params or {}) | (data or {}))
+        self.log.info(f"{method} {url!r} with params {sent_keys}")
         if params is None:
             params = {}
 
