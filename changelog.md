@@ -13,7 +13,8 @@
 
 ### Changed
 - Change: Send the access token in the `Authorization: Bearer` request header instead of the `access_token` URL query parameter, as advised by RFC 6750 and documented by Strava (@ragusa87, @jsamoocha, #733)
-- Change: Send the token request parameters in a form-encoded request body instead of the URL query string, as required by RFC 6749 §2.3.1. The client secret, the authorization code, and the refresh token no longer reach the URL (@jsamoocha, #740)
+- Change: Send the token request parameters in a form-encoded request body instead of the URL query string, as required by RFC 6749 §2.3.1. The client secret, the authorization code, and the refresh token no longer reach the URL of a token request (@jsamoocha, #740)
+- Change: Send the `create_subscription` parameters in a form-encoded request body instead of the URL query string, so the client secret no longer reaches the URL. `list_subscriptions` and `delete_subscription` still send it there, because Strava's API documents no request-body form for those two calls; their docstrings now say so (@jsamoocha, #740)
 - Change: The request log line records parameter names instead of parameter values, so an application logging at INFO no longer writes its own client secret to disk (@jsamoocha, #740)
 
 ## v2.5.0
