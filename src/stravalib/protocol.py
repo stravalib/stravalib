@@ -227,9 +227,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             such as booleans are serialized as proper JSON types rather than
             query-string strings.
         data : Dict[str,Any]
-            Request data sent as a form-encoded request body. Use this for
-            the token endpoint, so the client secret does not reach the URL
-            query string (RFC 6749 2.3.1).
+            Request data sent as a form-encoded request body. Use this where
+            the endpoint expects form-encoded parameters, or to keep a
+            credential out of the URL query string, because URLs are logged
+            (RFC 6749 2.3.1).
         method : str
             The request method (GET/POST/etc.)
         check_for_errors : bool
@@ -676,6 +677,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         url: str,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         check_for_errors: bool = True,
+        data: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Performs a generic POST request for specified params, returning the
@@ -689,6 +691,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             Dictionary of file name to file-like objects. Used by _requests
         check_for_errors: bool
             Whether to raise an error (or not)
+        data : dict, optional
+            Data to send as a form-encoded request body. Use this to keep a
+            credential out of the URL query string. Remaining keyword
+            arguments are used to format the URL and are sent as
+            query-string parameters.
 
         Returns
         -------
@@ -702,6 +709,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             url,
             params=params,
             files=files,
+            data=data,
             method="POST",
             check_for_errors=check_for_errors,
         )

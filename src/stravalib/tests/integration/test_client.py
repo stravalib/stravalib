@@ -958,6 +958,9 @@ def test_get_route(mock_strava_api, client):
 
 @responses.activate
 def test_create_subscription(mock_strava_api, client):
+    """The subscription credentials travel in a form-encoded body. The URL
+    query string stays empty, because URLs are logged (issue #740)."""
+
     responses.post(
         "https://www.strava.com/api/v3/push_subscriptions",
         json={
@@ -968,11 +971,24 @@ def test_create_subscription(mock_strava_api, client):
             "created_at": 1674660406,
         },
         status=200,
+        match=[
+            matchers.urlencoded_params_matcher(
+                {
+                    "client_id": "42",
+                    "client_secret": "42",
+                    "callback_url": "https://foobar.com",
+                    "verify_token": "STRAVA",
+                }
+            )
+        ],
     )
     created_subscription = client.create_subscription(
         42, 42, "https://foobar.com"
     )
     assert created_subscription.application_id == 42
+
+    request = responses.calls[0].request
+    assert urlparse(request.url).query == ""
 
 
 @pytest.mark.parametrize(

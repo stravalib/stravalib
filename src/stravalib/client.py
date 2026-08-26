@@ -2045,13 +2045,18 @@ class Client:
         An instance of :class:`stravalib.model.Subscription`.
 
         """
-        params: dict[str, Any] = dict(
-            client_id=client_id,
-            client_secret=client_secret,
-            callback_url=callback_url,
-            verify_token=verify_token,
+        # Sent as a form-encoded body rather than query parameters, so
+        # the client secret does not reach the URL. Strava documents this
+        # endpoint with a request body (issue #740).
+        raw = self.protocol.post(
+            "/push_subscriptions",
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "callback_url": callback_url,
+                "verify_token": verify_token,
+            },
         )
-        raw = self.protocol.post("/push_subscriptions", **params)
         return model.Subscription.model_validate(
             {**raw, **{"bound_client": self}}
         )
@@ -2121,6 +2126,13 @@ class Client:
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.Subscription` objects.
 
+        Notes
+        -----
+        Strava documents this call with the credentials in the URL query
+        string, and offers no request-body form, so `client_secret` reaches
+        the URL. URLs are recorded by proxies and server access logs. Treat
+        a secret used here as exposed to your network path.
+
         """
         result_fetcher = functools.partial(
             self.protocol.get,
@@ -2152,6 +2164,13 @@ class Client:
         Returns
         -------
         Deletes the specific subscription using the subscription ID
+
+        Notes
+        -----
+        Strava documents this call with the credentials in the URL query
+        string, and offers no request-body form, so `client_secret` reaches
+        the URL. URLs are recorded by proxies and server access logs. Treat
+        a secret used here as exposed to your network path.
 
         """
         self.protocol.delete(
