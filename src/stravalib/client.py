@@ -2128,10 +2128,11 @@ class Client:
 
         Notes
         -----
-        Strava documents this call with the credentials in the URL query
-        string, and offers no request-body form, so `client_secret` reaches
-        the URL. URLs are recorded by proxies and server access logs. Treat
-        a secret used here as exposed to your network path.
+        This call takes the credentials in the URL query string, so
+        `client_secret` reaches the URL. A request body does not work here:
+        a GET that carries one is rejected before it reaches Strava. URLs
+        are recorded by proxies and server access logs, so treat a secret
+        used here as exposed to your network path.
 
         """
         result_fetcher = functools.partial(
@@ -2168,16 +2169,21 @@ class Client:
         Notes
         -----
         Strava documents this call with the credentials in the URL query
-        string, and offers no request-body form, so `client_secret` reaches
-        the URL. URLs are recorded by proxies and server access logs. Treat
-        a secret used here as exposed to your network path.
+        string. It also accepts them in a request body, which this method
+        uses so that `client_secret` stays out of the URL. That body form
+        is not documented, so it could stop working. It would fail loudly
+        rather than quietly: every call would return 401.
 
         """
+        # See the note above: the body form is undocumented but verified
+        # against the live API (issue #740).
         self.protocol.delete(
             "/push_subscriptions/{id}",
             id=subscription_id,
-            client_id=client_id,
-            client_secret=client_secret,
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+            },
         )
         # Expects a 204 response if all goes well.
 

@@ -991,6 +991,31 @@ def test_create_subscription(mock_strava_api, client):
     assert urlparse(request.url).query == ""
 
 
+@responses.activate
+def test_delete_subscription_sends_credentials_in_form_body(
+    mock_strava_api, client
+):
+    """The credentials travel in a form-encoded body, so the client secret
+    does not reach the URL. Strava documents the query-string form for this
+    call and accepts a body undocumented, which is why this test exists: it
+    is the guard that would go red if Strava stopped reading it (#740)."""
+
+    responses.add(
+        responses.DELETE,
+        "https://www.strava.com/api/v3/push_subscriptions/1",
+        status=204,
+        match=[
+            matchers.urlencoded_params_matcher(
+                {"client_id": "42", "client_secret": "secret"}
+            )
+        ],
+    )
+    client.delete_subscription(1, 42, "secret")
+
+    request = responses.calls[0].request
+    assert urlparse(request.url).query == ""
+
+
 @pytest.mark.parametrize(
     "raw,expected_verify_token,expected_response,expected_exception",
     (

@@ -752,7 +752,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
 
     def delete(
-        self, url: str, check_for_errors: bool = True, **kwargs: Any
+        self,
+        url: str,
+        check_for_errors: bool = True,
+        data: dict[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Any:
         """Performs a generic DELETE request for specified params, returning
         the response.
@@ -763,6 +767,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             String representing url to access.
         check_for_errors: bool
             Whether to raise an error (or not)
+        data : dict, optional
+            Data to send as a form-encoded request body. Use this to keep a
+            credential out of the URL query string. Remaining keyword
+            arguments are used to format the URL and are sent as
+            query-string parameters.
 
         Returns
         -------
@@ -774,6 +783,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         return self._request(
             url,
             params=params,
+            data=data,
             method="DELETE",
             check_for_errors=check_for_errors,
         )
