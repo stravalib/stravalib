@@ -201,6 +201,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         params: dict[str, Any] | None = None,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         body: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         method: RequestMethod = "GET",
         check_for_errors: bool = True,
     ) -> Any:
@@ -225,6 +226,10 @@ class ApiV3(metaclass=abc.ABCMeta):
             endpoints that expect a JSON payload (e.g. PUT) so that values
             such as booleans are serialized as proper JSON types rather than
             query-string strings.
+        data : Dict[str,Any]
+            Request data sent as a form-encoded request body. Use this for
+            the token endpoint, so the client secret does not reach the URL
+            query string (RFC 6749 2.3.1).
         method : str
             The request method (GET/POST/etc.)
         check_for_errors : bool
@@ -274,7 +279,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
 
         raw = requester(  # type: ignore[operator]
-            url, params=params, json=body, headers=headers
+            url, params=params, data=data, json=body, headers=headers
         )
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
@@ -453,7 +458,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         # The method returns: No rates present in response headers
         response = self._request(
             f"https://{self.server}/oauth/token",
-            params={
+            data={
                 "client_id": client_id,
                 "client_secret": client_secret,
                 "code": code,
@@ -508,7 +513,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         response = self._request(
             f"https://{self.server}/oauth/token",
-            params={
+            data={
                 "client_id": client_id,
                 "client_secret": client_secret,
                 "refresh_token": refresh_token,

@@ -4,6 +4,7 @@ import os
 import warnings
 from unittest import mock
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 import pytest
 import responses
@@ -124,6 +125,71 @@ def test_no_authorization_header_on_token_refresh(mock_strava_api):
 
     request = mock_strava_api.calls[0].request
     assert "Authorization" not in request.headers
+
+
+def test_code_exchange_sends_credentials_in_form_body(mock_strava_api):
+    """The authorization code grant sends the client secret and the code in
+    a form-encoded body. The URL query string stays empty, because URLs are
+    logged (RFC 6749 2.3.1, issue #740)."""
+
+    client_without_token = Client()
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/oauth/token",
+        json={
+            "access_token": "new_token",
+            "refresh_token": "new_refresh_token",
+            "expires_at": 1732417459,
+        },
+        match=[
+            matchers.urlencoded_params_matcher(
+                {
+                    "client_id": "123",
+                    "client_secret": "secret",
+                    "code": "auth_code",
+                    "grant_type": "authorization_code",
+                }
+            )
+        ],
+    )
+    client_without_token.exchange_code_for_token(
+        client_id=123, client_secret="secret", code="auth_code"
+    )
+
+    request = mock_strava_api.calls[0].request
+    assert urlparse(request.url).query == ""
+
+
+def test_token_refresh_sends_credentials_in_form_body(mock_strava_api):
+    """The refresh grant sends the client secret and the refresh token in a
+    form-encoded body. The URL query string stays empty (issue #740)."""
+
+    client_with_token = Client(access_token="expired_token")
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/oauth/token",
+        json={
+            "access_token": "new_token",
+            "refresh_token": "new_refresh_token",
+            "expires_at": 1732417459,
+        },
+        match=[
+            matchers.urlencoded_params_matcher(
+                {
+                    "client_id": "123",
+                    "client_secret": "secret",
+                    "refresh_token": "refresh_token",
+                    "grant_type": "refresh_token",
+                }
+            )
+        ],
+    )
+    client_with_token.refresh_access_token(
+        client_id=123, client_secret="secret", refresh_token="refresh_token"
+    )
+
+    request = mock_strava_api.calls[0].request
+    assert urlparse(request.url).query == ""
 
 
 def test_no_authorization_header_without_access_token(mock_strava_api, client):
