@@ -4,10 +4,12 @@
 
 ### Added
 - Add: `exc.ApplicationInactive`, raised on a 403 response that reports an inactive Strava application, with a message that says how to reactivate it (@jsamoocha, #730)
+- Add: Warnings about the Strava API changes of September 1, 2026. `get_club_members`, `get_club_activities`, and `get_club_admins` emit a `DeprecationWarning`, because Strava removes those endpoints. `explore_segments` emits a `FutureWarning`, because Strava limits that endpoint to the Extended Access Tier (@jsamoocha, #736)
 
 ### Fixed
 - Fix: Prevent an `AttributeError` in the API error handler when Strava returns a JSON body that is not an object (@jsamoocha, #730)
 - Fix: improve license metadata (PEP 639), resolve deprecation warnings (@mwtoews, #728)
+- Fix: `explore_segments` now shows the bounds you supplied when it rejects them. The message showed the literal text `{0!r}` (@jsamoocha, #736)
 
 ### Changed
 - Change: Send the access token in the `Authorization: Bearer` request header instead of the `access_token` URL query parameter, as advised by RFC 6750 and documented by Strava (@ragusa87, @jsamoocha, #733)

@@ -295,6 +295,14 @@ To get activities starting with the oldest first, specify a value for the `after
 
 You can also use stravalib to access activities associated with a club. To do this, use {py:func}`stravalib.client.Client.get_club_activities`.
 
+:::{warning}
+Strava removes the Club Activities endpoint on September 1, 2026. After that
+date, `get_club_activities` fails. The same applies to
+{py:func}`stravalib.client.Client.get_club_members` and
+{py:func}`stravalib.client.Client.get_club_admins`. See the
+[Strava V3 API changelog](https://developers.strava.com/docs/changelog/).
+:::
+
 <!-- (TODO)
 ## Create and update activities
 
