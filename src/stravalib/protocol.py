@@ -178,7 +178,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         url : str
             The request URL.
         params : Dict[str,Any]
-            Request parameters sent as the URL query string.
+            Request parameters sent as the URL query string. Note that the
+            access token is not sent here; it is sent in the
+            `Authorization` request header.
         files : Dict[str,file]
             Dictionary of file name to file-like objects.
         body : Dict[str,Any]
@@ -197,16 +199,28 @@ class ApiV3(metaclass=abc.ABCMeta):
             The parsed JSON response.
         """
 
+        # The token endpoint authenticates with the client id and secret, so
+        # it gets no access token. On the refresh path that token is expired
+        # by definition.
+        is_token_request = "/oauth/token" in url
+
         # Only refresh token if we know the users' environment is setup
-        if "/oauth/token" not in url and self.client_id and self.client_secret:
+        if not is_token_request and self.client_id and self.client_secret:
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
         self.log.info(f"{method} {url!r} with params {params!r}")
         if params is None:
             params = {}
-        if self.access_token:
-            params["access_token"] = self.access_token
+
+        # Send the token as a bearer token in the request header. RFC 6750
+        # advises against the URL query parameter because URLs are often
+        # logged. The header is also the only method that Strava documents.
+        headers = (
+            {"Authorization": f"Bearer {self.access_token}"}
+            if self.access_token and not is_token_request
+            else {}
+        )
 
         methods = {
             "GET": self.rsession.get,
@@ -222,7 +236,9 @@ class ApiV3(metaclass=abc.ABCMeta):
                 f"Invalid/unsupported request method specified: {method}"
             )
 
-        raw = requester(url, params=params, json=body)  # type: ignore[operator]
+        raw = requester(  # type: ignore[operator]
+            url, params=params, json=body, headers=headers
+        )
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         if "/oauth/" not in url:

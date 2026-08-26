@@ -9,7 +9,7 @@ import pytest
 import responses
 from responses import matchers
 
-from stravalib.client import ActivityUploader
+from stravalib.client import ActivityUploader, Client
 from stravalib.exc import (
     AccessUnauthorized,
     ActivityPhotoUploadFailed,
@@ -88,6 +88,66 @@ def test_get_athlete(mock_strava_api, client):
     assert isinstance(athlete, DetailedAthlete)
     assert athlete.id == 42
     assert athlete.measurement_preference == "feet"
+
+
+def test_access_token_sent_in_authorization_header(mock_strava_api):
+    """The access token is sent as a bearer token in the request header, and
+    never in the URL query string (see RFC 6750 and issue #733)."""
+
+    client_with_token = Client(access_token="token123")
+    mock_strava_api.get("/athlete", response_update={"id": 42})
+    client_with_token.get_athlete()
+
+    request = mock_strava_api.calls[0].request
+    assert request.headers["Authorization"] == "Bearer token123"
+    assert "access_token" not in request.url
+
+
+def test_no_authorization_header_on_token_refresh(mock_strava_api):
+    """The token endpoint authenticates with the client id and secret. It
+    gets no Authorization header, because the token there is expired."""
+
+    client_with_token = Client(access_token="expired_token")
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/oauth/token",
+        json={
+            "access_token": "new_token",
+            "refresh_token": "new_refresh_token",
+            "expires_at": 1732417459,
+        },
+    )
+    client_with_token.refresh_access_token(
+        client_id=123, client_secret="secret", refresh_token="refresh_token"
+    )
+
+    request = mock_strava_api.calls[0].request
+    assert "Authorization" not in request.headers
+
+
+def test_no_authorization_header_without_access_token(mock_strava_api, client):
+    """A client without an access token sends no Authorization header."""
+
+    mock_strava_api.get("/athlete", response_update={"id": 42})
+    client.get_athlete()
+
+    assert "Authorization" not in mock_strava_api.calls[0].request.headers
+
+
+def test_deauthorize_sends_authorization_header(mock_strava_api):
+    """Deauthorization needs the token, so it also uses the header."""
+
+    client_with_token = Client(access_token="token123")
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/api/v3/oauth/deauthorize",
+        json={},
+    )
+    client_with_token.deauthorize()
+
+    request = mock_strava_api.calls[0].request
+    assert request.headers["Authorization"] == "Bearer token123"
+    assert "access_token" not in request.url
 
 
 def test_get_athlete_zones(mock_strava_api, client):
@@ -1071,11 +1131,16 @@ def test_get_activities_paged(mock_strava_api, client):
 
 
 @responses.activate
-def test_upload_activity_photo_works(client):
+def test_upload_activity_photo_works():
     """
     Test uploading an activity with a photo.
 
+    The pre-signed photo URL points at a third-party host, so it must never
+    receive the Strava access token. This is why the token is set per
+    request instead of on the session (see issue #733).
     """
+
+    client = Client(access_token="token123")
 
     strava_pre_signed_uri = "https://strava-photo-uploads-prod.s3-accelerate.amazonaws.com/12345.jpg"
     photo_bytes = b"photo_data"
@@ -1120,6 +1185,10 @@ def test_upload_activity_photo_works(client):
         )
 
         activity_uploader.upload_photo(photo=photo_bytes)
+
+        photo_request = _responses.calls[-1].request
+        assert photo_request.url == strava_pre_signed_uri
+        assert "Authorization" not in photo_request.headers
 
 
 def test_upload_activity_photo_fail_type_error(client):
