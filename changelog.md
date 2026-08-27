@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.5.1
+
 ### Added
 - Add: `exc.ApplicationInactive`, raised on a 403 response that reports an inactive Strava application, with a message that says how to reactivate it (@jsamoocha, #730)
 - Add: Warnings about the Strava API changes of September 1, 2026. `get_club_members`, `get_club_activities`, and `get_club_admins` emit a `DeprecationWarning`, because Strava removes those endpoints. `explore_segments` emits a `FutureWarning`, because Strava limits that endpoint to the Extended Access Tier (@jsamoocha, #736)
@@ -16,6 +18,9 @@
 - Change: Send the token request parameters in a form-encoded request body instead of the URL query string, as required by RFC 6749 §2.3.1. The client secret, the authorization code, and the refresh token no longer reach the URL of a token request (@jsamoocha, #740)
 - Change: Send the `create_subscription` and `delete_subscription` parameters in a form-encoded request body instead of the URL query string, so the client secret no longer reaches the URL. Strava documents the body form for `create_subscription`; for `delete_subscription` the body form works but is undocumented, and the docstring says so. `list_subscriptions` still sends the credentials in the URL, because a GET that carries a body is rejected before it reaches Strava (@jsamoocha, #740)
 - Change: The request log line records parameter names instead of parameter values, so an application logging at INFO no longer writes its own client secret to disk (@jsamoocha, #740)
+
+### Contributors to this release
+@jsamoocha, @ragusa87, @mwtoews
 
 ## v2.5.0
 
