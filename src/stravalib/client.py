@@ -2045,13 +2045,18 @@ class Client:
         An instance of :class:`stravalib.model.Subscription`.
 
         """
-        params: dict[str, Any] = dict(
-            client_id=client_id,
-            client_secret=client_secret,
-            callback_url=callback_url,
-            verify_token=verify_token,
+        # Sent as a form-encoded body rather than query parameters, so
+        # the client secret does not reach the URL. Strava documents this
+        # endpoint with a request body (issue #740).
+        raw = self.protocol.post(
+            "/push_subscriptions",
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "callback_url": callback_url,
+                "verify_token": verify_token,
+            },
         )
-        raw = self.protocol.post("/push_subscriptions", **params)
         return model.Subscription.model_validate(
             {**raw, **{"bound_client": self}}
         )
@@ -2121,6 +2126,14 @@ class Client:
         class:`BatchedResultsIterator`
             An iterator of :class:`stravalib.model.Subscription` objects.
 
+        Notes
+        -----
+        This call takes the credentials in the URL query string, so
+        `client_secret` reaches the URL. A request body does not work here:
+        a GET that carries one is rejected before it reaches Strava. URLs
+        are recorded by proxies and server access logs, so treat a secret
+        used here as exposed to your network path.
+
         """
         result_fetcher = functools.partial(
             self.protocol.get,
@@ -2153,12 +2166,24 @@ class Client:
         -------
         Deletes the specific subscription using the subscription ID
 
+        Notes
+        -----
+        Strava documents this call with the credentials in the URL query
+        string. It also accepts them in a request body, which this method
+        uses so that `client_secret` stays out of the URL. That body form
+        is not documented, so it could stop working. It would fail loudly
+        rather than quietly: every call would return 401.
+
         """
+        # See the note above: the body form is undocumented but verified
+        # against the live API (issue #740).
         self.protocol.delete(
             "/push_subscriptions/{id}",
             id=subscription_id,
-            client_id=client_id,
-            client_secret=client_secret,
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+            },
         )
         # Expects a 204 response if all goes well.
 

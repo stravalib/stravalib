@@ -201,6 +201,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         params: dict[str, Any] | None = None,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         body: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         method: RequestMethod = "GET",
         check_for_errors: bool = True,
     ) -> Any:
@@ -225,6 +226,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             endpoints that expect a JSON payload (e.g. PUT) so that values
             such as booleans are serialized as proper JSON types rather than
             query-string strings.
+        data : Dict[str,Any]
+            Request data sent as a form-encoded request body. Use this where
+            the endpoint expects form-encoded parameters, or to keep a
+            credential out of the URL query string, because URLs are logged
+            (RFC 6749 2.3.1).
         method : str
             The request method (GET/POST/etc.)
         check_for_errors : bool
@@ -246,7 +252,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             self.refresh_expired_token()
 
         url = self.resolve_url(url)
-        self.log.info(f"{method} {url!r} with params {params!r}")
+        # Log the names only. The token endpoint carries the client
+        # secret and the refresh token, and an application that sets this
+        # logger to INFO writes them to its own log file (issue #740).
+        sent_keys = sorted((params or {}) | (data or {}))
+        self.log.info(f"{method} {url!r} with params {sent_keys}")
         if params is None:
             params = {}
 
@@ -274,7 +284,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             )
 
         raw = requester(  # type: ignore[operator]
-            url, params=params, json=body, headers=headers
+            url, params=params, data=data, json=body, headers=headers
         )
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
@@ -453,7 +463,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         # The method returns: No rates present in response headers
         response = self._request(
             f"https://{self.server}/oauth/token",
-            params={
+            data={
                 "client_id": client_id,
                 "client_secret": client_secret,
                 "code": code,
@@ -508,7 +518,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         """
         response = self._request(
             f"https://{self.server}/oauth/token",
-            params={
+            data={
                 "client_id": client_id,
                 "client_secret": client_secret,
                 "refresh_token": refresh_token,
@@ -667,6 +677,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         url: str,
         files: dict[str, SupportsRead[str | bytes]] | None = None,
         check_for_errors: bool = True,
+        data: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Performs a generic POST request for specified params, returning the
@@ -680,6 +691,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             Dictionary of file name to file-like objects. Used by _requests
         check_for_errors: bool
             Whether to raise an error (or not)
+        data : dict, optional
+            Data to send as a form-encoded request body. Use this to keep a
+            credential out of the URL query string. Remaining keyword
+            arguments are used to format the URL and are sent as
+            query-string parameters.
 
         Returns
         -------
@@ -693,6 +709,7 @@ class ApiV3(metaclass=abc.ABCMeta):
             url,
             params=params,
             files=files,
+            data=data,
             method="POST",
             check_for_errors=check_for_errors,
         )
@@ -735,7 +752,11 @@ class ApiV3(metaclass=abc.ABCMeta):
         )
 
     def delete(
-        self, url: str, check_for_errors: bool = True, **kwargs: Any
+        self,
+        url: str,
+        check_for_errors: bool = True,
+        data: dict[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Any:
         """Performs a generic DELETE request for specified params, returning
         the response.
@@ -746,6 +767,11 @@ class ApiV3(metaclass=abc.ABCMeta):
             String representing url to access.
         check_for_errors: bool
             Whether to raise an error (or not)
+        data : dict, optional
+            Data to send as a form-encoded request body. Use this to keep a
+            credential out of the URL query string. Remaining keyword
+            arguments are used to format the URL and are sent as
+            query-string parameters.
 
         Returns
         -------
@@ -757,6 +783,7 @@ class ApiV3(metaclass=abc.ABCMeta):
         return self._request(
             url,
             params=params,
+            data=data,
             method="DELETE",
             check_for_errors=check_for_errors,
         )
