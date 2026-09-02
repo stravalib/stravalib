@@ -1535,7 +1535,7 @@ class Route(BaseModel):
     """
     sub_type: int | None = None
     """
-    This route's sub-type (1 for road, 2 for mountain bike, 3 for cross, 4 for trail, 5 for mixed)
+    This route's sub-type (1 = Road, 2 = MTB, 3 = Gravel, 4 = Trail, 5 = Mixed)
     """
     timestamp: int | None = None
     """
@@ -1543,7 +1543,7 @@ class Route(BaseModel):
     """
     type: int | None = None
     """
-    This route's type (1 for ride, 2 for runs)
+    This route's type (1 = Ride, 2 = Run, 3 = Walk, 4 = Hike, 5 = Trail Run, 6 = Gravel Ride, 7 = Mountain Bike Ride)
     """
     updated_at: datetime | None = None
     """
