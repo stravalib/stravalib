@@ -62,6 +62,16 @@ class ApplicationInactive(Fault):
     """
 
 
+class TooManyRequests(Fault):
+    """
+    When the Strava API returns HTTP 429 because a rate limit was exceeded.
+
+    The original response, including rate-limit headers, is available through
+    the ``response`` attribute. This is a :class:`Fault` subclass, so existing
+    HTTP error handlers continue to catch it.
+    """
+
+
 class RateLimitExceeded(RuntimeError):
     """
     Exception raised when the client rate limit has been exceeded.

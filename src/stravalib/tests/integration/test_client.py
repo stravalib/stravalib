@@ -15,6 +15,7 @@ from stravalib.exc import (
     AccessUnauthorized,
     ActivityPhotoUploadFailed,
     ApplicationInactive,
+    TooManyRequests,
 )
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
@@ -1528,3 +1529,26 @@ def test_inactive_application(mock_strava_api, client):
         client.get_athlete()
 
     assert "https://www.strava.com/settings/api" in str(error.value)
+
+
+def test_rate_limit_error_with_limiting_disabled(mock_strava_api, mocker):
+    sleep = mocker.patch("stravalib.util.limiter.time.sleep")
+    client = Client(rate_limit_requests=False)
+    mock_strava_api.get(
+        "/athlete",
+        status=429,
+        json={"message": "Rate Limit Exceeded", "errors": []},
+        headers={
+            "X-RateLimit-Limit": "100,1000",
+            "X-RateLimit-Usage": "101,101",
+        },
+    )
+
+    with pytest.raises(TooManyRequests) as error:
+        client.get_athlete()
+
+    assert error.value.response.status_code == 429
+    assert error.value.response.headers["X-RateLimit-Usage"] == "101,101"
+    assert "Rate Limit Exceeded" in str(error.value)
+    sleep.assert_not_called()
+    assert len(mock_strava_api.calls) == 1

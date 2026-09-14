@@ -606,6 +606,9 @@ class ApiV3(metaclass=abc.ABCMeta):
         elif response.status_code == 403 and _is_application_inactive(errors):
             msg = f"{INACTIVE_APPLICATION_MESSAGE} [{error_str}]"
             raise exc.ApplicationInactive(msg, response=response)
+        elif response.status_code == 429:
+            msg = f"{response.status_code} Client Error: {response.reason} [{error_str}]"
+            raise exc.TooManyRequests(msg, response=response)
         elif 400 <= response.status_code < 500:
             msg = f"{response.status_code} Client Error: {response.reason} [{error_str}]"
             raise exc.Fault(msg, response=response)
