@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Add: `exc.TooManyRequests`, a `Fault` subclass raised for HTTP 429 responses, so callers using `rate_limit_requests=False` can handle rate limits separately while retaining the response and error details (#560)
+
 ## v2.6.0
 
 ### Added

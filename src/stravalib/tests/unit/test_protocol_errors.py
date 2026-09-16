@@ -11,6 +11,7 @@ from stravalib.exc import (
     ApplicationInactive,
     Fault,
     ObjectNotFound,
+    TooManyRequests,
 )
 
 INACTIVE_APP_BODY = {
@@ -161,3 +162,41 @@ def test_other_status_codes_keep_their_exception(
 def test_successful_response_is_returned(apiv3_instance):
     response = _response(200, {"id": 42}, reason="OK")
     assert apiv3_instance._handle_protocol_error(response) is response
+
+
+def test_rate_limited_response_preserves_fault_details(apiv3_instance):
+    body = {
+        "message": "Rate Limit Exceeded",
+        "errors": [
+            {
+                "resource": "Application",
+                "field": "rate limit",
+                "code": "exceeded",
+            }
+        ],
+    }
+    response = _response(429, body, reason="Too Many Requests")
+    response.headers["X-RateLimit-Usage"] = "101,101"
+
+    with pytest.raises(TooManyRequests) as error:
+        apiv3_instance._handle_protocol_error(response)
+
+    assert isinstance(error.value, Fault)
+    assert isinstance(error.value, requests.exceptions.HTTPError)
+    assert error.value.response is response
+    assert error.value.response.headers["X-RateLimit-Usage"] == "101,101"
+    assert str(error.value) == (
+        "429 Client Error: Too Many Requests "
+        f"[Rate Limit Exceeded: {body['errors']}]"
+    )
+
+
+@pytest.mark.parametrize("raw_body", ("", "not json", "[]"))
+def test_rate_limited_response_without_error_object(apiv3_instance, raw_body):
+    response = _response(429, raw_body=raw_body, reason="Too Many Requests")
+
+    with pytest.raises(TooManyRequests) as error:
+        apiv3_instance._handle_protocol_error(response)
+
+    assert error.value.response is response
+    assert "429 Client Error: Too Many Requests" in str(error.value)
