@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Change: Keep `Client.deauthorize()` and use Strava's `/oauth/revoke` endpoint with HTTP Basic authentication and a form-encoded token. `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` must now be set before constructing the client; missing credentials or an access token raise `ValueError`. Revocation does not refresh the token first (#738).
+
 ## v2.6.0
 
 ### Added

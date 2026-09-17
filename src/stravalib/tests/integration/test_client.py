@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import warnings
 from unittest import mock
@@ -7,6 +8,7 @@ from unittest.mock import patch
 from urllib.parse import urlparse
 
 import pytest
+import requests
 import responses
 from responses import matchers
 
@@ -15,6 +17,7 @@ from stravalib.exc import (
     AccessUnauthorized,
     ActivityPhotoUploadFailed,
     ApplicationInactive,
+    Fault,
 )
 from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
 from stravalib.strava_model import SummaryActivity, Zones
@@ -201,20 +204,161 @@ def test_no_authorization_header_without_access_token(mock_strava_api, client):
     assert "Authorization" not in mock_strava_api.calls[0].request.headers
 
 
-def test_deauthorize_sends_authorization_header(mock_strava_api):
-    """Deauthorization needs the token, so it also uses the header."""
+def test_deauthorize_revokes_without_refreshing(
+    mock_strava_api, mock_strava_env, caplog
+):
+    """Revocation uses Basic auth and a form, even for an expired token."""
+    access_token = "expired+token&value=1"
+    refresh_token = "refresh_token_not_for_revocation"
+    rate_limiter = mock.Mock()
+    client_with_token = Client(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_expires=1,
+        rate_limiter=rate_limiter,
+    )
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/oauth/revoke",
+        body="",
+        status=200,
+        match=[matchers.urlencoded_params_matcher({"token": access_token})],
+    )
 
+    with (
+        patch.object(
+            client_with_token.protocol, "refresh_expired_token"
+        ) as refresh,
+        caplog.at_level(logging.DEBUG, logger="stravalib"),
+    ):
+        assert client_with_token.deauthorize() is None
+
+    request = mock_strava_api.calls[0].request
+    assert request.url == "https://www.strava.com/oauth/revoke"
+    assert urlparse(request.url).query == ""
+    assert request.headers["Authorization"] == "Basic MTIzNDU6MTIzZ2hwMjM0"
+    assert (
+        request.headers["Content-Type"] == "application/x-www-form-urlencoded"
+    )
+    assert len(mock_strava_api.calls) == 1
+    refresh.assert_not_called()
+    rate_limiter.assert_not_called()
+    assert client_with_token.access_token == access_token
+    assert client_with_token.refresh_token == refresh_token
+    assert client_with_token.token_expires == 1
+    for value in (
+        access_token,
+        refresh_token,
+        "12345",
+        "123ghp234",
+        "MTIzNDU6MTIzZ2hwMjM0",
+    ):
+        assert value not in caplog.text
+
+
+def test_deauthorize_keeps_authentication_scoped_to_request(
+    mock_strava_api, mock_strava_env
+):
+    """Basic credentials never become defaults on the shared session."""
+    session = requests.Session()
+    session.headers["X-Test"] = "preserved"
+    original_headers = session.headers.copy()
+    client_with_token = Client(
+        access_token="token123",
+        requests_session=session,
+        rate_limit_requests=False,
+    )
+    mock_strava_api.add(
+        responses.POST, "https://www.strava.com/oauth/revoke", body=""
+    )
+    mock_strava_api.add(
+        responses.GET,
+        "https://www.strava.com/api/v3/athlete",
+        json={"id": 42},
+    )
+    mock_strava_api.add(
+        responses.PUT, "https://uploads.example.com/photo", body=""
+    )
+
+    client_with_token.deauthorize()
+    assert session.auth is None
+    assert session.headers == original_headers
+
+    client_with_token.get_athlete()
+    session.put("https://uploads.example.com/photo", data=b"photo")
+
+    api_request = mock_strava_api.calls[1].request
+    upload_request = mock_strava_api.calls[2].request
+    assert api_request.headers["Authorization"] == "Bearer token123"
+    assert "Authorization" not in upload_request.headers
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    (
+        ("client_id", None),
+        ("client_id", 0),
+        ("client_secret", None),
+        ("client_secret", ""),
+        ("access_token", None),
+        ("access_token", ""),
+    ),
+)
+def test_deauthorize_requires_credentials_and_token(
+    mock_strava_api, mock_strava_env, field, value
+):
+    """Missing authentication inputs fail locally before any HTTP call."""
+    client_with_token = Client(access_token="token123")
+    setattr(client_with_token.protocol, field, value)
+
+    message = (
+        "access_token"
+        if field == "access_token"
+        else "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET"
+    )
+    with pytest.raises(ValueError, match=message):
+        client_with_token.deauthorize()
+
+    assert not mock_strava_api.calls
+
+
+@pytest.mark.parametrize(
+    "status,expected_exception",
+    ((400, Fault), (401, AccessUnauthorized), (503, Fault)),
+)
+def test_deauthorize_preserves_protocol_errors(
+    mock_strava_api, mock_strava_env, status, expected_exception
+):
     client_with_token = Client(access_token="token123")
     mock_strava_api.add(
         responses.POST,
-        "https://www.strava.com/api/v3/oauth/deauthorize",
-        json={},
+        "https://www.strava.com/oauth/revoke",
+        status=status,
+        body="",
     )
-    client_with_token.deauthorize()
 
-    request = mock_strava_api.calls[0].request
-    assert request.headers["Authorization"] == "Bearer token123"
-    assert "access_token" not in request.url
+    with pytest.raises(expected_exception) as error:
+        client_with_token.deauthorize()
+
+    assert error.value.response is mock_strava_api.calls[0].response
+    assert len(mock_strava_api.calls) == 1
+
+
+def test_deauthorize_rejects_redirects(mock_strava_api, mock_strava_env):
+    """A redirect must not replay the revocation token to another host."""
+    client_with_token = Client(access_token="token123")
+    mock_strava_api.add(
+        responses.POST,
+        "https://www.strava.com/oauth/revoke",
+        status=307,
+        headers={"Location": "https://other.example.com/revoke"},
+    )
+
+    with pytest.raises(Fault) as error:
+        client_with_token.deauthorize()
+
+    assert error.value.response.status_code == 307
+    assert len(mock_strava_api.calls) == 1
 
 
 def test_get_athlete_zones(mock_strava_api, client):
