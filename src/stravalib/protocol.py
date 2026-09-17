@@ -538,6 +538,44 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         return access_info
 
+    def deauthorize(self) -> None:
+        """Revoke the current access token using configured credentials.
+
+        Raises
+        ------
+        ValueError
+            If application credentials or the access token are missing.
+        stravalib.exc.Fault
+            If revocation fails or returns an unexpected status.
+        """
+        if not self.client_id or not self.client_secret:
+            raise ValueError(
+                "Deauthorization requires STRAVA_CLIENT_ID and "
+                "STRAVA_CLIENT_SECRET to be set before creating the client."
+            )
+        if not self.access_token:
+            raise ValueError("Deauthorization requires an access_token.")
+
+        url = f"https://{self.server}/oauth/revoke"
+        self.log.info("POST %r with params ['token']", url)
+        # Bypass _request: revocation uses Basic auth, must not refresh the
+        # token, and returns an empty HTTP 200 rather than JSON. Keep auth
+        # on this request because photo uploads share the session.
+        response = self.rsession.post(
+            url,
+            auth=(str(self.client_id), self.client_secret),
+            data={"token": self.access_token},
+            # Do not replay the token body to a redirected destination.
+            allow_redirects=False,
+        )
+        self._handle_protocol_error(response)
+        if response.status_code != 200:
+            raise exc.Fault(
+                "Unexpected status during deauthorization: "
+                f"{response.status_code}",
+                response=response,
+            )
+
     def resolve_url(self, url: str) -> str:
         """
 
