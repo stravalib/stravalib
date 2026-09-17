@@ -321,13 +321,31 @@ class Client:
         )
 
     def deauthorize(self) -> None:
-        """Deauthorize the application. This causes the application to be
-        removed from the athlete's "My Apps" settings page.
+        """Revoke the application's access to the athlete's data.
 
-        https://developers.strava.com/docs/authentication/#deauthorization
+        Uses the current access token without refreshing it first. Strava
+        invalidates the associated access and refresh tokens. Discard your
+        stored tokens after success; local client state is not cleared.
 
+        Raises
+        ------
+        ValueError
+            If the access token or application credentials are missing.
+        stravalib.exc.AccessUnauthorized
+            If Strava rejects the application credentials.
+        stravalib.exc.Fault
+            If Strava reports another error or an unexpected status.
+
+        Notes
+        -----
+        The ``/oauth/revoke`` endpoint requires application credentials.
+        Set ``STRAVA_CLIENT_ID`` and ``STRAVA_CLIENT_SECRET`` in the
+        environment before constructing the client. Credentials passed to
+        token exchange or manual refresh are not retained for this call.
+
+        See https://developers.strava.com/docs/authentication/#deauthorization
         """
-        self.protocol.post("oauth/deauthorize")
+        self.protocol.deauthorize()
 
     def _utc_datetime_to_epoch(self, activity_datetime: str | datetime) -> int:
         """Convert the specified datetime value to a unix epoch timestamp
