@@ -608,49 +608,8 @@ class LatLon(LatLng):
 
 class MetaClub(strava_model.MetaClub, BoundClientEntity):
     """
-    Represents an identifiable club with lazily loaded properties to obtain
-    this club's members and activities.
+    Represents an identifiable club.
     """
-
-    @lazy_property
-    def members(self) -> BatchedResultsIterator[strava_model.ClubAthlete]:
-        """
-        Lazy property to retrieve club members stored as Athlete objects.
-
-        Returns
-        -------
-        List
-            A list of club members stored as Athlete objects.
-
-        Warns
-        -----
-        DeprecationWarning
-            Strava removes the Club Members endpoint. The warning gives the
-            removal date, after which this property fails. See
-            https://developers.strava.com/docs/changelog/.
-        """
-        assert self.bound_client is not None, "Bound client is not set."
-        return self.bound_client.get_club_members(self.id)
-
-    @lazy_property
-    def activities(self) -> BatchedResultsIterator[ClubActivity]:
-        """
-        Lazy property to retrieve club activities.
-
-        Returns
-        -------
-        Iterator
-            An iterator of Activity objects representing club activities.
-
-        Warns
-        -----
-        DeprecationWarning
-            Strava removes the Club Activities endpoint. The warning gives the
-            removal date, after which this property fails. See
-            https://developers.strava.com/docs/changelog/.
-        """
-        assert self.bound_client is not None, "Bound client is not set."
-        return self.bound_client.get_club_activities(self.id)
 
 
 class SummaryClub(MetaClub, strava_model.SummaryClub):
@@ -1329,23 +1288,6 @@ class DetailedActivity(
     private_note: str | None = None
 
     _naive_local = field_validator("start_date_local")(naive_datetime)
-
-
-class ClubActivity(strava_model.ClubActivity):
-    """Represents an activity returned from a club.
-
-    Notes
-    -----
-    The Strava API specification suggests that this should
-    return a `MetaAthlete` Object for the athlete associated with this activity.
-    However, the object spec is missing what is actually returned,
-    i.e., resource_state, first name, and last initial.
-    This object matches the actual return data, not the spec.
-    """
-
-    # Intentional class override as spec returns metaAthlete object
-    # (which only contains id)
-    athlete: strava_model.ClubAthlete | None = None  # type: ignore[assignment]
 
 
 class TimedZoneDistribution(strava_model.TimedZoneRange):
