@@ -321,14 +321,15 @@ class Client:
     def deauthorize(self) -> None:
         """Revoke the application's access to the athlete's data.
 
-        Uses the current access token without refreshing it first. Strava
-        invalidates the associated access and refresh tokens. Discard your
-        stored tokens after success; local client state is not cleared.
+        Prefers the refresh token, falling back to the access token, without
+        refreshing either token first. Strava invalidates the associated
+        access and refresh tokens. Discard your stored tokens after success;
+        local client state is not cleared.
 
         Raises
         ------
         ValueError
-            If the access token or application credentials are missing.
+            If application credentials are missing or neither token is set.
         stravalib.exc.AccessUnauthorized
             If Strava rejects the application credentials.
         stravalib.exc.Fault

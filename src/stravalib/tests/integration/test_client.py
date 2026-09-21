@@ -204,12 +204,48 @@ def test_no_authorization_header_without_access_token(mock_strava_api, client):
     assert "Authorization" not in mock_strava_api.calls[0].request.headers
 
 
+@pytest.mark.parametrize(
+    "access_token,refresh_token,expected_token,token_type_hint",
+    (
+        (
+            "expired+token&value=1",
+            "refresh+token&value=2",
+            "refresh+token&value=2",
+            "refresh_token",
+        ),
+        (
+            None,
+            "refresh+token&value=2",
+            "refresh+token&value=2",
+            "refresh_token",
+        ),
+        (
+            "",
+            "refresh+token&value=2",
+            "refresh+token&value=2",
+            "refresh_token",
+        ),
+        ("access+token&value=1", None, "access+token&value=1", "access_token"),
+        ("access+token&value=1", "", "access+token&value=1", "access_token"),
+    ),
+    ids=(
+        "prefer-refresh-over-expired-access",
+        "refresh-without-access",
+        "refresh-with-empty-access",
+        "access-without-refresh",
+        "access-with-empty-refresh",
+    ),
+)
 def test_deauthorize_revokes_without_refreshing(
-    mock_strava_api, mock_strava_env, caplog
+    mock_strava_api,
+    mock_strava_env,
+    caplog,
+    access_token,
+    refresh_token,
+    expected_token,
+    token_type_hint,
 ):
-    """Revocation uses Basic auth and a form, even for an expired token."""
-    access_token = "expired+token&value=1"
-    refresh_token = "refresh_token_not_for_revocation"
+    """Prefer the refresh token, falling back to access, without refreshing."""
     rate_limiter = mock.Mock()
     client_with_token = Client(
         access_token=access_token,
@@ -222,7 +258,11 @@ def test_deauthorize_revokes_without_refreshing(
         "https://www.strava.com/oauth/revoke",
         body="",
         status=200,
-        match=[matchers.urlencoded_params_matcher({"token": access_token})],
+        match=[
+            matchers.urlencoded_params_matcher(
+                {"token": expected_token, "token_type_hint": token_type_hint}
+            )
+        ],
     )
 
     with (
@@ -253,7 +293,8 @@ def test_deauthorize_revokes_without_refreshing(
         "123ghp234",
         "MTIzNDU6MTIzZ2hwMjM0",
     ):
-        assert value not in caplog.text
+        if value:
+            assert value not in caplog.text
 
 
 def test_deauthorize_keeps_authentication_scoped_to_request(
@@ -300,24 +341,36 @@ def test_deauthorize_keeps_authentication_scoped_to_request(
         ("client_id", 0),
         ("client_secret", None),
         ("client_secret", ""),
-        ("access_token", None),
-        ("access_token", ""),
     ),
 )
-def test_deauthorize_requires_credentials_and_token(
+def test_deauthorize_requires_credentials(
     mock_strava_api, mock_strava_env, field, value
 ):
     """Missing authentication inputs fail locally before any HTTP call."""
-    client_with_token = Client(access_token="token123")
+    client_with_token = Client(refresh_token="refresh123")
     setattr(client_with_token.protocol, field, value)
 
-    message = (
-        "access_token"
-        if field == "access_token"
-        else "STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET"
-    )
-    with pytest.raises(ValueError, match=message):
+    with pytest.raises(
+        ValueError, match="STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET"
+    ):
         client_with_token.deauthorize()
+
+    assert not mock_strava_api.calls
+
+
+@pytest.mark.parametrize("access_token", (None, ""))
+@pytest.mark.parametrize("refresh_token", (None, ""))
+def test_deauthorize_requires_access_or_refresh_token(
+    mock_strava_api, mock_strava_env, access_token, refresh_token
+):
+    client_without_token = Client(
+        access_token=access_token, refresh_token=refresh_token
+    )
+
+    with pytest.raises(
+        ValueError, match="Deauthorization requires an access or refresh token"
+    ):
+        client_without_token.deauthorize()
 
     assert not mock_strava_api.calls
 
