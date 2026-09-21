@@ -25,7 +25,6 @@ Activities
     MetaActivity
     SummaryActivity
     DetailedActivity
-    ClubActivity
     ActivityTotals
     Lap
     Split

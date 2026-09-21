@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Fixed
+- Fix: The `explore_segments` warning and docs now say that Strava restricted the endpoint to the Extended Access Tier on September 1, 2026. Before, they said that Strava restricts it on that date (@jsamoocha, #745)
+
+### Removed
+- Remove: `Client.get_club_members`, `Client.get_club_activities`, `Client.get_club_admins`, the `members` and `activities` properties of club objects, and `model.ClubActivity`. Strava removed the Club Members, Club Activities, and Club Admins endpoints on September 1, 2026 (@jsamoocha, #745)
+
+### Breaking Changes
+Code that uses one of the removed methods, properties, or classes now fails
+with an `AttributeError`, or with an `ImportError` for
+`from stravalib.model import ClubActivity`. Before this release, calls to the
+removed methods failed with an error from the Strava API, because Strava no
+longer serves the endpoints. There is no replacement.
+
 ## v2.6.0
 
 ### Added

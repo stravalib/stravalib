@@ -143,43 +143,17 @@ def warn_method_deprecation(
     )
 
 
-def warn_method_removal(
-    method_name: str, removal_date: str, alt_url: str | None = None
-) -> None:
-    """Warn that Strava removes the endpoint used by a method.
-
-    Parameters
-    ----------
-    method_name : str
-        Name of the method that calls the endpoint.
-    removal_date : str
-        Date on which Strava removes the endpoint.
-    alt_url : str, optional
-        Link to more information about the change.
-    """
-    alt_support_msg = (
-        f" See {alt_url} for more information." if alt_url else ""
-    )
-    warnings.warn(
-        f'The "{method_name}" method uses a Strava API endpoint that Strava '
-        f"removes on {removal_date}. Calls to this method fail after that "
-        f"date.{alt_support_msg}",
-        DeprecationWarning,
-        stacklevel=3,
-    )
-
-
 def warn_method_restricted(
     method_name: str, restriction_date: str, alt_url: str | None = None
 ) -> None:
-    """Warn that Strava limits the endpoint used by a method to a higher tier.
+    """Warn that Strava limited the endpoint used by a method to a higher tier.
 
     Parameters
     ----------
     method_name : str
         Name of the method that calls the endpoint.
     restriction_date : str
-        Date on which Strava applies the restriction.
+        Date on which Strava applied the restriction.
     alt_url : str, optional
         Link to more information about the change.
     """
@@ -188,9 +162,8 @@ def warn_method_restricted(
     )
     warnings.warn(
         f'The "{method_name}" method uses a Strava API endpoint that Strava '
-        f"restricts to the Extended Access Tier on {restriction_date}. Calls "
-        f"from an application in the Standard Tier fail after that "
-        f"date.{alt_support_msg}",
+        f"restricted to the Extended Access Tier on {restriction_date}. Calls "
+        f"from an application in the Standard Tier fail.{alt_support_msg}",
         FutureWarning,
         stacklevel=3,
     )

@@ -340,70 +340,6 @@ def test_get_activity_laps(mock_strava_api, client):
     assert laps[0].distance == 1000
 
 
-def test_get_club_activities(mock_strava_api, client):
-    mock_strava_api.get(
-        "/clubs/{id}/activities",
-        response_update={"distance": 1000},
-        n_results=2,
-    )
-
-    activities = list(client.get_club_activities(42))
-    assert len(activities) == 2
-    assert activities[0].distance == 1000
-
-
-def test_get_club_admins(mock_strava_api, client):
-    mock_strava_api.get(
-        "/clubs/{id}/admins",
-        response_update={"firstname": "Jane"},
-        n_results=2,
-    )
-
-    admins = list(client.get_club_admins(42))
-    assert isinstance(admins[0], SummaryAthlete)
-    assert len(admins) == 2
-    assert admins[0].firstname == "Jane"
-
-
-@pytest.mark.parametrize(
-    "method_name",
-    ("get_club_members", "get_club_activities", "get_club_admins"),
-)
-def test_retired_club_endpoints_warn(mock_strava_api, client, method_name):
-    """Strava removes these Club endpoints on September 1, 2026. Warn the
-    user when the method is called, before any request is made.
-
-    No endpoint is registered on the mock. The mock still intercepts every
-    request, so an eager fetch fails here instead of reaching Strava.
-    """
-
-    with pytest.warns(
-        DeprecationWarning,
-        match=(
-            f'"{method_name}" method uses a Strava API endpoint that Strava '
-            "removes on September 1, 2026"
-        ),
-    ):
-        getattr(client, method_name)(42)
-
-    assert len(mock_strava_api.calls) == 0
-
-
-@pytest.mark.parametrize("property_name", ("members", "activities"))
-def test_retired_club_properties_warn(mock_strava_api, client, property_name):
-    """The lazy properties of a club delegate to the retired client methods,
-    so they warn too."""
-
-    mock_strava_api.get("/clubs/{id}", response_update={"id": 42})
-    club = client.get_club(42)
-
-    with pytest.warns(
-        DeprecationWarning,
-        match="Strava API endpoint that Strava removes on September 1, 2026",
-    ):
-        getattr(club, property_name)
-
-
 def test_get_activity_zones(mock_strava_api, client, zone_response):
     """Returns an activities associated zone (related to heart rate and power)
 
@@ -1095,19 +1031,6 @@ def test_get_athlete_clubs_iterator(mock_strava_api, client, n_clubs):
         assert clubs[0].name == "myclub"
 
 
-@pytest.mark.parametrize("n_members", (0, 2))
-def test_get_club_members(mock_strava_api, client, n_members):
-    mock_strava_api.get(
-        "/clubs/{id}/members",
-        response_update={"lastname": "Doe"},
-        n_results=n_members,
-    )
-    members = list(client.get_club_members(42))
-    assert len(members) == n_members
-    if members:
-        assert members[0].lastname == "Doe"
-
-
 @pytest.mark.parametrize(
     "athlete_id,authenticated_athlete,expected_biggest_ride_distance,expected_exception",
     (
@@ -1411,9 +1334,9 @@ def test_explore_segments(mock_strava_api, client):
 
 
 def test_explore_segments_restricted_warning(mock_strava_api, client):
-    """Strava limits this endpoint to the Extended Access Tier on
-    September 1, 2026. The method still works, so the warning is a
-    FutureWarning."""
+    """Strava limited this endpoint to the Extended Access Tier on
+    September 1, 2026. The method still works for an application in that
+    tier, so the warning is a FutureWarning."""
 
     mock_strava_api.get("/segments/explore")
 
@@ -1421,7 +1344,8 @@ def test_explore_segments_restricted_warning(mock_strava_api, client):
         FutureWarning,
         match=(
             '"explore_segments" method uses a Strava API endpoint that Strava '
-            "restricts to the Extended Access Tier on September 1, 2026"
+            "restricted to the Extended Access Tier on September 1, 2026. "
+            r"Calls from an application in the Standard Tier fail\."
         ),
     ):
         client.explore_segments((1, 2, 3, 4))
