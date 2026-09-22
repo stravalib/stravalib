@@ -206,4 +206,35 @@ print(f"Hi, {athlete.firstname} Welcome to stravalib!")
 print(client.token_expires)
 ```
 
+## Deauthorize your application
+
+Call {py:func}`stravalib.client.Client.deauthorize` to revoke your
+application's access to an athlete's data:
+
+```python
+from stravalib import Client
+
+# Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in your environment first.
+client = Client(refresh_token=STORED_REFRESH_TOKEN)
+client.deauthorize()
+```
+
+This uses Strava's `/oauth/revoke` endpoint, which requires your application's
+client ID and secret as well as the athlete's refresh or access token. Set
+`STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` before constructing the client,
+as described in the automatic token refresh setup above. Credentials passed
+to `exchange_code_for_token()` or `refresh_access_token()` are not stored for
+later calls. Missing credentials or the absence of both tokens raises
+`ValueError` before a request is sent.
+
+The method prefers the refresh token because Strava may not recognize an
+expired access token. If no refresh token is available, it uses the access
+token. It sends the matching `token_type_hint` without refreshing the token
+first and returns `None` on success. Revocation invalidates the associated
+access and refresh tokens on Strava. Discard your stored tokens after success;
+this method does not clear tokens held locally by the client or your application.
+
+The method name remains `deauthorize()`; applications that previously supplied
+only an access token must now also configure the client credentials.
+
 Congratulations! You now know how to authenticate with the Strava API using stravalib.

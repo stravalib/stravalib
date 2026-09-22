@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Change: Keep `Client.deauthorize()` and use Strava's `/oauth/revoke` endpoint with HTTP Basic authentication and a form-encoded token. Prefer the refresh token, falling back to the access token, and send the matching `token_type_hint`. Missing credentials or the absence of both tokens raises `ValueError`. Revocation does not refresh the token first (@mifuha, #738).
+
 ### Fixed
 - Fix: The `explore_segments` warning and docs now say that Strava restricted the endpoint to the Extended Access Tier on September 1, 2026. Before, they said that Strava restricts it on that date (@jsamoocha, #745)
 
@@ -9,6 +12,8 @@
 - Remove: `Client.get_club_members`, `Client.get_club_activities`, `Client.get_club_admins`, the `members` and `activities` properties of club objects, and `model.ClubActivity`. Strava removed the Club Members, Club Activities, and Club Admins endpoints on September 1, 2026 (@jsamoocha, #745)
 
 ### Breaking Changes
+`Client.deauthorize()` now requires `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` to be set before constructing the client; missing credentials raise `ValueError` (@mifuha, #738).
+
 Code that uses one of the removed methods, properties, or classes now fails
 with an `AttributeError`, or with an `ImportError` for
 `from stravalib.model import ClubActivity`. Before this release, calls to the

@@ -538,6 +538,58 @@ class ApiV3(metaclass=abc.ABCMeta):
 
         return access_info
 
+    def deauthorize(self) -> None:
+        """Revoke a refresh or access token using configured credentials.
+
+        Prefer the refresh token, falling back to the access token.
+
+        Raises
+        ------
+        ValueError
+            If application credentials are missing or neither token is set.
+        stravalib.exc.Fault
+            If revocation fails or returns an unexpected status.
+        """
+        if not self.client_id or not self.client_secret:
+            raise ValueError(
+                "Deauthorization requires STRAVA_CLIENT_ID and "
+                "STRAVA_CLIENT_SECRET to be set before creating the client."
+            )
+        if self.refresh_token:
+            data = {
+                "token": self.refresh_token,
+                "token_type_hint": "refresh_token",
+            }
+        elif self.access_token:
+            data = {
+                "token": self.access_token,
+                "token_type_hint": "access_token",
+            }
+        else:
+            raise ValueError(
+                "Deauthorization requires an access or refresh token."
+            )
+
+        url = f"https://{self.server}/oauth/revoke"
+        self.log.info("POST %r with params ['token', 'token_type_hint']", url)
+        # Bypass _request: revocation uses Basic auth, must not refresh the
+        # token, and returns an empty HTTP 200 rather than JSON. Keep auth
+        # on this request because photo uploads share the session.
+        response = self.rsession.post(
+            url,
+            auth=(str(self.client_id), self.client_secret),
+            data=data,
+            # Do not replay the token body to a redirected destination.
+            allow_redirects=False,
+        )
+        self._handle_protocol_error(response)
+        if response.status_code != 200:
+            raise exc.Fault(
+                "Unexpected status during deauthorization: "
+                f"{response.status_code}",
+                response=response,
+            )
+
     def resolve_url(self, url: str) -> str:
         """
 
