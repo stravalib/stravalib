@@ -1202,10 +1202,27 @@ def test_get_starred_segments(
         "/segments/starred",
         response_update={"name": "test_segment"},
         n_results=n_raw_results,
+        match=[matchers.query_param_matcher({"page": 1, "per_page": 200})],
     )
+    needs_terminal_page = n_raw_results > 0 and (
+        limit is None or n_raw_results < limit
+    )
+    if needs_terminal_page:
+        mock_strava_api.get(
+            "/segments/starred",
+            json=[],
+            match=[matchers.query_param_matcher({"page": 2, "per_page": 200})],
+        )
     kwargs = {"limit": limit} if limit is not None else {}
     segment_list = list(client.get_starred_segments(**kwargs))
     assert len(segment_list) == expected_n_segments
+    assert [
+        parse_qs(urlparse(call.request.url).query)
+        for call in mock_strava_api.calls
+    ] == [
+        {"page": [str(page)], "per_page": ["200"]}
+        for page in range(1, 3 if needs_terminal_page else 2)
+    ]
     if expected_n_segments > 0:
         assert isinstance(segment_list[0], SummarySegment)
         assert segment_list[0].name == "test_segment"
@@ -1238,11 +1255,29 @@ def test_get_athlete_clubs_iterator(mock_strava_api, client, n_clubs):
 
     # Create a mock instance with the club name update to my club
     mock_strava_api.get(
-        "/athlete/clubs", response_update={"name": "myclub"}, n_results=n_clubs
+        "/athlete/clubs",
+        response_update={"name": "myclub"},
+        n_results=n_clubs,
+        match=[matchers.query_param_matcher({"page": 1, "per_page": 200})],
     )
+    # A non-empty page is followed by an empty terminal page.
+    needs_terminal_page = n_clubs > 0
+    if needs_terminal_page:
+        mock_strava_api.get(
+            "/athlete/clubs",
+            json=[],
+            match=[matchers.query_param_matcher({"page": 2, "per_page": 200})],
+        )
     # Convert iterator to list
     clubs = list(client.get_athlete_clubs())
     assert len(clubs) == n_clubs
+    assert [
+        parse_qs(urlparse(call.request.url).query)
+        for call in mock_strava_api.calls
+    ] == [
+        {"page": [str(page)], "per_page": ["200"]}
+        for page in range(1, 3 if needs_terminal_page else 2)
+    ]
     if clubs:
         assert clubs[0].name == "myclub"
 
@@ -1610,11 +1645,21 @@ def test_get_activity_kudos(mock_strava_api, client):
         "/activities/{id}/kudos",
         response_update={"lastname": "Doe"},
         n_results=2,
+        match=[matchers.query_param_matcher({"page": 1, "per_page": 200})],
+    )
+    mock_strava_api.get(
+        "/activities/{id}/kudos",
+        json=[],
+        match=[matchers.query_param_matcher({"page": 2, "per_page": 200})],
     )
     kudoer_list = list(client.get_activity_kudos(42))
     assert isinstance(kudoer_list[0], SummaryAthlete)
     assert len(kudoer_list) == 2
     assert kudoer_list[0].lastname == "Doe"
+    assert [
+        parse_qs(urlparse(call.request.url).query)
+        for call in mock_strava_api.calls
+    ] == [{"page": [str(page)], "per_page": ["200"]} for page in range(1, 3)]
 
 
 @patch("stravalib.protocol.ApiV3.exchange_code_for_token")
