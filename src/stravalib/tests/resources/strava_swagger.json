@@ -104,6 +104,7 @@
             "examples": {
               "application/json": {
                 "id": 1234567890987654321,
+                "id_str": "1234567890987654321",
                 "username": "marianne_t",
                 "resource_state": 3,
                 "firstname": "Marianne",
@@ -464,11 +465,6 @@
                 "created_at": "2009-09-21T20:29:41Z",
                 "updated_at": "2018-02-15T09:04:18Z",
                 "total_elevation_gain": 155.733,
-                "map": {
-                  "id": "s229781",
-                  "polyline": "}g|eFnpqjVl@En@Md@HbAd@d@^h@Xx@VbARjBDh@OPQf@w@d@k@XKXDFPH\\EbGT`AV`@v@|@NTNb@?XOb@cAxAWLuE@eAFMBoAv@eBt@q@b@}@tAeAt@i@dAC`AFZj@dB?~@[h@MbAVn@b@b@\\d@Eh@Qb@_@d@eB|@c@h@WfBK|AMpA?VF\\\\t@f@t@h@j@|@b@hCb@b@XTd@Bl@GtA?jAL`ALp@Tr@RXd@Rx@Pn@^Zh@Tx@Zf@`@FTCzDy@f@Yx@m@n@Op@VJr@",
-                  "resource_state": 3
-                },
                 "effort_count": 309974,
                 "athlete_count": 30623,
                 "star_count": 2428,
@@ -938,6 +934,13 @@
             "required": false
           },
           {
+            "name": "visibility",
+            "in": "formData",
+            "description": "Set the activity's visibility to a more restrictive visibility setting (Followers Only or Only Me) by passing followers_only or only_me",
+            "type": "string",
+            "required": false
+          },
+          {
             "name": "tags",
             "in": "formData",
             "description": "Activity tags to set, sent as form fields keyed by tag name with a boolean value, e.g. `tags[WithPet]=true` (true adds, false removes). Supported tags: WithPet, Recovery, Competition, ForACause, Commute. Any other tag is rejected. This cannot be combined with the legacy commute param in the same request.",
@@ -1048,6 +1051,7 @@
             "examples": {
               "application/json": {
                 "id": 12345678987654321,
+                "id_str": "12345678987654321",
                 "resource_state": 3,
                 "external_id": "garmin_push_12345678987654321",
                 "upload_id": 98765432123456789,
@@ -1285,6 +1289,7 @@
             "examples": {
               "application/json": {
                 "id": 12345678987654321,
+                "id_str": "12345678987654321",
                 "resource_state": 3,
                 "external_id": "garmin_push_12345678987654321",
                 "upload_id": 98765432123456789,
@@ -1547,6 +1552,7 @@
                         "sport_type": "MountainBikeRide",
                         "workout_type": null,
                         "id": 154504250376823,
+                        "id_str": "154504250376823",
                         "external_id": "garmin_push_12345678987654321",
                         "upload_id": 987654321234567891234,
                         "start_date": "2018-05-02T12:15:09Z",
@@ -1607,6 +1613,7 @@
                         "sport_type": "MountainBikeRide",
                         "workout_type": null,
                         "id": 1234567809,
+                        "id_str": "1234567809",
                         "external_id": "garmin_push_12345678987654321",
                         "upload_id": 1234567819,
                         "start_date": "2018-04-30T12:35:51Z",
@@ -2252,6 +2259,13 @@
             "in": "formData",
             "description": "Whether the resulting activity should be tagged as a commute.",
             "type": "string"
+          },
+          {
+            "name": "visibility",
+            "in": "formData",
+            "description": "Set the activity's visibility to a more restrictive visibility setting (Followers Only or Only Me) by passing followers_only or only_me",
+            "type": "string",
+            "required": false
           },
           {
             "name": "tags",
