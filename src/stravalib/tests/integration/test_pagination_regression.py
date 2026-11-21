@@ -109,6 +109,53 @@ def test_public_activity_traversal(client, pages, limit, expected, requested):
         # iterator, so subsequent iteration is a new traversal (issue #19).
 
 
+PAGED_METHODS = [
+    ("get_athlete_clubs", (), "/athlete/clubs", model.SummaryClub),
+    (
+        "get_activity_kudos",
+        (42,),
+        "/activities/42/kudos",
+        model.SummaryAthlete,
+    ),
+    ("get_starred_segments", (), "/segments/starred", model.SummarySegment),
+    ("get_routes", (42,), "/athletes/42/routes", model.Route),
+]
+
+
+@pytest.mark.parametrize("method,args,path,entity", PAGED_METHODS)
+@pytest.mark.parametrize(
+    "pages,limit,expected,requested",
+    [
+        ([[1, 2], [3], []], None, [1, 2, 3], [1, 2, 3]),
+        ([[]], None, [], [1]),
+        ([list(range(1, 201)), []], None, list(range(1, 201)), [1, 2]),
+        ([[1], []], None, [1], [1, 2]),
+        ([list(range(1, 9))], 5, [1, 2, 3, 4, 5], [1]),
+        ([[1, 2], [3, 4, 5, 6]], 5, [1, 2, 3, 4, 5], [1, 2]),
+    ],
+    ids=[
+        "short-middle",
+        "empty-first",
+        "full-page-then-empty",
+        "empty-terminal-required",
+        "limit-inside-page",
+        "limit-spans-short-page",
+    ],
+)
+def test_paged_method_traversal(
+    client, method, args, path, entity, pages, limit, expected, requested
+):
+    """Numbered-page endpoints continue past short pages until an empty one."""
+    sequence = [(page, activities(ids)) for page, ids in enumerate(pages, 1)]
+    with http_pages(path, sequence) as (http, trace):
+        values = list(getattr(client, method)(*args, limit=limit))
+        assert [value.id for value in values] == expected
+        assert all(isinstance(value, entity) for value in values)
+        assert all(value.bound_client is client for value in values)
+        assert [int(query["page"][0]) for query in trace] == requested
+        assert len(http.calls) == len(requested)
+
+
 @pytest.mark.parametrize("first_size", [2, 200], ids=["short", "full"])
 def test_partial_consumption_does_not_prefetch(client, first_size):
     sequence = [
@@ -246,10 +293,6 @@ def test_iterable_fetcher_materialization(
 @pytest.mark.parametrize(
     "method,args,path,extra,payload",
     [
-        ("get_athlete_clubs", (), "/athlete/clubs", {}, {"id": 1}),
-        ("get_activity_kudos", (42,), "/activities/42/kudos", {}, {"id": 1}),
-        ("get_starred_segments", (), "/segments/starred", {}, {"id": 1}),
-        ("get_routes", (42,), "/athletes/42/routes", {}, {"id": 1}),
         (
             "get_activity_comments",
             (42,),

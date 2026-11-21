@@ -11,6 +11,7 @@
 
 ### Fixed
 - Fix: Keep fetching activities after a short page until an empty page or the requested limit is reached. Other iterator callers keep their existing behavior (@mifuha, #756).
+- Fix: Keep fetching `Client.get_athlete_clubs`, `Client.get_activity_kudos`, `Client.get_starred_segments`, and `Client.get_routes` results after a short page until an empty page or the requested limit is reached, as `Client.get_activities` does. A traversal that ends on a short, non-empty page now makes one more request, for the empty terminal page (@Arjun8242, #761).
 - Fix: Respect both overall and non-upload quotas when throttling API responses, while keeping activity creation and uploads exempt from non-upload limits. Preserve two-argument custom limiter callbacks (@mifuha, #758).
 - Fix: The `explore_segments` warning and docs now say that Strava restricted the endpoint to the Extended Access Tier on September 1, 2026. Before, they said that Strava restricts it on that date (@jsamoocha, #745)
 

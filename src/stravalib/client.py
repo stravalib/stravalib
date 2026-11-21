@@ -611,6 +611,7 @@ class Client:
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
+            stop_on_short_page=False,
         )
 
     def join_club(self, club_id: int) -> None:
@@ -1160,6 +1161,7 @@ class Client:
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
+            stop_on_short_page=False,
         )
 
     def get_activity_photos(
@@ -1336,6 +1338,7 @@ class Client:
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
+            stop_on_short_page=False,
         )
 
     def get_athlete_starred_segments(
@@ -1860,6 +1863,7 @@ class Client:
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
+            stop_on_short_page=False,
         )
 
     def get_route(self, route_id: int) -> model.Route:
