@@ -11,7 +11,7 @@ import collections
 import functools
 import logging
 import time
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from typing import (
@@ -878,6 +878,7 @@ class Client:
         gear_id: str | None = None,
         device_name: str | None = None,
         hide_from_home: bool | None = None,
+        tags: Mapping[str, bool] | strava_model.Tags | None = None,
     ) -> model.DetailedActivity:
         """Updates the properties of a specific activity.
 
@@ -901,7 +902,8 @@ class Client:
             This param is not supported by the Strava API and may be
             removed in the future.
         commute : bool, default=None
-            Whether the activity is a commute.
+            Whether the activity is a commute. Cannot be combined with
+            ``tags``; use the ``Commute`` tag instead.
         trainer : bool, default=None
             Whether this is a trainer activity.
         gear_id : str, default=None
@@ -915,10 +917,22 @@ class Client:
             removed in the future.
         hide_from_home : bool, default=None
             Whether the activity is muted (hidden from Home and Club feeds).
+        tags : Mapping[str, bool] or strava_model.Tags, default=None
+            The tags to add (``True``) or remove (``False``), keyed by tag
+            name: ``WithPet``, ``Recovery``, ``Competition``, ``ForACause``
+            or ``Commute``. Tags that are not given do not change. An
+            unsupported tag raises a ``pydantic.ValidationError`` before
+            the request is sent.
 
         Returns
         -------
             Updates the activity in the selected Strava account
+
+        Raises
+        ------
+        ValueError
+            If both ``tags`` and ``commute`` are given. The Strava API
+            spec does not allow both in the same request.
 
         Notes
         ------
@@ -932,6 +946,11 @@ class Client:
             warn_param_unsupported("private")
         if device_name is not None:
             warn_param_unsupported("device_name")
+        if tags is not None and commute is not None:
+            raise ValueError(
+                "tags and commute cannot be combined in the same request. "
+                'Set the commute tag with tags={"Commute": ...} instead.'
+            )
 
         # Build a typed payload that is sent as a JSON request body. Using
         # UpdatableActivity ensures values are serialized as proper JSON types
@@ -944,6 +963,11 @@ class Client:
             trainer=trainer,
             gear_id=gear_id,
             hide_from_home=hide_from_home,
+            tags=(
+                None
+                if tags is None
+                else strava_model.Tags.model_validate(tags)
+            ),
         ).model_dump(mode="json", exclude_none=True)
 
         # Validate sport and activity types, adding them to the payload
