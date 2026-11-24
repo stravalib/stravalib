@@ -266,6 +266,10 @@ class MetaAthlete(BaseModel):
     """
     The unique identifier of the athlete
     """
+    id_str: str | None = None
+    """
+    The unique identifier of the upload in string format
+    """
 
 
 class MetaClub(BaseModel):
@@ -603,6 +607,10 @@ class SummaryActivity(MetaActivity):
     """
     Whether the activity is muted
     """
+    id_str: str | None = None
+    """
+    The unique identifier of the upload in string format
+    """
     kilojoules: float | None = None
     """
     The total work done in kilojoules during this activity. Rides only
@@ -634,7 +642,7 @@ class SummaryActivity(MetaActivity):
     """
     photo_count: int | None = None
     """
-    The number of Instagram photos for this activity
+    Deprecated, use total_photo_count
     """
     private: bool | None = None
     """
@@ -671,7 +679,7 @@ class SummaryActivity(MetaActivity):
     """
     total_photo_count: int | None = None
     """
-    The number of Instagram and Strava photos for this activity
+    The number of media items (photo & video) attached to this activity
     """
     trainer: bool | None = None
     """
@@ -946,6 +954,10 @@ class UpdatableActivity(BaseModel):
     type: ActivityType | None = None
     """
     Deprecated. Prefer to use sport_type. In a request where both type and sport_type are present, this field will be ignored
+    """
+    visibility: str | None = None
+    """
+    The visibility of the activity. Can only be set to a more restrictive visibility setting than currently set on the activity (Followers Only or Only Me) by passing followers_only or only_me
     """
 
 
