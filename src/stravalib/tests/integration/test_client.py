@@ -7,6 +7,7 @@ from unittest import mock
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
+import pydantic
 import pytest
 import requests
 import responses
@@ -25,7 +26,7 @@ from stravalib.model import (
     SummaryAthlete,
     SummarySegment,
 )
-from stravalib.strava_model import SummaryActivity, Zones
+from stravalib.strava_model import SummaryActivity, Tags, Zones
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unit_helper import miles
 
@@ -711,6 +712,28 @@ def test_get_activity_streams_series_type_unofficial(mock_strava_api, client):
             {"name": "My awesome activity"},
             None,
             None,
+        ),
+        (
+            {"tags": {"WithPet": True, "Commute": False}},
+            {"tags": {"WithPet": True, "Commute": False}},
+            None,
+            None,
+        ),
+        (
+            {"tags": Tags(Recovery=True)},
+            {"tags": {"Recovery": True}},
+            None,
+            None,
+        ),
+        ({"tags": {}}, {"tags": {}}, None, None),
+        # Strava rejects unsupported tags, so they fail before the request
+        ({"tags": {"Unknown": True}}, {}, None, pydantic.ValidationError),
+        # Strava does not accept tags and commute in the same request
+        (
+            {"tags": {"WithPet": True}, "commute": True},
+            {},
+            None,
+            ValueError,
         ),
     ),
 )
